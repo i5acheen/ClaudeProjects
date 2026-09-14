@@ -1,0 +1,34 @@
+{
+  "name": "social-intel-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server exposing real-time social intelligence tools (Reddit, YouTube) for AI assistants",
+  "type": "module",
+  "main": "dist/server.js",
+  "bin": {
+    "social-intel-mcp-server": "dist/server.js"
+  },
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "tsx src/server.ts",
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "axios": "^1.7.9",
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

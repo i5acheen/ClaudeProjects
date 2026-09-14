@@ -5,3 +5,12 @@ dist/
 *.sqlite-journal
 *.log
 .DS_Store
+
+# complytrail (Next.js)
+.next/
+next-env.d.ts
+complytrail/prisma/dev.db
+complytrail/prisma/dev.db-journal
+complytrail/storage/evidence/*
+!complytrail/storage/evidence/.gitkeep
+!complytrail/storage/evidence/seed/

@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite has no native enum type, so the enum-shaped fields below (Role,
+// ControlCategory, ControlStatusValue, EvidenceType, PolicyDraftStatus) are
+// plain strings at the DB level. Their allowed values live as TypeScript
+// union types in src/lib/types.ts and are enforced at every write via zod.
+
+// v1 supports exactly one Company/workspace, but the schema stays
+// company-scoped throughout so a second workspace is a query change,
+// not a data migration.
+model Company {
+  id           String          @id @default(cuid())
+  name         String
+  auditDate    DateTime?
+  createdAt    DateTime        @default(now())
+  users        User[]
+  statuses     ControlStatus[]
+  evidence     Evidence[]
+  policyDrafts PolicyDraft[]
+}
+
+model User {
+  id               String          @id @default(cuid())
+  companyId        String
+  company          Company         @relation(fields: [companyId], references: [id])
+  name             String
+  email            String          @unique
+  passwordHash     String
+  role             String          @default("MEMBER") // "ADMIN" | "MEMBER"
+  createdAt        DateTime        @default(now())
+  ownedStatuses    ControlStatus[] @relation("ControlStatusOwner")
+  uploadedEvidence Evidence[]      @relation("EvidenceUploader")
+}
+
+// Global SOC 2 control catalog, seeded once. Not company-scoped —
+// ControlStatus below is the per-company state for each catalog row.
+model Control {
+  id           String          @id @default(cuid())
+  framework    String          @default("SOC2")
+  code         String          @unique
+  title        String
+  description  String
+  category     String // ONBOARDING | OFFBOARDING | ACCESS_REVIEW | TRAINING | POLICY
+  statuses     ControlStatus[]
+  evidence     Evidence[]
+  policyDrafts PolicyDraft[]
+}
+
+model ControlStatus {
+  id        String   @id @default(cuid())
+  controlId String
+  control   Control  @relation(fields: [controlId], references: [id])
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  status    String   @default("MISSING") // MISSING | IN_PROGRESS | EVIDENCE_ATTACHED
+  ownerId   String?
+  owner     User?    @relation("ControlStatusOwner", fields: [ownerId], references: [id])
+  updatedAt DateTime @updatedAt
+
+  @@unique([controlId, companyId])
+}
+
+model Evidence {
+  id           String   @id @default(cuid())
+  controlId    String
+  control      Control  @relation(fields: [controlId], references: [id])
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id])
+  type         String // FILE | LINK | NOTE
+  content      String
+  fileName     String?
+  mimeType     String?
+  uploadedById String
+  uploadedBy   User     @relation("EvidenceUploader", fields: [uploadedById], references: [id])
+  uploadedAt   DateTime @default(now())
+}
+
+model PolicyDraft {
+  id                   String   @id @default(cuid())
+  controlId            String
+  control              Control  @relation(fields: [controlId], references: [id])
+  companyId            String
+  company              Company  @relation(fields: [companyId], references: [id])
+  questionnaireAnswers String
+  generatedText        String
+  status               String   @default("DRAFT") // DRAFT | APPROVED
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([controlId, companyId])
+}

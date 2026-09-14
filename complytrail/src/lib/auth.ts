@@ -13,7 +13,14 @@ export type SessionPayload = {
 };
 
 function getSecretKey() {
-  const secret = process.env.AUTH_SECRET;
+  let secret = process.env.AUTH_SECRET;
+  if (!secret && process.env.VERCEL) {
+    // Quick-demo fallback only: a manually-deployed preview has no way to set
+    // platform env vars from here, and a bundled .env file isn't reliably
+    // loaded by the serverless function runtime. Never rely on this for a
+    // real deployment — set AUTH_SECRET explicitly instead.
+    secret = "complytrail-quick-demo-fallback-secret-do-not-use-in-production";
+  }
   if (!secret) {
     throw new Error(
       "AUTH_SECRET is not set. Copy .env.example to .env and set AUTH_SECRET (e.g. `openssl rand -base64 32`)."

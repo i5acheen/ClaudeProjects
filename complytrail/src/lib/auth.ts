@@ -14,7 +14,13 @@ export type SessionPayload = {
 
 function getSecretKey() {
   let secret = process.env.AUTH_SECRET;
-  if (!secret && process.env.VERCEL) {
+  const isServerlessDemo = !!(
+    process.env.VERCEL ||
+    process.env.VERCEL_ENV ||
+    process.env.LAMBDA_TASK_ROOT ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME
+  );
+  if (!secret && isServerlessDemo) {
     // Quick-demo fallback only: a manually-deployed preview has no way to set
     // platform env vars from here, and a bundled .env file isn't reliably
     // loaded by the serverless function runtime. Never rely on this for a

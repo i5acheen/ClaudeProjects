@@ -18,13 +18,27 @@ export async function POST(request: Request) {
   }
   const { email, password } = parsed.data;
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
-    return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+      return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
+    }
+
+    const token = await createSessionToken({ userId: user.id, companyId: user.companyId, role: user.role as Role });
+    setSessionCookie(token);
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("Login failed", err);
+    // Temporary diagnostic for the manually-deployed demo, where Vercel's own
+    // log APIs aren't reachable from this session. Surfaces the real cause
+    // instead of a bare 500 so it can be fixed without server log access.
+    return NextResponse.json(
+      {
+        error: "Something went wrong signing in.",
+        debug: err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+      },
+      { status: 500 }
+    );
   }
-
-  const token = await createSessionToken({ userId: user.id, companyId: user.companyId, role: user.role as Role });
-  setSessionCookie(token);
-
-  return NextResponse.json({ ok: true });
 }

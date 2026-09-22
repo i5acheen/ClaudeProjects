@@ -10,7 +10,16 @@ import { runSeed } from "@/lib/seed-data";
 // This only matters for the "quick demo" deployment path — a real
 // deployment of this app should use a hosted Postgres and blob storage
 // instead, at which point none of this file is needed.
-export const IS_SERVERLESS_READONLY = !!process.env.VERCEL;
+// Check multiple signals, not just VERCEL=1 — Vercel only auto-exposes its own
+// System Environment Variables to the runtime when a project setting is on,
+// but LAMBDA_TASK_ROOT/AWS_LAMBDA_FUNCTION_NAME are raw AWS Lambda variables
+// present in every Lambda invocation regardless of that setting.
+export const IS_SERVERLESS_READONLY = !!(
+  process.env.VERCEL ||
+  process.env.VERCEL_ENV ||
+  process.env.LAMBDA_TASK_ROOT ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME
+);
 
 export const RUNTIME_DB_PATH = IS_SERVERLESS_READONLY ? "/tmp/dev.db" : undefined;
 export const RUNTIME_EVIDENCE_ROOT = IS_SERVERLESS_READONLY ? "/tmp/evidence" : undefined;
@@ -90,7 +99,15 @@ let initPromise: Promise<void> | null = null;
 /** Creates the schema and seeds /tmp/dev.db on first use of a fresh serverless instance. No-op locally. */
 export function ensureRuntimeDatabase(prisma: PrismaClient): Promise<void> {
   if (!IS_SERVERLESS_READONLY) return Promise.resolve();
-  if (!initPromise) initPromise = doInit(prisma);
+  if (!initPromise) {
+    initPromise = doInit(prisma).catch((err) => {
+      // Don't cache a failed init — let the next request retry instead of
+      // permanently wedging this warm instance.
+      initPromise = null;
+      console.error("ComplyTrail: runtime database init failed", err);
+      throw err;
+    });
+  }
   return initPromise;
 }
 

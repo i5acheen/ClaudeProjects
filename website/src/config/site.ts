@@ -75,7 +75,7 @@ export const seo = {
 // ---------------------------------------------------------------------------
 export const form = {
   provider: "web3forms" as "web3forms" | "formspree",
-  web3formsAccessKey: "[YOUR_WEB3FORMS_ACCESS_KEY]",
+  web3formsAccessKey: "17953a73-9537-4ee5-94f2-0d5fda1f65c5",
   formspreeEndpoint: "https://formspree.io/f/[YOUR_FORM_ID]",
   /** Subject line of the email you receive */
   emailSubject: "New website enquiry",

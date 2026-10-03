@@ -53,27 +53,24 @@ import { hero, whatsappLink, bookingLink } from "../config/site";
           </div>
         </div>
         <div class="space-y-3 p-4 text-[0.92rem] leading-snug">
-          <p class="mr-10 rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 shadow-sm">
-            Hi, are you open on Sunday? How much for a consultation?
-            <span class="mt-1 block text-right text-[0.7rem] text-muted">11:42 pm</span>
-          </p>
-          <p class="ml-8 rounded-2xl rounded-tr-sm bg-[#d9fdd3] px-3.5 py-2.5 shadow-sm">
-            Hi! 👋 Yes, we're open Sunday 10 am – 2 pm. A consultation is ₹500. Shall I book a slot for you?
-            <span class="mt-1 flex items-center justify-end gap-1 text-[0.7rem] text-muted">11:42 pm <Icon name="CheckCheck" class="size-3.5 text-sky-600" /></span>
-          </p>
-          <p class="mr-16 rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 shadow-sm">
-            Yes, 11 am please
-            <span class="mt-1 block text-right text-[0.7rem] text-muted">11:43 pm</span>
-          </p>
-          <p class="ml-8 rounded-2xl rounded-tr-sm bg-[#d9fdd3] px-3.5 py-2.5 shadow-sm">
-            Done ✅ You're booked for Sunday, 11 am. I'll send you a reminder that morning.
-            <span class="mt-1 flex items-center justify-end gap-1 text-[0.7rem] text-muted">11:43 pm <Icon name="CheckCheck" class="size-3.5 text-sky-600" /></span>
-          </p>
+          {hero.chatExample.messages.map((m, i) =>
+            m.from === "bot" ? (
+              <p class="ml-8 rounded-2xl rounded-tr-sm bg-[#d9fdd3] px-3.5 py-2.5 shadow-sm">
+                {m.text}
+                <span class="mt-1 flex items-center justify-end gap-1 text-[0.7rem] text-muted">{m.time} <Icon name="CheckCheck" class="size-3.5 text-sky-600" /></span>
+              </p>
+            ) : (
+              <p class:list={["rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 shadow-sm", i === 0 ? "mr-10" : "mr-16"]}>
+                {m.text}
+                <span class="mt-1 block text-right text-[0.7rem] text-muted">{m.time}</span>
+              </p>
+            ),
+          )}
         </div>
       </div>
       </div>
       <figcaption class="relative mt-6 text-center text-sm text-muted">
-        Example of an automatic WhatsApp reply, sent late at night while you are off duty.
+        {hero.chatExample.caption}
       </figcaption>
     </figure>
   </div>

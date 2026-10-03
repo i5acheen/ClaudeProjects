@@ -103,6 +103,16 @@ export const hero = {
   primaryCta: "Chat on WhatsApp",
   secondaryCta: "Book a free 20-min call",
   reassurance: ["No technical knowledge needed", "Fixed-price quotes", "Works with WhatsApp & Google Sheets"],
+  /** Illustrative chat shown in the hero (clearly captioned as an example). from: "customer" | "bot" */
+  chatExample: {
+    caption: "Example of an automatic WhatsApp reply, sent late at night while you are off duty.",
+    messages: [
+      { from: "customer", time: "11:42 pm", text: "Hi, are you open on Sunday? How much for a consultation?" },
+      { from: "bot", time: "11:42 pm", text: "Hi! 👋 Yes, we're open Sunday 10 am – 2 pm. A consultation is ₹500. Shall I book a slot for you?" },
+      { from: "customer", time: "11:43 pm", text: "Yes, 11 am please" },
+      { from: "bot", time: "11:43 pm", text: "Done ✅ You're booked for Sunday, 11 am. I'll send you a reminder that morning." },
+    ],
+  },
 };
 
 export const problems = {

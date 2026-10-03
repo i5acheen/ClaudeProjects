@@ -45,7 +45,7 @@ Things you can change there:
 | `business`           | Name, WhatsApp number, email, booking link, pre-filled WhatsApp message |
 | `seo`                | Your domain, page title, Google description, keywords            |
 | `form`               | Enquiry-form service and key                                      |
-| `hero` … `footer`    | Every heading, card, step, FAQ and button label on the page      |
+| `hero` … `footer`    | Every heading, card, step, FAQ, button label and the example chat in the hero |
 | `privacy`            | Privacy Policy date, retention period                            |
 
 **Icons:** the `icon:` values are Lucide icon names. Browse [lucide.dev/icons](https://lucide.dev/icons), then use the name in PascalCase (e.g. `calendar-check` → `"CalendarCheck"`).

@@ -47,13 +47,25 @@ export async function POST(request: Request) {
     role = "MEMBER";
   }
 
-  const passwordHash = await hashPassword(password);
-  const user = await prisma.user.create({
-    data: { companyId, name, email, passwordHash, role },
-  });
+  try {
+    const passwordHash = await hashPassword(password);
+    const user = await prisma.user.create({
+      data: { companyId, name, email, passwordHash, role },
+    });
 
-  const token = await createSessionToken({ userId: user.id, companyId, role });
-  setSessionCookie(token);
+    const token = await createSessionToken({ userId: user.id, companyId, role });
+    setSessionCookie(token);
 
-  return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("Registration failed", err);
+    // Same temporary diagnostic as /api/auth/login — see that file for why.
+    return NextResponse.json(
+      {
+        error: "Something went wrong creating your account.",
+        debug: err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+      },
+      { status: 500 }
+    );
+  }
 }

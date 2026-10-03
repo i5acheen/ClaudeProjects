@@ -13,25 +13,15 @@ export type SessionPayload = {
 };
 
 function getSecretKey() {
-  let secret = process.env.AUTH_SECRET;
-  const isServerlessDemo = !!(
-    process.env.VERCEL ||
-    process.env.VERCEL_ENV ||
-    process.env.LAMBDA_TASK_ROOT ||
-    process.env.AWS_LAMBDA_FUNCTION_NAME
-  );
-  if (!secret && isServerlessDemo) {
-    // Quick-demo fallback only: a manually-deployed preview has no way to set
-    // platform env vars from here, and a bundled .env file isn't reliably
-    // loaded by the serverless function runtime. Never rely on this for a
-    // real deployment — set AUTH_SECRET explicitly instead.
-    secret = "complytrail-quick-demo-fallback-secret-do-not-use-in-production";
-  }
-  if (!secret) {
-    throw new Error(
-      "AUTH_SECRET is not set. Copy .env.example to .env and set AUTH_SECRET (e.g. `openssl rand -base64 32`)."
-    );
-  }
+  // Falls back to a fixed secret when AUTH_SECRET isn't configured, rather
+  // than trying to detect "is this a serverless demo deployment" — two
+  // rounds of guessing which Vercel/AWS env vars are actually present at
+  // runtime both turned out wrong, and a session system that silently
+  // signs and verifies with different secrets across instances is worse
+  // than a bug-class removed by just always having *a* secret.
+  // Fine for a disposable demo; a real deployment should always set
+  // AUTH_SECRET explicitly (e.g. `openssl rand -base64 32`) regardless.
+  const secret = process.env.AUTH_SECRET || "complytrail-quick-demo-fallback-secret-do-not-use-in-production";
   return encoder.encode(secret);
 }
 

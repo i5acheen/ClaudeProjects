@@ -39,7 +39,7 @@ export default function RegisterPage() {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "Something went wrong.");
+        setError(data.debug ? `${data.error ?? "Something went wrong."} (${data.debug})` : data.error ?? "Something went wrong.");
         return;
       }
       router.push("/");

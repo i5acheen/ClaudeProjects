@@ -13,7 +13,7 @@
 
 - Interventional Radiologist, Vascular Ultrasound with Doppler Specialist, and Vascular & Endovascular Surgeon in Aurangabad.
 - Experience: 9+ years in Interventional Radiology, Vascular Ultrasound with Doppler, and Endovascular & Vascular Surgery.
-- Has treated **5000+ patients** (per clinic owner; the website still shows the older figure of 1000+ cases).
+- Has treated **1000+ patients**, from routine to complex cases (per website).
 - Uses minimally invasive techniques (endovascular treatment) to treat vascular diseases.
 
 ### Qualifications
@@ -72,7 +72,7 @@
 
 ## 2b. Why patients choose Dr. Lahoti (use these to build trust; all from the website or owner)
 - **Specialist focus:** a Varicose Veins Specialist and Endovascular Surgeon, with 9+ years in Interventional Radiology, Vascular Doppler and Endovascular & Vascular Surgery.
-- **Experience:** 5000+ patients treated, from routine to complex cases.
+- **Experience:** 1000+ patients treated, from routine to complex cases.
 - **Government scheme assistance:** the clinic helps eligible patients get treatment under government health schemes. Specific schemes and eligibility: [TO BE FILLED]. Until then, say the clinic team will check eligibility and guide them on the call.
 - **Strong training:** MBBS (Nair Hospital, Mumbai), MD Radiology (Nagpur), Vascular & Interventional Radiology (Sion Hospital, Mumbai), Chemoembolization training at Tata Memorial Hospital. Selected for an international observership fellowship at Johns Hopkins Hospital, USA (2020).
 - **Modern, minimally invasive treatment:** Endovenous LASER, VenaSeal™ glue and MOCA. Done through a small puncture, with no big cut or stitches.

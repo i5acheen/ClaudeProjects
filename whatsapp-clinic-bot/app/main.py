@@ -100,7 +100,9 @@ async def receive_webhook(request: Request, background: BackgroundTasks):
         return Response(status_code=200)
 
     db: Database = request.app.state.db
-    for msg in parse_messages(payload):          # status updates produce no messages
+    messages = parse_messages(payload)
+    log.info("Webhook received: %d message(s)", len(messages))
+    for msg in messages:          # status updates produce no messages
         if not db.mark_processed(msg.message_id):  # Meta retries → skip duplicates
             log.info("Duplicate message %s ignored", msg.message_id)
             continue

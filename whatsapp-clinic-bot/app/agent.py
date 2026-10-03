@@ -92,6 +92,7 @@ class Agent:
                 log.exception("Failed to handle message %s", msg.message_id)
 
     async def _handle(self, msg: IncomingMessage) -> None:
+        log.info("Handling %s message from ...%s", msg.type, msg.phone[-4:])
         lead = self.db.get_lead(msg.phone)
 
         if msg.type != "text" or not (msg.text or "").strip():
@@ -115,6 +116,7 @@ class Agent:
         reply = turn.reply.strip() or self.fallback_reply()
         if await self.sender.send_text(msg.phone, reply):
             self.db.add_message(msg.phone, "assistant", reply)
+            log.info("Replied to ...%s (status=%s)", msg.phone[-4:], turn.lead.status)
 
         new_data = merge_lead(lead["data"], turn.lead.model_dump())
         confirmed = lead["details_confirmed"] or turn.details_confirmed

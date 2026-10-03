@@ -5,31 +5,20 @@ import { ph } from "../lib/text";
 ---
 
 <section id="about" class="section" aria-labelledby="about-title">
-  <div class="container-x grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-    <div class="relative mx-auto w-full max-w-xs" data-reveal>
-      <div class="absolute -inset-3 rotate-3 rounded-[2rem] bg-saffron-400"></div>
-      {about.photo ? (
-        <img src={about.photo} alt="Portrait of the founder" width="600" height="750" loading="lazy" decoding="async" class="relative aspect-[4/5] w-full rounded-[1.75rem] object-cover shadow-xl" />
-      ) : (
-        <div class="relative flex aspect-[4/5] w-full flex-col items-center justify-center gap-3 rounded-[1.75rem] border-2 border-dashed border-teal-600 bg-teal-50 p-6 text-center shadow-xl">
-          <Icon name="UserRound" class="size-16 text-teal-600" strokeWidth={1.5} />
-          <mark class="placeholder">[ADD YOUR PHOTO]</mark>
-          <span class="text-sm text-muted">A friendly, well-lit photo builds trust.</span>
-        </div>
-      )}
-    </div>
+  <div class="container-x grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
     <div data-reveal>
       <p class="eyebrow">About</p>
       <h2 id="about-title" class="h2 mt-2" set:html={ph(about.title)} />
       {about.paragraphs.map((p) => <p class="lead" set:html={ph(p)} />)}
-      <ul class="mt-8 grid gap-3 sm:grid-cols-2">
-        {about.credentials.map((c) => (
-          <li class="flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 font-medium text-teal-800">
-            <Icon name={c.icon} class="size-5 shrink-0 text-saffron-700" />
-            {c.label}
-          </li>
-        ))}
-      </ul>
     </div>
+    <ul class="grid gap-4 sm:grid-cols-2" data-reveal>
+      {about.values.map((v) => (
+        <li class="card">
+          <span class="flex size-11 items-center justify-center rounded-xl bg-saffron-100 text-saffron-700"><Icon name={v.icon} class="size-5" /></span>
+          <h3 class="mt-4 text-lg font-semibold text-teal-800">{v.title}</h3>
+          <p class="mt-1 leading-relaxed text-muted">{v.text}</p>
+        </li>
+      ))}
+    </ul>
   </div>
 </section>

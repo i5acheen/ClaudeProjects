@@ -293,19 +293,16 @@ export const pricing = {
 };
 
 export const about = {
-  title: `Hi, I'm ${business.owner}`,
-  /** Put your photo in /public (e.g. /public/photo.jpg) and set "/photo.jpg". Leave "" for a placeholder. */
-  photo: "",
+  title: `About ${business.name}`,
   paragraphs: [
-    "I spent around six years in HR and business operations at multinational companies, working with enterprise systems like Workday, SAP SuccessFactors and Oracle HCM. That's where I learned how processes really run day to day, and how much of the work is repetitive.",
-    "As a Six Sigma Green Belt with an MBA, I look at your process first and the technology second. Today I build AI agents and automations, including WhatsApp bots, Microsoft Copilot Studio agents and workflow automations, for small and medium businesses in Pune and across India.",
+    `${business.name} builds simple AI workflows and automations for small and medium businesses in Pune and across India: WhatsApp bots, automatic follow-ups, form-to-sheet pipelines, and HR & admin automation.`,
+    "We look at your process first and the technology second. The goal is never “more AI”. It's fewer missed enquiries, fewer repetitive tasks, and more time for the work that actually grows your business.",
   ],
-  credentials: [
-    { icon: "Briefcase", label: "~6 years in HR & business operations at MNCs" },
-    { icon: "Award", label: "Six Sigma Green Belt" },
-    { icon: "GraduationCap", label: "MBA" },
-    { icon: "Layers", label: "Workday · SAP SuccessFactors · Oracle HCM" },
-    { icon: "MapPin", label: "Based in Pune, Maharashtra" },
+  values: [
+    { icon: "Workflow", title: "Process first", text: "We understand how your business runs today before we suggest anything." },
+    { icon: "Plug", title: "Uses your existing tools", text: "WhatsApp, Google Sheets, Excel, Microsoft 365. No need to switch systems." },
+    { icon: "FileText", title: "Plain English, fixed prices", text: "A one-page scope and a clear price before any work starts." },
+    { icon: "MapPin", title: "Pune-based, India-wide", text: "Meet in person in Pune, or work together remotely from anywhere in India." },
   ],
 };
 

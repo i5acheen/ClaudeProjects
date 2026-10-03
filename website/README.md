@@ -50,8 +50,6 @@ Things you can change there:
 
 **Icons:** the `icon:` values are Lucide icon names. Browse [lucide.dev/icons](https://lucide.dev/icons), then use the name in PascalCase (e.g. `calendar-check` → `"CalendarCheck"`).
 
-**Your photo:** put a portrait (around 600×750 px, JPG) in `website/public/`, e.g. `public/photo.jpg`, and set `about.photo: "/photo.jpg"`.
-
 **Demo videos:** upload to YouTube (it can be "Unlisted"), copy the ID from the URL (`youtube.com/watch?v=`**`AbC123xyz`**) and paste it into `proof.videos[].id`. Videos only load when a visitor taps play, so they don't slow the page.
 
 **Social-share image:** `public/og-image.png` (1200×630) is shown when your link is shared on WhatsApp, LinkedIn etc. It contains no business name, so it works as-is, but you can replace it with your own.
@@ -171,11 +169,10 @@ Everything below is in `src/config/site.ts` unless noted.
 - [ ] `form.web3formsAccessKey` (or the Formspree endpoint), then send a test enquiry
 - [ ] `contact.intro`: your typical response time
 - [ ] FAQ answers: fill in tools/platforms, data-safety specifics, typical timelines, post-launch fix period, and read every answer to confirm it matches how you actually work
-- [ ] About text: check it reads true to you
+- [ ] About text (business-focused): check it reads true to you
 - [ ] Privacy Policy: `privacy.lastUpdated`, `privacy.retentionPeriod`; read the whole policy; then remove the yellow "TEMPLATE" box at the top of `src/pages/privacy.astro`
 
 **Add when you have them (never invent these)**
-- [ ] `about.photo`: your photo
 - [ ] `proof.videos`: YouTube IDs for demo videos
 - [ ] `proof.caseStudy`: one real case study, with the client's permission
 - [ ] `proof.testimonial`: one real testimonial, with the client's permission

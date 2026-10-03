@@ -112,3 +112,13 @@ def test_format_for_whatsapp_splits_long_paragraphs_only():
     out = format_for_whatsapp(long)
     assert "\n" in out and "https://www.youtube.com/@x." in out
     assert format_for_whatsapp("line one\nline two " + "x" * 200).count("\n") == 1
+
+
+def test_format_keeps_doctor_title_together():
+    from app.agent import format_for_whatsapp
+
+    text = ("नमस्कार 🙏 डॉ. अमोल लाहोटी यांच्या क्लिनिकमध्ये आपलं स्वागत आहे. "
+            "सरांनी 5000+ रुग्णांवर उपचार केले आहेत आणि त्यांना 9+ वर्षांचा अनुभव आहे. "
+            "Dr. Lahoti helps. तुम्हाला कोणता त्रास होत आहे?")
+    out = format_for_whatsapp(text)
+    assert "डॉ. अमोल" in out and "Dr. Lahoti" in out and out.count("\n") == 3

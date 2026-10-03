@@ -56,12 +56,22 @@ def build_system_instruction(lead: dict, first_reply: bool) -> str:
     )
 
 
+_ABBREVIATIONS = ("डॉ.", "Dr.", "dr.", "Mr.", "Mrs.", "Ms.", "No.", "St.", "vs.", "सौ.", "श्री.", "कु.")
+
+
 def format_for_whatsapp(text: str) -> str:
     """Break a long single-paragraph reply into short lines, one sentence per line."""
     text = text.strip()
     if "\n" in text or len(text) < 160:
         return text
-    return re.sub(r"([.?!।])\s+(?=\S)", r"\1\n", text)
+
+    def split(m: re.Match) -> str:
+        before = text[:m.start() + 1]
+        if before.endswith(_ABBREVIATIONS):  # e.g. "डॉ. अमोल" must stay together
+            return m.group(0)
+        return m.group(1) + "\n"
+
+    return re.sub(r"([.?!।])\s+(?=\S)", split, text)
 
 
 def merge_lead(old: dict, new: dict) -> dict:

@@ -101,3 +101,14 @@ def test_gemini_falls_back_to_next_model_on_overload():
     llm._client = type("C", (), {"aio": type("A", (), {"models": FakeModels()})()})()
     turn = run(llm.generate("sys", [{"role": "user", "content": "hi"}]))
     assert turn.reply == "ok" and calls == ["busy-model", "good-model"]
+
+
+def test_format_for_whatsapp_splits_long_paragraphs_only():
+    from app.agent import format_for_whatsapp
+
+    short = "नमस्कार! कसे आहात?"
+    assert format_for_whatsapp(short) == short
+    long = ("हा पहिला वाक्य आहे आणि तो बराच मोठा आहे. " * 3) + "पहा https://www.youtube.com/@x. तुमचे नाव काय?"
+    out = format_for_whatsapp(long)
+    assert "\n" in out and "https://www.youtube.com/@x." in out
+    assert format_for_whatsapp("line one\nline two " + "x" * 200).count("\n") == 1

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from collections import defaultdict
 from pathlib import Path
 from typing import Protocol
@@ -46,7 +47,6 @@ def build_system_instruction(lead: dict, first_reply: bool) -> str:
     context = {
         "first_reply": first_reply,
         "whatsapp_profile_name": lead.get("profile_name"),
-        "known_language": lead.get("language"),
         "current_lead_details": {k: lead["data"].get(k) for k in LEAD_FIELDS},
         "details_already_confirmed": lead.get("details_confirmed", False),
     }
@@ -54,6 +54,14 @@ def build_system_instruction(lead: dict, first_reply: bool) -> str:
         f"{prompt}\n\n---\n# Clinic knowledge\n{knowledge}\n\n---\n"
         f"# Context for this conversation\n```json\n{json.dumps(context, ensure_ascii=False, indent=2)}\n```"
     )
+
+
+def format_for_whatsapp(text: str) -> str:
+    """Break a long single-paragraph reply into short lines, one sentence per line."""
+    text = text.strip()
+    if "\n" in text or len(text) < 160:
+        return text
+    return re.sub(r"([.?!।])\s+(?=\S)", r"\1\n", text)
 
 
 def merge_lead(old: dict, new: dict) -> dict:
@@ -113,7 +121,7 @@ class Agent:
             await self.sender.send_text(msg.phone, self.fallback_reply())
             return
 
-        reply = turn.reply.strip() or self.fallback_reply()
+        reply = format_for_whatsapp(turn.reply) or self.fallback_reply()
         if await self.sender.send_text(msg.phone, reply):
             self.db.add_message(msg.phone, "assistant", reply)
             log.info("Replied to ...%s (status=%s)", msg.phone[-4:], turn.lead.status)

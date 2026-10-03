@@ -13,7 +13,7 @@
 
 - Interventional Radiologist, Vascular Ultrasound with Doppler Specialist, and Vascular & Endovascular Surgeon in Aurangabad.
 - Experience: 9+ years in Interventional Radiology, Vascular Ultrasound with Doppler, and Endovascular & Vascular Surgery.
-- Has treated more than 1000 varicose vein and endovascular cases, from routine to complex (per website).
+- Has treated **5000+ patients** (per clinic owner; the website still shows the older figure of 1000+ cases).
 - Uses minimally invasive techniques (endovascular treatment) to treat vascular diseases.
 
 ### Qualifications
@@ -72,14 +72,15 @@
 
 ## 2b. Why patients choose Dr. Lahoti (use these to build trust; all from the website or owner)
 - **Specialist focus:** a Varicose Veins Specialist and Endovascular Surgeon, with 9+ years in Interventional Radiology, Vascular Doppler and Endovascular & Vascular Surgery.
-- **Experience:** more than 1000 varicose vein and endovascular cases treated, from routine to complex.
+- **Experience:** 5000+ patients treated, from routine to complex cases.
+- **Government scheme assistance:** the clinic helps eligible patients get treatment under government health schemes. Specific schemes and eligibility: [TO BE FILLED]. Until then, say the clinic team will check eligibility and guide them on the call.
 - **Strong training:** MBBS (Nair Hospital, Mumbai), MD Radiology (Nagpur), Vascular & Interventional Radiology (Sion Hospital, Mumbai), Chemoembolization training at Tata Memorial Hospital. Selected for an international observership fellowship at Johns Hopkins Hospital, USA (2020).
 - **Modern, minimally invasive treatment:** Endovenous LASER, VenaSeal™ glue and MOCA. Done through a small puncture, with no big cut or stitches.
 - **Day-care:** most patients walk home the same day or the next day and resume daily activities. No bed rest needed.
 - **Colour Doppler included:** the consultation fee covers both the examination and the Colour Doppler test, so there is no separate charge (per website). **[CONFIRM]**
 - **Insurance:** most health insurance policies cover varicose vein treatment (per website).
 - **Patient feedback:** rated "Excellent" on Google. Patients mention successful laser treatment, feeling better after treatment, clear explanations, and no hidden or extra charges.
-- **Learn more:** Dr. Lahoti's YouTube channel "Healthy Legs for Healthy Life": https://www.youtube.com/@healthylegsforhealthylifeb6496
+- **YouTube channel "Healthy Legs for Healthy Life"** (Dr. Lahoti explains leg and vein problems and their treatment): https://www.youtube.com/@healthylegsforhealthylifeb6496
 - **Why not wait (from website):** patients who get treated early are more likely to avoid complications and progression. Varicose veins left untreated can lead to swelling, night pain, cramps, skin colour changes and bleeding.
 
 ---
@@ -168,6 +169,9 @@ A: According to the website, varicose vein laser treatment is roughly ₹60,000 
 
 **Q: Is it covered by insurance?**
 A: The website says most health insurance policies cover varicose vein treatment. Our team can guide you on your specific policy.
+
+**Q: Can I get help under a government scheme?**
+A: Yes. The clinic helps eligible patients get treatment under government health schemes. The clinic team will check your eligibility and guide you on the documents. (Specific schemes: [TO BE FILLED])
 
 **Q: Will the varicose veins come back?**
 A: Many patients need no further treatment after laser. Lifestyle changes and compression stockings keep the chance of recurrence low.

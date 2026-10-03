@@ -56,7 +56,7 @@ def load_settings() -> Settings:
         phone_number_id=env("PHONE_NUMBER_ID", ""),
         verify_token=env("VERIFY_TOKEN", ""),
         app_secret=env("APP_SECRET", ""),
-        graph_api_version=env("GRAPH_API_VERSION", "v23.0"),
+        graph_api_version=env("GRAPH_API_VERSION", "v26.0"),
         gemini_api_key=env("GEMINI_API_KEY", ""),
         gemini_model=env("GEMINI_MODEL", "gemini-3.8-flash"),
         google_service_account_file=_resolve(

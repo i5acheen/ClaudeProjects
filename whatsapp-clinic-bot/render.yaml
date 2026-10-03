@@ -26,7 +26,7 @@ services:
       - key: GEMINI_MODEL
         value: gemini-3.8-flash
       - key: GRAPH_API_VERSION
-        value: v23.0
+        value: v26.0
       # Upload the service-account JSON as a Render "Secret File" named service_account.json
       - key: GOOGLE_SERVICE_ACCOUNT_FILE
         value: /etc/secrets/service_account.json

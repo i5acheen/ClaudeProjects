@@ -61,7 +61,7 @@ def load_settings() -> Settings:
         gemini_api_key=env("GEMINI_API_KEY", ""),
         gemini_model=env("GEMINI_MODEL", "gemini-3.5-flash"),
         gemini_fallback_models=[m.strip() for m in env(
-            "GEMINI_FALLBACK_MODELS", "gemini-3.1-flash-lite,gemini-3.8-flash").split(",")],
+            "GEMINI_FALLBACK_MODELS", "gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.8-flash").split(",")],
         google_service_account_file=_resolve(
             env("GOOGLE_SERVICE_ACCOUNT_FILE", "credentials/service_account.json")
         ),

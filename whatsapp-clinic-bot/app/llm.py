@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Literal, Optional
 
@@ -66,7 +67,10 @@ class GeminiLLM:
             temperature=0.4,
         )
         last_exc: Exception | None = None
-        for model in self._models:
+        attempts = [(m, 0) for m in self._models] + [(m, 1) for m in self._models]
+        for i, (model, round_) in enumerate(attempts):
+            if round_ == 1 and attempts[i - 1][1] == 0:
+                await asyncio.sleep(3)  # brief pause before retrying the chain (per-minute limits)
             try:
                 resp = await self._client.aio.models.generate_content(
                     model=model, contents=contents, config=config)

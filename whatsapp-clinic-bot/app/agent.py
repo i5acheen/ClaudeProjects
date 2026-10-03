@@ -108,8 +108,8 @@ class Agent:
 
         try:
             turn = await self.llm.generate(system, history)
-        except Exception:
-            log.exception("Gemini call failed")
+        except Exception as exc:
+            log.error("Gemini call failed: %s: %s", type(exc).__name__, str(exc)[:500])
             await self.sender.send_text(msg.phone, self.fallback_reply())
             return
 

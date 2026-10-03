@@ -59,6 +59,23 @@ async def health() -> dict:
     return {"ok": True}
 
 
+@app.get("/diag/gemini")
+async def diag_gemini(token: str = ""):
+    """Test the Gemini connection. Protected by VERIFY_TOKEN; never returns secrets."""
+    if not token or token != settings.verify_token:
+        return Response(status_code=403)
+    from google import genai
+
+    client = genai.Client(api_key=settings.gemini_api_key)
+    try:
+        resp = await client.aio.models.generate_content(model=settings.gemini_model, contents="Say OK")
+        return {"ok": True, "model": settings.gemini_model, "reply": (resp.text or "")[:50]}
+    except Exception as exc:  # report the error type/message to help debugging
+        return {"ok": False, "model": settings.gemini_model,
+                "key_prefix": settings.gemini_api_key[:3],
+                "error": f"{type(exc).__name__}: {str(exc)[:600]}"}
+
+
 @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
 async def home():
     return pages.HOME

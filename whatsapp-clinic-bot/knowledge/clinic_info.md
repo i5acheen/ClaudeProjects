@@ -36,6 +36,9 @@
 - **Clinic name:** The Vascular Center
 - **Address (from website Contact page):** Century Multispeciality Hospital, opposite Central Bus Stand Road, behind Hotel Ajinkya, Kotwalpura, Chhatrapati Sambhajinagar (Aurangabad), Maharashtra 431003
   - Note: the website footer gives the PIN as 431001 and the Contact page gives 431003. **[CONFIRM correct PIN]**
+  - Landmarks: opposite Central Bus Stand, behind Hotel Ajinkya, Kotwalpura.
+- **Google Maps (Century Multispeciality Hospital, from the website's contact map):** https://maps.google.com/?cid=3009403215213270248
+- **Google Maps listing "The Vascular Center" (linked on the website; has the clinic's Google reviews):** https://maps.google.com/?cid=6121861145746772476 **[CONFIRM: this pin appears to be near Jalna Road. Confirm which location patients should use]**
 - **Phone / booking (from website: "Call us and book your appointment"):** +91 99711 21273 **[CONFIRM this is the booking number]**
 - **Landline:** 0240 247 2281 **[CONFIRM]**
 - **WhatsApp (website link):** +91 99711 21273
@@ -64,6 +67,20 @@
 - **Languages spoken by the doctor/staff:** [TO BE FILLED]
 - **Do patients need an appointment, or can they walk in?** [TO BE FILLED]
 - **What to bring to the first visit (old reports, Doppler, medicines list):** [TO BE FILLED]
+
+---
+
+## 2b. Why patients choose Dr. Lahoti (use these to build trust; all from the website or owner)
+- **Specialist focus:** a Varicose Veins Specialist and Endovascular Surgeon, with 9+ years in Interventional Radiology, Vascular Doppler and Endovascular & Vascular Surgery.
+- **Experience:** more than 1000 varicose vein and endovascular cases treated, from routine to complex.
+- **Strong training:** MBBS (Nair Hospital, Mumbai), MD Radiology (Nagpur), Vascular & Interventional Radiology (Sion Hospital, Mumbai), Chemoembolization training at Tata Memorial Hospital. Selected for an international observership fellowship at Johns Hopkins Hospital, USA (2020).
+- **Modern, minimally invasive treatment:** Endovenous LASER, VenaSeal™ glue and MOCA. Done through a small puncture, with no big cut or stitches.
+- **Day-care:** most patients walk home the same day or the next day and resume daily activities. No bed rest needed.
+- **Colour Doppler included:** the consultation fee covers both the examination and the Colour Doppler test, so there is no separate charge (per website). **[CONFIRM]**
+- **Insurance:** most health insurance policies cover varicose vein treatment (per website).
+- **Patient feedback:** rated "Excellent" on Google. Patients mention successful laser treatment, feeling better after treatment, clear explanations, and no hidden or extra charges.
+- **Learn more:** Dr. Lahoti's YouTube channel "Healthy Legs for Healthy Life": https://www.youtube.com/@healthylegsforhealthylifeb6496
+- **Why not wait (from website):** patients who get treated early are more likely to avoid complications and progression. Varicose veins left untreated can lead to swelling, night pain, cramps, skin colour changes and bleeding.
 
 ---
 

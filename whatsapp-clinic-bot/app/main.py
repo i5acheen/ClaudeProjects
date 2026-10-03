@@ -16,7 +16,7 @@ from .db import Database
 from .llm import GeminiLLM
 from .security import verify_signature
 from .sheets import LeadSheet
-from .whatsapp import WhatsAppClient, parse_messages
+from .whatsapp import IncomingMessage, WhatsAppClient, parse_messages
 
 logging.basicConfig(
     level=settings.log_level.upper(),
@@ -82,6 +82,29 @@ async def diag_gemini(token: str = "", model: str = "", schema: bool = False):
         return {"ok": False, "model": model,
                 "key_prefix": settings.gemini_api_key[:3],
                 "error": f"{type(exc).__name__}: {str(exc)[:600]}"}
+
+
+class _CaptureSender:
+    def __init__(self):
+        self.sent: list[str] = []
+
+    async def send_text(self, to: str, body: str) -> bool:
+        self.sent.append(body)
+        return True
+
+
+@app.get("/diag/chat")
+async def diag_chat(request: Request, q: str, session: str = "default", token: str = ""):
+    """Try the agent without WhatsApp. Protected by VERIFY_TOKEN; uses a separate test 'phone'."""
+    if not token or token != settings.verify_token:
+        return Response(status_code=403)
+    real: Agent = request.app.state.agent
+    capture = _CaptureSender()
+    agent = Agent(db=real.db, llm=real.llm, sender=capture, sheet=None,
+                  history_limit=real.history_limit, clinic_phone=real.clinic_phone)
+    phone = f"diag-{session}"
+    await agent.handle(IncomingMessage(f"diag-{session}-{len(q)}-{id(capture)}", phone, "text", q, None))
+    return {"reply": capture.sent, "lead": real.db.get_lead(phone)}
 
 
 @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)

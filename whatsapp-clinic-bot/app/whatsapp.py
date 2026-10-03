@@ -51,7 +51,7 @@ class WhatsAppClient:
             "recipient_type": "individual",
             "to": to,
             "type": "text",
-            "text": {"preview_url": False, "body": body[:4096]},
+            "text": {"preview_url": "https://" in body, "body": body[:4096]},
         }
         try:
             resp = await self._http.post(self._url, json=payload, headers=self._headers)

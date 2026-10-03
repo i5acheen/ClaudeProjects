@@ -1,0 +1,42 @@
+# Render Blueprint: Render reads this file when you create a "Blueprint" from this repo.
+# Secrets are NOT stored here (sync: false). Render asks you to enter them in its dashboard.
+services:
+  - type: web
+    name: vascular-clinic-whatsapp-bot
+    runtime: python
+    plan: free
+    region: singapore          # closest Render region to India
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: PHONE_NUMBER_ID
+        sync: false
+      - key: VERIFY_TOKEN
+        sync: false
+      - key: APP_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.8-flash
+      - key: GRAPH_API_VERSION
+        value: v23.0
+      # Upload the service-account JSON as a Render "Secret File" named service_account.json
+      - key: GOOGLE_SERVICE_ACCOUNT_FILE
+        value: /etc/secrets/service_account.json
+      - key: GOOGLE_SHEET_ID
+        sync: false
+      - key: GOOGLE_SHEET_TAB
+        value: Leads
+      - key: SQLITE_PATH
+        value: data/conversations.db
+      - key: HISTORY_LIMIT
+        value: "15"
+      - key: CLINIC_PHONE
+        value: "+91 99711 21273"

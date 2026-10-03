@@ -86,6 +86,18 @@ but **the URL changes every time you restart it**. When it changes, update it in
 2. Click **Verify and save**. Then under **Webhook fields**, **Subscribe** to `messages`.
 3. Send "नमस्कार" from your test WhatsApp number to the Meta test number. 🎉
 
+## 6b. Or deploy on Render (free, no laptop or tunnel needed)
+1. Sign up at https://render.com with **GitHub** and allow Render to access this repo.
+2. **New → Blueprint** → pick this repo. Render reads `render.yaml`.
+3. Fill in the secret values when asked: `WHATSAPP_TOKEN`, `PHONE_NUMBER_ID`, `VERIFY_TOKEN`, `APP_SECRET`, `GEMINI_API_KEY`, `GOOGLE_SHEET_ID` (can be left blank for now).
+4. (Optional, for Sheets) Service → **Environment → Secret Files** → add a file named `service_account.json` and paste the JSON key into it.
+5. After the deploy, open `https://<your-service>.onrender.com/health`. It should show `{"ok":true}`.
+6. In Meta, set the Callback URL to `https://<your-service>.onrender.com/webhook` (see step 6).
+
+Free-plan limits:
+- The service sleeps after 15 minutes idle, and the first reply after that takes about a minute. To keep it awake, add a free job at https://cron-job.org that opens `/health` every 10 minutes.
+- The disk is wiped on every restart or redeploy, so the SQLite chat memory resets. Leads in Google Sheets are kept.
+
 ## 7. Tests
 
 ```bash

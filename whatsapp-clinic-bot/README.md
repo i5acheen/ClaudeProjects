@@ -43,7 +43,7 @@ cp .env.example .env             # then fill in the values below
 ## 2. Gemini API key (free)
 1. Go to https://aistudio.google.com/apikey → **Create API key**.
 2. Put it in `.env` as `GEMINI_API_KEY`.
-3. `GEMINI_MODEL` defaults to `gemini-3.8-flash`. If you get a 404 or quota error, try `gemini-2.5-flash` or `gemini-3.1-flash-lite`.
+3. `GEMINI_MODEL` defaults to `gemini-3.5-flash` (reliable). If it fails with 503/429/404, the bot automatically tries `GEMINI_FALLBACK_MODELS` (`gemini-3.1-flash-lite`, then `gemini-3.8-flash`).
    Free-tier limits are low (a few requests per minute or day), which is fine for testing.
 
 ## 3. Google Sheet + service account (free)

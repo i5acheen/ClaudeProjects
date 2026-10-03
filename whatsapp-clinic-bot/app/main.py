@@ -40,7 +40,8 @@ async def lifespan(app: FastAPI):
     app.state.wa = wa
     app.state.agent = Agent(
         db=app.state.db,
-        llm=GeminiLLM(settings.gemini_api_key, settings.gemini_model),
+        llm=GeminiLLM(settings.gemini_api_key, settings.gemini_model,
+                      settings.gemini_fallback_models),
         sender=wa,
         sheet=sheet,
         history_limit=settings.history_limit,

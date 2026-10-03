@@ -26,6 +26,7 @@ class Settings:
     graph_api_version: str
     gemini_api_key: str
     gemini_model: str
+    gemini_fallback_models: list[str]
     google_service_account_file: Path
     google_sheet_id: str
     google_sheet_tab: str
@@ -58,7 +59,9 @@ def load_settings() -> Settings:
         app_secret=env("APP_SECRET", ""),
         graph_api_version=env("GRAPH_API_VERSION", "v26.0"),
         gemini_api_key=env("GEMINI_API_KEY", ""),
-        gemini_model=env("GEMINI_MODEL", "gemini-3.8-flash"),
+        gemini_model=env("GEMINI_MODEL", "gemini-3.5-flash"),
+        gemini_fallback_models=[m.strip() for m in env(
+            "GEMINI_FALLBACK_MODELS", "gemini-3.1-flash-lite,gemini-3.8-flash").split(",")],
         google_service_account_file=_resolve(
             env("GOOGLE_SERVICE_ACCOUNT_FILE", "credentials/service_account.json")
         ),

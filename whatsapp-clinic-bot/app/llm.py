@@ -6,7 +6,7 @@ import logging
 from typing import Literal, Optional
 
 from google import genai
-from google.genai import types
+from google.genai import errors, types
 from pydantic import BaseModel
 
 log = logging.getLogger(__name__)
@@ -30,9 +30,12 @@ class AgentTurn(BaseModel):
 
 
 class GeminiLLM:
-    def __init__(self, api_key: str, model: str):
+    # Errors worth retrying on another model: overloaded, rate-limited, model retired/unknown.
+    RETRYABLE = {404, 429, 500, 503, 504}
+
+    def __init__(self, api_key: str, model: str, fallback_models: list[str] | None = None):
         self._client = genai.Client(api_key=api_key)
-        self._model = model
+        self._models = [model] + [m for m in (fallback_models or []) if m and m != model]
 
     async def generate(self, system_instruction: str, history: list[dict]) -> AgentTurn:
         """history: [{'role': 'user'|'assistant', 'content': str}, ...], oldest first, last is the user."""
@@ -43,16 +46,24 @@ class GeminiLLM:
             )
             for m in history
         ]
-        resp = await self._client.aio.models.generate_content(
-            model=self._model,
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=AgentTurn,
-                temperature=0.4,
-            ),
+        config = types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            response_mime_type="application/json",
+            response_schema=AgentTurn,
+            temperature=0.4,
         )
-        if isinstance(resp.parsed, AgentTurn):
-            return resp.parsed
-        return AgentTurn.model_validate_json(resp.text or "")
+        last_exc: Exception | None = None
+        for model in self._models:
+            try:
+                resp = await self._client.aio.models.generate_content(
+                    model=model, contents=contents, config=config)
+            except errors.APIError as exc:
+                if exc.code not in self.RETRYABLE:
+                    raise
+                log.warning("Gemini model %s failed (%s), trying next model", model, exc.code)
+                last_exc = exc
+                continue
+            if isinstance(resp.parsed, AgentTurn):
+                return resp.parsed
+            return AgentTurn.model_validate_json(resp.text or "")
+        raise last_exc or RuntimeError("No Gemini model configured")

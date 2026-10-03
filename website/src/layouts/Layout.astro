@@ -16,7 +16,8 @@ interface Props {
 }
 const { title = seo.title, description = seo.description, schema = [], noindex = false } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname === "/" ? "/" : Astro.url.pathname, seo.siteUrl).href;
+const cleanPath = Astro.url.pathname.replace(/(index)?\.html$/, "").replace(/\/$/, "") || "/";
+const canonical = new URL(cleanPath, seo.siteUrl).href;
 const ogImage = new URL(seo.ogImage, seo.siteUrl).href;
 
 const localBusiness = {

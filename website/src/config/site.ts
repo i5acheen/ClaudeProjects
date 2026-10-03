@@ -16,29 +16,30 @@
 // 1. Business & contact details
 // ---------------------------------------------------------------------------
 export const business = {
-  name: "[YOUR BUSINESS NAME]",
-  owner: "[YOUR NAME]",
+  name: "autonest",
+  owner: "Shubham Zanwar",
   city: "Pune",
   region: "Maharashtra",
   country: "IN",
   serviceArea: "Pune and remote across India",
 
   /** Digits only, with country code, no "+" or spaces. e.g. "919876543210" */
-  whatsappNumber: "91XXXXXXXXXX",
+  whatsappNumber: "917745804546",
   /** How the number is shown on the page, e.g. "+91 98765 43210" */
-  phoneDisplay: "[+91XXXXXXXXXX]",
+  phoneDisplay: "+91 77458 04546",
   /** Pre-filled message when someone taps a WhatsApp button */
   whatsappMessage:
     "Hi! I found your website. I'd like to know how automation could help my business.",
 
-  email: "[EMAIL]",
+  email: "sacheen501@gmail.com",
 
   /**
    * Your discovery-call booking link (Cal.com, Calendly, Google Calendar
    * appointment page...). Must start with https://
    * While this is not a real link, "Book a call" buttons open WhatsApp instead.
    */
-  bookingUrl: "[CAL.COM OR GOOGLE CALENDAR LINK]",
+  bookingUrl:
+    "https://calendar.google.com/calendar/u/0?cid=ZDc1YzIyNWYxNDI0YWMyZWYwODhmZjVhOTU1ODM1MmU0NTlhMGIyZDVjODBhYWNkZTFjYTVhYTlmMDE1NzhlY0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t",
 };
 
 // ---------------------------------------------------------------------------
@@ -46,7 +47,7 @@ export const business = {
 // ---------------------------------------------------------------------------
 export const seo = {
   /** Your final domain, with https:// and NO trailing slash. */
-  siteUrl: "https://www.example.com",
+  siteUrl: "https://bhaghyashreeprovision.co.in",
   title: `AI & WhatsApp Automation Services in Pune | ${business.name}`,
   description:
     "AI automation services in Pune for small businesses across India. WhatsApp chatbots, automatic follow-ups and business process automation that win you more leads and save hours every week.",
@@ -349,7 +350,7 @@ export const finalCta = {
 
 export const contact = {
   title: "Get in touch",
-  intro: "Prefer to write it down? Send a quick note and we'll get back to you within [ADD RESPONSE TIME, e.g. one working day].",
+  intro: "Prefer to write it down? Send a quick note and we'll get back to you within 3 hours.",
   formTitle: "Send an enquiry",
   successMessage: "Thank you! Your message has been sent. We'll get back to you soon.",
   errorMessage: "Sorry, something went wrong. Please message us on WhatsApp instead.",

@@ -1,0 +1,19 @@
+---
+import Layout from "../layouts/Layout.astro";
+import WhatsAppIcon from "../components/WhatsAppIcon.astro";
+import { whatsappLink } from "../config/site";
+---
+
+<Layout title="Page not found" noindex>
+  <section class="section">
+    <div class="container-x max-w-xl text-center">
+      <p class="eyebrow">404</p>
+      <h1 class="h2 mt-2">Sorry, we couldn't find that page.</h1>
+      <p class="lead">It may have moved. Head back home or message us directly.</p>
+      <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+        <a href="/" class="btn btn-outline">Back to home</a>
+        <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp"><WhatsAppIcon /> Chat on WhatsApp</a>
+      </div>
+    </div>
+  </section>
+</Layout>

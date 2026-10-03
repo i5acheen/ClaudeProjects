@@ -1,0 +1,75 @@
+---
+import Logo from "./Logo.astro";
+import Icon from "./Icon.astro";
+import WhatsAppIcon from "./WhatsAppIcon.astro";
+import { nav, whatsappLink } from "../config/site";
+---
+
+<header class="sticky top-0 z-50 border-b border-line/70 bg-cream/90 backdrop-blur supports-[backdrop-filter]:bg-cream/80">
+  <div class="container-x flex h-16 items-center justify-between gap-4">
+    <Logo />
+    <nav aria-label="Main" class="hidden lg:block">
+      <ul class="flex items-center gap-1">
+        {nav.map((item) => (
+          <li>
+            <a href={item.href} class="rounded-full px-3 py-2 text-[0.95rem] font-medium text-ink/80 transition hover:bg-teal-50 hover:text-teal-800">
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="flex items-center gap-2">
+      <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp hidden !min-h-10 !px-4 !py-2 text-sm sm:inline-flex">
+        <WhatsAppIcon class="size-4" /> WhatsApp us
+      </a>
+      <button
+        type="button"
+        id="menu-toggle"
+        class="inline-flex size-12 items-center justify-center rounded-full text-teal-800 hover:bg-teal-50 lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        aria-label="Open menu"
+      >
+        <span data-open><Icon name="Menu" /></span>
+        <span data-close hidden><Icon name="X" /></span>
+      </button>
+    </div>
+  </div>
+  <nav id="mobile-menu" aria-label="Mobile" class="border-t border-line bg-cream lg:hidden" hidden>
+    <ul class="container-x flex flex-col py-2">
+      {nav.map((item) => (
+        <li>
+          <a href={item.href} class="flex min-h-12 items-center border-b border-line/60 text-lg font-medium text-teal-800 last:border-0">
+            {item.label}
+          </a>
+        </li>
+      ))}
+      <li class="py-3">
+        <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp w-full">
+          <WhatsAppIcon /> Chat on WhatsApp
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const btn = document.getElementById("menu-toggle")!;
+  const menu = document.getElementById("mobile-menu")!;
+  const setOpen = (open: boolean) => {
+    menu.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+    btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    (btn.querySelector("[data-open]") as HTMLElement).hidden = open;
+    (btn.querySelector("[data-close]") as HTMLElement).hidden = !open;
+  };
+  btn.addEventListener("click", () => setOpen(menu.hidden));
+  menu.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !menu.hidden) {
+      setOpen(false);
+      btn.focus();
+    }
+  });
+</script>

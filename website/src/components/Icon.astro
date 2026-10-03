@@ -1,0 +1,21 @@
+---
+import * as icons from "lucide-static";
+
+interface Props {
+  name: string;
+  class?: string;
+  strokeWidth?: number;
+}
+const { name, class: className = "size-6", strokeWidth = 2 } = Astro.props;
+const raw = (icons as Record<string, string>)[name];
+if (!raw) throw new Error(`Unknown Lucide icon: "${name}" (check src/config/site.ts)`);
+
+const svg = raw
+  .replace(/\s*class="[^"]*"/, "")
+  .replace(/\s*width="24"/, "")
+  .replace(/\s*height="24"/, "")
+  .replace(/stroke-width="2"/, `stroke-width="${strokeWidth}"`)
+  .replace("<svg", `<svg class="${className}" aria-hidden="true" focusable="false"`);
+---
+
+<Fragment set:html={svg} />

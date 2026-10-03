@@ -1,0 +1,104 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { business, form, privacy, seo } from "../config/site";
+import { ph } from "../lib/text";
+
+const formProvider = form.provider === "web3forms" ? "Web3Forms" : "Formspree";
+const sections: { h: string; body: string[] }[] = [
+  {
+    h: "1. Who we are",
+    body: [
+      `${business.name} (“we”, “us”) provides AI and workflow automation services from ${business.city}, ${business.region}, India. This policy explains how we handle personal data collected through this website (${seo.siteUrl}). Under India's Digital Personal Data Protection Act, 2023 (“DPDP Act”), we are the “Data Fiduciary” for this data, and you are the “Data Principal”.`,
+    ],
+  },
+  {
+    h: "2. What we collect",
+    body: [
+      "When you fill in our enquiry form, we collect your name, business name, phone/WhatsApp number and the message you write.",
+      "If you contact us on WhatsApp, by email or by booking a call, we receive the details you share there (for example your name, number, email address and messages).",
+      "We do not use advertising or tracking cookies on this website. Our hosting provider may keep basic technical logs (such as IP address and browser type) for security and to keep the site running.",
+    ],
+  },
+  {
+    h: "3. Why we use it",
+    body: [
+      "We use your details only to reply to your enquiry, discuss your requirements, send you a quote, and provide services you ask for. We do not sell your data and we do not use it for unrelated marketing without asking you first.",
+    ],
+  },
+  {
+    h: "4. Your consent",
+    body: [
+      "By ticking the consent box and submitting the form, you agree to us using your details for the purposes above. You can withdraw your consent at any time by contacting us (see section 9). Withdrawing consent does not affect anything we did before you withdrew it, but we may no longer be able to help with your enquiry.",
+    ],
+  },
+  {
+    h: "5. Who we share it with",
+    body: [
+      `We use a small number of trusted service providers to run this website and communicate with you: ${formProvider} (to deliver form submissions to our email), our email provider, WhatsApp (Meta), our calendar/booking tool, and our website host. They process data only to provide their service to us. Some of these providers may store data on servers outside India.`,
+      "Demo videos are hosted on YouTube and only load (and connect to YouTube) after you choose to play one.",
+      "We may disclose data if required by law or by a government authority.",
+    ],
+  },
+  {
+    h: "6. How long we keep it",
+    body: [
+      `We keep enquiry data for ${privacy.retentionPeriod} after our last conversation, unless you become a client (in which case it is kept as needed for the work and for legal/accounting obligations), or you ask us to delete it sooner.`,
+    ],
+  },
+  {
+    h: "7. How we protect it",
+    body: [
+      "We take reasonable security measures to protect your data, including access controls on our accounts and using reputable, secure service providers. No method of transmission or storage is 100% secure, but we work to keep your information safe and will act promptly if a breach occurs, including informing you and the authorities where the law requires.",
+    ],
+  },
+  {
+    h: "8. Your rights",
+    body: [
+      "Under the DPDP Act, you have the right to: ask what personal data we hold about you and how we use it; ask us to correct, complete or update it; ask us to delete it (unless we must keep it by law); withdraw your consent; have your grievances addressed; and nominate someone to exercise these rights on your behalf if you die or become unable to.",
+    ],
+  },
+  {
+    h: "9. Contact & grievances",
+    body: [
+      `For any privacy question, request or complaint, contact ${privacy.grievanceOfficer} at ${business.email} or on WhatsApp at ${business.phoneDisplay}. We will respond as soon as possible and within the time required by law. If you are not satisfied with our response, you may complain to the Data Protection Board of India.`,
+    ],
+  },
+  {
+    h: "10. Children",
+    body: ["This website and our services are meant for businesses. We do not knowingly collect personal data from children under 18."],
+  },
+  {
+    h: "11. Changes to this policy",
+    body: ["We may update this policy from time to time. The latest version will always be on this page, with the date it was last updated."],
+  },
+];
+---
+
+<Layout title={`Privacy Policy | ${business.name}`} description={`How ${business.name} collects, uses and protects your personal data, in line with India's DPDP Act, 2023.`}>
+  <article class="section">
+    <div class="container-x max-w-3xl">
+      <div class="rounded-2xl border-2 border-dashed border-saffron-400 bg-saffron-100/60 p-5 text-saffron-700">
+        <p class="font-semibold">⚠️ TEMPLATE: please review before publishing.</p>
+        <p class="mt-1 text-sm">
+          This is a plain-language starting point, not legal advice. Check it matches how you actually handle data, fill in the
+          highlighted placeholders, and consider a quick review by a legal professional. Remove this box once done.
+        </p>
+      </div>
+
+      <h1 class="mt-10 text-4xl font-semibold text-teal-800 sm:text-5xl">Privacy Policy</h1>
+      <p class="mt-3 text-muted">Last updated: <span set:html={ph(privacy.lastUpdated)} /></p>
+      <p class="lead">
+        We respect your privacy. This page explains, in plain language, what personal data we collect, why, and the choices you have.
+      </p>
+
+      {sections.map((s) => (
+        <section class="mt-10">
+          <h2 class="text-2xl font-semibold text-teal-800">{s.h}</h2>
+          {s.body.map((p) => <p class="mt-3 leading-relaxed text-ink/85" set:html={ph(p)} />)}
+        </section>
+      ))}
+
+      <p class="mt-12"><a href="/" class="font-semibold text-teal-700 underline">← Back to home</a></p>
+    </div>
+  </article>
+</Layout>

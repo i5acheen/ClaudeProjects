@@ -1,0 +1,80 @@
+---
+import Icon from "./Icon.astro";
+import WhatsAppIcon from "./WhatsAppIcon.astro";
+import { hero, whatsappLink, bookingLink } from "../config/site";
+---
+
+<section class="relative overflow-hidden">
+  <!-- soft warm background shapes -->
+  <div aria-hidden="true" class="pointer-events-none absolute -top-32 -right-32 size-[28rem] rounded-full bg-saffron-100/70 blur-3xl"></div>
+  <div aria-hidden="true" class="pointer-events-none absolute -bottom-40 -left-40 size-[26rem] rounded-full bg-teal-50 blur-3xl"></div>
+
+  <div class="container-x relative grid items-center gap-12 pt-10 pb-16 sm:pt-16 sm:pb-24 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+    <div>
+      <p class="eyebrow">{hero.eyebrow}</p>
+      <h1 class="mt-4 text-[2.35rem] leading-[1.08] font-semibold text-teal-800 sm:text-5xl lg:text-6xl">
+        {hero.headline}
+      </h1>
+      <p class="mt-5 max-w-xl text-lg leading-relaxed text-muted sm:text-xl">{hero.subhead}</p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp text-lg">
+          <WhatsAppIcon class="size-6" />
+          {hero.primaryCta}
+        </a>
+        <a href={bookingLink} target="_blank" rel="noopener" class="btn btn-outline text-lg">
+          <Icon name="CalendarCheck" class="size-5" />
+          {hero.secondaryCta}
+        </a>
+      </div>
+
+      <ul class="mt-8 flex flex-col gap-2 text-[0.95rem] text-muted sm:flex-row sm:flex-wrap sm:gap-x-6">
+        {hero.reassurance.map((r) => (
+          <li class="flex items-center gap-2">
+            <Icon name="CircleCheck" class="size-5 text-teal-600" />
+            {r}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Illustrative chat mock-up (not a real conversation) -->
+    <figure class="relative mx-auto w-full max-w-sm">
+      <div class="relative">
+      <div class="absolute -inset-3 -rotate-2 rounded-[2rem] bg-teal-700"></div>
+      <div class="relative overflow-hidden rounded-[1.75rem] border border-line bg-[#efe7da] shadow-2xl">
+        <div class="flex items-center gap-3 bg-teal-800 px-4 py-3 text-white">
+          <div class="flex size-9 items-center justify-center rounded-full bg-saffron-400 text-ink">
+            <Icon name="Store" class="size-5" />
+          </div>
+          <div class="leading-tight">
+            <p class="text-sm font-semibold">Your Business</p>
+            <p class="text-xs text-white/75">replies instantly</p>
+          </div>
+        </div>
+        <div class="space-y-3 p-4 text-[0.92rem] leading-snug">
+          <p class="mr-10 rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 shadow-sm">
+            Hi, are you open on Sunday? How much for a consultation?
+            <span class="mt-1 block text-right text-[0.7rem] text-muted">11:42 pm</span>
+          </p>
+          <p class="ml-8 rounded-2xl rounded-tr-sm bg-[#d9fdd3] px-3.5 py-2.5 shadow-sm">
+            Hi! 👋 Yes, we're open Sunday 10 am – 2 pm. A consultation is ₹500. Shall I book a slot for you?
+            <span class="mt-1 flex items-center justify-end gap-1 text-[0.7rem] text-muted">11:42 pm <Icon name="CheckCheck" class="size-3.5 text-sky-600" /></span>
+          </p>
+          <p class="mr-16 rounded-2xl rounded-tl-sm bg-white px-3.5 py-2.5 shadow-sm">
+            Yes, 11 am please
+            <span class="mt-1 block text-right text-[0.7rem] text-muted">11:43 pm</span>
+          </p>
+          <p class="ml-8 rounded-2xl rounded-tr-sm bg-[#d9fdd3] px-3.5 py-2.5 shadow-sm">
+            Done ✅ You're booked for Sunday, 11 am. I'll send you a reminder that morning.
+            <span class="mt-1 flex items-center justify-end gap-1 text-[0.7rem] text-muted">11:43 pm <Icon name="CheckCheck" class="size-3.5 text-sky-600" /></span>
+          </p>
+        </div>
+      </div>
+      </div>
+      <figcaption class="relative mt-6 text-center text-sm text-muted">
+        Example of an automatic WhatsApp reply, sent late at night while you are off duty.
+      </figcaption>
+    </figure>
+  </div>
+</section>

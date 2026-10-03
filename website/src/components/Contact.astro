@@ -1,0 +1,154 @@
+---
+import Icon from "./Icon.astro";
+import WhatsAppIcon from "./WhatsAppIcon.astro";
+import { business, contact, finalCta, form, whatsappLink, bookingLink } from "../config/site";
+import { ph, isPlaceholder } from "../lib/text";
+
+const isWeb3 = form.provider === "web3forms";
+const action = isWeb3 ? "https://api.web3forms.com/submit" : form.formspreeEndpoint;
+const configured = isWeb3 ? !isPlaceholder(form.web3formsAccessKey) : !isPlaceholder(form.formspreeEndpoint);
+const field =
+  "mt-1.5 w-full rounded-xl border border-line bg-white px-4 text-base text-ink placeholder:text-muted/70 focus:border-teal-700";
+---
+
+<!-- Final CTA band -->
+<section class="bg-saffron-400" aria-labelledby="final-cta-title">
+  <div class="container-x flex flex-col items-center gap-6 py-14 text-center sm:py-16" data-reveal>
+    <h2 id="final-cta-title" class="max-w-2xl text-3xl leading-tight font-semibold text-ink sm:text-4xl">{finalCta.title}</h2>
+    <p class="max-w-xl text-lg text-ink/80">{finalCta.text}</p>
+    <div class="flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
+      <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp text-lg"><WhatsAppIcon class="size-6" /> Chat on WhatsApp</a>
+      <a href={bookingLink} target="_blank" rel="noopener" class="btn border-2 border-ink text-lg text-ink hover:bg-ink hover:text-cream">
+        <Icon name="CalendarCheck" class="size-5" /> Book a free 20-min call
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="section" aria-labelledby="contact-title">
+  <div class="container-x grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+    <div data-reveal>
+      <p class="eyebrow">Contact</p>
+      <h2 id="contact-title" class="h2 mt-2">{contact.title}</h2>
+      <p class="lead" set:html={ph(contact.intro)} />
+      <ul class="mt-8 space-y-3">
+        <li>
+          <a href={whatsappLink()} target="_blank" rel="noopener" class="flex min-h-16 items-center gap-4 rounded-2xl border border-line bg-white p-4 shadow-sm transition hover:border-whatsapp">
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-whatsapp text-white"><WhatsAppIcon /></span>
+            <span><span class="block text-sm text-muted">WhatsApp (fastest)</span><span class="font-semibold text-teal-800" set:html={ph(business.phoneDisplay)} /></span>
+          </a>
+        </li>
+        <li>
+          <a href={`mailto:${business.email}`} class="flex min-h-16 items-center gap-4 rounded-2xl border border-line bg-white p-4 shadow-sm transition hover:border-teal-600">
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-teal-700 text-cream"><Icon name="Mail" class="size-5" /></span>
+            <span class="min-w-0"><span class="block text-sm text-muted">Email</span><span class="font-semibold break-all text-teal-800" set:html={ph(business.email)} /></span>
+          </a>
+        </li>
+        <li>
+          <a href={bookingLink} target="_blank" rel="noopener" class="flex min-h-16 items-center gap-4 rounded-2xl border border-line bg-white p-4 shadow-sm transition hover:border-teal-600">
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-saffron-400 text-ink"><Icon name="CalendarCheck" class="size-5" /></span>
+            <span><span class="block text-sm text-muted">Discovery call</span><span class="font-semibold text-teal-800">Book a free 20-min call</span></span>
+          </a>
+        </li>
+        <li class="flex items-center gap-4 p-4 text-muted">
+          <Icon name="MapPin" class="size-5 text-teal-600" /> {business.city}, {business.region}. Working with businesses across India.
+        </li>
+      </ul>
+    </div>
+
+    <form
+      id="enquiry"
+      class="card !p-5 sm:!p-8"
+      action={action}
+      method="POST"
+      data-configured={String(configured)}
+      data-provider={form.provider}
+      data-reveal
+    >
+      <h3 class="text-2xl font-semibold text-teal-800">{contact.formTitle}</h3>
+      <p class="mt-1 text-sm text-muted">All fields are required.</p>
+
+      {isWeb3 ? (
+        <>
+          <input type="hidden" name="access_key" value={form.web3formsAccessKey} />
+          <input type="hidden" name="subject" value={form.emailSubject} />
+          <input type="hidden" name="from_name" value={business.name} />
+          <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" />
+        </>
+      ) : (
+        <>
+          <input type="hidden" name="_subject" value={form.emailSubject} />
+          <input type="text" name="_gotcha" class="hidden" style="display:none" tabindex="-1" autocomplete="off" />
+        </>
+      )}
+
+      <div class="mt-6 grid gap-5 sm:grid-cols-2">
+        <div>
+          <label for="f-name" class="font-semibold text-teal-800">Your name</label>
+          <input id="f-name" name="name" type="text" required autocomplete="name" class={`${field} h-12`} />
+        </div>
+        <div>
+          <label for="f-biz" class="font-semibold text-teal-800">Business name</label>
+          <input id="f-biz" name="business" type="text" required autocomplete="organization" class={`${field} h-12`} />
+        </div>
+        <div class="sm:col-span-2">
+          <label for="f-phone" class="font-semibold text-teal-800">Phone / WhatsApp number</label>
+          <input id="f-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="+91 98765 43210"
+            pattern="^[+]?[0-9 \-]{10,15}$" class={`${field} h-12`} />
+        </div>
+        <div class="sm:col-span-2">
+          <label for="f-msg" class="font-semibold text-teal-800">What's slowing you down?</label>
+          <textarea id="f-msg" name="message" required rows="4" placeholder="e.g. We miss WhatsApp enquiries after 7 pm, and I copy every lead into Excel by hand."
+            class={`${field} py-3`}></textarea>
+        </div>
+      </div>
+
+      <label class="mt-5 flex items-start gap-3 text-sm text-muted">
+        <input type="checkbox" name="consent" value="yes" required class="mt-0.5 size-5 shrink-0 accent-teal-700" />
+        <span>I agree that my details will be used to respond to this enquiry, as described in the <a href="/privacy" class="font-medium text-teal-700 underline">Privacy Policy</a>.</span>
+      </label>
+
+      <button type="submit" class="btn mt-6 w-full bg-teal-700 text-lg text-white hover:bg-teal-800">
+        <Icon name="Send" class="size-5" /> <span data-label>Send enquiry</span>
+      </button>
+      <p id="f-status" class="mt-4 hidden rounded-xl p-4 text-sm font-medium" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+<script define:vars={{ success: contact.successMessage, error: contact.errorMessage }}>
+  const f = document.getElementById("enquiry");
+  const status = document.getElementById("f-status");
+  const label = f.querySelector("[data-label]");
+  const show = (msg, ok) => {
+    status.textContent = msg;
+    status.className = `mt-4 rounded-xl p-4 text-sm font-medium ${ok ? "bg-teal-50 text-teal-800" : "bg-saffron-100 text-saffron-700"}`;
+  };
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!f.reportValidity()) return;
+    if (f.dataset.configured !== "true") {
+      show("The enquiry form isn't connected yet (site owner: add your form key in src/config/site.ts). Please use WhatsApp for now.", false);
+      return;
+    }
+    const btn = f.querySelector("button[type=submit]");
+    btn.disabled = true;
+    label.textContent = "Sending…";
+    try {
+      const res = await fetch(f.action, {
+        method: "POST",
+        body: new FormData(f),
+        headers: { Accept: "application/json" },
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      f.reset();
+      show(success, true);
+    } catch {
+      show(error, false);
+    } finally {
+      btn.disabled = false;
+      label.textContent = "Send enquiry";
+    }
+  });
+</script>

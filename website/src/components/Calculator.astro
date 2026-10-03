@@ -1,0 +1,102 @@
+---
+import Icon from "./Icon.astro";
+import WhatsAppIcon from "./WhatsAppIcon.astro";
+import { calculator, whatsappLink } from "../config/site";
+const d = calculator.defaults;
+const waBase = whatsappLink("");
+const inr = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
+const missed = d.enquiriesPerDay * (d.unansweredPercent / 100) * 30;
+const lostCustomers = missed * (d.conversionPercent / 100);
+const initial = `₹${inr.format(Math.round(lostCustomers * d.customerValue))}`;
+const initialDetail = `≈ ${inr.format(Math.round(missed))} missed enquiries and ${inr.format(Math.round(lostCustomers))} lost customers a month (30 days).`;
+---
+
+<section id="calculator" class="section bg-teal-800 text-cream" aria-labelledby="calc-title">
+  <div class="container-x grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+    <div data-reveal>
+      <p class="eyebrow !text-saffron-300">Missed-leads calculator</p>
+      <h2 id="calc-title" class="mt-2 text-3xl leading-tight font-semibold sm:text-4xl">{calculator.title}</h2>
+      <p class="mt-4 text-lg leading-relaxed text-cream/80">{calculator.intro}</p>
+      <p class="mt-6 flex items-start gap-2 rounded-xl border border-cream/20 bg-teal-900/50 p-4 text-sm leading-relaxed text-cream/85">
+        <Icon name="Info" class="mt-0.5 size-5 shrink-0 text-saffron-300" />
+        <span><strong class="text-cream">Estimate only.</strong> {calculator.disclaimer}</span>
+      </p>
+    </div>
+
+    <form id="calc" class="rounded-3xl bg-cream p-5 text-ink shadow-2xl sm:p-8" data-reveal novalidate>
+      <div class="space-y-6">
+        <div>
+          <label for="c-enq" class="block font-semibold text-teal-800">How many enquiries do you get per day?</label>
+          <p id="c-enq-help" class="text-sm text-muted">Calls, WhatsApp, Instagram, website, all together.</p>
+          <input id="c-enq" name="enq" type="number" inputmode="numeric" min="0" max="10000" value={d.enquiriesPerDay} aria-describedby="c-enq-help"
+            class="mt-2 h-12 w-full rounded-xl border border-line bg-white px-4 text-lg font-semibold focus:border-teal-700" />
+        </div>
+
+        <div>
+          <div class="flex items-baseline justify-between gap-4">
+            <label for="c-miss" class="font-semibold text-teal-800">What % go unanswered or get a late reply?</label>
+            <output for="c-miss" id="c-miss-out" class="shrink-0 text-lg font-bold text-saffron-700">{d.unansweredPercent}%</output>
+          </div>
+          <input id="c-miss" name="miss" type="range" min="0" max="100" step="5" value={d.unansweredPercent} class="mt-1 w-full" />
+        </div>
+
+        <div>
+          <div class="flex items-baseline justify-between gap-4">
+            <label for="c-conv" class="font-semibold text-teal-800">Of those, what % would normally become customers?</label>
+            <output for="c-conv" id="c-conv-out" class="shrink-0 text-lg font-bold text-saffron-700">{d.conversionPercent}%</output>
+          </div>
+          <input id="c-conv" name="conv" type="range" min="0" max="100" step="5" value={d.conversionPercent} class="mt-1 w-full" />
+        </div>
+
+        <div>
+          <label for="c-val" class="block font-semibold text-teal-800">Average value of one customer (₹)</label>
+          <div class="relative mt-2">
+            <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-lg font-semibold text-muted" aria-hidden="true">₹</span>
+            <input id="c-val" name="val" type="number" inputmode="numeric" min="0" max="100000000" step="100" value={d.customerValue}
+              class="h-12 w-full rounded-xl border border-line bg-white pr-4 pl-9 text-lg font-semibold focus:border-teal-700" />
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 rounded-2xl bg-teal-50 p-5 text-center" aria-live="polite">
+        <p class="text-sm font-semibold tracking-wide text-teal-700 uppercase">Estimated revenue lost per month</p>
+        <p id="c-result" class="mt-1 font-display text-4xl font-bold text-teal-800 sm:text-5xl">{initial}</p>
+        <p id="c-detail" class="mt-2 text-sm text-muted">{initialDetail}</p>
+      </div>
+
+      <a id="c-cta" href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp mt-5 w-full text-lg" data-wa-base={waBase}>
+        <WhatsAppIcon class="size-6" />
+        {calculator.cta}
+      </a>
+      <p class="mt-3 text-center text-xs text-muted">Estimate only. Not a guarantee of results.</p>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById("calc") as HTMLFormElement;
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const enq = $<HTMLInputElement>("c-enq");
+  const miss = $<HTMLInputElement>("c-miss");
+  const conv = $<HTMLInputElement>("c-conv");
+  const val = $<HTMLInputElement>("c-val");
+  const cta = $<HTMLAnchorElement>("c-cta");
+  const inr = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
+  const num = (el: HTMLInputElement) => Math.max(0, Number(el.value) || 0);
+
+  const update = () => {
+    const missedPerMonth = num(enq) * (num(miss) / 100) * 30;
+    const lostCustomers = missedPerMonth * (num(conv) / 100);
+    const lost = Math.round(lostCustomers * num(val));
+    $("c-miss-out").textContent = `${miss.value}%`;
+    $("c-conv-out").textContent = `${conv.value}%`;
+    $("c-result").textContent = `₹${inr.format(lost)}`;
+    $("c-detail").textContent =
+      `≈ ${inr.format(Math.round(missedPerMonth))} missed enquiries and ${inr.format(Math.round(lostCustomers))} lost customers a month (30 days).`;
+    const msg = `Hi! I used the calculator on your website. I get about ${num(enq)} enquiries a day and around ${num(miss)}% get missed. I'd like to fix this.`;
+    cta.href = cta.dataset.waBase + encodeURIComponent(msg);
+  };
+  form.addEventListener("input", update);
+  form.addEventListener("submit", (e) => e.preventDefault());
+  update();
+</script>

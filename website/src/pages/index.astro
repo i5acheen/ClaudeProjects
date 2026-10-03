@@ -1,0 +1,39 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import Problems from "../components/Problems.astro";
+import Solutions from "../components/Solutions.astro";
+import Audience from "../components/Audience.astro";
+import Steps from "../components/Steps.astro";
+import Calculator from "../components/Calculator.astro";
+import Proof from "../components/Proof.astro";
+import Pricing from "../components/Pricing.astro";
+import About from "../components/About.astro";
+import Faq from "../components/Faq.astro";
+import Contact from "../components/Contact.astro";
+import { faq } from "../config/site";
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faq.items.map((i) => ({
+    "@type": "Question",
+    name: i.q,
+    acceptedAnswer: { "@type": "Answer", text: i.a },
+  })),
+};
+---
+
+<Layout schema={[faqSchema]}>
+  <Hero />
+  <Problems />
+  <Solutions />
+  <Audience />
+  <Steps />
+  <Calculator />
+  <Proof />
+  <Pricing />
+  <About />
+  <Faq />
+  <Contact />
+</Layout>

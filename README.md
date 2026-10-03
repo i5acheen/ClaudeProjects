@@ -171,3 +171,9 @@ npm test        # run unit tests (once added)
 - All API keys via environment variables; `.env` is never committed.
 - Every tool fails gracefully with a clear error message on rate-limit or
   API outage — it never crashes the MCP session.
+
+---
+
+## Business website
+
+The AI & workflow automation services website lives in [`website/`](website/). See [`website/README.md`](website/README.md) to run, edit and deploy it.

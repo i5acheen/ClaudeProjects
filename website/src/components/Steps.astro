@@ -1,0 +1,28 @@
+---
+import Icon from "./Icon.astro";
+import SectionHeading from "./SectionHeading.astro";
+import { steps, bookingLink } from "../config/site";
+---
+
+<section id="how" class="section" aria-labelledby="how-title">
+  <div class="container-x">
+    <SectionHeading id="how-title" eyebrow="4 simple steps" title={steps.title} intro={steps.intro} />
+    <ol class="relative mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {steps.items.map((s, i) => (
+        <li class="relative rounded-2xl border border-line bg-white p-6 shadow-sm" data-reveal>
+          <div class="flex items-center gap-3">
+            <span class="flex size-11 items-center justify-center rounded-full bg-saffron-400 font-display text-lg font-bold text-ink" aria-hidden="true">{i + 1}</span>
+            <Icon name={s.icon} class="size-6 text-teal-600" />
+          </div>
+          <h3 class="mt-4 text-xl font-semibold text-teal-800"><span class="sr-only">Step {i + 1}: </span>{s.title}</h3>
+          <p class="mt-2 leading-relaxed text-muted">{s.text}</p>
+        </li>
+      ))}
+    </ol>
+    <div class="mt-10 text-center" data-reveal>
+      <a href={bookingLink} target="_blank" rel="noopener" class="btn btn-outline">
+        <Icon name="CalendarCheck" class="size-5" /> Start with a free 20-min call
+      </a>
+    </div>
+  </div>
+</section>

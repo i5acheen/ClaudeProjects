@@ -5,7 +5,7 @@ A fast, mobile-first, single-page website (plus a Privacy Policy page) built to 
 - **Tech:** [Astro](https://astro.build) (static site) + [Tailwind CSS](https://tailwindcss.com) + [Lucide](https://lucide.dev) icons
 - **Fonts:** Fraunces (headings) + Inter (body), self-hosted, so nothing loads from Google
 - **No backend:** the enquiry form posts to Web3Forms or Formspree (free)
-- **Lighthouse (tested locally):** Mobile 98 / 100 / 100 / 100 · Desktop 100 / 100 / 100 / 100 (Performance / Accessibility / Best Practices / SEO)
+- **Lighthouse (tested locally):** Mobile 97 / 100 / 100 / 100 · Desktop 100 / 100 / 100 / 100 (Performance / Accessibility / Best Practices / SEO)
 
 ---
 
@@ -45,12 +45,12 @@ Things you can change there:
 | `business`           | Name, WhatsApp number, email, booking link, pre-filled WhatsApp message |
 | `seo`                | Your domain, page title, Google description, keywords            |
 | `form`               | Enquiry-form service and key                                      |
-| `hero` … `footer`    | Every heading, card, step, FAQ, button label and the example chat in the hero |
+| `hero` … `footer`    | Every heading, card, step, FAQ, button label, the example chat and the "Built for" strip |
 | `privacy`            | Privacy Policy date, retention period                            |
 
 **Icons:** the `icon:` values are Lucide icon names. Browse [lucide.dev/icons](https://lucide.dev/icons), then use the name in PascalCase (e.g. `calendar-check` → `"CalendarCheck"`).
 
-**Demo videos:** upload to YouTube (it can be "Unlisted"), copy the ID from the URL (`youtube.com/watch?v=`**`AbC123xyz`**) and paste it into `proof.videos[].id`. Videos only load when a visitor taps play, so they don't slow the page.
+**Demo videos:** upload to YouTube (it can be "Unlisted"), copy the ID from the URL (`youtube.com/watch?v=`**`AbC123xyz`**) and paste it into `proof.videos[].id`. Videos only load when a visitor taps play, so they don't slow the page. **The whole demos/proof section stays hidden until you add a real video, case study or testimonial.**
 
 **Social-share image:** `public/og-image.png` (1200×630) is shown when your link is shared on WhatsApp, LinkedIn etc. It contains no business name, so it works as-is, but you can replace it with your own.
 
@@ -120,7 +120,7 @@ Buy a domain from any registrar (GoDaddy, Hostinger, Namecheap, Cloudflare, etc.
 
 ## 4. What's included
 
-- `/` the home page with all 11 sections, a floating WhatsApp button, and the missed-leads calculator (Indian number format, clearly labelled as an estimate)
+- `/` the home page (hero with a "Built for" strip, services, how it works, calculator, pricing, why us, FAQ, contact; plus a demos/proof section that appears once you add real content), a floating WhatsApp button, and the missed-leads calculator (Indian number format, clearly labelled as an estimate)
 - `/privacy` a DPDP Act-aware Privacy Policy **template** (review before publishing)
 - `/sitemap.xml`, `/robots.txt`, a custom 404 page
 - SEO: page title and description, keywords, canonical URL, Open Graph and Twitter cards, `ProfessionalService` (LocalBusiness) and `FAQPage` structured data
@@ -168,7 +168,7 @@ Everything below is in `src/config/site.ts` unless noted.
 - [ ] `seo.siteUrl`: your final domain
 - [ ] `form.web3formsAccessKey` (or the Formspree endpoint), then send a test enquiry
 - [ ] `contact.intro`: your typical response time
-- [ ] FAQ answers: fill in tools/platforms, data-safety specifics, typical timelines, post-launch fix period, and read every answer to confirm it matches how you actually work
+- [ ] FAQ answers: read each one to confirm it matches how you actually work
 - [ ] About text (business-focused): check it reads true to you
 - [ ] Privacy Policy: `privacy.lastUpdated`, `privacy.retentionPeriod`; read the whole policy; then remove the yellow "TEMPLATE" box at the top of `src/pages/privacy.astro`
 

@@ -1,67 +1,62 @@
 ---
+// Hidden until real demos, a case study or a testimonial are added in site.ts.
 import Icon from "./Icon.astro";
 import SectionHeading from "./SectionHeading.astro";
 import { proof } from "../config/site";
-import { ph } from "../lib/text";
+
+const videos = proof.videos.filter((v) => v.id);
 const cs = proof.caseStudy;
+const hasCase = Boolean(cs.business && cs.result);
+const hasQuote = Boolean(proof.testimonial.quote);
+const show = videos.length > 0 || hasCase || hasQuote;
 ---
 
-<section id="proof" class="section" aria-labelledby="proof-title">
-  <div class="container-x">
-    <SectionHeading id="proof-title" eyebrow="Demos & results" title={proof.title} intro={proof.intro} />
-
-    <div class="mt-12 grid gap-6 md:grid-cols-2">
-      {proof.videos.map((v) =>
-        v.id ? (
-          <div class="overflow-hidden rounded-2xl border border-line bg-white shadow-sm" data-reveal>
-            <button
-              type="button"
-              class="yt group relative block aspect-video w-full bg-teal-900"
-              data-id={v.id}
-              data-title={v.title}
-              aria-label={`Play video: ${v.title}`}
-            >
-              <img src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" width="480" height="360" class="size-full object-cover opacity-90 transition group-hover:opacity-100" />
-              <span class="absolute inset-0 m-auto flex size-16 items-center justify-center rounded-full bg-saffron-400 text-ink shadow-lg transition group-hover:scale-110">
-                <Icon name="Play" class="ml-1 size-7" />
-              </span>
-            </button>
-            <p class="p-4 font-semibold text-teal-800">{v.title}</p>
-          </div>
-        ) : (
-          <div class="flex min-h-56 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-saffron-400 bg-saffron-100/50 p-6 text-center" data-reveal>
-            <Icon name="Play" class="size-10 text-saffron-700" />
-            <p class="font-semibold" set:html={ph(v.title)} />
-            <p class="text-sm text-muted">Add the YouTube video ID in <code>src/config/site.ts</code></p>
-          </div>
-        ),
-      )}
-    </div>
-
-    <div class="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-      <article class="card" data-reveal aria-labelledby="case-title">
-        <p class="eyebrow">{cs.label}</p>
-        <h3 id="case-title" class="mt-2 text-2xl font-semibold text-teal-800" set:html={ph(cs.business)} />
-        <dl class="mt-5 grid gap-4 sm:grid-cols-3">
-          {[["The problem", cs.problem, "CircleAlert"], ["What we built", cs.solution, "Hammer"], ["The result", cs.result, "TrendingUp"]].map(([k, v, icon]) => (
-            <div class="rounded-xl bg-sand p-4">
-              <dt class="flex items-center gap-2 font-semibold text-teal-800"><Icon name={icon} class="size-5 text-teal-600" />{k}</dt>
-              <dd class="mt-2 text-muted" set:html={ph(v)} />
+{show && (
+  <section id="proof" class="section" aria-labelledby="proof-title">
+    <div class="container-x">
+      <SectionHeading id="proof-title" eyebrow="Proof" title={proof.title} />
+      {videos.length > 0 && (
+        <div class="mt-12 grid gap-6 md:grid-cols-2">
+          {videos.map((v) => (
+            <div class="overflow-hidden rounded-3xl border border-line bg-white" data-reveal>
+              <button type="button" class="yt group relative block aspect-video w-full bg-teal-900" data-id={v.id} data-title={v.title} aria-label={`Play video: ${v.title}`}>
+                <img src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" width="480" height="360" class="size-full object-cover opacity-90 transition group-hover:opacity-100" />
+                <span class="absolute inset-0 m-auto flex size-16 items-center justify-center rounded-full bg-saffron-400 text-ink shadow-lg transition group-hover:scale-110">
+                  <Icon name="Play" class="ml-1 size-7" />
+                </span>
+              </button>
+              <p class="p-4 font-semibold text-teal-800">{v.title}</p>
             </div>
           ))}
-        </dl>
-      </article>
-      <figure class="card flex flex-col justify-center" data-reveal>
-        <Icon name="Quote" class="size-8 text-saffron-400" />
-        <blockquote class="mt-3 text-lg leading-relaxed" set:html={ph(proof.testimonial.quote)} />
-        <figcaption class="mt-4 text-sm font-semibold text-muted" set:html={`— ${ph(proof.testimonial.author)}`} />
-      </figure>
+        </div>
+      )}
+      {(hasCase || hasQuote) && (
+        <div class="mt-6 grid gap-6 lg:grid-cols-2">
+          {hasCase && (
+            <article class="card" data-reveal>
+              <p class="eyebrow">Case study</p>
+              <h3 class="mt-2 text-2xl font-semibold text-teal-800">{cs.business}</h3>
+              <dl class="mt-4 space-y-3 text-muted">
+                <div><dt class="inline font-semibold text-teal-800">Problem: </dt><dd class="inline">{cs.problem}</dd></div>
+                <div><dt class="inline font-semibold text-teal-800">What we built: </dt><dd class="inline">{cs.solution}</dd></div>
+                <div><dt class="inline font-semibold text-teal-800">Result: </dt><dd class="inline">{cs.result}</dd></div>
+              </dl>
+            </article>
+          )}
+          {hasQuote && (
+            <figure class="card" data-reveal>
+              <Icon name="Quote" class="size-8 text-saffron-400" />
+              <blockquote class="mt-3 text-lg leading-relaxed">{proof.testimonial.quote}</blockquote>
+              <figcaption class="mt-4 text-sm font-semibold text-muted">— {proof.testimonial.author}</figcaption>
+            </figure>
+          )}
+        </div>
+      )}
     </div>
-  </div>
-</section>
+  </section>
+)}
 
 <script>
-  // Load YouTube only when the visitor taps play (keeps the page fast & cookie-free until then)
   document.querySelectorAll<HTMLButtonElement>(".yt").forEach((btn) => {
     btn.addEventListener("click", () => {
       const iframe = document.createElement("iframe");

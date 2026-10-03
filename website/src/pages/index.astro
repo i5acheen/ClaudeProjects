@@ -1,9 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
-import Problems from "../components/Problems.astro";
-import Solutions from "../components/Solutions.astro";
-import Audience from "../components/Audience.astro";
+import Services from "../components/Services.astro";
 import Steps from "../components/Steps.astro";
 import Calculator from "../components/Calculator.astro";
 import Proof from "../components/Proof.astro";
@@ -11,7 +9,7 @@ import Pricing from "../components/Pricing.astro";
 import About from "../components/About.astro";
 import Faq from "../components/Faq.astro";
 import Contact from "../components/Contact.astro";
-import { faq } from "../config/site";
+import { faq, services, seo, business } from "../config/site";
 
 const faqSchema = {
   "@context": "https://schema.org",
@@ -22,13 +20,28 @@ const faqSchema = {
     acceptedAnswer: { "@type": "Answer", text: i.a },
   })),
 };
+
+const serviceSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: `${business.name} automation services`,
+  itemListElement: services.items.map((s, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "Service",
+      name: s.title,
+      description: s.text,
+      areaServed: "India",
+      provider: { "@id": `${seo.siteUrl}/#business` },
+    },
+  })),
+};
 ---
 
-<Layout schema={[faqSchema]}>
+<Layout schema={[faqSchema, serviceSchema]}>
   <Hero />
-  <Problems />
-  <Solutions />
-  <Audience />
+  <Services />
   <Steps />
   <Calculator />
   <Proof />

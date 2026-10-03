@@ -1,8 +1,8 @@
 ---
 import Icon from "./Icon.astro";
 import WhatsAppIcon from "./WhatsAppIcon.astro";
-import { business, contact, finalCta, form, whatsappLink, bookingLink } from "../config/site";
-import { ph, isPlaceholder } from "../lib/text";
+import { business, contact, form, whatsappLink, bookingLink } from "../config/site";
+import { isPlaceholder } from "../lib/text";
 
 const isWeb3 = form.provider === "web3forms";
 const action = isWeb3 ? "https://api.web3forms.com/submit" : form.formspreeEndpoint;
@@ -11,55 +11,38 @@ const field =
   "mt-1.5 w-full rounded-xl border border-line bg-white px-4 text-base text-ink placeholder:text-muted/70 focus:border-teal-700";
 ---
 
-<!-- Final CTA band -->
-<section class="bg-saffron-400" aria-labelledby="final-cta-title">
-  <div class="container-x flex flex-col items-center gap-6 py-14 text-center sm:py-16" data-reveal>
-    <h2 id="final-cta-title" class="max-w-2xl text-3xl leading-tight font-semibold text-ink sm:text-4xl">{finalCta.title}</h2>
-    <p class="max-w-xl text-lg text-ink/80">{finalCta.text}</p>
-    <div class="flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
-      <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp text-lg"><WhatsAppIcon class="size-6" /> Chat on WhatsApp</a>
-      <a href={bookingLink} target="_blank" rel="noopener" class="btn border-2 border-ink text-lg text-ink hover:bg-ink hover:text-cream">
-        <Icon name="CalendarCheck" class="size-5" /> Book a free 20-min call
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- Contact -->
-<section id="contact" class="section" aria-labelledby="contact-title">
-  <div class="container-x grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+<section id="contact" class="bg-grid relative overflow-hidden bg-teal-900 py-16 text-cream sm:py-24" aria-labelledby="contact-title">
+  <div aria-hidden="true" class="pointer-events-none absolute -top-40 -left-40 size-[30rem] rounded-full bg-saffron-400/15 blur-3xl"></div>
+  <div class="container-x relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
     <div data-reveal>
-      <p class="eyebrow">Contact</p>
-      <h2 id="contact-title" class="h2 mt-2">{contact.title}</h2>
-      <p class="lead" set:html={ph(contact.intro)} />
+      <p class="eyebrow !text-saffron-300">{contact.eyebrow}</p>
+      <h2 id="contact-title" class="mt-3 text-3xl leading-tight font-semibold sm:text-5xl">{contact.title}</h2>
+      <p class="mt-4 text-lg text-cream/75">{contact.intro}</p>
       <ul class="mt-8 space-y-3">
         <li>
-          <a href={whatsappLink()} target="_blank" rel="noopener" class="flex min-h-16 items-center gap-4 rounded-2xl border border-line bg-white p-4 shadow-sm transition hover:border-whatsapp">
+          <a href={whatsappLink()} target="_blank" rel="noopener" class="glass flex min-h-16 items-center gap-4 rounded-2xl p-4 transition hover:bg-cream/10">
             <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-whatsapp text-white"><WhatsAppIcon /></span>
-            <span><span class="block text-sm text-muted">WhatsApp (fastest)</span><span class="font-semibold text-teal-800" set:html={ph(business.phoneDisplay)} /></span>
+            <span><span class="block text-sm text-cream/60">WhatsApp (fastest)</span><span class="font-semibold">{business.phoneDisplay}</span></span>
           </a>
         </li>
         <li>
-          <a href={`mailto:${business.email}`} class="flex min-h-16 items-center gap-4 rounded-2xl border border-line bg-white p-4 shadow-sm transition hover:border-teal-600">
-            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-teal-700 text-cream"><Icon name="Mail" class="size-5" /></span>
-            <span class="min-w-0"><span class="block text-sm text-muted">Email</span><span class="font-semibold break-all text-teal-800" set:html={ph(business.email)} /></span>
-          </a>
-        </li>
-        <li>
-          <a href={bookingLink} target="_blank" rel="noopener" class="flex min-h-16 items-center gap-4 rounded-2xl border border-line bg-white p-4 shadow-sm transition hover:border-teal-600">
+          <a href={bookingLink} target="_blank" rel="noopener" class="glass flex min-h-16 items-center gap-4 rounded-2xl p-4 transition hover:bg-cream/10">
             <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-saffron-400 text-ink"><Icon name="CalendarCheck" class="size-5" /></span>
-            <span><span class="block text-sm text-muted">Discovery call</span><span class="font-semibold text-teal-800">Book a free 20-min call</span></span>
+            <span><span class="block text-sm text-cream/60">Discovery call</span><span class="font-semibold">Book a free 20-min call</span></span>
           </a>
         </li>
-        <li class="flex items-center gap-4 p-4 text-muted">
-          <Icon name="MapPin" class="size-5 text-teal-600" /> {business.city}, {business.region}. Working with businesses across India.
+        <li>
+          <a href={`mailto:${business.email}`} class="glass flex min-h-16 items-center gap-4 rounded-2xl p-4 transition hover:bg-cream/10">
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-cream text-teal-800"><Icon name="Mail" class="size-5" /></span>
+            <span class="min-w-0"><span class="block text-sm text-cream/60">Email</span><span class="font-semibold break-all">{business.email}</span></span>
+          </a>
         </li>
       </ul>
     </div>
 
     <form
       id="enquiry"
-      class="card !p-5 sm:!p-8"
+      class="rounded-3xl bg-white p-5 text-ink shadow-2xl shadow-black/30 sm:p-8"
       action={action}
       method="POST"
       data-configured={String(configured)}

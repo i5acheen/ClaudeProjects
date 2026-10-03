@@ -12,6 +12,6 @@ const { eyebrow, title, intro, id, center = true, light = false } = Astro.props;
 
 <div class:list={["max-w-2xl", center && "mx-auto text-center"]} data-reveal>
   {eyebrow && <p class:list={["eyebrow", light && "!text-saffron-300"]}>{eyebrow}</p>}
-  <h2 id={id} class:list={["h2 mt-2", light && "!text-cream"]}>{title}</h2>
-  {intro && <p class:list={["lead", light && "!text-cream/80"]}>{intro}</p>}
+  <h2 id={id} class:list={["h2 mt-3", light && "!text-cream"]}>{title}</h2>
+  {intro && <p class:list={["lead", light && "!text-cream/75"]}>{intro}</p>}
 </div>

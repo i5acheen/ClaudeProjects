@@ -2,6 +2,8 @@
 import "@fontsource-variable/inter";
 import "@fontsource-variable/fraunces";
 import "../styles/global.css";
+import frauncesUrl from "@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url";
+import interUrl from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import FloatingWhatsApp from "../components/FloatingWhatsApp.astro";
@@ -59,6 +61,8 @@ const jsonLd = [localBusiness, ...schema];
     <meta name="theme-color" content="#0f4c45" />
     <meta name="geo.region" content="IN-MH" />
     <meta name="geo.placename" content={business.city} />
+    <link rel="preload" href={frauncesUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interUrl} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 

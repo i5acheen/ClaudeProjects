@@ -85,11 +85,11 @@ export const form = {
 // 4. Navigation
 // ---------------------------------------------------------------------------
 export const nav = [
-  { label: "Services", href: "/#solutions" },
+  { label: "Services", href: "/#services" },
   { label: "How it works", href: "/#how" },
   { label: "Calculator", href: "/#calculator" },
   { label: "Pricing", href: "/#pricing" },
-  { label: "About", href: "/#about" },
+  { label: "Why us", href: "/#about" },
   { label: "FAQ", href: "/#faq" },
 ];
 
@@ -97,141 +97,99 @@ export const nav = [
 // 5. Page content
 // ---------------------------------------------------------------------------
 export const hero = {
-  eyebrow: "AI & workflow automation · Pune & across India",
-  headline: "Stop losing customers to slow replies and manual work.",
+  eyebrow: "AI & WhatsApp automation · Pune & across India",
+  /** The part of the headline inside {curly braces} is highlighted. */
+  headline: "Stop losing customers to {slow replies} and manual work.",
   subhead:
-    "Tell us what's slowing your business down, and we'll build an AI workflow that fixes it, so every enquiry gets a reply, every follow-up goes out, and you get your evenings back.",
+    "We build simple AI workflows that answer every enquiry, send every follow-up and end the copy-paste, so you can focus on the business.",
   primaryCta: "Chat on WhatsApp",
   secondaryCta: "Book a free 20-min call",
-  reassurance: ["No technical knowledge needed", "Fixed-price quotes", "Works with WhatsApp & Google Sheets"],
+  reassurance: ["No tech skills needed", "Fixed-price quotes", "Works with WhatsApp & Sheets"],
   /** Illustrative chat shown in the hero (clearly captioned as an example). from: "customer" | "bot" */
   chatExample: {
-    caption: "Example of an automatic WhatsApp reply, sent late at night while you are off duty.",
+    caption: "Example: an automatic reply at 11:42 pm",
     messages: [
-      { from: "customer", time: "11:42 pm", text: "Hi, are you open on Sunday? How much for a consultation?" },
-      { from: "bot", time: "11:42 pm", text: "Hi! 👋 Yes, we're open Sunday 10 am – 2 pm. A consultation is ₹500. Shall I book a slot for you?" },
+      { from: "customer", time: "11:42 pm", text: "Hi, are you open Sunday? Price for a consultation?" },
+      { from: "bot", time: "11:42 pm", text: "Hi! 👋 Yes, 10 am – 2 pm. A consultation is ₹500. Shall I book you in?" },
       { from: "customer", time: "11:43 pm", text: "Yes, 11 am please" },
-      { from: "bot", time: "11:43 pm", text: "Done ✅ You're booked for Sunday, 11 am. I'll send you a reminder that morning." },
+      { from: "bot", time: "11:43 pm", text: "Done ✅ Booked for Sunday, 11 am. I'll remind you that morning." },
     ],
   },
 };
 
-export const problems = {
-  title: "Sound familiar?",
-  intro: "Most small businesses don't need “more AI”. They need these everyday headaches to go away.",
+/** Business types shown in the scrolling strip under the hero. */
+export const audience = {
+  label: "Built for",
   items: [
-    {
-      icon: "MessageCircleX",
-      title: "Enquiries slip through the cracks",
-      text: "A message comes in on WhatsApp, Instagram or your website while you're busy. By the time you reply, they've gone to someone else.",
-    },
-    {
-      icon: "Repeat",
-      title: "The same questions, all day long",
-      text: "Price? Timings? Location? “Is my order ready?” You or your staff answer them again and again instead of doing real work.",
-    },
-    {
-      icon: "BellOff",
-      title: "Follow-ups that never happen",
-      text: "Appointment reminders, payment nudges, review requests. Everyone means to send them, but on a busy day they're the first thing to go.",
-    },
-    {
-      icon: "ClipboardPen",
-      title: "Copy-paste, all week",
-      text: "Details from chats and forms get typed into Excel or a CRM by hand. It's slow and boring, and mistakes creep in.",
-    },
-    {
-      icon: "FolderClock",
-      title: "Admin & HR eating your day",
-      text: "Onboarding new staff, answering leave queries, putting together the weekly report: necessary work that eats hours you don't have.",
-    },
+    { icon: "Stethoscope", label: "Clinics" },
+    { icon: "Scissors", label: "Salons & spas" },
+    { icon: "GraduationCap", label: "Coaching classes" },
+    { icon: "Calculator", label: "CA firms" },
+    { icon: "House", label: "Real estate" },
+    { icon: "Store", label: "Retail shops" },
+    { icon: "Building2", label: "Growing companies" },
   ],
 };
 
-export const solutions = {
-  title: "What we build",
-  intro: "Simple, reliable workflows that plug into the tools you already use. Each one fixes a specific problem.",
+/** Each card: the everyday problem → what we build → the outcome. */
+export const services = {
+  eyebrow: "What we automate",
+  title: "WhatsApp & workflow automation for everyday business headaches",
   items: [
     {
       icon: "MessageCircle",
+      problem: "Missed enquiries",
       title: "WhatsApp lead bot",
-      text: "Replies to every new enquiry within seconds, day or night. It asks the right questions, shares the details people need, and passes serious leads to you or books them in.",
-      outcome: "More enquiries turn into customers, even after hours.",
+      text: "Replies to every enquiry in seconds, 24×7, and books serious leads straight in.",
+      outcome: "More enquiries become customers",
     },
     {
       icon: "MessagesSquare",
+      problem: "Same questions all day",
       title: "FAQ assistant",
-      text: "Answers common questions about prices, timings, location and order status on WhatsApp or your website, in your tone, using your information. It hands over to a person when it isn't sure.",
-      outcome: "Your team stops repeating itself and focuses on paying customers.",
+      text: "Answers prices, timings and order status in your tone, and hands over when unsure.",
+      outcome: "Your team stops repeating itself",
     },
     {
       icon: "BellRing",
-      title: "Automatic reminders & follow-ups",
-      text: "Sends appointment reminders, payment nudges, renewal alerts and review requests at the right time, without anyone having to remember.",
-      outcome: "Fewer no-shows, faster payments and more reviews.",
+      problem: "Forgotten follow-ups",
+      title: "Reminders & follow-ups",
+      text: "Appointment reminders, payment nudges and review requests, sent on time, automatically.",
+      outcome: "Fewer no-shows, faster payments",
     },
     {
       icon: "Sheet",
-      title: "Form-to-sheet & CRM pipelines",
-      text: "Captures details from WhatsApp chats, website forms and Google Forms and puts them straight into Google Sheets, Excel or your CRM, neatly organised.",
-      outcome: "No more copy-paste and no lost leads. You get a clean list you can actually use.",
+      problem: "Manual data entry",
+      title: "Forms → Sheets & CRM",
+      text: "Details from chats and forms land neatly in Google Sheets, Excel or your CRM.",
+      outcome: "No copy-paste, no lost leads",
     },
     {
       icon: "Users",
+      problem: "Admin & HR overload",
       title: "HR & admin automation",
-      text: "Handles onboarding checklists, leave queries, document collection and recurring reports, so your managers aren't chasing paperwork.",
-      outcome: "Hours back every week for you and your team.",
+      text: "Onboarding, leave queries, document collection and weekly reports, handled.",
+      outcome: "Hours back every week",
     },
   ],
-};
-
-export const audience = {
-  title: "Who it's for",
-  intro: "Owners and managers of small and medium businesses who are tired of doing the same tasks by hand.",
-  items: [
-    { icon: "Stethoscope", label: "Clinics & doctors" },
-    { icon: "Scissors", label: "Salons & spas" },
-    { icon: "GraduationCap", label: "Coaching classes" },
-    { icon: "Calculator", label: "CA & tax firms" },
-    { icon: "House", label: "Real estate agents" },
-    { icon: "Store", label: "Retailers & shops" },
-    { icon: "Building2", label: "Companies with 20–200 staff" },
-  ],
-  more: "…and many more. If it's repetitive, we can probably automate it.",
+  more: { title: "Something else slowing you down?", text: "If it's repetitive, we can probably automate it.", cta: "Tell us about it" },
 };
 
 export const steps = {
-  title: "How it works",
-  intro: "A simple, no-pressure process. You always know what you're getting and what it costs before we start.",
+  eyebrow: "How it works",
+  title: "From first chat to live in four simple steps",
   items: [
-    {
-      icon: "PhoneCall",
-      title: "Free discovery call",
-      text: "A 20-minute chat about what's slowing you down. We'll tell you honestly whether automation will help.",
-    },
-    {
-      icon: "FileText",
-      title: "One-page scope, fixed price",
-      text: "You get a simple one-page plan: what we'll build, what it will do, the timeline and a fixed price. No surprises.",
-    },
-    {
-      icon: "Hammer",
-      title: "Build & demo",
-      text: "We build it and show it working on your own WhatsApp, forms or sheets. You ask for changes before anything goes live.",
-    },
-    {
-      icon: "LifeBuoy",
-      title: "Handover + optional support",
-      text: "We go live, walk your team through it and hand everything over. Want us to look after it? Add a monthly support plan.",
-    },
+    { icon: "PhoneCall", title: "Free 20-min call", text: "Tell us what's slowing you down." },
+    { icon: "FileText", title: "Fixed-price scope", text: "A one-page plan. No surprises." },
+    { icon: "Hammer", title: "Build & demo", text: "See it working before go-live." },
+    { icon: "Rocket", title: "Launch & support", text: "Handover, plus optional monthly care." },
   ],
 };
 
 export const calculator = {
-  title: "How much are missed enquiries costing you?",
-  intro: "Put in your own numbers. It takes 20 seconds.",
-  disclaimer:
-    "This is a rough estimate based only on the numbers you enter (and a 30-day month). It is not a guarantee of results.",
+  title: "What are missed enquiries costing you?",
+  intro: "Enter your own numbers. It takes 20 seconds.",
+  disclaimer: "Rough estimate based only on your numbers and a 30-day month. Not a guarantee of results.",
   defaults: {
     enquiriesPerDay: 10,
     unansweredPercent: 20,
@@ -241,120 +199,95 @@ export const calculator = {
   cta: "Fix this on WhatsApp",
 };
 
+/**
+ * Demos & proof. This section stays HIDDEN until you add at least one real
+ * video ID, or fill in the case study / testimonial. Never add made-up results.
+ */
 export const proof = {
   title: "See it in action",
-  intro: "Short demos of real workflows, so you can see exactly what your customers would experience.",
-  /**
-   * Add YouTube video IDs (the part after "v=" in the URL, e.g. "dQw4w9WgXcQ").
-   * Leave the id as "" to show a placeholder box.
-   */
+  /** YouTube video IDs (the part after "v=" in the URL). Leave "" to skip. */
   videos: [
-    { id: "", title: "[ADD DEMO VIDEO 1: e.g. WhatsApp lead bot demo]" },
-    { id: "", title: "[ADD DEMO VIDEO 2: e.g. Automatic appointment reminders]" },
+    { id: "", title: "WhatsApp lead bot demo" },
+    { id: "", title: "Automatic appointment reminders" },
   ],
   caseStudy: {
-    label: "Case study",
-    business: "[ADD CLIENT BUSINESS TYPE & CITY, with permission]",
-    problem: "[ADD THE REAL PROBLEM THE CLIENT HAD]",
-    solution: "[ADD WHAT YOU BUILT]",
-    result: "[ADD REAL, MEASURED RESULT. Do not estimate.]",
+    business: "",
+    problem: "",
+    solution: "",
+    result: "",
   },
   testimonial: {
-    quote: "[ADD REAL TESTIMONIAL WITH CLIENT PERMISSION]",
-    author: "[CLIENT NAME, BUSINESS]",
+    quote: "",
+    author: "",
   },
 };
 
 export const pricing = {
+  eyebrow: "Pricing",
   title: "Simple, honest pricing",
-  intro: "Every business is different, so we don't use one-size-fits-all packages. Here's how it works:",
   items: [
-    {
-      icon: "PackageCheck",
-      title: "Ready-made workflows",
-      tag: "Fixed price",
-      text: "Proven setups such as a WhatsApp enquiry bot or automatic appointment reminders, adapted to your business. You know the price upfront.",
-    },
-    {
-      icon: "PencilRuler",
-      title: "Custom builds",
-      tag: "Quoted after a free call",
-      text: "Need something built around how you work? We'll understand it on a call and send a fixed quote in a one-page scope.",
-    },
-    {
-      icon: "ShieldCheck",
-      title: "Monthly support",
-      tag: "Optional",
-      text: "We keep an eye on things, fix issues and make small changes, like new prices or timings, so you don't have to.",
-    },
+    { icon: "PackageCheck", title: "Ready-made workflows", tag: "Fixed price", text: "Proven setups, adapted to your business." },
+    { icon: "PencilRuler", title: "Custom builds", tag: "Quoted after a free call", text: "Built around how you actually work." },
+    { icon: "ShieldCheck", title: "Monthly support", tag: "Optional", text: "Fixes, tweaks and updates, handled." },
   ],
-  note: "If a tool needs its own subscription or usage fees (for example, the official WhatsApp Business API), we'll tell you clearly before you commit.",
+  note: "Any third-party fees (e.g. the official WhatsApp Business API) are shown upfront.",
   cta: "Get a free quote",
 };
 
 export const about = {
-  title: `About ${business.name}`,
-  paragraphs: [
-    `${business.name} builds simple AI workflows and automations for small and medium businesses in Pune and across India: WhatsApp bots, automatic follow-ups, form-to-sheet pipelines, and HR & admin automation.`,
-    "We look at your process first and the technology second. The goal is never “more AI”. It's fewer missed enquiries, fewer repetitive tasks, and more time for the work that actually grows your business.",
-  ],
+  eyebrow: `Why ${business.name}`,
+  title: "Process first. Technology second.",
+  text: `${business.name} helps small and medium businesses in Pune and across India replace repetitive work with simple, reliable automation, using the tools you already have.`,
   values: [
-    { icon: "Workflow", title: "Process first", text: "We understand how your business runs today before we suggest anything." },
-    { icon: "Plug", title: "Uses your existing tools", text: "WhatsApp, Google Sheets, Excel, Microsoft 365. No need to switch systems." },
-    { icon: "FileText", title: "Plain English, fixed prices", text: "A one-page scope and a clear price before any work starts." },
-    { icon: "MapPin", title: "Pune-based, India-wide", text: "Meet in person in Pune, or work together remotely from anywhere in India." },
+    { icon: "Workflow", title: "Process first" },
+    { icon: "Plug", title: "Works with your tools" },
+    { icon: "FileText", title: "Plain English, fixed prices" },
+    { icon: "MapPin", title: "Pune-based, India-wide" },
   ],
 };
 
 export const faq = {
-  title: "Questions people usually ask",
+  eyebrow: "FAQ",
+  title: "Questions, answered",
   items: [
     {
       q: "Do I need any technical knowledge?",
-      a: "No. You explain how things work today in plain language, and we handle the setup. At handover we walk you and your team through it and give you simple notes. If you can use WhatsApp and Google Sheets, you can use what we build.",
+      a: "No. You explain how things work today, we handle the setup, and we walk your team through it at handover.",
     },
     {
       q: "Which tools do you use?",
-      a: "It depends on what you already use and your budget. We prefer working with tools you already have. Common ones include WhatsApp Business and the official WhatsApp Business API, Google Sheets and Forms, Microsoft 365 and Copilot Studio, Excel, CRMs, and automation platforms such as [ADD THE PLATFORMS YOU USE, e.g. Make / n8n / Zapier].",
+      a: "Mostly what you already have: WhatsApp Business (including the official API), Google Sheets & Forms, Excel, Microsoft 365, Copilot Studio and popular CRMs.",
     },
     {
       q: "Is my customer data safe?",
-      a: "We only access the data a workflow needs, we never sell or share it, and we use official, reputable tools. Wherever possible, accounts are set up in your business's name so you stay in control. [ADD SPECIFICS: where data is stored, whether you sign an NDA, how access is removed after handover.]",
+      a: "We only access what a workflow needs, never sell or share data, and set accounts up in your business's name wherever possible.",
     },
     {
       q: "How long does a build take?",
-      a: "It depends on the scope. Ready-made workflows are quicker than custom builds. Your one-page scope states the exact timeline before you commit. [ADD YOUR TYPICAL TIMELINES, e.g. “X–Y working days for a ready-made workflow”.]",
+      a: "It depends on scope. Ready-made workflows are quickest, and your one-page scope states the exact timeline before you commit.",
     },
     {
       q: "What if something breaks?",
-      a: "Every build includes [ADD YOUR FIX PERIOD, e.g. 30 days] of fixes after go-live. After that, you can choose a monthly support plan or ask for help as and when you need it. We also design workflows to hand over to a person when they aren't sure, so customers are never left stuck.",
-    },
-    {
-      q: "Will my customers feel like they're talking to a robot?",
-      a: "We write replies in your tone and keep them short and helpful. Customers can always reach a real person, and you can step into any conversation at any time.",
+      a: "Fixes after go-live are included for the period in your scope. After that, choose monthly support or pay as you go.",
     },
     {
       q: "Do you work outside Pune?",
-      a: "Yes. We're based in Pune and can meet in person locally, and we work with businesses across India remotely over calls, screen-share and WhatsApp.",
+      a: "Yes. We meet in person in Pune and work remotely with businesses across India.",
     },
   ],
 };
 
-export const finalCta = {
-  title: "Tell us what's slowing you down.",
-  text: "One message is all it takes. We'll reply personally and tell you honestly if, and how, we can help.",
-};
-
 export const contact = {
-  title: "Get in touch",
-  intro: "Prefer to write it down? Send a quick note and we'll get back to you within 3 hours.",
+  eyebrow: "Contact",
+  title: "Tell us what's slowing you down.",
+  intro: "Send a message and we'll reply within 3 hours.",
   formTitle: "Send an enquiry",
   successMessage: "Thank you! Your message has been sent. We'll get back to you soon.",
   errorMessage: "Sorry, something went wrong. Please message us on WhatsApp instead.",
 };
 
 export const footer = {
-  blurb: "AI & workflow automation for small and medium businesses. Based in Pune, working across India.",
+  blurb: "AI & WhatsApp automation for small and medium businesses. Based in Pune, working across India.",
 };
 
 export const privacy = {

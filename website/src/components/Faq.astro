@@ -1,21 +1,25 @@
 ---
 import Icon from "./Icon.astro";
-import SectionHeading from "./SectionHeading.astro";
 import { faq } from "../config/site";
-import { ph } from "../lib/text";
 ---
 
-<section id="faq" class="section bg-sand" aria-labelledby="faq-title">
-  <div class="container-x max-w-3xl">
-    <SectionHeading id="faq-title" eyebrow="FAQ" title={faq.title} />
-    <div class="mt-10 space-y-3">
-      {faq.items.map((item, i) => (
-        <details class="group rounded-2xl border border-line bg-white shadow-sm" open={i === 0} data-reveal>
+<section id="faq" class="section" aria-labelledby="faq-title">
+  <div class="container-x grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+    <div class="lg:sticky lg:top-28 lg:self-start" data-reveal>
+      <p class="eyebrow">{faq.eyebrow}</p>
+      <h2 id="faq-title" class="h2 mt-3">{faq.title}</h2>
+      <p class="lead">Still unsure? <a href="#contact" class="font-semibold text-teal-700 underline decoration-saffron-400 decoration-2 underline-offset-4">Just ask us.</a></p>
+    </div>
+    <div class="space-y-3">
+      {faq.items.map((item) => (
+        <details class="group rounded-2xl border border-line bg-white transition open:border-teal-600/40 open:shadow-sm" data-reveal>
           <summary class="flex min-h-14 cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left text-lg font-semibold text-teal-800">
             {item.q}
-            <Icon name="ChevronDown" class="faq-chevron size-5 shrink-0 text-teal-600 transition" />
+            <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-sand transition group-open:bg-teal-800 group-open:text-cream">
+              <Icon name="Plus" class="size-4 transition group-open:rotate-45" />
+            </span>
           </summary>
-          <p class="px-5 pb-5 leading-relaxed text-muted" set:html={ph(item.a)} />
+          <p class="px-5 pb-5 leading-relaxed text-muted">{item.a}</p>
         </details>
       ))}
     </div>

@@ -1,22 +1,20 @@
 ---
 import Icon from "./Icon.astro";
 import { about } from "../config/site";
-import { ph } from "../lib/text";
 ---
 
-<section id="about" class="section" aria-labelledby="about-title">
+<section id="about" class="section bg-sand" aria-labelledby="about-title">
   <div class="container-x grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
     <div data-reveal>
-      <p class="eyebrow">About</p>
-      <h2 id="about-title" class="h2 mt-2" set:html={ph(about.title)} />
-      {about.paragraphs.map((p) => <p class="lead" set:html={ph(p)} />)}
+      <p class="eyebrow">{about.eyebrow}</p>
+      <h2 id="about-title" class="h2 mt-3">{about.title}</h2>
+      <p class="lead">{about.text}</p>
     </div>
-    <ul class="grid gap-4 sm:grid-cols-2" data-reveal>
+    <ul class="grid grid-cols-2 gap-3 sm:gap-4" data-reveal>
       {about.values.map((v) => (
-        <li class="card">
-          <span class="flex size-11 items-center justify-center rounded-xl bg-saffron-100 text-saffron-700"><Icon name={v.icon} class="size-5" /></span>
-          <h3 class="mt-4 text-lg font-semibold text-teal-800">{v.title}</h3>
-          <p class="mt-1 leading-relaxed text-muted">{v.text}</p>
+        <li class="lift flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
+          <span class="flex size-10 items-center justify-center rounded-xl bg-saffron-100 text-saffron-700"><Icon name={v.icon} class="size-5" /></span>
+          <span class="font-semibold leading-snug text-teal-800">{v.title}</span>
         </li>
       ))}
     </ul>

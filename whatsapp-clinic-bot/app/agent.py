@@ -35,17 +35,62 @@ class LLM(Protocol):
 class Sender(Protocol):
     async def send_text(self, to: str, body: str) -> bool: ...
 
+    async def send_choices(self, to: str, body: str, kind: str, choices: list[dict],
+                           button_label: str = "") -> bool: ...
+
+
+LANGUAGE_PICKER_BODY = (
+    "नमस्कार 🙏 द व्हॅस्कुलर सेंटर (डॉ. अमोल लाहोटी) मध्ये आपलं स्वागत आहे.\n\n"
+    "कृपया तुमची भाषा निवडा\nकृपया अपनी भाषा चुनें\nPlease choose your language"
+)
+LANGUAGE_CHOICES = [
+    {"id": "lang_mr", "title": "मराठी"},
+    {"id": "lang_hi", "title": "हिंदी"},
+    {"id": "lang_en", "title": "English"},
+]
+LANGUAGE_NAMES = {"mr": "Marathi (मराठी)", "hi": "Hindi (हिंदी)", "en": "English"}
+_LANGUAGE_WORDS = {
+    "mr": ("marathi", "मराठी", "1"),
+    "hi": ("hindi", "हिंदी", "हिन्दी", "2"),
+    "en": ("english", "इंग्रजी", "अंग्रेजी", "इंग्लिश", "3"),
+}
+
+
+def detect_language_choice(msg: IncomingMessage) -> str | None:
+    """Return 'mr'/'hi'/'en' if the message is a language selection (button tap or typed name)."""
+    if msg.choice_id and msg.choice_id.startswith("lang_"):
+        return msg.choice_id.removeprefix("lang_")
+    text = (msg.text or "").strip().lower().strip(".!")
+    for code, words in _LANGUAGE_WORDS.items():
+        if text in words:
+            return code
+    return None
+
+
+def mentions_language(text: str, code: str) -> bool:
+    """True if the user explicitly names a language, e.g. 'please reply in English'."""
+    t = text.lower()
+    return any(w in t for w in _LANGUAGE_WORDS[code] if not w.isdigit())
+
+
+def options_as_text(turn_options) -> str:
+    """How offered options are remembered in history, so the model knows what was shown."""
+    if turn_options.kind == "none" or not turn_options.choices:
+        return ""
+    return "\n[Options shown: " + " | ".join(c.title for c in turn_options.choices) + "]"
+
 
 class Sheet(Protocol):
     async def upsert(self, lead: dict) -> None: ...
 
 
-def build_system_instruction(lead: dict, first_reply: bool) -> str:
+def build_system_instruction(lead: dict, first_reply: bool, language: str | None = None) -> str:
     # Read on every call so edits to the .md files apply without restarting.
     prompt = PROMPT_FILE.read_text(encoding="utf-8")
     knowledge = KNOWLEDGE_FILE.read_text(encoding="utf-8")
     context = {
         "first_reply": first_reply,
+        "reply_language": LANGUAGE_NAMES.get(language or "", "not chosen yet: detect from their message, default Marathi"),
         "whatsapp_profile_name": lead.get("profile_name"),
         "current_lead_details": {k: lead["data"].get(k) for k in LEAD_FIELDS},
         "details_already_confirmed": lead.get("details_confirmed", False),
@@ -112,17 +157,38 @@ class Agent:
     async def _handle(self, msg: IncomingMessage) -> None:
         log.info("Handling %s message from ...%s", msg.type, msg.phone[-4:])
         lead = self.db.get_lead(msg.phone)
+        language = lead.get("language")
 
         if msg.type != "text" or not (msg.text or "").strip():
-            lang = lead.get("language")
-            reply = NON_TEXT_REPLY.get(lang) or f"{NON_TEXT_REPLY['mr']}\n{NON_TEXT_REPLY['en']}"
+            reply = NON_TEXT_REPLY.get(language) or f"{NON_TEXT_REPLY['mr']}\n{NON_TEXT_REPLY['en']}"
             await self.sender.send_text(msg.phone, reply)
             return
 
-        self.db.add_message(msg.phone, "user", msg.text.strip())
+        text = msg.text.strip()
+        chosen = detect_language_choice(msg)
+        if chosen:
+            # Language picked (first time or later): lock it and answer their earlier message.
+            language = chosen
+            self.db.save_lead(msg.phone, lead["data"], language, msg.profile_name,
+                              lead["details_confirmed"])
+            recent = self.db.recent_messages(msg.phone, 1)
+            if not recent:
+                text = {"mr": "नमस्कार", "hi": "नमस्ते", "en": "Hello"}[language]
+            elif recent[-1]["role"] == "user":
+                text = ""  # answer the message they sent before picking the language
+        elif language is None and not self.db.recent_messages(msg.phone, 1):
+            # Very first message: remember it and ask which language they prefer.
+            self.db.add_message(msg.phone, "user", text)
+            self.db.save_lead(msg.phone, lead["data"], None, msg.profile_name, False)
+            await self.sender.send_choices(msg.phone, LANGUAGE_PICKER_BODY, "buttons", LANGUAGE_CHOICES)
+            return
+
+        if text:
+            self.db.add_message(msg.phone, "user", text)
         first_reply = not self.db.has_assistant_replied(msg.phone)
         history = self.db.recent_messages(msg.phone, self.history_limit)
-        system = build_system_instruction(lead, first_reply)
+        lead = self.db.get_lead(msg.phone)
+        system = build_system_instruction(lead, first_reply, language)
 
         try:
             turn = await self.llm.generate(system, history)
@@ -131,16 +197,33 @@ class Agent:
             await self.sender.send_text(msg.phone, self.fallback_reply())
             return
 
+        # Keep the chosen language unless the person explicitly asked to switch.
+        if language is None:
+            language = turn.language
+        elif turn.language != language and mentions_language(text, turn.language):
+            language = turn.language
+
         reply = format_for_whatsapp(turn.reply) or self.fallback_reply()
-        if await self.sender.send_text(msg.phone, reply):
-            self.db.add_message(msg.phone, "assistant", reply)
-            log.info("Replied to ...%s (status=%s)", msg.phone[-4:], turn.lead.status)
+        opts = turn.options
+        choices = [c.model_dump() for c in opts.choices if c.id and c.title]
+        if opts.kind == "buttons" and 1 <= len(choices) <= 3 and len(reply) <= 1024:
+            sent = await self.sender.send_choices(msg.phone, reply, "buttons", choices)
+        elif opts.kind == "list" and 1 <= len(choices) <= 10 and len(reply) <= 1024:
+            sent = await self.sender.send_choices(msg.phone, reply, "list", choices,
+                                                  opts.button_label or "")
+        else:
+            sent = await self.sender.send_text(msg.phone, reply)
+        if not sent and opts.kind != "none":  # interactive rejected: fall back to plain text
+            sent = await self.sender.send_text(msg.phone, reply)
+        if sent:
+            self.db.add_message(msg.phone, "assistant", reply + options_as_text(opts))
+            log.info("Replied to ...%s (status=%s, options=%s)", msg.phone[-4:], turn.lead.status, opts.kind)
 
         new_data = merge_lead(lead["data"], turn.lead.model_dump())
         confirmed = lead["details_confirmed"] or turn.details_confirmed
-        self.db.save_lead(msg.phone, new_data, turn.language, msg.profile_name, confirmed)
+        self.db.save_lead(msg.phone, new_data, language, msg.profile_name, confirmed)
 
-        changed = (new_data != lead["data"] or turn.language != lead["language"]
+        changed = (new_data != lead["data"] or language != lead["language"]
                    or confirmed != lead["details_confirmed"] or lead["first_seen"] is None)
         if self.sheet and changed:
             await self.sheet.upsert(self.db.get_lead(msg.phone))

@@ -92,9 +92,15 @@ class _CaptureSender:
         self.sent.append(body)
         return True
 
+    async def send_choices(self, to: str, body: str, kind: str, choices: list[dict],
+                           button_label: str = "") -> bool:
+        self.sent.append(body + f"\n[{kind}: " + " | ".join(c["title"] for c in choices) + "]")
+        return True
+
 
 @app.get("/diag/chat")
-async def diag_chat(request: Request, q: str, session: str = "default", token: str = ""):
+async def diag_chat(request: Request, q: str, session: str = "default", token: str = "",
+                    choice: str = ""):
     """Try the agent without WhatsApp. Protected by VERIFY_TOKEN; uses a separate test 'phone'."""
     if not token or token != settings.verify_token:
         return Response(status_code=403)
@@ -103,7 +109,8 @@ async def diag_chat(request: Request, q: str, session: str = "default", token: s
     agent = Agent(db=real.db, llm=real.llm, sender=capture, sheet=None,
                   history_limit=real.history_limit, clinic_phone=real.clinic_phone)
     phone = f"diag-{session}"
-    await agent.handle(IncomingMessage(f"diag-{session}-{len(q)}-{id(capture)}", phone, "text", q, None))
+    await agent.handle(IncomingMessage(f"diag-{session}-{len(q)}-{id(capture)}", phone, "text", q, None,
+                                       choice or None))
     return {"reply": capture.sent, "lead": real.db.get_lead(phone)}
 
 

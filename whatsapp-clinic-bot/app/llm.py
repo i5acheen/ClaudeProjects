@@ -22,11 +22,24 @@ class LeadInfo(BaseModel):
     summary: Optional[str] = None
 
 
+class Choice(BaseModel):
+    id: str
+    title: str
+    description: Optional[str] = None
+
+
+class Options(BaseModel):
+    kind: Literal["none", "buttons", "list"] = "none"
+    button_label: Optional[str] = None
+    choices: list[Choice] = []
+
+
 class AgentTurn(BaseModel):
     reply: str
     language: Literal["mr", "hi", "en"]
     lead: LeadInfo
     details_confirmed: bool = False
+    options: Options = Options()
 
 
 class GeminiLLM:

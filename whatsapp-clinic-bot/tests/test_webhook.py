@@ -96,3 +96,12 @@ def test_public_pages():
         r = c.get(path)
         assert r.status_code == 200 and text in r.text
     assert c.head("/").status_code == 200
+
+
+def test_button_tap_is_parsed_as_text_with_choice_id():
+    c = client()
+    post(c, payload([{"from": "919000000001", "id": "wamid.3", "type": "interactive",
+                      "interactive": {"type": "button_reply",
+                                      "button_reply": {"id": "lang_en", "title": "English"}}}]))
+    m = app.state.agent.handled[0]
+    assert m.type == "text" and m.text == "English" and m.choice_id == "lang_en"

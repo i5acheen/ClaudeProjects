@@ -12,8 +12,10 @@ def text(mid, body, phone="919000000001"):
     return IncomingMessage(mid, phone, "text", body, "Ramesh")
 
 
-def make(turns=None, error=None, limit=15):
+def make(turns=None, error=None, limit=15, language="mr"):
     db, llm, sender, sheet = Database(":memory:"), FakeLLM(turns, error), FakeSender(), FakeSheet()
+    if language:  # most tests skip the language picker
+        db.save_lead("919000000001", {}, language, None, False)
     return Agent(db, llm, sender, sheet, history_limit=limit, clinic_phone="+91 1"), db, llm, sender, sheet
 
 
@@ -60,7 +62,7 @@ def test_lead_is_merged_saved_and_synced():
 
 
 def test_non_text_message_asks_for_text_without_llm():
-    agent, db, llm, sender, _ = make()
+    agent, db, llm, sender, _ = make(language=None)
     run(agent.handle(IncomingMessage("m1", "919000000001", "audio", None, None)))
     assert llm.calls == []
     assert "टेक्स्ट" in sender.sent[0][1] and "text" in sender.sent[0][1]
@@ -122,3 +124,37 @@ def test_format_keeps_doctor_title_together():
             "Dr. Lahoti helps. तुम्हाला कोणता त्रास होत आहे?")
     out = format_for_whatsapp(text)
     assert "डॉ. अमोल" in out and "Dr. Lahoti" in out and out.count("\n") == 3
+
+
+def test_first_message_shows_language_picker_then_answers_it():
+    agent, db, llm, sender, _ = make(language=None)
+    run(agent.handle(text("m1", "mala payat dukhta")))
+    assert llm.calls == []
+    assert sender.sent[0][2] == "buttons" and sender.sent[0][3] == ["मराठी", "हिंदी", "English"]
+    tap = IncomingMessage("m2", "919000000001", "text", "मराठी", "Ramesh", "lang_mr")
+    run(agent.handle(tap))
+    system, history = llm.calls[0]
+    assert "Marathi" in system and '"first_reply": true' in system
+    assert history == [{"role": "user", "content": "mala payat dukhta"}]
+    assert db.get_lead("919000000001")["language"] == "mr"
+
+
+def test_language_stays_locked_unless_user_asks_to_switch():
+    turns = [AgentTurn(reply="Hi", language="en", lead=LeadInfo()),
+             AgentTurn(reply="Sure", language="en", lead=LeadInfo())]
+    agent, db, llm, sender, _ = make(turns)
+    run(agent.handle(text("m1", "what is the cost?")))
+    assert db.get_lead("919000000001")["language"] == "mr"
+    run(agent.handle(text("m2", "please reply in English")))
+    assert db.get_lead("919000000001")["language"] == "en"
+
+
+def test_options_are_sent_as_interactive_and_remembered():
+    from app.llm import Choice, Options
+
+    opts = Options(kind="buttons", choices=[Choice(id="d1", title="6 महिने"), Choice(id="d2", title="1-2 वर्षे")])
+    agent, db, llm, sender, _ = make([AgentTurn(reply="किती दिवसांपासून?", language="mr",
+                                                lead=LeadInfo(), options=opts)])
+    run(agent.handle(text("m1", "payat dukhta")))
+    assert sender.sent[0][2] == "buttons" and sender.sent[0][3] == ["6 महिने", "1-2 वर्षे"]
+    assert "[Options shown: 6 महिने | 1-2 वर्षे]" in db.recent_messages("919000000001", 5)[-1]["content"]

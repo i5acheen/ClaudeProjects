@@ -24,6 +24,10 @@ class FakeSender:
         self.sent.append((to, body))
         return True
 
+    async def send_choices(self, to, body, kind, choices, button_label=""):
+        self.sent.append((to, body, kind, [c["title"] for c in choices]))
+        return True
+
     async def mark_read(self, message_id):
         self.read.append(message_id)
 

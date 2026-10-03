@@ -7,8 +7,9 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, FastAPI, Query, Request, Response
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 
+from . import pages
 from .agent import Agent
 from .config import settings
 from .db import Database
@@ -56,6 +57,21 @@ app = FastAPI(title="Vascular Center WhatsApp Assistant", lifespan=lifespan)
 @app.get("/health")
 async def health() -> dict:
     return {"ok": True}
+
+
+@app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
+async def home():
+    return pages.HOME
+
+
+@app.get("/privacy", response_class=HTMLResponse)
+async def privacy():
+    return pages.PRIVACY
+
+
+@app.get("/data-deletion", response_class=HTMLResponse)
+async def data_deletion():
+    return pages.DATA_DELETION
 
 
 @app.get("/webhook")

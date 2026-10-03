@@ -87,3 +87,12 @@ def test_image_passed_through_as_non_text():
     post(c, payload([{"from": "919000000001", "id": "wamid.2", "type": "image", "image": {}}]))
     assert app.state.agent.handled[0].type == "image"
     assert app.state.agent.handled[0].text is None
+
+
+def test_public_pages():
+    c = client()
+    for path, text in [("/", "WhatsApp Assistant"), ("/privacy", "Privacy Policy"),
+                       ("/data-deletion", "Data Deletion")]:
+        r = c.get(path)
+        assert r.status_code == 200 and text in r.text
+    assert c.head("/").status_code == 200

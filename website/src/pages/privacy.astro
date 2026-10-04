@@ -77,7 +77,7 @@ const sections: { h: string; body: string[] }[] = [
 <Layout title={`Privacy Policy | ${business.name}`} description={`How ${business.name} collects, uses and protects your personal data, in line with India's DPDP Act, 2023.`}>
   <article class="section">
     <div class="container-x max-w-3xl">
-      <div class="rounded-2xl border-2 border-dashed border-saffron-400 bg-saffron-100/60 p-5 text-saffron-700">
+      <div class="rounded-2xl border-2 border-dashed border-lavender-400 bg-lavender-50 p-5 text-lavender-700">
         <p class="font-semibold">⚠️ TEMPLATE: please review before publishing.</p>
         <p class="mt-1 text-sm">
           This is a plain-language starting point, not legal advice. Check it matches how you actually handle data, fill in the
@@ -85,7 +85,7 @@ const sections: { h: string; body: string[] }[] = [
         </p>
       </div>
 
-      <h1 class="mt-10 text-4xl font-semibold text-teal-800 sm:text-5xl">Privacy Policy</h1>
+      <h1 class="mt-10 text-4xl font-bold text-ink sm:text-5xl">Privacy Policy</h1>
       <p class="mt-3 text-muted">Last updated: <span set:html={ph(privacy.lastUpdated)} /></p>
       <p class="lead">
         We respect your privacy. This page explains, in plain language, what personal data we collect, why, and the choices you have.
@@ -93,12 +93,12 @@ const sections: { h: string; body: string[] }[] = [
 
       {sections.map((s) => (
         <section class="mt-10">
-          <h2 class="text-2xl font-semibold text-teal-800">{s.h}</h2>
+          <h2 class="text-2xl font-bold text-ink">{s.h}</h2>
           {s.body.map((p) => <p class="mt-3 leading-relaxed text-ink/85" set:html={ph(p)} />)}
         </section>
       ))}
 
-      <p class="mt-12"><a href="/" class="font-semibold text-teal-700 underline">← Back to home</a></p>
+      <p class="mt-12"><a href="/" class="font-semibold text-lavender-600 underline">← Back to home</a></p>
     </div>
   </article>
 </Layout>

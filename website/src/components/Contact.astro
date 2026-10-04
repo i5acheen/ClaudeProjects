@@ -2,39 +2,39 @@
 import Icon from "./Icon.astro";
 import WhatsAppIcon from "./WhatsAppIcon.astro";
 import { business, contact, form, whatsappLink, bookingLink } from "../config/site";
-import { isPlaceholder } from "../lib/text";
+import { isPlaceholder, hl } from "../lib/text";
 
 const isWeb3 = form.provider === "web3forms";
 const action = isWeb3 ? "https://api.web3forms.com/submit" : form.formspreeEndpoint;
 const configured = isWeb3 ? !isPlaceholder(form.web3formsAccessKey) : !isPlaceholder(form.formspreeEndpoint);
 const field =
-  "mt-1.5 w-full rounded-xl border border-line bg-white px-4 text-base text-ink placeholder:text-muted/70 focus:border-teal-700";
+  "mt-1.5 w-full rounded-xl border border-line bg-white px-4 text-base text-ink placeholder:text-muted/70 focus:border-lavender-500";
 ---
 
-<section id="contact" class="bg-grid relative overflow-hidden bg-teal-900 py-16 text-cream sm:py-24" aria-labelledby="contact-title">
-  <div aria-hidden="true" class="pointer-events-none absolute -top-40 -left-40 size-[30rem] rounded-full bg-saffron-400/15 blur-3xl"></div>
+<section id="contact" class="on-dark relative overflow-hidden bg-navy py-16 text-white sm:py-28" aria-labelledby="contact-title">
+  <div aria-hidden="true" class="pointer-events-none absolute -top-40 -left-40 size-[30rem] rounded-full bg-lavender-500/20 blur-3xl"></div>
   <div class="container-x relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
     <div data-reveal>
-      <p class="eyebrow !text-saffron-300">{contact.eyebrow}</p>
-      <h2 id="contact-title" class="mt-3 text-3xl leading-tight font-semibold sm:text-5xl">{contact.title}</h2>
-      <p class="mt-4 text-lg text-cream/75">{contact.intro}</p>
+      <p class="eyebrow !text-lavender-300">{contact.eyebrow}</p>
+      <h2 id="contact-title" class="mt-3 text-3xl leading-tight font-bold sm:text-5xl" set:html={hl(contact.title)} />
+      <p class="mt-4 text-lg text-white/70">{contact.intro}</p>
       <ul class="mt-8 space-y-3">
         <li>
-          <a href={whatsappLink()} target="_blank" rel="noopener" class="glass flex min-h-16 items-center gap-4 rounded-2xl p-4 transition hover:bg-cream/10">
+          <a href={whatsappLink()} target="_blank" rel="noopener" class="glass flex min-h-16 items-center gap-4 rounded-3xl p-4 transition hover:bg-white/10">
             <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-whatsapp text-white"><WhatsAppIcon /></span>
-            <span><span class="block text-sm text-cream/60">WhatsApp (fastest)</span><span class="font-semibold">{business.phoneDisplay}</span></span>
+            <span><span class="block text-sm text-white/60">WhatsApp (fastest)</span><span class="font-semibold">{business.phoneDisplay}</span></span>
           </a>
         </li>
         <li>
-          <a href={bookingLink} target="_blank" rel="noopener" class="glass flex min-h-16 items-center gap-4 rounded-2xl p-4 transition hover:bg-cream/10">
-            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-saffron-400 text-ink"><Icon name="CalendarCheck" class="size-5" /></span>
-            <span><span class="block text-sm text-cream/60">Discovery call</span><span class="font-semibold">Book a free 20-min call</span></span>
+          <a href={bookingLink} target="_blank" rel="noopener" class="glass flex min-h-16 items-center gap-4 rounded-3xl p-4 transition hover:bg-white/10">
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-lavender-500 text-white"><Icon name="CalendarCheck" class="size-5" /></span>
+            <span><span class="block text-sm text-white/60">Discovery call</span><span class="font-semibold">Book a free 20-min call</span></span>
           </a>
         </li>
         <li>
-          <a href={`mailto:${business.email}`} class="glass flex min-h-16 items-center gap-4 rounded-2xl p-4 transition hover:bg-cream/10">
-            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-cream text-teal-800"><Icon name="Mail" class="size-5" /></span>
-            <span class="min-w-0"><span class="block text-sm text-cream/60">Email</span><span class="font-semibold break-all">{business.email}</span></span>
+          <a href={`mailto:${business.email}`} class="glass flex min-h-16 items-center gap-4 rounded-3xl p-4 transition hover:bg-white/10">
+            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-white text-ink"><Icon name="Mail" class="size-5" /></span>
+            <span class="min-w-0"><span class="block text-sm text-white/60">Email</span><span class="font-semibold break-all">{business.email}</span></span>
           </a>
         </li>
       </ul>
@@ -42,14 +42,14 @@ const field =
 
     <form
       id="enquiry"
-      class="rounded-3xl bg-white p-5 text-ink shadow-2xl shadow-black/30 sm:p-8"
+      class="rounded-[2rem] bg-white p-5 text-ink shadow-2xl shadow-black/30 sm:p-8"
       action={action}
       method="POST"
       data-configured={String(configured)}
       data-provider={form.provider}
       data-reveal
     >
-      <h3 class="text-2xl font-semibold text-teal-800">{contact.formTitle}</h3>
+      <h3 class="text-2xl font-semibold text-ink">{contact.formTitle}</h3>
       <p class="mt-1 text-sm text-muted">All fields are required.</p>
 
       {isWeb3 ? (
@@ -68,31 +68,31 @@ const field =
 
       <div class="mt-6 grid gap-5 sm:grid-cols-2">
         <div>
-          <label for="f-name" class="font-semibold text-teal-800">Your name</label>
+          <label for="f-name" class="font-semibold text-ink">Your name</label>
           <input id="f-name" name="name" type="text" required autocomplete="name" class={`${field} h-12`} />
         </div>
         <div>
-          <label for="f-biz" class="font-semibold text-teal-800">Business name</label>
+          <label for="f-biz" class="font-semibold text-ink">Business name</label>
           <input id="f-biz" name="business" type="text" required autocomplete="organization" class={`${field} h-12`} />
         </div>
         <div class="sm:col-span-2">
-          <label for="f-phone" class="font-semibold text-teal-800">Phone / WhatsApp number</label>
+          <label for="f-phone" class="font-semibold text-ink">Phone / WhatsApp number</label>
           <input id="f-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="+91 98765 43210"
             pattern="^[+]?[0-9 \-]{10,15}$" class={`${field} h-12`} />
         </div>
         <div class="sm:col-span-2">
-          <label for="f-msg" class="font-semibold text-teal-800">What's slowing you down?</label>
+          <label for="f-msg" class="font-semibold text-ink">What's slowing you down?</label>
           <textarea id="f-msg" name="message" required rows="4" placeholder="e.g. We miss WhatsApp enquiries after 7 pm, and I copy every lead into Excel by hand."
             class={`${field} py-3`}></textarea>
         </div>
       </div>
 
       <label class="mt-5 flex items-start gap-3 text-sm text-muted">
-        <input type="checkbox" name="consent" value="yes" required class="mt-0.5 size-5 shrink-0 accent-teal-700" />
-        <span>I agree that my details will be used to respond to this enquiry, as described in the <a href="/privacy" class="font-medium text-teal-700 underline">Privacy Policy</a>.</span>
+        <input type="checkbox" name="consent" value="yes" required class="mt-0.5 size-5 shrink-0 accent-lavender-600" />
+        <span>I agree that my details will be used to respond to this enquiry, as described in the <a href="/privacy" class="font-medium text-lavender-600 underline">Privacy Policy</a>.</span>
       </label>
 
-      <button type="submit" class="btn mt-6 w-full bg-teal-700 text-lg text-white hover:bg-teal-800">
+      <button type="submit" class="btn btn-lavender mt-6 w-full text-lg">
         <Icon name="Send" class="size-5" /> <span data-label>Send enquiry</span>
       </button>
       <p id="f-status" class="mt-4 hidden rounded-xl p-4 text-sm font-medium" role="status" aria-live="polite"></p>
@@ -106,7 +106,7 @@ const field =
   const label = f.querySelector("[data-label]");
   const show = (msg, ok) => {
     status.textContent = msg;
-    status.className = `mt-4 rounded-xl p-4 text-sm font-medium ${ok ? "bg-teal-50 text-teal-800" : "bg-saffron-100 text-saffron-700"}`;
+    status.className = `mt-4 rounded-xl p-4 text-sm font-medium ${ok ? "bg-lavender-50 text-ink" : "bg-red-50 text-red-800"}`;
   };
   f.addEventListener("submit", async (e) => {
     e.preventDefault();

@@ -1,20 +1,21 @@
 ---
 import Icon from "./Icon.astro";
 import { about } from "../config/site";
+import { hl } from "../lib/text";
 ---
 
-<section id="about" class="section bg-sand" aria-labelledby="about-title">
+<section id="about" class="section bg-mist" aria-labelledby="about-title">
   <div class="container-x grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
     <div data-reveal>
       <p class="eyebrow">{about.eyebrow}</p>
-      <h2 id="about-title" class="h2 mt-3">{about.title}</h2>
+      <h2 id="about-title" class="h2 mt-3" set:html={hl(about.title)} />
       <p class="lead">{about.text}</p>
     </div>
-    <ul class="grid grid-cols-2 gap-3 sm:gap-4" data-reveal>
+    <ul class="grid grid-cols-2 gap-4" data-reveal>
       {about.values.map((v) => (
-        <li class="lift flex flex-col gap-3 rounded-2xl border border-line bg-white p-5">
-          <span class="flex size-10 items-center justify-center rounded-xl bg-saffron-100 text-saffron-700"><Icon name={v.icon} class="size-5" /></span>
-          <span class="font-semibold leading-snug text-teal-800">{v.title}</span>
+        <li class="lift flex flex-col gap-4 rounded-[2rem] border border-lavender-200 bg-white p-6">
+          <span class="flex size-12 items-center justify-center rounded-2xl bg-lavender-100 text-lavender-600"><Icon name={v.icon} class="size-6" strokeWidth={1.75} /></span>
+          <span class="font-bold leading-snug text-ink">{v.title}</span>
         </li>
       ))}
     </ul>

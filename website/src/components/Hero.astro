@@ -2,92 +2,38 @@
 import Icon from "./Icon.astro";
 import WhatsAppIcon from "./WhatsAppIcon.astro";
 import { hero, audience, whatsappLink, bookingLink } from "../config/site";
-
-// Split "text {highlight} text" into parts
-const [before, mark, after] = hero.headline.split(/[{}]/);
+import { hl } from "../lib/text";
 ---
 
-<section class="bg-grid relative overflow-hidden bg-teal-900 text-cream">
-  <div aria-hidden="true" class="pointer-events-none absolute -top-40 right-[-10rem] size-[34rem] rounded-full bg-saffron-400/20 blur-3xl"></div>
-  <div aria-hidden="true" class="pointer-events-none absolute -bottom-48 -left-40 size-[30rem] rounded-full bg-teal-600/40 blur-3xl"></div>
-
-  <div class="container-x relative grid items-center gap-12 pt-12 pb-14 sm:pt-20 sm:pb-20 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
-    <div>
-      <p class="glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-cream/90">
-        <span class="size-2 rounded-full bg-saffron-400"></span>
-        {hero.eyebrow}
-      </p>
-      <h1 class="mt-6 text-[2.5rem] leading-[1.05] font-semibold sm:text-6xl lg:text-[4.25rem]">
-        {before}<span class="highlight">{mark}</span>{after}
-      </h1>
-      <p class="mt-6 max-w-xl text-lg leading-relaxed text-cream/75 sm:text-xl">{hero.subhead}</p>
-
-      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-        <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp text-lg">
-          <WhatsAppIcon class="size-6" />
-          {hero.primaryCta}
-        </a>
-        <a href={bookingLink} target="_blank" rel="noopener" class="btn border-2 border-cream/25 text-lg text-cream hover:border-cream hover:bg-cream hover:text-teal-900">
-          <Icon name="CalendarCheck" class="size-5" />
-          {hero.secondaryCta}
-        </a>
-      </div>
-
-      <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[0.95rem] text-cream/70">
-        {hero.reassurance.map((r) => (
-          <li class="flex items-center gap-2"><Icon name="CircleCheck" class="size-5 text-saffron-400" />{r}</li>
-        ))}
-      </ul>
+<section class="relative overflow-hidden bg-white">
+  <div class="container-x relative pt-16 pb-14 text-center sm:pt-28 sm:pb-20">
+    <p class="eyebrow">{hero.eyebrow}</p>
+    <h1 class="mx-auto mt-5 max-w-4xl text-[2.6rem] leading-[1.08] font-bold tracking-tight text-ink sm:text-6xl lg:text-7xl" set:html={hl(hero.headline)} />
+    <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted sm:text-xl">{hero.subhead}</p>
+    <div class="mt-10 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
+      <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-dark min-h-14 px-8 text-lg">
+        <WhatsAppIcon class="size-5" />
+        {hero.primaryCta}
+      </a>
+      <a href={bookingLink} target="_blank" rel="noopener" class="btn btn-lavender min-h-14 px-8 text-lg">
+        <Icon name="CalendarCheck" class="size-5" />
+        {hero.secondaryCta}
+      </a>
     </div>
-
-    <!-- Illustrative chat mock-up (not a real conversation) -->
-    <figure class="relative mx-auto w-full max-w-sm">
-      <div class="glass rounded-[2rem] p-2.5 shadow-2xl shadow-black/40">
-        <div class="overflow-hidden rounded-[1.6rem] bg-[#efe7da] text-ink">
-          <div class="flex items-center gap-3 bg-teal-800 px-4 py-3 text-white">
-            <div class="flex size-9 items-center justify-center rounded-full bg-saffron-400 text-ink">
-              <Icon name="Store" class="size-5" />
-            </div>
-            <div class="leading-tight">
-              <p class="text-sm font-semibold">Your Business</p>
-              <p class="flex items-center gap-1.5 text-xs text-white/75"><span class="size-1.5 rounded-full bg-[#4ade80]"></span>replies instantly</p>
-            </div>
-          </div>
-          <div class="space-y-2.5 p-4 text-[0.9rem] leading-snug">
-            {hero.chatExample.messages.map((m) =>
-              m.from === "bot" ? (
-                <p class="ml-8 rounded-2xl rounded-tr-sm bg-[#d9fdd3] px-3.5 py-2 shadow-sm">
-                  {m.text}
-                  <span class="mt-0.5 flex items-center justify-end gap-1 text-[0.7rem] text-muted">{m.time} <Icon name="CheckCheck" class="size-3.5 text-sky-600" /></span>
-                </p>
-              ) : (
-                <p class="mr-10 rounded-2xl rounded-tl-sm bg-white px-3.5 py-2 shadow-sm">
-                  {m.text}
-                  <span class="mt-0.5 block text-right text-[0.7rem] text-muted">{m.time}</span>
-                </p>
-              ),
-            )}
-          </div>
-        </div>
-      </div>
-      <figcaption class="mt-4 text-center text-sm text-cream/60">{hero.chatExample.caption}</figcaption>
-    </figure>
   </div>
 
   <!-- Who it's for: scrolling strip -->
-  <div class="relative border-t border-cream/10">
-    <div class="container-x flex items-center gap-6 py-5">
-      <p class="shrink-0 text-sm font-semibold tracking-wide text-saffron-300 uppercase">{audience.label}</p>
-      <div class="marquee min-w-0 flex-1 overflow-hidden">
-        <ul class="marquee-track flex w-max gap-3">
-          {[...audience.items, ...audience.items].map((a, i) => (
-            <li class="glass flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-cream/85" aria-hidden={i >= audience.items.length ? "true" : undefined}>
-              <Icon name={a.icon} class="size-4 text-saffron-300" />
-              {a.label}
-            </li>
-          ))}
-        </ul>
-      </div>
+  <div class="pb-14 sm:pb-20">
+    <p class="text-center text-sm font-medium tracking-wider text-muted uppercase">{audience.label}</p>
+    <div class="marquee mt-6 overflow-hidden">
+      <ul class="marquee-track flex w-max gap-10 pr-10 sm:gap-14 sm:pr-14">
+        {[...audience.items, ...audience.items].map((a, i) => (
+          <li class="flex shrink-0 items-center gap-2.5 text-lg font-semibold text-gray-500" aria-hidden={i >= audience.items.length ? "true" : undefined}>
+            <Icon name={a.icon} class="size-6 text-gray-400" />
+            {a.label}
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
 </section>

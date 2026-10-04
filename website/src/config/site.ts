@@ -98,23 +98,19 @@ export const nav = [
 // ---------------------------------------------------------------------------
 export const hero = {
   eyebrow: "AI & WhatsApp automation · Pune & across India",
-  /** The part of the headline inside {curly braces} is highlighted. */
+  /** Text inside {curly braces} in any title is highlighted in the accent colour. */
   headline: "Stop losing customers to {slow replies} and manual work.",
   subhead:
     "We build simple AI workflows that answer every enquiry, send every follow-up and end the copy-paste, so you can focus on the business.",
   primaryCta: "Chat on WhatsApp",
   secondaryCta: "Book a free 20-min call",
-  reassurance: ["No tech skills needed", "Fixed-price quotes", "Works with WhatsApp & Sheets"],
-  /** Illustrative chat shown in the hero (clearly captioned as an example). from: "customer" | "bot" */
-  chatExample: {
-    caption: "Example: an automatic reply at 11:42 pm",
-    messages: [
-      { from: "customer", time: "11:42 pm", text: "Hi, are you open Sunday? Price for a consultation?" },
-      { from: "bot", time: "11:42 pm", text: "Hi! 👋 Yes, 10 am – 2 pm. A consultation is ₹500. Shall I book you in?" },
-      { from: "customer", time: "11:43 pm", text: "Yes, 11 am please" },
-      { from: "bot", time: "11:43 pm", text: "Done ✅ Booked for Sunday, 11 am. I'll remind you that morning." },
-    ],
-  },
+  /** Icon strip shown under the services. Bold part first, then the rest. */
+  stats: [
+    { icon: "Clock", bold: "Replies in seconds", text: "24×7" },
+    { icon: "FileText", bold: "Fixed-price", text: "quotes" },
+    { icon: "Plug", bold: "Works with", text: "WhatsApp & Sheets" },
+    { icon: "MapPin", bold: "Pune-based,", text: "India-wide" },
+  ],
 };
 
 /** Business types shown in the scrolling strip under the hero. */
@@ -134,7 +130,7 @@ export const audience = {
 /** Each card: the everyday problem → what we build → the outcome. */
 export const services = {
   eyebrow: "What we automate",
-  title: "WhatsApp & workflow automation for everyday business headaches",
+  title: "WhatsApp & workflow automation for {everyday headaches}",
   items: [
     {
       icon: "MessageCircle",
@@ -177,7 +173,8 @@ export const services = {
 
 export const steps = {
   eyebrow: "How it works",
-  title: "From first chat to live in four simple steps",
+  title: "How it {works}",
+  intro: "From first chat to live automation in four simple steps.",
   items: [
     { icon: "PhoneCall", title: "Free 20-min call", text: "Tell us what's slowing you down." },
     { icon: "FileText", title: "Fixed-price scope", text: "A one-page plan. No surprises." },
@@ -187,7 +184,7 @@ export const steps = {
 };
 
 export const calculator = {
-  title: "What are missed enquiries costing you?",
+  title: "What are missed enquiries {costing you}?",
   intro: "Enter your own numbers. It takes 20 seconds.",
   disclaimer: "Rough estimate based only on your numbers and a 30-day month. Not a guarantee of results.",
   defaults: {
@@ -224,7 +221,7 @@ export const proof = {
 
 export const pricing = {
   eyebrow: "Pricing",
-  title: "Simple, honest pricing",
+  title: "Simple, {honest} pricing",
   items: [
     { icon: "PackageCheck", title: "Ready-made workflows", tag: "Fixed price", text: "Proven setups, adapted to your business." },
     { icon: "PencilRuler", title: "Custom builds", tag: "Quoted after a free call", text: "Built around how you actually work." },
@@ -236,7 +233,7 @@ export const pricing = {
 
 export const about = {
   eyebrow: `Why ${business.name}`,
-  title: "Process first. Technology second.",
+  title: "Process first. {Technology second.}",
   text: `${business.name} helps small and medium businesses in Pune and across India replace repetitive work with simple, reliable automation, using the tools you already have.`,
   values: [
     { icon: "Workflow", title: "Process first" },
@@ -248,7 +245,7 @@ export const about = {
 
 export const faq = {
   eyebrow: "FAQ",
-  title: "Questions, answered",
+  title: "Questions, {answered}",
   items: [
     {
       q: "Do I need any technical knowledge?",
@@ -279,7 +276,7 @@ export const faq = {
 
 export const contact = {
   eyebrow: "Contact",
-  title: "Tell us what's slowing you down.",
+  title: "Tell us what's {slowing you down}.",
   intro: "Send a message and we'll reply within 3 hours.",
   formTitle: "Send an enquiry",
   successMessage: "Thank you! Your message has been sent. We'll get back to you soon.",

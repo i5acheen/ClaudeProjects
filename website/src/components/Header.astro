@@ -5,14 +5,14 @@ import WhatsAppIcon from "./WhatsAppIcon.astro";
 import { nav, whatsappLink } from "../config/site";
 ---
 
-<header class="sticky top-0 z-50 border-b border-cream/10 bg-teal-900/85 backdrop-blur-md">
-  <div class="container-x flex h-16 items-center justify-between gap-4">
-    <Logo light />
+<header class="sticky top-0 z-50 border-b border-line/70 bg-white/85 backdrop-blur-md">
+  <div class="container-x flex h-16 items-center justify-between gap-4 sm:h-20">
+    <Logo />
     <nav aria-label="Main" class="hidden lg:block">
       <ul class="flex items-center gap-1">
         {nav.map((item) => (
           <li>
-            <a href={item.href} class="rounded-full px-3 py-2 text-[0.95rem] font-medium text-cream/75 transition hover:bg-cream/10 hover:text-cream">
+            <a href={item.href} class="rounded-full px-3 py-2 text-[0.95rem] font-medium text-muted transition hover:text-ink">
               {item.label}
             </a>
           </li>
@@ -20,13 +20,13 @@ import { nav, whatsappLink } from "../config/site";
       </ul>
     </nav>
     <div class="flex items-center gap-2">
-      <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp hidden !min-h-10 !px-4 !py-2 text-sm sm:inline-flex">
+      <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-dark hidden !min-h-10 !px-5 !py-2 text-sm sm:inline-flex">
         <WhatsAppIcon class="size-4" /> WhatsApp us
       </a>
       <button
         type="button"
         id="menu-toggle"
-        class="inline-flex size-12 items-center justify-center rounded-full text-cream hover:bg-cream/10 lg:hidden"
+        class="inline-flex size-12 items-center justify-center rounded-full text-ink hover:bg-lavender-50 lg:hidden"
         aria-expanded="false"
         aria-controls="mobile-menu"
         aria-label="Open menu"
@@ -36,17 +36,17 @@ import { nav, whatsappLink } from "../config/site";
       </button>
     </div>
   </div>
-  <nav id="mobile-menu" aria-label="Mobile" class="border-t border-cream/10 bg-teal-900 lg:hidden" hidden>
+  <nav id="mobile-menu" aria-label="Mobile" class="border-t border-line bg-white lg:hidden" hidden>
     <ul class="container-x flex flex-col py-2">
       {nav.map((item) => (
         <li>
-          <a href={item.href} class="flex min-h-12 items-center border-b border-cream/10 text-lg font-medium text-cream">
+          <a href={item.href} class="flex min-h-12 items-center border-b border-line text-lg font-medium text-ink">
             {item.label}
           </a>
         </li>
       ))}
       <li class="py-3">
-        <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-whatsapp w-full">
+        <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-dark w-full">
           <WhatsAppIcon /> Chat on WhatsApp
         </a>
       </li>

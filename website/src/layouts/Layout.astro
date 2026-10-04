@@ -1,8 +1,6 @@
 ---
 import "@fontsource-variable/inter";
-import "@fontsource-variable/fraunces";
 import "../styles/global.css";
-import frauncesUrl from "@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url";
 import interUrl from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
@@ -58,10 +56,9 @@ const jsonLd = [localBusiness, ...schema];
     <meta name="keywords" content={seo.keywords.join(", ")} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#0f4c45" />
+    <meta name="theme-color" content="#ffffff" />
     <meta name="geo.region" content="IN-MH" />
     <meta name="geo.placename" content={business.city} />
-    <link rel="preload" href={frauncesUrl} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={interUrl} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -88,7 +85,7 @@ const jsonLd = [localBusiness, ...schema];
   <body class="min-h-dvh">
     <a
       href="#main"
-      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:font-semibold focus:text-teal-800 focus:shadow-lg"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:font-semibold focus:text-ink focus:shadow-lg"
       >Skip to content</a
     >
     <Header />

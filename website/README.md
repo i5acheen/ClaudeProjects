@@ -3,9 +3,9 @@
 A fast, mobile-first, single-page website (plus a Privacy Policy page) built to turn visitors into **WhatsApp enquiries** and **booked discovery calls**.
 
 - **Tech:** [Astro](https://astro.build) (static site) + [Tailwind CSS](https://tailwindcss.com) + [Lucide](https://lucide.dev) icons
-- **Fonts:** Fraunces (headings) + Inter (body), self-hosted, so nothing loads from Google
+- **Font:** Inter, self-hosted, so nothing loads from Google
 - **No backend:** the enquiry form posts to Web3Forms or Formspree (free)
-- **Lighthouse (tested locally):** Mobile 97 / 100 / 100 / 100 · Desktop 100 / 100 / 100 / 100 (Performance / Accessibility / Best Practices / SEO)
+- **Lighthouse (tested locally):** Mobile 99 / 100 / 100 / 100 · Desktop 100 / 100 / 100 / 100 (Performance / Accessibility / Best Practices / SEO)
 
 ---
 
@@ -143,8 +143,19 @@ website/
 
 ### Colours (in `src/styles/global.css`)
 
-| Name        | Hex       | Used for                         |
-| ----------- | --------- | -------------------------------- |
+| Name          | Hex       | Used for                                          |
+| ------------- | --------- | ------------------------------------------------- |
+| Ink           | `#111827` | Headings and body text                            |
+| Navy          | `#0F172A` | Dark sections (calculator, contact), featured card |
+| Lavender 500  | `#7B72E8` | Highlighted words in headings                     |
+| Lavender 600  | `#5B52D6` | Buttons and links (passes contrast with white text) |
+| Lavender 50   | `#F5F5FF` | Card backgrounds                                  |
+| Mist          | `#F9FAFB` | Alternate section background                      |
+| WhatsApp      | `#0E7A3F` | Floating WhatsApp button                          |
+
+**Font:** Inter (self-hosted). **Highlighting:** wrap any words in a title in `{curly braces}` in `site.ts` to colour them lavender.
+
+----------- | --------- | -------------------------------- |
 | Deep teal   | `#0F4C45` | Main brand colour, headings      |
 | Saffron     | `#E8A33D` | Accents, highlights, CTA band    |
 | Cream       | `#FBF7F0` | Page background                  |

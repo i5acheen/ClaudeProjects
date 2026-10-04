@@ -1,39 +1,47 @@
 ---
 import Icon from "./Icon.astro";
 import SectionHeading from "./SectionHeading.astro";
-import { services } from "../config/site";
+import { services, hero } from "../config/site";
 ---
 
-<section id="services" class="section" aria-labelledby="services-title">
+<section id="services" class="section !pt-4 sm:!pt-8" aria-labelledby="services-title">
   <div class="container-x">
     <SectionHeading id="services-title" eyebrow={services.eyebrow} title={services.title} />
-    <ul class="no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mt-12 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3" aria-label="Services">
+    <ul class="no-scrollbar -mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mt-14 md:mx-0 md:grid md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3" aria-label="Services">
       {services.items.map((s, i) => (
-        <li class:list={["lift group flex w-[85%] shrink-0 snap-center flex-col rounded-3xl md:w-auto border border-line bg-white p-6 sm:p-7", i === 0 && "lg:col-span-2 lg:bg-teal-800 lg:text-cream lg:border-teal-800"]} data-reveal>
+        <li class:list={["lift flex w-[85%] shrink-0 snap-center flex-col rounded-[2rem] p-7 md:w-auto", i === 0 ? "on-dark bg-navy text-white lg:col-span-2" : "bg-lavender-50"]} data-reveal>
           <div class="flex items-center justify-between gap-3">
-            <span class:list={["flex size-12 items-center justify-center rounded-2xl bg-teal-700 text-cream", i === 0 && "lg:bg-saffron-400 lg:text-ink"]}>
-              <Icon name={s.icon} />
+            <span class:list={["flex size-14 items-center justify-center rounded-2xl", i === 0 ? "bg-lavender-500 text-white" : "bg-lavender-100 text-lavender-600"]}>
+              <Icon name={s.icon} class="size-7" strokeWidth={1.75} />
             </span>
-            <span class:list={["inline-flex items-center gap-1 rounded-full bg-saffron-100 px-3 py-1 text-xs font-semibold text-saffron-700", i === 0 && "lg:bg-cream/10 lg:text-saffron-300"]}>
+            <span class:list={["inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold", i === 0 ? "bg-white/10 text-lavender-200" : "bg-white text-muted"]}>
               <Icon name="X" class="size-3.5" strokeWidth={3} />{s.problem}
             </span>
           </div>
-          <h3 class:list={["mt-6 text-2xl font-semibold text-teal-800", i === 0 && "lg:text-cream lg:text-3xl"]}>{s.title}</h3>
-          <p class:list={["mt-2 flex-1 leading-relaxed text-muted", i === 0 && "lg:text-cream/75 lg:text-lg lg:max-w-lg"]}>{s.text}</p>
-          <p class:list={["mt-5 flex items-center gap-2 font-semibold text-teal-700", i === 0 && "lg:text-saffron-300"]}>
+          <h3 class:list={["mt-6 text-xl font-bold", i === 0 ? "text-white lg:text-3xl" : "text-ink"]}>{s.title}</h3>
+          <p class:list={["mt-2 flex-1 leading-relaxed", i === 0 ? "text-white/70 lg:max-w-lg lg:text-lg" : "text-muted"]}>{s.text}</p>
+          <p class:list={["mt-5 flex items-center gap-2 font-semibold", i === 0 ? "text-lavender-300" : "text-lavender-600"]}>
             <Icon name="TrendingUp" class="size-5" />{s.outcome}
           </p>
         </li>
       ))}
-
     </ul>
     <p class="mt-3 text-center text-sm text-muted md:hidden" aria-hidden="true">Swipe to see more →</p>
-      <div class="mt-4 flex flex-col items-start justify-between gap-4 rounded-3xl border-2 border-dashed border-saffron-400 bg-saffron-100/50 p-6 sm:flex-row sm:items-center sm:p-7" data-reveal>
-        <div>
-          <h3 class="text-xl font-semibold text-teal-800">{services.more.title}</h3>
-          <p class="mt-1 text-muted">{services.more.text}</p>
-        </div>
-        <a href="#contact" class="btn shrink-0 bg-teal-800 text-cream hover:bg-teal-900">{services.more.cta} <Icon name="ArrowRight" class="size-5" /></a>
-      </div>
+    <div class="mt-10 text-center" data-reveal>
+      <p class="text-muted"><span class="font-semibold text-ink">{services.more.title}</span> {services.more.text}</p>
+      <a href="#contact" class="btn btn-lavender mt-5">{services.more.cta} <Icon name="ArrowRight" class="size-5" /></a>
+    </div>
   </div>
 </section>
+
+<!-- Stats strip -->
+<div class="bg-mist">
+  <ul class="container-x grid grid-cols-2 gap-x-4 gap-y-5 py-8 lg:flex lg:justify-between lg:py-9">
+    {hero.stats.map((st) => (
+      <li class="flex items-center gap-3 text-sm tracking-wide text-ink uppercase">
+        <Icon name={st.icon} class="size-7 shrink-0 text-lavender-500" strokeWidth={1.75} />
+        <span><strong class="font-bold">{st.bold}</strong> {st.text}</span>
+      </li>
+    ))}
+  </ul>
+</div>

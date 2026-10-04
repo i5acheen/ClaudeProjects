@@ -1,4 +1,5 @@
 ---
+import { hl } from "../lib/text";
 interface Props {
   eyebrow?: string;
   title: string;
@@ -10,8 +11,8 @@ interface Props {
 const { eyebrow, title, intro, id, center = true, light = false } = Astro.props;
 ---
 
-<div class:list={["max-w-2xl", center && "mx-auto text-center"]} data-reveal>
-  {eyebrow && <p class:list={["eyebrow", light && "!text-saffron-300"]}>{eyebrow}</p>}
-  <h2 id={id} class:list={["h2 mt-3", light && "!text-cream"]}>{title}</h2>
-  {intro && <p class:list={["lead", light && "!text-cream/75"]}>{intro}</p>}
+<div class:list={["max-w-2xl", center && "mx-auto text-center", light && "on-dark"]} data-reveal>
+  {eyebrow && <p class:list={["eyebrow", light && "!text-lavender-300"]}>{eyebrow}</p>}
+  <h2 id={id} class:list={["h2 mt-3", light && "!text-white"]} set:html={hl(title)} />
+  {intro && <p class:list={["lead", light && "!text-white/70"]}>{intro}</p>}
 </div>

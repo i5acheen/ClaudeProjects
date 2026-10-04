@@ -1,25 +1,26 @@
 ---
 import Icon from "./Icon.astro";
 import { faq } from "../config/site";
+import { hl } from "../lib/text";
 ---
 
 <section id="faq" class="section" aria-labelledby="faq-title">
   <div class="container-x grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
     <div class="lg:sticky lg:top-28 lg:self-start" data-reveal>
       <p class="eyebrow">{faq.eyebrow}</p>
-      <h2 id="faq-title" class="h2 mt-3">{faq.title}</h2>
-      <p class="lead">Still unsure? <a href="#contact" class="font-semibold text-teal-700 underline decoration-saffron-400 decoration-2 underline-offset-4">Just ask us.</a></p>
+      <h2 id="faq-title" class="h2 mt-3" set:html={hl(faq.title)} />
+      <p class="lead">Still unsure? <a href="#contact" class="font-semibold text-lavender-600 underline decoration-lavender-300 decoration-2 underline-offset-4">Just ask us.</a></p>
     </div>
     <div class="space-y-3">
       {faq.items.map((item) => (
-        <details class="group rounded-2xl border border-line bg-white transition open:border-teal-600/40 open:shadow-sm" data-reveal>
-          <summary class="flex min-h-14 cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left text-lg font-semibold text-teal-800">
+        <details class="group rounded-3xl bg-lavender-50 transition open:bg-lavender-100/60" data-reveal>
+          <summary class="flex min-h-16 cursor-pointer items-center justify-between gap-4 px-6 py-4 text-left text-lg font-semibold text-ink">
             {item.q}
-            <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-sand transition group-open:bg-teal-800 group-open:text-cream">
+            <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-lavender-600 transition group-open:bg-lavender-600 group-open:text-white">
               <Icon name="Plus" class="size-4 transition group-open:rotate-45" />
             </span>
           </summary>
-          <p class="px-5 pb-5 leading-relaxed text-muted">{item.a}</p>
+          <p class="px-6 pb-6 leading-relaxed text-muted">{item.a}</p>
         </details>
       ))}
     </div>

@@ -105,3 +105,11 @@ def test_button_tap_is_parsed_as_text_with_choice_id():
                                       "button_reply": {"id": "lang_en", "title": "English"}}}]))
     m = app.state.agent.handled[0]
     assert m.type == "text" and m.text == "English" and m.choice_id == "lang_en"
+
+
+def test_diag_disabled_by_default_and_ready_endpoint():
+    c = client()
+    assert c.get("/diag/chat", params={"q": "hi", "token": "verify-me"}).status_code == 404
+    assert c.get("/diag/llm", params={"token": "verify-me"}).status_code == 404
+    r = c.get("/ready")
+    assert r.status_code == 200 and r.json() == {"ok": True}

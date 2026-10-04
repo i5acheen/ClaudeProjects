@@ -80,31 +80,6 @@ def test_merge_lead_ignores_blank_values():
     assert merged["name"] == "A" and merged["city"] == "Jalna" and merged.get("concern") is None
 
 
-def test_gemini_falls_back_to_next_model_on_overload():
-    from google.genai import errors
-
-    from app.llm import GeminiLLM
-
-    llm = GeminiLLM("test-key", "busy-model", ["good-model"])
-    calls = []
-
-    class FakeModels:
-        async def generate_content(self, model, contents, config):
-            calls.append(model)
-            if model == "busy-model":
-                raise errors.ServerError(503, {"error": {"code": 503, "message": "high demand",
-                                                         "status": "UNAVAILABLE"}})
-
-            class R:
-                parsed = AgentTurn(reply="ok", language="en", lead=LeadInfo())
-                text = ""
-            return R()
-
-    llm._client = type("C", (), {"aio": type("A", (), {"models": FakeModels()})()})()
-    turn = run(llm.generate("sys", [{"role": "user", "content": "hi"}]))
-    assert turn.reply == "ok" and calls == ["busy-model", "good-model"]
-
-
 def test_format_for_whatsapp_splits_long_paragraphs_only():
     from app.agent import format_for_whatsapp
 
@@ -158,3 +133,31 @@ def test_options_are_sent_as_interactive_and_remembered():
     run(agent.handle(text("m1", "payat dukhta")))
     assert sender.sent[0][2] == "buttons" and sender.sent[0][3] == ["6 महिने", "1-2 वर्षे"]
     assert "[Options shown: 6 महिने | 1-2 वर्षे]" in db.recent_messages("919000000001", 5)[-1]["content"]
+
+
+def test_agent_alerts_team_on_hot_lead_and_failure():
+    from app.alerts import Alerter
+
+    turns = [AgentTurn(reply="ठीक", language="mr", lead=LeadInfo(status="Warm")),
+             AgentTurn(reply="✅", language="mr", lead=LeadInfo(name="R", status="Hot"))]
+    agent, db, llm, sender, _ = make(turns)
+    agent.alerter = Alerter(db, sender, alert_phone="919999900000")
+    run(agent.handle(text("m1", "hi")))
+    run(agent.handle(text("m2", "udya sakali yeto")))
+    alerts = [s for s in sender.sent if s[0] == "919999900000"]
+    assert len(alerts) == 1 and "Hot lead" in alerts[0][1]
+
+    agent2, db2, _, sender2, _ = make(error=RuntimeError("all down"))
+    agent2.alerter = Alerter(db2, sender2, alert_phone="919999900000")
+    run(agent2.handle(text("m1", "hi")))
+    assert any(s[0] == "919999900000" and "could not" in s[1] for s in sender2.sent)
+
+
+def test_agent_rate_limit_drops_extra_messages():
+    from app.alerts import RateLimiter
+
+    agent, db, llm, sender, _ = make()
+    agent.rate_limiter = RateLimiter(count=2, window=600)
+    for i in range(4):
+        run(agent.handle(text(f"m{i}", f"msg {i}")))
+    assert len(llm.calls) == 2

@@ -10,10 +10,11 @@ from fastapi import BackgroundTasks, FastAPI, Query, Request, Response
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
 from . import pages
-from .agent import Agent
+from .agent import Agent, build_system_instruction
+from .alerts import Alerter, RateLimiter
 from .config import settings
 from .db import Database
-from .llm import GeminiLLM
+from .llm import build_chain, build_provider
 from .security import verify_signature
 from .sheets import LeadSheet
 from .whatsapp import IncomingMessage, WhatsAppClient, parse_messages
@@ -29,25 +30,26 @@ log = logging.getLogger("clinic-bot")
 async def lifespan(app: FastAPI):
     missing = settings.missing_required()
     if missing:
-        raise RuntimeError(f"Missing required settings in .env: {', '.join(missing)}")
+        raise RuntimeError(f"Missing required settings: {', '.join(missing)}")
     if not settings.sheets_enabled:
-        log.warning("Google Sheets disabled (GOOGLE_SHEET_ID or service account file missing). "
-                    "Leads are still saved in SQLite.")
+        log.warning("Google Sheets disabled (GOOGLE_SHEET_ID or service account file missing).")
     wa = WhatsAppClient(settings.whatsapp_token, settings.phone_number_id, settings.graph_api_version)
     sheet = (LeadSheet(settings.google_service_account_file, settings.google_sheet_id,
                        settings.google_sheet_tab) if settings.sheets_enabled else None)
-    app.state.db = Database(settings.sqlite_path)
-    app.state.wa = wa
+    db = Database(settings.database_url or settings.sqlite_path)
+    llm = build_chain(settings.llm_chain, settings.llm_keys)
+    alerter = Alerter(db, wa, settings.alert_phone, settings.alert_email, settings.smtp_host,
+                      settings.smtp_port, settings.smtp_user, settings.smtp_password)
+    app.state.db, app.state.wa, app.state.llm = db, wa, llm
     app.state.agent = Agent(
-        db=app.state.db,
-        llm=GeminiLLM(settings.gemini_api_key, settings.gemini_model,
-                      settings.gemini_fallback_models),
-        sender=wa,
-        sheet=sheet,
-        history_limit=settings.history_limit,
-        clinic_phone=settings.clinic_phone,
+        db=db, llm=llm, sender=wa, sheet=sheet,
+        history_limit=settings.history_limit, clinic_phone=settings.clinic_phone,
+        alerter=alerter if alerter.enabled else None,
+        rate_limiter=RateLimiter(settings.rate_limit_count, settings.rate_limit_window),
     )
-    log.info("Started. Model=%s, Sheets=%s", settings.gemini_model, bool(sheet))
+    log.info("Started. LLM chain=%s | DB=%s | Sheets=%s | Alerts=%s | Diag=%s",
+             [p.name for p in llm.providers], "postgres" if settings.database_url else "sqlite",
+             bool(sheet), alerter.enabled, settings.enable_diag)
     yield
     await wa.aclose()
 
@@ -60,28 +62,42 @@ async def health() -> dict:
     return {"ok": True}
 
 
-@app.get("/diag/gemini")
-async def diag_gemini(token: str = "", model: str = "", schema: bool = False):
-    """Test the Gemini connection. Protected by VERIFY_TOKEN; never returns secrets."""
-    if not token or token != settings.verify_token:
-        return Response(status_code=403)
-    from google import genai
+@app.get("/ready")
+async def ready(request: Request):
+    """Readiness: checks the database connection."""
+    ok = request.app.state.db.ping()
+    return Response('{"ok":true}' if ok else '{"ok":false}', status_code=200 if ok else 503,
+                    media_type="application/json")
 
-    from google.genai import types
 
-    from .llm import AgentTurn
+def _diag_allowed(token: str) -> bool:
+    return settings.enable_diag and bool(token) and token == settings.verify_token
 
-    model = model or settings.gemini_model
-    client = genai.Client(api_key=settings.gemini_api_key)
-    config = (types.GenerateContentConfig(response_mime_type="application/json",
-                                          response_schema=AgentTurn) if schema else None)
+
+@app.get("/diag/llm")
+async def diag_llm(request: Request, token: str = "", entry: str = "", q: str = "namaskar",
+                   language: str = "mr"):
+    """Test one chain entry (e.g. groq:openai/gpt-oss-120b) or the whole chain with the real prompt.
+
+    Disabled unless ENABLE_DIAG=true; protected by VERIFY_TOKEN; never returns secrets.
+    """
+    if not _diag_allowed(token):
+        return Response(status_code=404)
+    import time
+
+    lead = {"data": {}, "profile_name": None, "details_confirmed": False}
+    system = build_system_instruction(lead, True, language, q)
+    llm = build_provider(entry, settings.llm_keys) if entry else request.app.state.llm
+    if llm is None:
+        return {"ok": False, "entry": entry, "error": "unknown provider or missing API key"}
+    t0 = time.monotonic()
     try:
-        resp = await client.aio.models.generate_content(model=model, contents="Say OK", config=config)
-        return {"ok": True, "model": model, "reply": (resp.text or "")[:300]}
-    except Exception as exc:  # report the error type/message to help debugging
-        return {"ok": False, "model": model,
-                "key_prefix": settings.gemini_api_key[:3],
-                "error": f"{type(exc).__name__}: {str(exc)[:600]}"}
+        turn = await llm.generate(system, [{"role": "user", "content": q}])
+    except Exception as exc:
+        return {"ok": False, "entry": entry or "chain", "error": f"{type(exc).__name__}: {str(exc)[:400]}"}
+    return {"ok": True, "entry": entry or getattr(llm, "last_used", "chain"),
+            "ms": int((time.monotonic() - t0) * 1000), "prompt_chars": len(system),
+            "turn": turn.model_dump()}
 
 
 class _CaptureSender:
@@ -101,9 +117,9 @@ class _CaptureSender:
 @app.get("/diag/chat")
 async def diag_chat(request: Request, q: str, session: str = "default", token: str = "",
                     choice: str = ""):
-    """Try the agent without WhatsApp. Protected by VERIFY_TOKEN; uses a separate test 'phone'."""
-    if not token or token != settings.verify_token:
-        return Response(status_code=403)
+    """Try the agent without WhatsApp. Disabled unless ENABLE_DIAG=true; protected by VERIFY_TOKEN."""
+    if not _diag_allowed(token):
+        return Response(status_code=404)
     real: Agent = request.app.state.agent
     capture = _CaptureSender()
     agent = Agent(db=real.db, llm=real.llm, sender=capture, sheet=None,
@@ -111,7 +127,8 @@ async def diag_chat(request: Request, q: str, session: str = "default", token: s
     phone = f"diag-{session}"
     await agent.handle(IncomingMessage(f"diag-{session}-{len(q)}-{id(capture)}", phone, "text", q, None,
                                        choice or None))
-    return {"reply": capture.sent, "lead": real.db.get_lead(phone)}
+    return {"reply": capture.sent, "lead": real.db.get_lead(phone),
+            "llm": getattr(real.llm, "last_used", None)}
 
 
 @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)

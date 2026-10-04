@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Protocol
 
 from .db import LEAD_FIELDS, Database
+from .knowledge import select_knowledge
 from .llm import AgentTurn
 from .whatsapp import IncomingMessage
 
@@ -84,10 +85,11 @@ class Sheet(Protocol):
     async def upsert(self, lead: dict) -> None: ...
 
 
-def build_system_instruction(lead: dict, first_reply: bool, language: str | None = None) -> str:
+def build_system_instruction(lead: dict, first_reply: bool, language: str | None = None,
+                             query: str = "") -> str:
     # Read on every call so edits to the .md files apply without restarting.
     prompt = PROMPT_FILE.read_text(encoding="utf-8")
-    knowledge = KNOWLEDGE_FILE.read_text(encoding="utf-8")
+    knowledge = select_knowledge(KNOWLEDGE_FILE.read_text(encoding="utf-8"), query)
     context = {
         "first_reply": first_reply,
         "reply_language": LANGUAGE_NAMES.get(language or "", "not chosen yet: detect from their message, default Marathi"),
@@ -133,8 +135,9 @@ def merge_lead(old: dict, new: dict) -> dict:
 
 class Agent:
     def __init__(self, db: Database, llm: LLM, sender: Sender, sheet: Sheet | None,
-                 history_limit: int = 15, clinic_phone: str = ""):
+                 history_limit: int = 15, clinic_phone: str = "", alerter=None, rate_limiter=None):
         self.db, self.llm, self.sender, self.sheet = db, llm, sender, sheet
+        self.alerter, self.rate_limiter = alerter, rate_limiter
         self.history_limit = history_limit
         self.clinic_phone = clinic_phone
         self._locks: defaultdict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
@@ -156,6 +159,9 @@ class Agent:
 
     async def _handle(self, msg: IncomingMessage) -> None:
         log.info("Handling %s message from ...%s", msg.type, msg.phone[-4:])
+        if self.rate_limiter and not self.rate_limiter.allow(msg.phone):
+            log.warning("Rate limit hit for ...%s, message ignored", msg.phone[-4:])
+            return
         lead = self.db.get_lead(msg.phone)
         language = lead.get("language")
 
@@ -188,13 +194,17 @@ class Agent:
         first_reply = not self.db.has_assistant_replied(msg.phone)
         history = self.db.recent_messages(msg.phone, self.history_limit)
         lead = self.db.get_lead(msg.phone)
-        system = build_system_instruction(lead, first_reply, language)
+        recent_user = " ".join(m["content"] for m in history if m["role"] == "user")[-600:]
+        query = f"{recent_user} {lead['data'].get('concern') or ''}"
+        system = build_system_instruction(lead, first_reply, language, query)
 
         try:
             turn = await self.llm.generate(system, history)
         except Exception as exc:
-            log.error("Gemini call failed: %s: %s", type(exc).__name__, str(exc)[:500])
+            log.error("All LLM providers failed: %s", type(exc).__name__)
             await self.sender.send_text(msg.phone, self.fallback_reply())
+            if self.alerter:
+                await self.alerter.bot_failure(msg.phone)
             return
 
         # Keep the chosen language unless the person explicitly asked to switch.
@@ -225,5 +235,11 @@ class Agent:
 
         changed = (new_data != lead["data"] or language != lead["language"]
                    or confirmed != lead["details_confirmed"] or lead["first_seen"] is None)
+        saved = self.db.get_lead(msg.phone)
         if self.sheet and changed:
-            await self.sheet.upsert(self.db.get_lead(msg.phone))
+            await self.sheet.upsert(saved)
+        if self.alerter:
+            if new_data.get("status") == "Hot" and lead["data"].get("status") != "Hot":
+                await self.alerter.lead_event(saved, "hot")
+            if confirmed and not lead["details_confirmed"]:
+                await self.alerter.lead_event(saved, "confirmed")

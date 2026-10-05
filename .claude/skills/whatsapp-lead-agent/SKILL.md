@@ -133,6 +133,18 @@ Render free wipes its disk on every restart. Create a free Postgres at https://n
 ## 10b. Coexistence: use the existing WhatsApp Business app number
 With coexistence, customers keep messaging the number they know. Staff keep using the **WhatsApp Business app** on the phone, and the bot answers through the Cloud API **on the same number**. It's available in India.
 
+**Coexistence checklist (do these in order)**
+1. Update the **WhatsApp Business app** on the business phone to **v2.24.17+**, and make sure that phone is the primary device.
+2. Check the business has a **Meta Business portfolio** (business.facebook.com). Start **Business Verification** early, because it takes days.
+3. Choose the onboarding route (details below): **(a)** a Meta partner that gives raw API access and a custom webhook *(recommended for one business)*, or **(b)** your own app as a Tech Provider.
+4. Run the **Embedded Signup** link → log in → pick the business portfolio → **"Connect existing WhatsApp Business app"** → enter the number → on the phone, **approve sharing chat history (6 months) and contacts** (within 24 hours).
+5. Note the new **Phone Number ID** and get a **permanent token** (System User for route b, or the partner's credentials for route a).
+6. In Render, set `WHATSAPP_TOKEN`, `PHONE_NUMBER_ID` and `HUMAN_HANDOFF_HOURS` (default 12). Keep `APP_SECRET` and `VERIFY_TOKEN` matching the app that receives the webhooks.
+7. In Meta → Configure Webhooks: callback `https://<service>.onrender.com/webhook`, then subscribe **`messages`**, **`smb_message_echoes`**, `smb_app_state_sync` and `history`.
+8. Re-link companion devices (WhatsApp Web or desktop on Mac). WhatsApp for Windows and Wear OS won't sync.
+9. **Test:** a customer number sends "hi" and the bot replies. Staff reply from the phone, then the customer writes again, and the bot stays quiet (the log shows `Staff handling …, bot paused`). After `HUMAN_HANDOFF_HOURS`, the bot answers again.
+10. Agree the staff rule (who answers what), and tell the team about the limitations below.
+
 **Requirements**
 - The number is on the **WhatsApp Business app** (not regular WhatsApp), **version 2.24.17 or newer**, and is the primary device.
 - A Meta Business portfolio (Business Manager) for the business.

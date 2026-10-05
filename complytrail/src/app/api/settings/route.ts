@@ -3,7 +3,10 @@ import { z } from "zod";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-const schema = z.object({ auditDate: z.string().nullable() });
+const schema = z.object({
+  auditDate: z.string().nullable().optional(),
+  trustCenterEnabled: z.boolean().optional(),
+});
 
 export async function PATCH(request: Request) {
   const session = await getSession();
@@ -16,15 +19,24 @@ export async function PATCH(request: Request) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input." }, { status: 400 });
 
-  let auditDate: Date | null = null;
-  if (parsed.data.auditDate) {
-    const d = new Date(parsed.data.auditDate);
-    if (Number.isNaN(d.getTime())) {
-      return NextResponse.json({ error: "Invalid date." }, { status: 400 });
+  const data: { auditDate?: Date | null; trustCenterEnabled?: boolean } = {};
+
+  if ("auditDate" in parsed.data) {
+    if (parsed.data.auditDate) {
+      const d = new Date(parsed.data.auditDate);
+      if (Number.isNaN(d.getTime())) {
+        return NextResponse.json({ error: "Invalid date." }, { status: 400 });
+      }
+      data.auditDate = d;
+    } else {
+      data.auditDate = null;
     }
-    auditDate = d;
   }
 
-  const company = await prisma.company.update({ where: { id: session.companyId }, data: { auditDate } });
+  if (typeof parsed.data.trustCenterEnabled === "boolean") {
+    data.trustCenterEnabled = parsed.data.trustCenterEnabled;
+  }
+
+  const company = await prisma.company.update({ where: { id: session.companyId }, data });
   return NextResponse.json({ ok: true, company });
 }

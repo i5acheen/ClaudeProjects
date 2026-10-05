@@ -2,7 +2,9 @@ import Link from "next/link";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import StatusBadge from "@/components/StatusBadge";
-import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/constants";
+import StaleBadge from "@/components/StaleBadge";
+import { CATEGORY_LABELS, CATEGORY_ORDER, STALE_AFTER_DAYS } from "@/lib/constants";
+import { daysSince, getEvidenceStaleness } from "@/lib/format";
 import type { ControlCategory, ControlStatusValue } from "@/lib/types";
 
 export default async function ControlChecklistPage() {
@@ -12,7 +14,7 @@ export default async function ControlChecklistPage() {
     orderBy: [{ category: "asc" }, { code: "asc" }],
     include: {
       statuses: { where: { companyId: session.companyId }, include: { owner: true } },
-      evidence: { where: { companyId: session.companyId }, select: { id: true } },
+      evidence: { where: { companyId: session.companyId }, select: { id: true, uploadedAt: true } },
     },
   });
 
@@ -51,6 +53,10 @@ export default async function ControlChecklistPage() {
                     const controlStatus = control.statuses[0];
                     const status = (controlStatus?.status ?? "MISSING") as ControlStatusValue;
                     const owner = controlStatus?.owner;
+                    const { latest, stale } = getEvidenceStaleness(
+                      control.evidence.map((e) => e.uploadedAt),
+                      STALE_AFTER_DAYS
+                    );
                     return (
                       <li key={control.id}>
                         <Link
@@ -66,6 +72,7 @@ export default async function ControlChecklistPage() {
                           </div>
                           <div className="flex shrink-0 items-center gap-3">
                             <span className="text-sm text-slate-500">{owner ? owner.name : "Unassigned"}</span>
+                            {stale && latest && <StaleBadge days={daysSince(latest)} />}
                             <StatusBadge status={status} />
                           </div>
                         </Link>

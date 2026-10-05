@@ -5,6 +5,9 @@ import { useMemo, useState } from "react";
 import type { ControlCategory, ControlStatusValue } from "@/lib/types";
 import StatusBadge from "@/components/StatusBadge";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { formatDate } from "@/lib/format";
+
+export type GapReason = "MISSING" | "STALE";
 
 export type GapRow = {
   id: string;
@@ -13,9 +16,17 @@ export type GapRow = {
   category: ControlCategory;
   status: ControlStatusValue;
   ownerName: string | null;
+  reason: GapReason;
+  lastEvidenceAt: string | null;
 };
 
-type SortKey = "code" | "category" | "status" | "owner";
+const REASON_LABELS: Record<GapReason, string> = { MISSING: "Missing", STALE: "Stale" };
+const REASON_STYLES: Record<GapReason, string> = {
+  MISSING: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-200",
+  STALE: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200",
+};
+
+type SortKey = "code" | "category" | "status" | "owner" | "reason";
 
 export default function GapReportTable({ rows, daysToAudit }: { rows: GapRow[]; daysToAudit: number | null }) {
   const [sortKey, setSortKey] = useState<SortKey>("category");
@@ -29,6 +40,7 @@ export default function GapReportTable({ rows, daysToAudit }: { rows: GapRow[]; 
       else if (sortKey === "category") cmp = CATEGORY_LABELS[a.category].localeCompare(CATEGORY_LABELS[b.category]);
       else if (sortKey === "status") cmp = a.status.localeCompare(b.status);
       else if (sortKey === "owner") cmp = (a.ownerName ?? "").localeCompare(b.ownerName ?? "");
+      else if (sortKey === "reason") cmp = a.reason.localeCompare(b.reason);
       return asc ? cmp : -cmp;
     });
     return copy;
@@ -46,6 +58,7 @@ export default function GapReportTable({ rows, daysToAudit }: { rows: GapRow[]; 
   const headers: { key: SortKey; label: string }[] = [
     { key: "code", label: "Control" },
     { key: "category", label: "Category" },
+    { key: "reason", label: "Reason" },
     { key: "status", label: "Status" },
     { key: "owner", label: "Owner" },
   ];
@@ -63,6 +76,7 @@ export default function GapReportTable({ rows, daysToAudit }: { rows: GapRow[]; 
                 </button>
               </th>
             ))}
+            <th className="px-4 py-2 text-left font-medium text-slate-500">Last evidence</th>
             <th className="px-4 py-2 text-left font-medium text-slate-500">Days to audit</th>
           </tr>
         </thead>
@@ -77,9 +91,15 @@ export default function GapReportTable({ rows, daysToAudit }: { rows: GapRow[]; 
               </td>
               <td className="px-4 py-2 text-slate-600">{CATEGORY_LABELS[row.category]}</td>
               <td className="px-4 py-2">
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${REASON_STYLES[row.reason]}`}>
+                  {REASON_LABELS[row.reason]}
+                </span>
+              </td>
+              <td className="px-4 py-2">
                 <StatusBadge status={row.status} />
               </td>
               <td className="px-4 py-2 text-slate-600">{row.ownerName ?? "Unassigned"}</td>
+              <td className="px-4 py-2 text-slate-600">{row.lastEvidenceAt ? formatDate(row.lastEvidenceAt) : "—"}</td>
               <td className="px-4 py-2 text-slate-600">
                 {daysToAudit === null ? "—" : daysToAudit >= 0 ? `${daysToAudit}d` : `${Math.abs(daysToAudit)}d overdue`}
               </td>

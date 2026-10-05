@@ -14,3 +14,4 @@ complytrail/prisma/dev.db-journal
 complytrail/storage/evidence/*
 !complytrail/storage/evidence/.gitkeep
 !complytrail/storage/evidence/seed/
+complytrail/tsconfig.tsbuildinfo

@@ -98,11 +98,12 @@ export async function runSeed(prisma: PrismaClient, evidenceRoot: string): Promi
 
   const company = await prisma.company.upsert({
     where: { id: "seed-company-aurora" },
-    update: {},
+    update: { trustCenterEnabled: true },
     create: {
       id: "seed-company-aurora",
       name: "Aurora Robotics, Inc.",
       auditDate: new Date(Date.now() + 55 * 24 * 60 * 60 * 1000),
+      trustCenterEnabled: true,
     },
   });
 
@@ -161,6 +162,7 @@ export async function runSeed(prisma: PrismaClient, evidenceRoot: string): Promi
       fileName?: string;
       mimeType?: string;
       uploadedById: string;
+      uploadedAt?: Date;
     };
   };
 
@@ -182,6 +184,9 @@ export async function runSeed(prisma: PrismaClient, evidenceRoot: string): Promi
         type: "LINK",
         content: "https://drive.example.com/aurora-robotics/nda-agreements",
         uploadedById: priya.id,
+        // Backdated on purpose: demonstrates the gap report's stale-evidence
+        // flag against a control that was marked done and then forgotten.
+        uploadedAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000),
       },
     },
     "PPL-03": { status: "IN_PROGRESS", ownerId: dana.id },
@@ -236,6 +241,7 @@ export async function runSeed(prisma: PrismaClient, evidenceRoot: string): Promi
             fileName: plan.evidence.fileName,
             mimeType: plan.evidence.mimeType,
             uploadedById: plan.evidence.uploadedById,
+            ...(plan.evidence.uploadedAt ? { uploadedAt: plan.evidence.uploadedAt } : {}),
           },
         });
       }

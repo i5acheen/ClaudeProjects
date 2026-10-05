@@ -31,6 +31,8 @@ const MIGRATION_STATEMENTS = [
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "auditDate" DATETIME,
+    "trustCenterEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "trustSlug" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 )`,
   `CREATE TABLE "User" (
@@ -88,6 +90,7 @@ const MIGRATION_STATEMENTS = [
     CONSTRAINT "PolicyDraft_controlId_fkey" FOREIGN KEY ("controlId") REFERENCES "Control" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "PolicyDraft_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 )`,
+  `CREATE UNIQUE INDEX "Company_trustSlug_key" ON "Company"("trustSlug")`,
   `CREATE UNIQUE INDEX "User_email_key" ON "User"("email")`,
   `CREATE UNIQUE INDEX "Control_code_key" ON "Control"("code")`,
   `CREATE UNIQUE INDEX "ControlStatus_controlId_companyId_key" ON "ControlStatus"("controlId", "companyId")`,

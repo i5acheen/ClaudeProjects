@@ -2,10 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { CATEGORY_LABELS } from "@/lib/constants";
-import { formatTimestamp } from "@/lib/format";
+import { CATEGORY_LABELS, STALE_AFTER_DAYS } from "@/lib/constants";
+import { daysSince, formatTimestamp, getEvidenceStaleness } from "@/lib/format";
 import type { ControlCategory, ControlStatusValue } from "@/lib/types";
 import StatusBadge from "@/components/StatusBadge";
+import StaleBadge from "@/components/StaleBadge";
 import StatusOwnerForm from "@/components/StatusOwnerForm";
 import EvidenceUploadForm from "@/components/EvidenceUploadForm";
 
@@ -32,6 +33,10 @@ export default async function ControlDetailPage({ params }: { params: { id: stri
 
   const status = (controlStatus?.status ?? "MISSING") as ControlStatusValue;
   const hasEvidence = evidence.length > 0;
+  const { latest: latestEvidenceAt, stale } = getEvidenceStaleness(
+    evidence.map((e) => e.uploadedAt),
+    STALE_AFTER_DAYS
+  );
 
   return (
     <div className="space-y-6">
@@ -48,6 +53,7 @@ export default async function ControlDetailPage({ params }: { params: { id: stri
             {CATEGORY_LABELS[control.category as ControlCategory]}
           </span>
           <StatusBadge status={status} />
+          {stale && latestEvidenceAt && <StaleBadge days={daysSince(latestEvidenceAt)} />}
         </div>
         <h1 className="mt-2 text-xl font-semibold text-slate-900">{control.title}</h1>
         <p className="mt-1 text-sm text-slate-600">{control.description}</p>
@@ -59,6 +65,13 @@ export default async function ControlDetailPage({ params }: { params: { id: stri
         initialOwnerId={controlStatus?.ownerId ?? null}
         users={users}
       />
+
+      {stale && latestEvidenceAt && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          Newest evidence is {daysSince(latestEvidenceAt)} days old — past the {STALE_AFTER_DAYS}-day freshness
+          window. An auditor is likely to ask for something more recent.
+        </div>
+      )}
 
       {!hasEvidence && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">

@@ -16,14 +16,16 @@ datasource db {
 // company-scoped throughout so a second workspace is a query change,
 // not a data migration.
 model Company {
-  id           String          @id @default(cuid())
-  name         String
-  auditDate    DateTime?
-  createdAt    DateTime        @default(now())
-  users        User[]
-  statuses     ControlStatus[]
-  evidence     Evidence[]
-  policyDrafts PolicyDraft[]
+  id                 String          @id @default(cuid())
+  name               String
+  auditDate          DateTime?
+  trustCenterEnabled Boolean         @default(false)
+  trustSlug          String          @unique @default(cuid())
+  createdAt          DateTime        @default(now())
+  users              User[]
+  statuses           ControlStatus[]
+  evidence           Evidence[]
+  policyDrafts       PolicyDraft[]
 }
 
 model User {

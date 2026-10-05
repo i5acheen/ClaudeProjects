@@ -28,6 +28,10 @@ export const STATUS_STYLES: Record<ControlStatusValue, string> = {
   EVIDENCE_ATTACHED: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200",
 };
 
+// Evidence older than this is treated as stale — attached once but never
+// re-verified, which auditors (and the gap report) should still flag.
+export const STALE_AFTER_DAYS = 90;
+
 export const POLICY_QUESTIONS: { key: string; label: string }[] = [
   {
     key: "accessGrant",

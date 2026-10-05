@@ -2,6 +2,7 @@ import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import AuditDateForm from "@/components/AuditDateForm";
 import AddTeammateForm from "@/components/AddTeammateForm";
+import TrustCenterToggle from "@/components/TrustCenterToggle";
 
 export default async function SettingsPage() {
   const session = await requireSession();
@@ -46,6 +47,20 @@ export default async function SettingsPage() {
           <AddTeammateForm />
         ) : (
           <p className="text-sm text-slate-500">Only admins can add teammates.</p>
+        )}
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Trust Center</h2>
+        <p className="mb-3 text-sm text-slate-500">
+          A public, read-only page showing your overall compliance status — share it with prospects during
+          security review instead of a spreadsheet. It never exposes evidence files, links, or team member
+          details.
+        </p>
+        {session.role === "ADMIN" ? (
+          <TrustCenterToggle initialEnabled={company?.trustCenterEnabled ?? false} trustSlug={company?.trustSlug ?? ""} />
+        ) : (
+          <p className="text-sm text-slate-500">Only admins can turn this on or off.</p>
         )}
       </section>
 

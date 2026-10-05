@@ -6,7 +6,11 @@ const PUBLIC_PATHS = ["/login", "/register"];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/api/auth") || PUBLIC_PATHS.includes(pathname)) {
+  if (
+    pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/trust/") ||
+    PUBLIC_PATHS.includes(pathname)
+  ) {
     return NextResponse.next();
   }
 

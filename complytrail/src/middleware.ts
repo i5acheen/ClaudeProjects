@@ -17,6 +17,7 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/trust/") ||
+    pathname.startsWith("/docs") ||
     PUBLIC_PATHS.includes(pathname)
   ) {
     return NextResponse.next();

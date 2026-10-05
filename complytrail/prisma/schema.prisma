@@ -12,9 +12,10 @@ datasource db {
 // plain strings at the DB level. Their allowed values live as TypeScript
 // union types in src/lib/types.ts and are enforced at every write via zod.
 
-// v1 supports exactly one Company/workspace, but the schema stays
-// company-scoped throughout so a second workspace is a query change,
-// not a data migration.
+// Multi-tenant: every Company is an independent workspace. Every other
+// model is scoped by companyId (or by controlId+companyId), so a query
+// filtered to the wrong company is the only way data could cross tenants —
+// every route handler and page in this app filters by session.companyId.
 model Company {
   id                 String          @id @default(cuid())
   name               String

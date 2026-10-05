@@ -76,6 +76,11 @@ export default function LoginPage() {
             Create one
           </Link>
         </p>
+        <p className="mt-2 text-center text-xs text-slate-400">
+          <Link href="/docs" className="hover:underline">
+            Read the docs
+          </Link>
+        </p>
         <p className="mt-6 rounded-md bg-slate-100 p-3 text-xs text-slate-500">
           Seeded demo login: <span className="font-mono">priya@aurorarobotics.example</span> /{" "}
           <span className="font-mono">ComplyTrail123!</span>

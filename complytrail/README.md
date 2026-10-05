@@ -18,9 +18,14 @@ rather than every framework done shallowly.
   short questionnaire about how your company actually handles onboarding,
   offboarding, and training, and Claude drafts a first-pass policy you can
   edit and approve.
-- **Simple auth** — one company/workspace, email+password. The first person
-  to register creates the workspace and becomes admin; everyone after joins
-  as a member.
+- **Multi-tenant auth** — email+password; every sign-up creates its own
+  isolated company workspace and its creator becomes that workspace's admin.
+  Teammates are added from inside the workspace (Settings → Team), not
+  through public sign-up.
+- **Public Trust Center** — an optional, read-only page per company showing
+  aggregate control pass-rate, safe to share with a prospect or customer.
+- **Docs** — a public `/docs` page covering onboarding, controls, the gap
+  report, and the policy assistant.
 
 ### Non-goals (v1)
 

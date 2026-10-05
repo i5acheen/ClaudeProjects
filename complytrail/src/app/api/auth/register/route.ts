@@ -8,7 +8,7 @@ const registerSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(200),
   email: z.string().trim().email(),
   password: z.string().min(8, "Password must be at least 8 characters").max(200),
-  companyName: z.string().trim().max(200).optional(),
+  companyName: z.string().trim().min(1, "Company name is required").max(200),
 });
 
 export async function POST(request: Request) {
@@ -25,29 +25,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "An account with that email already exists." }, { status: 409 });
   }
 
-  // v1 supports a single workspace: the first person to register creates it
-  // and becomes admin; everyone after joins that same company as a member.
-  const existingCompany = await prisma.company.findFirst();
-
-  let companyId: string;
-  let role: "ADMIN" | "MEMBER";
-
-  if (!existingCompany) {
-    if (!companyName) {
-      return NextResponse.json(
-        { error: "Company name is required to set up your workspace." },
-        { status: 400 }
-      );
-    }
-    const company = await prisma.company.create({ data: { name: companyName } });
-    companyId = company.id;
-    role = "ADMIN";
-  } else {
-    companyId = existingCompany.id;
-    role = "MEMBER";
-  }
-
+  // Multi-tenant: every registration spins up its own isolated company —
+  // there is no single shared workspace to join. Teammates are added from
+  // inside that workspace (Settings → Team), not through public signup.
   try {
+    const company = await prisma.company.create({ data: { name: companyName } });
+    const companyId = company.id;
+    const role: "ADMIN" = "ADMIN";
+
     const passwordHash = await hashPassword(password);
     const user = await prisma.user.create({
       data: { companyId, name, email, passwordHash, role },

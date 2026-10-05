@@ -19,7 +19,7 @@ from .scheduling import GoogleCalendar
 from .llm import build_chain, build_provider
 from .security import verify_signature
 from .sheets import LeadSheet
-from .whatsapp import IncomingMessage, WhatsAppClient, parse_messages
+from .whatsapp import IncomingMessage, WhatsAppClient, parse_messages, parse_staff_echoes
 
 logging.basicConfig(
     level=settings.log_level.upper(),
@@ -55,6 +55,7 @@ async def lifespan(app: FastAPI):
         alerter=alerter if alerter.enabled else None,
         rate_limiter=RateLimiter(settings.rate_limit_count, settings.rate_limit_window),
         flows=Flows(FLOWS_FILE, calendar),
+        human_handoff_hours=settings.human_handoff_hours,
     )
     log.info("Started. LLM chain=%s | DB=%s | Sheets=%s | Calendar=%s | Alerts=%s | Diag=%s",
              [p.name for p in llm.providers], "postgres" if settings.database_url else "sqlite",
@@ -207,5 +208,9 @@ async def receive_webhook(request: Request, background: BackgroundTasks):
             continue
         background.add_task(request.app.state.wa.mark_read, msg.message_id)
         background.add_task(request.app.state.agent.handle, msg)
+
+    for echo in parse_staff_echoes(payload):     # coexistence: staff replied from the Business app
+        if db.mark_processed(echo.message_id):
+            background.add_task(request.app.state.agent.staff_replied, echo.customer, echo.text)
 
     return Response(status_code=200)             # respond fast; work happens in background

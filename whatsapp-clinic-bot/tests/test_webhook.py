@@ -113,3 +113,28 @@ def test_diag_disabled_by_default_and_ready_endpoint():
     assert c.get("/diag/llm", params={"token": "verify-me"}).status_code == 404
     r = c.get("/ready")
     assert r.status_code == 200 and r.json() == {"ok": True}
+
+
+def test_staff_echo_webhook_is_routed():
+    from app.whatsapp import parse_staff_echoes
+
+    class EchoAgent(RecordingAgent):
+        def __init__(self):
+            super().__init__()
+            self.echoes = []
+
+        async def staff_replied(self, customer, text):
+            self.echoes.append((customer, text))
+
+    c = client()
+    app.state.agent = EchoAgent()
+    body = {"object": "whatsapp_business_account", "entry": [{"id": "1", "changes": [{
+        "field": "smb_message_echoes",
+        "value": {"messaging_product": "whatsapp", "message_echoes": [{
+            "from": "15556383099", "to": "919000000001", "id": "wamid.E1", "timestamp": "1",
+            "type": "text", "text": {"body": "Hi, this is the clinic"}}]}}]}]}
+    assert post(c, body).status_code == 200
+    assert post(c, body).status_code == 200                       # duplicate ignored
+    assert app.state.agent.echoes == [("919000000001", "Hi, this is the clinic")]
+    assert app.state.agent.handled == []
+    assert parse_staff_echoes({"object": "x"}) == []

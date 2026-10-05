@@ -54,6 +54,7 @@ class Settings:
     enable_diag: bool
     rate_limit_count: int
     rate_limit_window: int
+    human_handoff_hours: float
     alert_phone: str
     alert_email: str
     smtp_host: str
@@ -115,6 +116,7 @@ def load_settings() -> Settings:
         enable_diag=_bool(env("ENABLE_DIAG", "false")),
         rate_limit_count=int(env("RATE_LIMIT_COUNT", "20")),
         rate_limit_window=int(env("RATE_LIMIT_WINDOW_SECONDS", "600")),
+        human_handoff_hours=float(env("HUMAN_HANDOFF_HOURS", "12")),
         alert_phone=env("ALERT_PHONE", ""),
         alert_email=env("ALERT_EMAIL", ""),
         smtp_host=env("SMTP_HOST", ""),

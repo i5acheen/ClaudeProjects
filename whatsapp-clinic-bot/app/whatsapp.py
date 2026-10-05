@@ -48,6 +48,30 @@ def parse_messages(payload: dict) -> list[IncomingMessage]:
     return out
 
 
+@dataclass(frozen=True)
+class StaffEcho:
+    """A message the business sent from the WhatsApp Business app (coexistence)."""
+    message_id: str
+    customer: str
+    text: str | None
+
+
+def parse_staff_echoes(payload: dict) -> list[StaffEcho]:
+    """Coexistence: `smb_message_echoes` webhooks for replies typed by staff in the Business app."""
+    out: list[StaffEcho] = []
+    if payload.get("object") != "whatsapp_business_account":
+        return out
+    for entry in payload.get("entry", []):
+        for change in entry.get("changes", []):
+            if change.get("field") != "smb_message_echoes":
+                continue
+            for m in change.get("value", {}).get("message_echoes", []):
+                if m.get("id") and m.get("to"):
+                    body = m.get("text", {}).get("body") if m.get("type") == "text" else f"[{m.get('type')}]"
+                    out.append(StaffEcho(m["id"], m["to"], body))
+    return out
+
+
 class WhatsAppClient:
     def __init__(self, token: str, phone_number_id: str, api_version: str):
         self._url = f"https://graph.facebook.com/{api_version}/{phone_number_id}/messages"

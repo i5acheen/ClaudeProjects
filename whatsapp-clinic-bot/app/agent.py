@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import re
+import time
 from collections import defaultdict
 from pathlib import Path
 from typing import Protocol
@@ -133,8 +134,9 @@ def merge_lead(old: dict, new: dict) -> dict:
 class Agent:
     def __init__(self, db: Database, llm: LLM, sender: Sender, sheet: Sheet | None,
                  history_limit: int = 15, clinic_phone: str = "", alerter=None, rate_limiter=None,
-                 flows: Flows | None = None):
+                 flows: Flows | None = None, human_handoff_hours: float = 12):
         self.db, self.llm, self.sender, self.sheet = db, llm, sender, sheet
+        self.human_handoff_hours = human_handoff_hours
         self.flows = flows
         self.alerter, self.rate_limiter = alerter, rate_limiter
         self.history_limit = history_limit
@@ -175,6 +177,12 @@ class Agent:
             return
 
         text = msg.text.strip()
+        if (lead["data"].get("_human_until") or 0) > time.time():
+            # Staff are chatting with this person from the WhatsApp Business app: stay quiet.
+            self.db.add_message(msg.phone, "user", text)
+            self.db.log_event(msg.phone, "human", text)
+            log.info("Staff handling ...%s, bot paused", msg.phone[-4:])
+            return
         chosen = detect_language_choice(msg)
         if chosen:
             # Language picked (first time or later): lock it and answer their earlier message.
@@ -241,6 +249,17 @@ class Agent:
         new_data = merge_lead(lead["data"], turn.lead.model_dump())
         confirmed = lead["details_confirmed"] or turn.details_confirmed
         await self._save(msg, lead, new_data, language, confirmed)
+
+    async def staff_replied(self, customer: str, text: str | None) -> None:
+        """Coexistence: staff answered from the Business app, so pause the bot for this chat."""
+        async with self._locks[customer]:
+            lead = self.db.get_lead(customer)
+            data = dict(lead["data"]) | {"_human_until": time.time() + self.human_handoff_hours * 3600}
+            self.db.save_lead(customer, data, lead["language"], None, lead["details_confirmed"])
+            self.db.add_message(customer, "assistant", f"[Clinic staff] {text or ''}".strip())
+            self.db.log_event(customer, "staff_reply")
+            log.info("Staff replied to ...%s from the Business app; bot paused %sh",
+                     customer[-4:], self.human_handoff_hours)
 
     # ---------- helpers ----------
     async def _flow_reply(self, msg: IncomingMessage, text: str, chosen: str | None, lead: dict,

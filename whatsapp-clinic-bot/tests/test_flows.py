@@ -212,3 +212,18 @@ def test_scheduler_respects_hours_notice_and_closed_days():
     assert datetime(2026, 10, 7).date() not in free           # holiday
     assert len(free[datetime(2026, 10, 6).date()]) == 12      # 6 + 6 slots
     assert s.day_label(datetime(2026, 10, 6).date(), "mr", today=now.date()).startswith("उद्या")
+
+
+def test_staff_reply_from_business_app_pauses_bot():
+    agent, db, llm, sender = make()
+    run(agent.staff_replied(PHONE, "Namaskar, me clinic madhun bolte"))
+    run(agent.handle(say("m1", "kiti vajta yeu?")))
+    assert sender.sent == [] and llm.calls == []                 # bot stays quiet
+    hist = db.recent_messages(PHONE, 5)
+    assert hist[0]["content"].startswith("[Clinic staff]") and hist[-1]["content"] == "kiti vajta yeu?"
+    assert {c["route"] for c in db.route_counts()} >= {"staff_reply", "human"}
+    # after the handoff window, the bot answers again
+    lead = db.get_lead(PHONE)
+    db.save_lead(PHONE, lead["data"] | {"_human_until": 0}, "mr", None, False)
+    run(agent.handle(say("m2", "menu")))
+    assert sender.sent and sender.sent[-1][2] == "list"

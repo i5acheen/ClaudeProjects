@@ -124,11 +124,42 @@ Render free wipes its disk on every restart. Create a free Postgres at https://n
 - **Permanent token:** business.facebook.com/settings → Users → **System users** → Add (Admin) → Assign assets (the app and the WhatsApp account, full control) → Generate token (expiry **Never**; `whatsapp_business_messaging`, `whatsapp_business_management`) → `WHATSAPP_TOKEN`.
 - **Number options:**
   - (a) A new SIM or landline that isn't on WhatsApp: simplest, and bot-only.
-  - (b) **Coexistence:** keep the existing WhatsApp Business app number, set up through a Meta partner's Embedded Signup. Staff and bot share it, so agree on who replies.
+  - (b) **Coexistence:** keep the existing WhatsApp Business app number, so staff and bot share it. See **section 10b** below.
   - (c) Delete the WhatsApp account on the existing number and register it on the API. Old chats are lost.
 - Meta → WhatsApp Manager → **Add phone number** → display name (must match the business) → OTP → 2-step PIN → add a **payment card** → update `PHONE_NUMBER_ID`.
 - **Business verification** (Business Settings → Security Centre): GST, Shop Act, Udyam or registration documents plus a matching website. Takes 2–10 days, and the display name shows once it's done.
 - **Security before launch:** rotate any secret that was shared (App secret → Reset; new `VERIFY_TOKEN` in both Render and Meta; LLM keys). Set `ENABLE_DIAG=false`. Restrict who can open the sheet. Have the owner approve the facts and tone.
+
+## 10b. Coexistence: use the existing WhatsApp Business app number
+With coexistence, customers keep messaging the number they know. Staff keep using the **WhatsApp Business app** on the phone, and the bot answers through the Cloud API **on the same number**. It's available in India.
+
+**Requirements**
+- The number is on the **WhatsApp Business app** (not regular WhatsApp), **version 2.24.17 or newer**, and is the primary device.
+- A Meta Business portfolio (Business Manager) for the business.
+- ⚠️ Onboarding happens only through Meta's **Embedded Signup run by a Tech Provider or Solution Partner**. A plain developer app (like the test setup in section 3) can't turn coexistence on by itself.
+
+**Two ways to onboard**
+1. **Through a Meta partner that gives raw Cloud API access** and lets you set your own webhook URL (e.g. 360dialog; some Indian BSPs such as Gupshup/Interakt/AiSensy/WATI/DoubleTick also support coexistence, but check that they let you use your own webhook/bot rather than only their inbox). The partner sends an onboarding link. Then:
+   - Open the link → log in with the business's Facebook account → select or create the business portfolio → choose **"Connect your existing WhatsApp Business app"** → enter the number.
+   - On the phone, the WhatsApp Business app shows a prompt (or a QR code to scan) to **share chat history** (up to the last 6 months) and contacts. Accept it within the time limit.
+   - Get the **Phone Number ID**, and a token or the partner's API key and base URL. Point the partner's webhook at `https://<service>.onrender.com/webhook`. If the partner's API isn't Meta's Graph URL, the send URL in `app/whatsapp.py` must be adapted.
+   - Partners usually charge a monthly fee.
+2. **Become a Tech Provider yourself** (free, more work): in the Meta app dashboard, open **Become a Partner → Become Tech Provider**. You need **Business Verification** and **App Review** for advanced access to `whatsapp_business_management` and `whatsapp_business_messaging`. Then:
+   - Create an **Embedded Signup configuration** with the WhatsApp Business app onboarding option (Facebook Login for Business → Configurations).
+   - Host a small page with the Facebook JS SDK and an "Connect WhatsApp" button that launches it (session logging enabled).
+   - Exchange the returned code for a business token. **Skip phone registration** (the number is already registered). Subscribe your app to the customer's WABA (`POST /<WABA_ID>/subscribed_apps`).
+   - **Within 24 hours**, request history and contact sync (`POST /<PHONE_NUMBER_ID>/smb_app_data` with `sync_type` `history` and `smb_app_state_sync`), otherwise onboarding must be redone.
+
+**Webhook fields to subscribe** (Meta → Configure Webhooks): `messages`, **`smb_message_echoes`** (replies staff type in the app), `smb_app_state_sync` (contacts) and `history` (past chats). The bot already handles `smb_message_echoes`: when staff reply from the phone, the bot **pauses for that customer for `HUMAN_HANDOFF_HOURS` (default 12)**, so there are no double replies. The staff message is added to the chat history, and `/admin/insights` shows `staff_reply` and `human` counts. The other two fields are acknowledged and ignored.
+
+**Agree a working rule with staff.** For example: the bot answers first and books, and staff take over Hot leads by simply replying from the app. Or set `HUMAN_HANDOFF_HOURS` lower if staff only send short replies.
+
+**Limitations to tell the business**
+- Throughput is fixed at about **20 messages/second** (fine for a clinic).
+- Not supported on the API side: group chats, broadcast lists, disappearing and view-once messages, live location, and voice/video calls through the API.
+- **WhatsApp for Windows and Wear OS companions stop syncing.** Other linked devices must be re-linked after onboarding.
+- Messages staff send from the app stay **free**. Messages the bot sends follow Cloud API pricing (customer-initiated replies are free; see section 11).
+- **To undo:** in the WhatsApp Business app, go to **Settings → Account → Business Platform → Disconnect account**.
 
 ## 11. Costs (India, late 2026)
 - WhatsApp: replies within 24 hours of the customer's message (text, buttons, lists) are **free**. Business-initiated templates: marketing about ₹0.86, utility about ₹0.115 (+18% GST). Customers who arrive from Click-to-WhatsApp ads open a free 72-hour window.
@@ -150,6 +181,7 @@ Render free wipes its disk on every restart. Create a free Postgres at https://n
 | Bot switches language | The language is locked after the picker. Check the `reply_language` context and that the patient didn't explicitly ask to switch. |
 | Chat memory lost | No `DATABASE_URL`, so Render's free disk was wiped. Add Neon. |
 | WhatsApp alert not received | The staff number hasn't messaged the bot in the last 24 hours. Use email alerts. |
+| Staff and bot both reply (coexistence) | `smb_message_echoes` not subscribed in Meta webhook fields, so the bot never learns staff replied. |
 | Calendar slots not filtered | `GOOGLE_CALENDAR_ID` not set, or the calendar isn't shared with the service account ("Make changes to events"). |
 
 ## 13. Project map

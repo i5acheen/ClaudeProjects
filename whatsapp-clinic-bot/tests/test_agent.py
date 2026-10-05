@@ -161,3 +161,12 @@ def test_agent_rate_limit_drops_extra_messages():
     for i in range(4):
         run(agent.handle(text(f"m{i}", f"msg {i}")))
     assert len(llm.calls) == 2
+
+
+def test_fallback_and_non_text_replies_cover_all_three_languages():
+    agent, db, llm, sender, _ = make(error=RuntimeError("down"), language=None)
+    run(agent.handle(IncomingMessage("m0", "919000000001", "audio", None, None)))
+    body = sender.sent[0][1]
+    assert "टेक्स्ट" in body and "टाइप करके" in body and "Please type" in body
+    assert all(k in agent.fallback_reply() for k in ("क्षमस्व", "क्षमा करें", "Sorry"))
+    assert agent.fallback_reply("hi").startswith("क्षमा करें") and "+91 1" in agent.fallback_reply("hi")

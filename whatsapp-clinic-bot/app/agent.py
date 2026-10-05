@@ -23,7 +23,7 @@ PROMPT_FILE = BASE_DIR / "prompts" / "system_prompt.md"
 KNOWLEDGE_FILE = BASE_DIR / "knowledge" / "clinic_info.md"
 FLOWS_FILE = BASE_DIR / "knowledge" / "flows.yaml"
 
-# Sent without calling the LLM, so they are bilingual (we may not know the user's language yet).
+# Sent without calling the LLM: in the chosen language, or all three if not chosen yet.
 NON_TEXT_REPLY = {
     "mr": "क्षमस्व, मी सध्या फक्त टेक्स्ट मेसेज वाचू शकतो. कृपया तुमचा प्रश्न टाइप करून पाठवा. 🙏",
     "hi": "क्षमा करें, मैं अभी केवल टेक्स्ट मैसेज पढ़ सकता हूँ. कृपया अपना सवाल टाइप करके भेजें. 🙏",
@@ -141,12 +141,17 @@ class Agent:
         self.clinic_phone = clinic_phone
         self._locks: defaultdict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
 
-    def fallback_reply(self) -> str:
-        phone = f" {self.clinic_phone}" if self.clinic_phone else ""
-        return ("क्षमस्व, सध्या तांत्रिक अडचण आहे. कृपया थोड्या वेळाने पुन्हा मेसेज करा"
-                + (f" किंवा क्लिनिकला कॉल करा:{phone}" if phone else "") + ".\n"
-                "Sorry, we're facing a technical issue. Please try again shortly"
-                + (f" or call the clinic:{phone}" if phone else "") + ".")
+    def fallback_reply(self, language: str | None = None) -> str:
+        phone = self.clinic_phone
+        texts = {
+            "mr": "क्षमस्व, सध्या तांत्रिक अडचण आहे. कृपया थोड्या वेळाने पुन्हा मेसेज करा"
+                  + (f" किंवा क्लिनिकला कॉल करा: {phone}" if phone else "") + ".",
+            "hi": "क्षमा करें, अभी तकनीकी समस्या है. कृपया थोड़ी देर बाद फिर से मैसेज करें"
+                  + (f" या क्लिनिक को कॉल करें: {phone}" if phone else "") + ".",
+            "en": "Sorry, we're facing a technical issue. Please try again shortly"
+                  + (f" or call the clinic: {phone}" if phone else "") + ".",
+        }
+        return texts.get(language or "") or "\n\n".join(texts.values())
 
     async def handle(self, msg: IncomingMessage) -> None:
         # One message at a time per user, so history and lead state stay consistent.
@@ -165,7 +170,7 @@ class Agent:
         language = lead.get("language")
 
         if msg.type != "text" or not (msg.text or "").strip():
-            reply = NON_TEXT_REPLY.get(language) or f"{NON_TEXT_REPLY['mr']}\n{NON_TEXT_REPLY['en']}"
+            reply = NON_TEXT_REPLY.get(language or "") or "\n\n".join(NON_TEXT_REPLY.values())
             await self.sender.send_text(msg.phone, reply)
             return
 
@@ -210,7 +215,7 @@ class Agent:
             turn = await self.llm.generate(system, history)
         except Exception as exc:
             log.error("All LLM providers failed: %s", type(exc).__name__)
-            await self.sender.send_text(msg.phone, self.fallback_reply())
+            await self.sender.send_text(msg.phone, self.fallback_reply(language))
             if self.alerter:
                 await self.alerter.bot_failure(msg.phone)
             return
@@ -221,7 +226,7 @@ class Agent:
         elif turn.language != language and mentions_language(text, turn.language):
             language = turn.language
 
-        reply = format_for_whatsapp(turn.reply) or self.fallback_reply()
+        reply = format_for_whatsapp(turn.reply) or self.fallback_reply(language)
         opts = turn.options
         choices = [c.model_dump() for c in opts.choices if c.id and c.title]
         kind, label = opts.kind, opts.button_label or ""

@@ -29,3 +29,13 @@ def test_database_operations(target):
     assert lead["profile_name"] == "Prof" and lead["details_confirmed"] is True
     assert lead["first_seen"]
     assert db.ping()
+
+
+@pytest.mark.parametrize("target", TARGETS)
+def test_events(target):
+    db = Database(target)
+    db.log_event("91x", "llm", "question one")
+    db.log_event("91x", "menu")
+    counts = {c["route"]: c["n"] for c in db.route_counts()}
+    assert counts["llm"] >= 1 and counts["menu"] >= 1
+    assert db.recent_events("llm", 5)[0]["detail"] == "question one"

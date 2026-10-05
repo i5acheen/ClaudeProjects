@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Protocol
 
 from .db import LEAD_FIELDS, Database
+from .flows import Flows, FlowReply, is_greeting
 from .knowledge import select_knowledge
 from .llm import AgentTurn
 from .whatsapp import IncomingMessage
@@ -20,6 +21,7 @@ log = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROMPT_FILE = BASE_DIR / "prompts" / "system_prompt.md"
 KNOWLEDGE_FILE = BASE_DIR / "knowledge" / "clinic_info.md"
+FLOWS_FILE = BASE_DIR / "knowledge" / "flows.yaml"
 
 # Sent without calling the LLM, so they are bilingual (we may not know the user's language yet).
 NON_TEXT_REPLY = {
@@ -74,11 +76,6 @@ def mentions_language(text: str, code: str) -> bool:
     return any(w in t for w in _LANGUAGE_WORDS[code] if not w.isdigit())
 
 
-def options_as_text(turn_options) -> str:
-    """How offered options are remembered in history, so the model knows what was shown."""
-    if turn_options.kind == "none" or not turn_options.choices:
-        return ""
-    return "\n[Options shown: " + " | ".join(c.title for c in turn_options.choices) + "]"
 
 
 class Sheet(Protocol):
@@ -135,8 +132,10 @@ def merge_lead(old: dict, new: dict) -> dict:
 
 class Agent:
     def __init__(self, db: Database, llm: LLM, sender: Sender, sheet: Sheet | None,
-                 history_limit: int = 15, clinic_phone: str = "", alerter=None, rate_limiter=None):
+                 history_limit: int = 15, clinic_phone: str = "", alerter=None, rate_limiter=None,
+                 flows: Flows | None = None):
         self.db, self.llm, self.sender, self.sheet = db, llm, sender, sheet
+        self.flows = flows
         self.alerter, self.rate_limiter = alerter, rate_limiter
         self.history_limit = history_limit
         self.clinic_phone = clinic_phone
@@ -189,8 +188,17 @@ class Agent:
             await self.sender.send_choices(msg.phone, LANGUAGE_PICKER_BODY, "buttons", LANGUAGE_CHOICES)
             return
 
+        # 1) Menu / predefined flow first: instant, free, and no risk of invented answers.
+        if self.flows and language:
+            reply = self._flow_reply(msg, text, chosen, lead, language)
+            if reply:
+                await self._apply_flow(msg, text, reply, lead, language)
+                return
+
+        # 2) Anything the menu can't handle goes to the LLM.
         if text:
             self.db.add_message(msg.phone, "user", text)
+        self.db.log_event(msg.phone, "llm", text or "(answer to first message)")
         first_reply = not self.db.has_assistant_replied(msg.phone)
         history = self.db.recent_messages(msg.phone, self.history_limit)
         lead = self.db.get_lead(msg.phone)
@@ -216,24 +224,64 @@ class Agent:
         reply = format_for_whatsapp(turn.reply) or self.fallback_reply()
         opts = turn.options
         choices = [c.model_dump() for c in opts.choices if c.id and c.title]
-        if opts.kind == "buttons" and 1 <= len(choices) <= 3 and len(reply) <= 1024:
-            sent = await self.sender.send_choices(msg.phone, reply, "buttons", choices)
-        elif opts.kind == "list" and 1 <= len(choices) <= 10 and len(reply) <= 1024:
-            sent = await self.sender.send_choices(msg.phone, reply, "list", choices,
-                                                  opts.button_label or "")
-        else:
-            sent = await self.sender.send_text(msg.phone, reply)
-        if not sent and opts.kind != "none":  # interactive rejected: fall back to plain text
-            sent = await self.sender.send_text(msg.phone, reply)
-        if sent:
-            self.db.add_message(msg.phone, "assistant", reply + options_as_text(opts))
-            log.info("Replied to ...%s (status=%s, options=%s)", msg.phone[-4:], turn.lead.status, opts.kind)
+        kind, label = opts.kind, opts.button_label or ""
+        if self.flows and (kind == "none" or not choices):
+            # Always offer a way back to the menu after a free-text answer.
+            kind, choices, label = "buttons", self.flows.buttons(["book", "menu"], language), ""
+        if await self._send(msg.phone, reply, kind, choices, label):
+            shown = " | ".join(c["title"] for c in choices) if kind != "none" else ""
+            self.db.add_message(msg.phone, "assistant", reply + (f"\n[Options shown: {shown}]" if shown else ""))
+            log.info("Replied to ...%s via LLM (status=%s, options=%s)", msg.phone[-4:], turn.lead.status, kind)
 
         new_data = merge_lead(lead["data"], turn.lead.model_dump())
         confirmed = lead["details_confirmed"] or turn.details_confirmed
-        self.db.save_lead(msg.phone, new_data, language, msg.profile_name, confirmed)
+        await self._save(msg, lead, new_data, language, confirmed)
 
-        changed = (new_data != lead["data"] or language != lead["language"]
+    # ---------- helpers ----------
+    def _flow_reply(self, msg: IncomingMessage, text: str, chosen: str | None, lead: dict,
+                    language: str) -> FlowReply | None:
+        flows = self.flows
+        if chosen:
+            # Just picked a language: greet with the menu, unless their first message was a real
+            # question (then let the LLM answer it; it will offer the menu afterwards).
+            recent = self.db.recent_messages(msg.phone, 1)
+            prior = recent[-1]["content"] if recent and recent[-1]["role"] == "user" and not text else ""
+            return flows.menu(language, welcome=True) if not prior or is_greeting(prior) else None
+        reply = flows.handle(text, msg.choice_id, lead["data"], language)
+        if reply is None and is_greeting(text) and lead["data"].get("_step") in (None, "free"):
+            reply = flows.menu(language, welcome=not self.db.has_assistant_replied(msg.phone))
+        return reply
+
+    async def _apply_flow(self, msg: IncomingMessage, text: str, reply: FlowReply, lead: dict,
+                          language: str) -> None:
+        if text:
+            self.db.add_message(msg.phone, "user", text)
+        if await self._send(msg.phone, reply.text, reply.kind, reply.choices, reply.button_label):
+            shown = " | ".join(c["title"] for c in reply.choices)
+            self.db.add_message(msg.phone, "assistant",
+                                reply.text + (f"\n[Options shown: {shown}]" if shown else ""))
+        self.db.log_event(msg.phone, reply.route, text if not msg.choice_id else None)
+        log.info("Replied to ...%s via menu (%s)", msg.phone[-4:], reply.route)
+        new_data = dict(lead["data"]) | reply.updates
+        confirmed = lead["details_confirmed"] or reply.confirmed
+        await self._save(msg, lead, new_data, language, confirmed)
+
+    async def _send(self, phone: str, text: str, kind: str, choices: list[dict], label: str = "") -> bool:
+        if kind == "buttons" and 1 <= len(choices) <= 3 and len(text) <= 1024:
+            sent = await self.sender.send_choices(phone, text, "buttons", choices)
+        elif kind == "list" and 1 <= len(choices) <= 10 and len(text) <= 1024:
+            sent = await self.sender.send_choices(phone, text, "list", choices, label)
+        else:
+            return await self.sender.send_text(phone, text)
+        if not sent:  # interactive rejected: fall back to plain text
+            sent = await self.sender.send_text(phone, text)
+        return sent
+
+    async def _save(self, msg: IncomingMessage, lead: dict, new_data: dict, language: str | None,
+                    confirmed: bool) -> None:
+        self.db.save_lead(msg.phone, new_data, language, msg.profile_name, confirmed)
+        public = lambda d: {k: d.get(k) for k in LEAD_FIELDS}  # noqa: E731
+        changed = (public(new_data) != public(lead["data"]) or language != lead["language"]
                    or confirmed != lead["details_confirmed"] or lead["first_seen"] is None)
         saved = self.db.get_lead(msg.phone)
         if self.sheet and changed:

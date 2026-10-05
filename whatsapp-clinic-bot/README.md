@@ -21,6 +21,7 @@ whatsapp-clinic-bot/
 │   └── sheets.py      # Google Sheets lead upsert (one row per phone)
 ├── prompts/system_prompt.md   # ← edit the bot's behaviour here
 ├── knowledge/clinic_info.md   # ← edit clinic facts here (fill the [TO BE FILLED] items!)
+├── knowledge/flows.yaml       # ← edit the tap menu, fixed answers and booking questions (mr/hi/en)
 ├── scripts/eval_models.py  # compare models on real clinic conversations
 ├── tests/
 ├── data/              # SQLite DB (git-ignored)
@@ -119,6 +120,8 @@ pytest -q
 ---
 
 ## How it works
+- **Menu first, AI second.** After the language picker, patients get a tap menu (`knowledge/flows.yaml`): book an appointment, leg problem, treatment, cost, location, doctor, videos, call-back. Fixed answers and the booking questions (concern → duration → name → city → time → confirm) run **without the AI**: instant, free, and nothing invented. Only typed questions the menu can't handle, and "❓ Other question", go to the AI.
+- **See where the AI is needed:** open `https://<bot-url>/admin/insights?token=<VERIFY_TOKEN>`. It shows how many messages the menu handled and lists every question that went to the AI. Turn frequent ones into new menu answers.
 - `POST /webhook` checks `X-Hub-Signature-256` against `APP_SECRET` (an invalid signature gets 403). It returns **200 immediately** and processes messages in the background. Status updates are ignored and duplicate message IDs are skipped.
 - **First message:** a language picker (मराठी / हिंदी / English buttons). The chosen language is locked unless the person explicitly asks to switch.
 - **Each reply:** the last `HISTORY_LIMIT` messages, the lead details and only the relevant parts of `clinic_info.md` (about 3.5–4.5k tokens) go through the LLM chain. The model returns JSON: `reply`, `language`, `lead{…}`, `details_confirmed` and `options` (WhatsApp buttons or list).

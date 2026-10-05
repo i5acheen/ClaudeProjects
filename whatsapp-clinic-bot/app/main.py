@@ -10,10 +10,11 @@ from fastapi import BackgroundTasks, FastAPI, Query, Request, Response
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
 from . import pages
-from .agent import Agent, build_system_instruction
+from .agent import FLOWS_FILE, Agent, build_system_instruction
 from .alerts import Alerter, RateLimiter
 from .config import settings
 from .db import Database
+from .flows import Flows
 from .llm import build_chain, build_provider
 from .security import verify_signature
 from .sheets import LeadSheet
@@ -46,6 +47,7 @@ async def lifespan(app: FastAPI):
         history_limit=settings.history_limit, clinic_phone=settings.clinic_phone,
         alerter=alerter if alerter.enabled else None,
         rate_limiter=RateLimiter(settings.rate_limit_count, settings.rate_limit_window),
+        flows=Flows(FLOWS_FILE),
     )
     log.info("Started. LLM chain=%s | DB=%s | Sheets=%s | Alerts=%s | Diag=%s",
              [p.name for p in llm.providers], "postgres" if settings.database_url else "sqlite",
@@ -123,12 +125,30 @@ async def diag_chat(request: Request, q: str, session: str = "default", token: s
     real: Agent = request.app.state.agent
     capture = _CaptureSender()
     agent = Agent(db=real.db, llm=real.llm, sender=capture, sheet=None,
-                  history_limit=real.history_limit, clinic_phone=real.clinic_phone)
+                  history_limit=real.history_limit, clinic_phone=real.clinic_phone, flows=real.flows)
     phone = f"diag-{session}"
     await agent.handle(IncomingMessage(f"diag-{session}-{len(q)}-{id(capture)}", phone, "text", q, None,
                                        choice or None))
     return {"reply": capture.sent, "lead": real.db.get_lead(phone),
             "llm": getattr(real.llm, "last_used", None)}
+
+
+@app.get("/admin/insights", response_class=HTMLResponse)
+async def insights(request: Request, token: str = ""):
+    """Which messages the menu answered vs. which needed the LLM. Protected by VERIFY_TOKEN."""
+    if not token or token != settings.verify_token:
+        return Response(status_code=404)
+    import html
+
+    db: Database = request.app.state.db
+    counts = db.route_counts()
+    total = sum(c["n"] for c in counts) or 1
+    llm_n = sum(c["n"] for c in counts if c["route"] == "llm")
+    rows = "".join(f"<tr><td>{html.escape(c['route'])}</td><td>{c['n']}</td>"
+                   f"<td>{100 * c['n'] // total}%</td></tr>" for c in counts)
+    qs = "".join(f"<tr><td>{html.escape(e['created_at'][:16])}</td><td>…{html.escape(e['phone'][-4:])}</td>"
+                 f"<td>{html.escape(e['detail'] or '')}</td></tr>" for e in db.recent_events("llm", 200))
+    return pages.insights_page(total, llm_n, rows, qs)
 
 
 @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)

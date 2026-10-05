@@ -38,6 +38,13 @@ CREATE TABLE IF NOT EXISTS leads (
     first_seen        TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at        TEXT NOT NULL DEFAULT (datetime('now'))
 );
+CREATE TABLE IF NOT EXISTS events (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone      TEXT NOT NULL,
+    route      TEXT NOT NULL,
+    detail     TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 """
 
 _POSTGRES_SCHEMA = """
@@ -61,6 +68,13 @@ CREATE TABLE IF NOT EXISTS leads (
     details_confirmed INTEGER NOT NULL DEFAULT 0,
     first_seen        TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS events (
+    id         BIGSERIAL PRIMARY KEY,
+    phone      TEXT NOT NULL,
+    route      TEXT NOT NULL,
+    detail     TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 """
 
@@ -181,3 +195,22 @@ class Database:
             """,
             (phone, profile_name, language, json.dumps(data, ensure_ascii=False), int(details_confirmed)),
         )
+
+    # ---- analytics: which path answered each message (menu/flow vs LLM) ----
+    def log_event(self, phone: str, route: str, detail: str | None = None) -> None:
+        try:
+            self._run("INSERT INTO events (phone, route, detail) VALUES (?, ?, ?)",
+                      (phone, route, (detail or "")[:300] or None))
+        except Exception:
+            log.exception("Could not log event")
+
+    def route_counts(self) -> list[dict]:
+        rows = self._run("SELECT route, COUNT(*) AS n FROM events GROUP BY route ORDER BY n DESC",
+                         fetch="all")
+        return [{"route": r["route"], "n": int(r["n"])} for r in rows]
+
+    def recent_events(self, route_prefix: str, limit: int = 100) -> list[dict]:
+        rows = self._run("SELECT phone, route, detail, created_at FROM events WHERE route LIKE ? "
+                         "ORDER BY id DESC LIMIT ?", (route_prefix + "%", limit), fetch="all")
+        return [{"phone": r["phone"], "route": r["route"], "detail": r["detail"],
+                 "created_at": str(r["created_at"])} for r in rows]

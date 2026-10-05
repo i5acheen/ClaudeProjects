@@ -111,3 +111,20 @@ records from an actual clinic visit, are not covered by this request.</p>
 
 <p><a href="/privacy">Privacy Policy</a></p>
 """)
+
+
+def insights_page(total: int, llm_n: int, route_rows: str, question_rows: str) -> str:
+    menu_pct = 100 - (100 * llm_n // total if total else 0)
+    return _page("Bot insights", f"""
+<h1>Bot insights</h1>
+<p class="muted">Which messages the menu answered for free, and which needed the AI.
+Turn frequent AI questions into new menu answers in <code>knowledge/flows.yaml</code>.</p>
+<p><b>{total}</b> messages · <b>{menu_pct}%</b> handled by the menu · <b>{llm_n}</b> sent to the AI</p>
+<h2>By path</h2>
+<table><tr><th>Path</th><th>Messages</th><th>Share</th></tr>{route_rows}</table>
+<h2>Recent questions that needed the AI</h2>
+<table><tr><th>Time (UTC)</th><th>Phone</th><th>Message</th></tr>{question_rows}</table>
+<style>table{{border-collapse:collapse;width:100%;margin:8px 0 24px}}
+td,th{{border-bottom:1px solid #8884;padding:6px 8px;text-align:left;vertical-align:top}}
+code{{font-size:.9em}}</style>
+""")

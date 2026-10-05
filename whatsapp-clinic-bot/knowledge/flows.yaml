@@ -1,0 +1,169 @@
+# Predefined menu, answers and booking questions (Marathi / Hindi / English).
+# Edit the text freely. Changes apply on the next message, with no restart needed.
+# WhatsApp limits: list item title ≤ 24 characters, description ≤ 72, button title ≤ 20.
+# Use ONLY facts from clinic_info.md. Anything not listed in this file goes to the AI.
+
+welcome:
+  mr: "नमस्कार 🙏 द व्हॅस्कुलर सेंटर, डॉ. अमोल लाहोटी (व्हेरिकोज व्हेन्स स्पेशालिस्ट) यांच्या क्लिनिकमध्ये आपलं स्वागत आहे.\n9+ वर्षांच्या अनुभवात सरांनी 1000+ रुग्णांवर उपचार केले आहेत."
+  hi: "नमस्ते 🙏 द वैस्कुलर सेंटर, डॉ. अमोल लाहोटी (वेरिकोज़ वेन्स स्पेशलिस्ट) के क्लिनिक में आपका स्वागत है.\n9+ वर्षों के अनुभव में डॉक्टर साहब ने 1000+ मरीज़ों का इलाज किया है."
+  en: "Hello 🙏 Welcome to The Vascular Center, the clinic of Dr. Amol Lahoti (Varicose Veins Specialist).\nIn 9+ years, Dr. Lahoti has treated 1000+ patients."
+
+menu:
+  text:
+    mr: "आम्ही तुम्हाला कशी मदत करू शकतो? 👇\nपर्याय निवडा किंवा तुमचा प्रश्न टाइप करा."
+    hi: "हम आपकी कैसे मदद कर सकते हैं? 👇\nविकल्प चुनें या अपना सवाल टाइप करें."
+    en: "How can we help you? 👇\nChoose an option or type your question."
+  button: {mr: "पर्याय पहा", hi: "विकल्प देखें", en: "See options"}
+  items:
+    - id: book
+      title: {mr: "📅 अपॉइंटमेंट बुक करा", hi: "📅 अपॉइंटमेंट बुक करें", en: "📅 Book appointment"}
+      description: {mr: "तपासणीसाठी वेळ ठरवा", hi: "जांच के लिए समय तय करें", en: "Fix a time for a consultation"}
+    - id: problem
+      title: {mr: "🦵 माझा पायाचा त्रास", hi: "🦵 मेरी पैर की तकलीफ", en: "🦵 My leg problem"}
+      description: {mr: "फुगलेल्या नसा, सूज, वेदना, जखम…", hi: "उभरी नसें, सूजन, दर्द, घाव…", en: "Bulging veins, swelling, pain, wounds…"}
+    - id: treatment
+      title: {mr: "💉 उपचार कसे होतात", hi: "💉 इलाज कैसे होता है", en: "💉 How treatment works"}
+      description: {mr: "लेझर / ग्लू, डे-केअर, टाके नाहीत", hi: "लेज़र / ग्लू, डे-केयर, टांके नहीं", en: "Laser / glue, day-care, no stitches"}
+    - id: cost
+      title: {mr: "💰 खर्च, विमा व योजना", hi: "💰 खर्च, बीमा व योजना", en: "💰 Cost & insurance"}
+      description: {mr: "विमा व सरकारी योजनांसाठी मदत", hi: "बीमा और सरकारी योजना में मदद", en: "Insurance and government scheme help"}
+    - id: location
+      title: {mr: "📍 पत्ता व संपर्क", hi: "📍 पता और संपर्क", en: "📍 Location & contact"}
+      description: {mr: "Google Maps लिंक व फोन नंबर", hi: "Google Maps लिंक और फ़ोन नंबर", en: "Google Maps link and phone number"}
+    - id: doctor
+      title: {mr: "🩺 डॉ. लाहोटींबद्दल", hi: "🩺 डॉ. लाहोटी के बारे में", en: "🩺 About Dr. Lahoti"}
+      description: {mr: "अनुभव व शिक्षण", hi: "अनुभव और शिक्षा", en: "Experience and qualifications"}
+    - id: videos
+      title: {mr: "🎥 डॉक्टरांचे व्हिडिओ", hi: "🎥 डॉक्टर के वीडियो", en: "🎥 Doctor's videos"}
+      description: {mr: "YouTube: Healthy Legs for Healthy Life", hi: "YouTube: Healthy Legs for Healthy Life", en: "YouTube: Healthy Legs for Healthy Life"}
+    - id: callback
+      title: {mr: "📞 मला कॉल करा", hi: "📞 मुझे कॉल करें", en: "📞 Call me back"}
+      description: {mr: "आमची टीम तुम्हाला फोन करेल", hi: "हमारी टीम आपको फ़ोन करेगी", en: "Our team will phone you"}
+    - id: other
+      title: {mr: "❓ दुसरा प्रश्न", hi: "❓ दूसरा सवाल", en: "❓ Other question"}
+      description: {mr: "तुमचा प्रश्न टाइप करा", hi: "अपना सवाल टाइप करें", en: "Type your own question"}
+
+# Fixed answers shown for menu items. `next` = buttons shown under the answer (max 3).
+answers:
+  treatment:
+    text:
+      mr: "*आधुनिक, कमी त्रासाचे उपचार* 💉\n• लेझर (Endovenous Laser), ग्लू (VenaSeal™) किंवा MOCA\n• छोट्या छिद्रातून, मोठा कट किंवा टाके नाहीत\n• डे-केअर: बहुतेक रुग्ण त्याच दिवशी किंवा दुसऱ्या दिवशी चालत घरी जातात\n• नंतर 3–6 महिने दिवसा स्टॉकिंग्ज\nकोणता उपचार योग्य, हे तपासणी व कलर डॉपलरनंतर ठरते."
+      hi: "*आधुनिक, कम तकलीफ़ वाला इलाज* 💉\n• लेज़र (Endovenous Laser), ग्लू (VenaSeal™) या MOCA\n• छोटे से छेद से, बड़ा कट या टांके नहीं\n• डे-केयर: ज़्यादातर मरीज़ उसी दिन या अगले दिन चलकर घर जाते हैं\n• बाद में 3–6 महीने दिन में स्टॉकिंग्स\nकौन सा इलाज सही है, यह जांच और कलर डॉप्लर के बाद तय होता है."
+      en: "*Modern, minimally invasive treatment* 💉\n• Endovenous laser, VenaSeal™ glue or MOCA\n• Through a small puncture, with no big cut or stitches\n• Day-care: most patients walk home the same or the next day\n• Compression stockings during the day for 3–6 months\nThe right option is decided after examination and Colour Doppler."
+    next: [book, cost, videos]
+  cost:
+    text:
+      mr: "*खर्च व मदत* 💰\n• कन्सल्टेशनमध्ये तपासणी + कलर डॉपलर दोन्ही समाविष्ट\n• लेझर उपचार: अंदाजे ₹60,000 – ₹1,20,000 (हॉस्पिटल, उपचार, भूल व औषधांसह)\n• बहुतेक आरोग्य विमा पॉलिसींमध्ये कव्हर\n• पात्र रुग्णांना सरकारी आरोग्य योजनांसाठी मदत\nअचूक खर्च तपासणीनंतरच सांगता येतो. कन्सल्टेशन फी आमची टीम कॉलवर सांगेल."
+      hi: "*खर्च और मदद* 💰\n• कंसल्टेशन में जांच + कलर डॉप्लर दोनों शामिल\n• लेज़र इलाज: लगभग ₹60,000 – ₹1,20,000 (अस्पताल, इलाज, एनेस्थीसिया और दवाइयों सहित)\n• ज़्यादातर हेल्थ इंश्योरेंस में कवर\n• पात्र मरीज़ों को सरकारी स्वास्थ्य योजनाओं में मदद\nसही खर्च जांच के बाद ही बताया जा सकता है. कंसल्टेशन फ़ीस हमारी टीम कॉल पर बताएगी."
+      en: "*Cost & support* 💰\n• The consultation includes examination + Colour Doppler\n• Laser treatment: approx. ₹60,000 – ₹1,20,000 (incl. hospital stay, procedure, anaesthesia, medicines)\n• Covered by most health insurance policies\n• Help for eligible patients with government health schemes\nThe exact cost is known only after examination. Our team will share the consultation fee on the call."
+    next: [book, call, menu]
+  location:
+    text:
+      mr: "📍 *द व्हॅस्कुलर सेंटर*\nसेंच्युरी मल्टिस्पेशालिटी हॉस्पिटल, मध्यवर्ती बस स्थानकासमोर, हॉटेल अजिंक्यच्या मागे, कोतवालपुरा, छत्रपती संभाजीनगर\n🗺️ https://maps.google.com/?cid=3009403215213270248\n📞 +91 99711 21273 / 0240 247 2281\n🕘 वेळ: आमची टीम कॉलवर सांगेल."
+      hi: "📍 *द वैस्कुलर सेंटर*\nसेंचुरी मल्टीस्पेशलिटी हॉस्पिटल, सेंट्रल बस स्टैंड के सामने, होटल अजिंक्य के पीछे, कोतवालपुरा, छत्रपति संभाजीनगर\n🗺️ https://maps.google.com/?cid=3009403215213270248\n📞 +91 99711 21273 / 0240 247 2281\n🕘 समय: हमारी टीम कॉल पर बताएगी."
+      en: "📍 *The Vascular Center*\nCentury Multispeciality Hospital, opposite Central Bus Stand, behind Hotel Ajinkya, Kotwalpura, Chhatrapati Sambhajinagar\n🗺️ https://maps.google.com/?cid=3009403215213270248\n📞 +91 99711 21273 / 0240 247 2281\n🕘 Timings: our team will share them on the call."
+    next: [book, call, menu]
+  doctor:
+    text:
+      mr: "🩺 *डॉ. अमोल लाहोटी*\nव्हेरिकोज व्हेन्स स्पेशालिस्ट व एंडोव्हॅस्कुलर सर्जन\n• 9+ वर्षांचा अनुभव, 1000+ रुग्णांवर उपचार\n• MBBS (नायर हॉस्पिटल, मुंबई), MD रेडिओलॉजी (नागपूर)\n• व्हॅस्कुलर व इंटरव्हेन्शनल रेडिओलॉजी (सायन हॉस्पिटल, मुंबई)\n• टाटा मेमोरियल हॉस्पिटल येथे केमोएम्बोलायझेशन प्रशिक्षण\n• Google वर 'Excellent' रेटिंग"
+      hi: "🩺 *डॉ. अमोल लाहोटी*\nवेरिकोज़ वेन्स स्पेशलिस्ट और एंडोवैस्कुलर सर्जन\n• 9+ वर्षों का अनुभव, 1000+ मरीज़ों का इलाज\n• MBBS (नायर हॉस्पिटल, मुंबई), MD रेडियोलॉजी (नागपुर)\n• वैस्कुलर और इंटरवेंशनल रेडियोलॉजी (सायन हॉस्पिटल, मुंबई)\n• टाटा मेमोरियल हॉस्पिटल में केमोएम्बोलाइज़ेशन ट्रेनिंग\n• Google पर 'Excellent' रेटिंग"
+      en: "🩺 *Dr. Amol Lahoti*\nVaricose Veins Specialist & Endovascular Surgeon\n• 9+ years of experience, 1000+ patients treated\n• MBBS (Nair Hospital, Mumbai), MD Radiology (Nagpur)\n• Vascular & Interventional Radiology (Sion Hospital, Mumbai)\n• Chemoembolization training at Tata Memorial Hospital\n• Rated 'Excellent' on Google"
+    next: [book, videos, menu]
+  videos:
+    text:
+      mr: "🎥 डॉ. लाहोटी सरांचे पायाच्या नसांच्या त्रासाबद्दल व उपचारांबद्दल व्हिडिओ:\nhttps://www.youtube.com/@healthylegsforhealthylifeb6496\nअधिक माहिती: https://dramollahoti.com"
+      hi: "🎥 डॉ. लाहोटी के पैरों की नसों की तकलीफ़ और इलाज पर वीडियो:\nhttps://www.youtube.com/@healthylegsforhealthylifeb6496\nअधिक जानकारी: https://dramollahoti.com"
+      en: "🎥 Dr. Lahoti's videos on leg vein problems and their treatment:\nhttps://www.youtube.com/@healthylegsforhealthylifeb6496\nMore information: https://dramollahoti.com"
+    next: [book, call, menu]
+  other:
+    text:
+      mr: "नक्की 🙏 तुमचा प्रश्न टाइप करून पाठवा."
+      hi: "ज़रूर 🙏 अपना सवाल टाइप करके भेजें."
+      en: "Sure 🙏 Please type your question."
+    next: []
+
+# Problems shown in the concern list. `label` is what the clinic sees in the lead sheet.
+concerns:
+  - id: varicose
+    label: varicose veins
+    title: {mr: "पायावर फुगलेल्या नसा", hi: "पैरों में उभरी नसें", en: "Varicose / bulging veins"}
+    info:
+      mr: "फुगलेल्या नसांकडे (व्हेरिकोज व्हेन्स) दुर्लक्ष केल्यास सूज, वेदना, त्वचेचा रंग बदलणे असे त्रास वाढू शकतात. वेळीच तपासणी केल्यास गुंतागुंत टाळता येते, आणि आधुनिक डे-केअर लेझर/ग्लू उपचार उपलब्ध आहेत."
+      hi: "उभरी नसों (वेरिकोज़ वेन्स) को नज़रअंदाज़ करने से सूजन, दर्द, त्वचा का रंग बदलना जैसी तकलीफ़ें बढ़ सकती हैं. समय पर जांच से जटिलताएं टाली जा सकती हैं, और आधुनिक डे-केयर लेज़र/ग्लू इलाज उपलब्ध है."
+      en: "If ignored, varicose veins can lead to more swelling, pain and skin colour changes. Early check-up helps avoid complications, and modern day-care laser/glue treatment is available."
+  - id: swelling
+    label: leg swelling
+    title: {mr: "पायाला सूज", hi: "पैरों में सूजन", en: "Leg swelling"}
+    info:
+      mr: "पायाची सूज व्हेरिकोज व्हेन्स, DVT किंवा रक्तवाहिन्यांच्या इतर त्रासामुळे असू शकते. तपासणी व कलर डॉपलरने नेमके कारण समजते.\n⚠️ अचानक मोठी सूज, तीव्र वेदना किंवा श्वास घ्यायला त्रास असल्यास लगेच 108 वर कॉल करा."
+      hi: "पैरों की सूजन वेरिकोज़ वेन्स, DVT या खून की नसों की किसी और तकलीफ़ से हो सकती है. जांच और कलर डॉप्लर से सही कारण पता चलता है.\n⚠️ अचानक बहुत सूजन, तेज़ दर्द या सांस लेने में तकलीफ़ हो तो तुरंत 108 पर कॉल करें."
+      en: "Leg swelling can be due to varicose veins, DVT or other blood vessel problems. Examination and Colour Doppler show the exact cause.\n⚠️ Sudden severe swelling, strong pain or breathlessness: call 108 immediately."
+  - id: pain
+    label: leg pain
+    title: {mr: "पाय दुखणे / जडपणा", hi: "पैर दर्द / भारीपन", en: "Leg pain / heaviness"}
+    info:
+      mr: "पाय दुखणे, जडपणा किंवा पेटके हे व्हेरिकोज व्हेन्स किंवा रक्तवाहिन्यांच्या त्रासाचे लक्षण असू शकते. क्लिनिकल तपासणी व कलर डॉपलरने कारण समजते."
+      hi: "पैर दर्द, भारीपन या ऐंठन वेरिकोज़ वेन्स या खून की नसों की तकलीफ़ का लक्षण हो सकता है. क्लिनिकल जांच और कलर डॉप्लर से कारण पता चलता है."
+      en: "Leg pain, heaviness or cramps can be a sign of varicose veins or a blood vessel problem. Clinical examination and Colour Doppler find the cause."
+  - id: spider
+    label: spider veins
+    title: {mr: "बारीक जाळीदार नसा", hi: "बारीक जालीदार नसें", en: "Spider veins"}
+    info:
+      mr: "बारीक जाळीदार नसा (spider veins) नसांमधील वाढलेल्या दाबाचे लक्षण असू शकतात. तपासणीनंतर योग्य उपाय सुचवले जातात."
+      hi: "बारीक जालीदार नसें (spider veins) नसों में बढ़े दबाव का लक्षण हो सकती हैं. जांच के बाद सही उपाय बताया जाता है."
+      en: "Spider veins can be a sign of raised pressure in the veins. The right option is suggested after examination."
+  - id: ulcer
+    label: leg ulcer
+    title: {mr: "पायावर न भरणारी जखम", hi: "पैर पर न भरने वाला घाव", en: "Non-healing leg wound"}
+    info:
+      mr: "न भरणारी जखम नसांच्या आजाराशी संबंधित असू शकते. उपचारासोबत नियमित जखमेची काळजी व जीवनशैलीतील बदल महत्त्वाचे आहेत. लवकर तपासणी करून घ्या."
+      hi: "न भरने वाला घाव नसों की बीमारी से जुड़ा हो सकता है. इलाज के साथ नियमित घाव की देखभाल और जीवनशैली में बदलाव ज़रूरी हैं. जल्दी जांच करवाएं."
+      en: "A non-healing wound can be linked to vein disease. Along with treatment, regular wound care and lifestyle changes matter. Please get checked early."
+  - id: other
+    label: other
+    title: {mr: "दुसरा त्रास", hi: "कोई और तकलीफ़", en: "Other problem"}
+
+durations:
+  - {id: lt6m, label: "less than 6 months", title: {mr: "6 महिन्यांपेक्षा कमी", hi: "6 महीने से कम", en: "Under 6 months"}}
+  - {id: 6m2y, label: "6 months - 2 years", title: {mr: "6 महिने – 2 वर्षे", hi: "6 महीने – 2 साल", en: "6 months – 2 years"}}
+  - {id: gt2y, label: "more than 2 years", title: {mr: "2 वर्षांपेक्षा जास्त", hi: "2 साल से ज़्यादा", en: "Over 2 years"}}
+
+times:
+  - {id: today, label: "today", title: {mr: "आज", hi: "आज", en: "Today"}}
+  - {id: tom_am, label: "tomorrow morning", title: {mr: "उद्या सकाळी", hi: "कल सुबह", en: "Tomorrow morning"}}
+  - {id: tom_pm, label: "tomorrow evening", title: {mr: "उद्या संध्याकाळी", hi: "कल शाम", en: "Tomorrow evening"}}
+  - {id: week, label: "this week", title: {mr: "या आठवड्यात", hi: "इस हफ़्ते", en: "This week"}}
+  - {id: weekend, label: "weekend", title: {mr: "शनिवार / रविवार", hi: "शनिवार / रविवार", en: "Weekend"}}
+  - {id: call_first, label: "call me first", title: {mr: "आधी कॉल करा", hi: "पहले कॉल करें", en: "Call me first"}}
+
+# Booking questions, asked one at a time (skipped if already known).
+prompts:
+  concern: {mr: "तुम्हाला पायाचा कोणता त्रास होत आहे? 👇", hi: "आपको पैर में कौन सी तकलीफ़ है? 👇", en: "What problem are you facing? 👇"}
+  concern_text: {mr: "थोडक्यात त्रास टाइप करा.", hi: "तकलीफ़ थोड़े में टाइप करें.", en: "Please type the problem in a few words."}
+  duration: {mr: "हा त्रास किती काळापासून आहे?", hi: "यह तकलीफ़ कब से है?", en: "How long have you had this?"}
+  name: {mr: "अपॉइंटमेंटसाठी कृपया रुग्णाचे *नाव* टाइप करा.", hi: "अपॉइंटमेंट के लिए कृपया मरीज़ का *नाम* टाइप करें.", en: "For the appointment, please type the patient's *name*."}
+  city: {mr: "तुम्ही कोणत्या शहरातून / भागातून आहात?", hi: "आप किस शहर / इलाके से हैं?", en: "Which city / area are you from?"}
+  preferred_time: {mr: "तुम्हाला कोणती वेळ सोयीची आहे? 👇", hi: "आपके लिए कौन सा समय सही रहेगा? 👇", en: "Which time suits you? 👇"}
+  list_button: {mr: "निवडा", hi: "चुनें", en: "Choose"}
+  confirm_title: {mr: "कृपया तपशील तपासा ✅", hi: "कृपया जानकारी जांच लें ✅", en: "Please check the details ✅"}
+  confirm_question: {mr: "हे बरोबर आहे का?", hi: "क्या यह सही है?", en: "Is this correct?"}
+  fields:
+    name: {mr: "नाव", hi: "नाम", en: "Name"}
+    city: {mr: "शहर", hi: "शहर", en: "City"}
+    concern: {mr: "त्रास", hi: "तकलीफ़", en: "Problem"}
+    duration: {mr: "कालावधी", hi: "अवधि", en: "Since"}
+    preferred_time: {mr: "सोयीची वेळ", hi: "सही समय", en: "Preferred time"}
+  done: {mr: "धन्यवाद, {name}! 🙏\nआमची क्लिनिक टीम लवकरच तुम्हाला कॉल करून अपॉइंटमेंट निश्चित करेल.", hi: "धन्यवाद, {name}! 🙏\nहमारी क्लिनिक टीम जल्द ही आपको कॉल करके अपॉइंटमेंट पक्की करेगी.", en: "Thank you, {name}! 🙏\nOur clinic team will call you soon to confirm the appointment."}
+  done_next: [location, videos, menu]
+  change: {mr: "ठीक आहे, तपशील पुन्हा भरूया.", hi: "ठीक है, जानकारी फिर से भरते हैं.", en: "Okay, let's fill in the details again."}
+
+# Small buttons used under answers.
+buttons:
+  book: {mr: "📅 अपॉइंटमेंट", hi: "📅 अपॉइंटमेंट", en: "📅 Book"}
+  location: {mr: "📍 पत्ता", hi: "📍 पता", en: "📍 Location"}
+  videos: {mr: "🎥 व्हिडिओ", hi: "🎥 वीडियो", en: "🎥 Videos"}
+  call: {mr: "📞 कॉल हवा", hi: "📞 कॉल करें", en: "📞 Call me"}
+  cost: {mr: "💰 खर्च", hi: "💰 खर्च", en: "💰 Cost"}
+  menu: {mr: "☰ मेनू", hi: "☰ मेनू", en: "☰ Menu"}
+  confirm_yes: {mr: "✅ बरोबर आहे", hi: "✅ सही है", en: "✅ Correct"}
+  confirm_change: {mr: "✏️ बदला", hi: "✏️ बदलें", en: "✏️ Change"}

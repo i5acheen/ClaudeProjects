@@ -7,6 +7,7 @@ openai>=1.40
 psycopg[binary]>=3.2
 gspread>=6.0
 pydantic>=2.7
+pyyaml>=6.0
 
 # dev / tests
 pytest>=8.0

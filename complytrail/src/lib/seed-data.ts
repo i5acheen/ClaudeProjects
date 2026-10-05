@@ -112,6 +112,10 @@ export async function runSeed(prisma: PrismaClient, evidenceRoot: string): Promi
       where: { email: "priya@aurorarobotics.example" },
       update: {},
       create: {
+        // Fixed id (like the seed company's) so a session minted against one
+        // lazily-seeded serverless instance still resolves on another — see
+        // DEMO_MODE in middleware.ts.
+        id: "seed-user-priya",
         companyId: company.id,
         name: "Priya Nair",
         email: "priya@aurorarobotics.example",
@@ -123,6 +127,7 @@ export async function runSeed(prisma: PrismaClient, evidenceRoot: string): Promi
       where: { email: "marcus@aurorarobotics.example" },
       update: {},
       create: {
+        id: "seed-user-marcus",
         companyId: company.id,
         name: "Marcus Webb",
         email: "marcus@aurorarobotics.example",
@@ -134,6 +139,7 @@ export async function runSeed(prisma: PrismaClient, evidenceRoot: string): Promi
       where: { email: "dana@aurorarobotics.example" },
       update: {},
       create: {
+        id: "seed-user-dana",
         companyId: company.id,
         name: "Dana Okafor",
         email: "dana@aurorarobotics.example",

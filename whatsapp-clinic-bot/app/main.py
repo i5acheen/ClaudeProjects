@@ -15,6 +15,7 @@ from .alerts import Alerter, RateLimiter
 from .config import settings
 from .db import Database
 from .flows import Flows
+from .scheduling import GoogleCalendar
 from .llm import build_chain, build_provider
 from .security import verify_signature
 from .sheets import LeadSheet
@@ -41,17 +42,23 @@ async def lifespan(app: FastAPI):
     llm = build_chain(settings.llm_chain, settings.llm_keys)
     alerter = Alerter(db, wa, settings.alert_phone, settings.alert_email, settings.smtp_host,
                       settings.smtp_port, settings.smtp_user, settings.smtp_password)
+    calendar = None
+    if settings.calendar_enabled:
+        try:
+            calendar = GoogleCalendar(settings.google_service_account_file, settings.google_calendar_id)
+        except Exception:
+            log.exception("Google Calendar disabled: could not load service account")
     app.state.db, app.state.wa, app.state.llm = db, wa, llm
     app.state.agent = Agent(
         db=db, llm=llm, sender=wa, sheet=sheet,
         history_limit=settings.history_limit, clinic_phone=settings.clinic_phone,
         alerter=alerter if alerter.enabled else None,
         rate_limiter=RateLimiter(settings.rate_limit_count, settings.rate_limit_window),
-        flows=Flows(FLOWS_FILE),
+        flows=Flows(FLOWS_FILE, calendar),
     )
-    log.info("Started. LLM chain=%s | DB=%s | Sheets=%s | Alerts=%s | Diag=%s",
+    log.info("Started. LLM chain=%s | DB=%s | Sheets=%s | Calendar=%s | Alerts=%s | Diag=%s",
              [p.name for p in llm.providers], "postgres" if settings.database_url else "sqlite",
-             bool(sheet), alerter.enabled, settings.enable_diag)
+             bool(sheet), bool(calendar), alerter.enabled, settings.enable_diag)
     yield
     await wa.aclose()
 

@@ -10,9 +10,12 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
+from datetime import date, datetime
 from pathlib import Path
 
 import yaml
+
+from .scheduling import GoogleCalendar, Scheduler
 
 log = logging.getLogger(__name__)
 
@@ -78,9 +81,15 @@ def looks_like_answer(text: str, step: str = "name", max_len: int = 40) -> bool:
 
 
 class Flows:
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, calendar: GoogleCalendar | None = None):
         self.path = path
+        self.calendar = calendar
         self._cache: tuple[float, dict] | None = None
+
+    @property
+    def scheduler(self) -> Scheduler | None:
+        cfg = self.c.get("schedule")
+        return Scheduler(cfg, self.calendar) if cfg else None
 
     @property
     def c(self) -> dict:
@@ -121,8 +130,10 @@ class Flows:
     def _find(self, section: str, item_id: str) -> dict | None:
         return next((x for x in self.c[section] if x["id"] == item_id), None)
 
-    def display(self, field_name: str, value: str | None, lang: str) -> str:
+    def display(self, field_name: str, value: str | None, lang: str, data: dict | None = None) -> str:
         """Show a stored English label in the user's language when we know it."""
+        if field_name == "preferred_time" and data and data.get("_slot") and self.scheduler:
+            return self.scheduler.slot_label(datetime.fromisoformat(data["_slot"]), lang)
         section = {"concern": "concerns", "duration": "durations", "preferred_time": "times"}.get(field_name)
         if section and value:
             for x in self.c[section]:
@@ -133,7 +144,7 @@ class Flows:
         return value or "-"
 
     # ---------- booking ----------
-    def next_step(self, data: dict, lang: str, flow: str, prefix: str = "") -> FlowReply:
+    async def next_step(self, data: dict, lang: str, flow: str, prefix: str = "") -> FlowReply:
         required = CALLBACK_FIELDS if flow == "callback" else BOOK_FIELDS
         p = self.c["prompts"]
         missing = next((f for f in required if not data.get(f)), None)
@@ -150,6 +161,18 @@ class Flows:
         if missing in ("name", "city"):
             return FlowReply(head + self.t(p[missing], lang), updates=upd | {"_step": missing},
                              route=f"book:{missing}")
+        if missing == "preferred_time" and flow == "book" and self.scheduler:
+            free = await self.scheduler.free_slots()
+            if not free:  # nothing bookable online: the team will call
+                upd2 = self._set(data, preferred_time="call me first")
+                r = await self.next_step(data | upd2, lang, flow, prefix=head + self.t(p["no_slots"], lang))
+                r.updates = upd2 | r.updates
+                return r
+            ch = [{"id": f"f:date:{d.isoformat()}", "title": self.scheduler.day_label(d, lang)}
+                  for d in list(free)[:9]]
+            ch.append({"id": "f:time:call_first", "title": self.t(p["call_first"], lang)})
+            return FlowReply(head + self.t(p["date"], lang), "list", ch, self.t(p["date_button"], lang),
+                             updates=upd | {"_step": "preferred_time"}, route="book:date")
         if missing == "preferred_time":
             ch = [{"id": f"f:time:{x['id']}", "title": self.t(x["title"], lang)} for x in self.c["times"]]
             return FlowReply(head + self.t(p["preferred_time"], lang), "list", ch,
@@ -159,13 +182,32 @@ class Flows:
         lines = [self.t(p["confirm_title"], lang)]
         for f in ("name", "city", "concern", "duration", "preferred_time"):
             if data.get(f):
-                lines.append(f"• {self.t(p['fields'][f], lang)}: {self.display(f, data[f], lang)}")
+                lines.append(f"• {self.t(p['fields'][f], lang)}: {self.display(f, data[f], lang, data)}")
         lines.append(self.t(p["confirm_question"], lang))
         b = self.c["buttons"]
         ch = [{"id": "f:confirm:yes", "title": self.t(b["confirm_yes"], lang)},
               {"id": "f:confirm:change", "title": self.t(b["confirm_change"], lang)}]
         return FlowReply(head + "\n".join(lines), "buttons", ch, updates=upd | {"_step": "confirm"},
                          route="book:confirm")
+
+    async def _slot_choice(self, day: date, session_id: str | None, lang: str) -> FlowReply | None:
+        """Session buttons (if both have free slots) or the free-slot list for one day."""
+        sched, p = self.scheduler, self.c["prompts"]
+        slots = (await sched.free_slots()).get(day, [])
+        if not slots:
+            return None
+        sessions = {sid for sid, _ in slots}
+        label = sched.day_label(day, lang)
+        if session_id is None and len(sessions) > 1:
+            ch = [{"id": f"f:sess:{day.isoformat()}:{s['id']}", "title": self.t(s["title"], lang)}
+                  for s in sched.cfg["sessions"] if s["id"] in sessions][:3]
+            return FlowReply(self.t(p["session"], lang).replace("{day}", label), "buttons", ch,
+                             updates={"_step": "preferred_time"}, route="book:session")
+        chosen = [t for sid, t in slots if session_id in (None, sid)][:10]
+        ch = [{"id": f"f:slot:{t.isoformat()}", "title": sched.time_label(t)} for t in chosen]
+        return FlowReply(self.t(p["slot"], lang).replace("{day}", label), "list", ch,
+                         self.t(p["slot_button"], lang), updates={"_step": "preferred_time"},
+                         route="book:slot")
 
     @staticmethod
     def _summary(data: dict) -> str:
@@ -185,7 +227,8 @@ class Flows:
         return upd
 
     # ---------- main entry ----------
-    def handle(self, text: str, choice_id: str | None, data: dict, lang: str) -> FlowReply | None:
+    async def handle(self, text: str, choice_id: str | None, data: dict, lang: str,
+                     phone: str = "") -> FlowReply | None:
         cid = choice_id if choice_id and choice_id.startswith("f:") else None
         t = (text or "").strip()
         flow = data.get("_flow") or "book"
@@ -198,7 +241,7 @@ class Flows:
                 field_name = "concern" if step == "concern_text" else step
                 value = f"other: {t}" if step == "concern_text" else t
                 upd = self._set(data, **{field_name: value})
-                r = self.next_step(data | upd, lang, flow)
+                r = await self.next_step(data | upd, lang, flow)
                 r.updates = upd | r.updates
                 r.route = f"typed:{step}"
                 return r
@@ -219,9 +262,9 @@ class Flows:
             if action == "other":
                 return self.answer("other", lang)
             if action in ("book", "problem"):
-                return self.next_step(data, lang, "book")
+                return await self.next_step(data, lang, "book")
             if action == "callback":
-                return self.next_step(data, lang, "callback")
+                return await self.next_step(data, lang, "callback")
             return self.menu(lang)
         if kind == "concern":
             item = self._find("concerns", val)
@@ -231,7 +274,7 @@ class Flows:
                 return FlowReply(self.t(self.c["prompts"]["concern_text"], lang),
                                  updates={"_step": "concern_text", "_flow": "book"}, route="book:concern_text")
             upd = self._set(data, concern=item["label"])
-            r = self.next_step(data | upd, lang, "book", prefix=self.t(item.get("info"), lang))
+            r = await self.next_step(data | upd, lang, "book", prefix=self.t(item.get("info"), lang))
             r.updates = upd | r.updates
             r.route = f"concern:{val}"
             return r
@@ -241,19 +284,65 @@ class Flows:
             if not item:
                 return self.menu(lang)
             upd = self._set(data, **{field_name: item["label"]})
-            r = self.next_step(data | upd, lang, flow)
+            r = await self.next_step(data | upd, lang, flow)
             r.updates = upd | r.updates
             r.route = f"{kind}:{val}"
             return r
+        if kind in ("date", "sess") and self.scheduler:
+            day_s, _, sess = val.partition(":")
+            try:
+                day = date.fromisoformat(day_s)
+            except ValueError:
+                return self.menu(lang)
+            r = await self._slot_choice(day, sess or None, lang)
+            if r:
+                return r
+            r = await self.next_step(data, lang, "book", prefix=self.t(self.c["prompts"]["slot_taken"], lang))
+            r.route = "book:slot_gone"
+            return r
+        if kind == "slot" and self.scheduler:
+            try:
+                start = datetime.fromisoformat(val)
+            except ValueError:
+                return self.menu(lang)
+            if not await self.scheduler.is_free(start):
+                r = await self.next_step(data | {"preferred_time": None}, lang, "book",
+                                         prefix=self.t(self.c["prompts"]["slot_taken"], lang))
+                r.route = "book:slot_taken"
+                return r
+            upd = self._set(data, preferred_time=self.scheduler.slot_label(start, "en")) | {"_slot": val}
+            r = await self.next_step(data | upd, lang, flow)
+            r.updates = upd | r.updates
+            r.route = "book:slot_chosen"
+            return r
         if kind == "confirm":
             if val == "yes":
+                p = self.c["prompts"]
                 name = data.get("name") or ""
-                btns = self.buttons(self.c["prompts"].get("done_next", []), lang)
-                return FlowReply(self.t(self.c["prompts"]["done"], lang).replace("{name}", name).replace(", !", "!"),
-                                 "buttons", btns, updates={"_step": None, "_flow": None, "status": "Hot"},
-                                 confirmed=True, route="book:confirmed")
-            cleared = {f: None for f in (CALLBACK_FIELDS if flow == "callback" else BOOK_FIELDS)}
-            r = self.next_step(data | cleared, lang, flow, prefix=self.t(self.c["prompts"]["change"], lang))
+                text_out = self.t(p["done"], lang).replace("{name}", name).replace(", !", "!")
+                updates = {"_step": None, "_flow": None, "status": "Hot"}
+                if data.get("_slot") and self.scheduler:
+                    start = datetime.fromisoformat(data["_slot"])
+                    desc = (f"Phone: +{phone}\nName: {name}\nCity: {data.get('city') or '-'}\n"
+                            f"Concern: {data.get('concern') or '-'} ({data.get('duration') or '-'})\n"
+                            "Requested via WhatsApp bot. Call the patient to confirm.")
+                    res = await self.scheduler.book(start, f"WhatsApp request: {name or phone} "
+                                                           f"({data.get('concern') or 'consultation'})", desc)
+                    if res == "taken":
+                        cleared = {"preferred_time": None, "_slot": None}
+                        r = await self.next_step(data | cleared, lang, "book", prefix=self.t(p["slot_taken"], lang))
+                        r.updates = cleared | r.updates
+                        r.route = "book:slot_taken"
+                        return r
+                    if res:
+                        text_out += "\n" + self.t(p["requested"], lang).replace(
+                            "{slot}", self.scheduler.slot_label(start, lang))
+                        updates["_event"] = res
+                btns = self.buttons(p.get("done_next", []), lang)
+                return FlowReply(text_out, "buttons", btns, updates=updates, confirmed=True,
+                                 route="book:confirmed")
+            cleared = {f: None for f in (CALLBACK_FIELDS if flow == "callback" else BOOK_FIELDS)} | {"_slot": None}
+            r = await self.next_step(data | cleared, lang, flow, prefix=self.t(self.c["prompts"]["change"], lang))
             r.updates = cleared | r.updates
             r.route = "book:change"
             return r

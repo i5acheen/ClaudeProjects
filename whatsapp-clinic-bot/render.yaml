@@ -52,6 +52,8 @@ services:
         sync: false
       - key: GOOGLE_SHEET_TAB
         value: Leads
+      - key: GOOGLE_CALENDAR_ID
+        sync: false
       - key: SQLITE_PATH
         value: data/conversations.db
       - key: HISTORY_LIMIT

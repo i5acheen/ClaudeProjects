@@ -136,6 +136,25 @@ times:
   - {id: weekend, label: "weekend", title: {mr: "शनिवार / रविवार", hi: "शनिवार / रविवार", en: "Weekend"}}
   - {id: call_first, label: "call me first", title: {mr: "आधी कॉल करा", hi: "पहले कॉल करें", en: "Call me first"}}
 
+# Appointment slots. ⚠️ [TO BE CONFIRMED BY CLINIC]: replace these example hours with the real OPD timings.
+# If GOOGLE_CALENDAR_ID is set, busy times in that calendar are hidden and requests are added as tentative events.
+schedule:
+  timezone: Asia/Kolkata
+  days_ahead: 7              # how many days ahead patients can choose
+  open_days: [mon, tue, wed, thu, fri, sat]
+  closed_dates: []           # e.g. ["2026-10-20", "2026-11-01"] for holidays
+  slot_minutes: 30
+  min_notice_minutes: 120    # earliest slot is at least 2 hours from now
+  sessions:
+    - id: am
+      start: "10:00"
+      end: "13:00"
+      title: {mr: "🌅 सकाळ", hi: "🌅 सुबह", en: "🌅 Morning"}
+    - id: pm
+      start: "17:00"
+      end: "20:00"
+      title: {mr: "🌆 संध्याकाळ", hi: "🌆 शाम", en: "🌆 Evening"}
+
 # Booking questions, asked one at a time (skipped if already known).
 prompts:
   concern: {mr: "तुम्हाला पायाचा कोणता त्रास होत आहे? 👇", hi: "आपको पैर में कौन सी तकलीफ़ है? 👇", en: "What problem are you facing? 👇"}
@@ -145,6 +164,15 @@ prompts:
   city: {mr: "तुम्ही कोणत्या शहरातून / भागातून आहात?", hi: "आप किस शहर / इलाके से हैं?", en: "Which city / area are you from?"}
   preferred_time: {mr: "तुम्हाला कोणती वेळ सोयीची आहे? 👇", hi: "आपके लिए कौन सा समय सही रहेगा? 👇", en: "Which time suits you? 👇"}
   list_button: {mr: "निवडा", hi: "चुनें", en: "Choose"}
+  date: {mr: "📅 तपासणीसाठी कोणता दिवस सोयीचा आहे? 👇", hi: "📅 जांच के लिए कौन सा दिन ठीक रहेगा? 👇", en: "📅 Which day suits you for the consultation? 👇"}
+  date_button: {mr: "दिवस निवडा", hi: "दिन चुनें", en: "Choose day"}
+  call_first: {mr: "📞 आधी कॉल करा", hi: "📞 पहले कॉल करें", en: "📞 Call me first"}
+  session: {mr: "{day}: सकाळ की संध्याकाळ?", hi: "{day}: सुबह या शाम?", en: "{day}: morning or evening?"}
+  slot: {mr: "{day}: कोणती वेळ? 👇", hi: "{day}: कौन सा समय? 👇", en: "{day}: which time? 👇"}
+  slot_button: {mr: "वेळ निवडा", hi: "समय चुनें", en: "Choose time"}
+  no_slots: {mr: "क्षमस्व, पुढील काही दिवसांत ऑनलाइन वेळ उपलब्ध नाही. आमची टीम तुम्हाला कॉल करून वेळ ठरवेल.", hi: "क्षमा करें, अगले कुछ दिनों में ऑनलाइन समय उपलब्ध नहीं है. हमारी टीम आपको कॉल करके समय तय करेगी.", en: "Sorry, no online slots are free in the next few days. Our team will call you to fix a time."}
+  slot_taken: {mr: "क्षमस्व, ही वेळ नुकतीच बुक झाली. कृपया दुसरी वेळ निवडा.", hi: "क्षमा करें, यह समय अभी बुक हो गया. कृपया दूसरा समय चुनें.", en: "Sorry, that time was just taken. Please choose another."}
+  requested: {mr: "📅 {slot} साठी तुमची विनंती क्लिनिकच्या कॅलेंडरमध्ये नोंदवली आहे.", hi: "📅 {slot} के लिए आपका अनुरोध क्लिनिक के कैलेंडर में दर्ज कर लिया गया है.", en: "📅 Your request for {slot} has been added to the clinic's calendar."}
   confirm_title: {mr: "कृपया तपशील तपासा ✅", hi: "कृपया जानकारी जांच लें ✅", en: "Please check the details ✅"}
   confirm_question: {mr: "हे बरोबर आहे का?", hi: "क्या यह सही है?", en: "Is this correct?"}
   fields:

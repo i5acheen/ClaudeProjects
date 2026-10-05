@@ -68,6 +68,16 @@ Create a free Postgres database at https://neon.tech, copy its connection string
 
 If Sheets is not configured, the bot still works and leads are kept in the database (`leads` table).
 
+## 3b. Appointment calendar (optional)
+Patients pick a **date → morning/evening → free time slot**, using the clinic hours in `knowledge/flows.yaml` → `schedule` (set the real OPD days and hours there).
+To check real availability and add requests to the clinic's Google Calendar:
+1. In Google Calendar → the clinic calendar → **Settings and sharing → Share with specific people**, add the service-account email with **"Make changes to events"**.
+2. Copy the **Calendar ID** (under "Integrate calendar"; for the main calendar it's the Gmail address) into `GOOGLE_CALENDAR_ID`.
+Busy times are hidden, and each confirmed request is added as a **tentative** event with the patient's details. The team still calls to confirm.
+
+## 3c. Email alerts with patient details (optional)
+Hot and confirmed leads are emailed to `ALERT_EMAIL`, with name, phone, city, concern and the chosen date/time. With Gmail: turn on 2-Step Verification, create an **App Password** (Google Account → Security → App passwords), then set `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER=<your gmail>`, `SMTP_PASSWORD=<app password>`.
+
 ## 4. WhatsApp Cloud API (Meta test number)
 1. https://developers.facebook.com → **My Apps → Create app** → type **Business** → add the **WhatsApp** product.
 2. **WhatsApp → API Setup**:

@@ -195,7 +195,7 @@ class Agent:
 
         # 1) Menu / predefined flow first: instant, free, and no risk of invented answers.
         if self.flows and language:
-            reply = self._flow_reply(msg, text, chosen, lead, language)
+            reply = await self._flow_reply(msg, text, chosen, lead, language)
             if reply:
                 await self._apply_flow(msg, text, reply, lead, language)
                 return
@@ -243,7 +243,7 @@ class Agent:
         await self._save(msg, lead, new_data, language, confirmed)
 
     # ---------- helpers ----------
-    def _flow_reply(self, msg: IncomingMessage, text: str, chosen: str | None, lead: dict,
+    async def _flow_reply(self, msg: IncomingMessage, text: str, chosen: str | None, lead: dict,
                     language: str) -> FlowReply | None:
         flows = self.flows
         if chosen:
@@ -252,7 +252,7 @@ class Agent:
             recent = self.db.recent_messages(msg.phone, 1)
             prior = recent[-1]["content"] if recent and recent[-1]["role"] == "user" and not text else ""
             return flows.menu(language, welcome=True) if not prior or is_greeting(prior) else None
-        reply = flows.handle(text, msg.choice_id, lead["data"], language)
+        reply = await flows.handle(text, msg.choice_id, lead["data"], language, msg.phone)
         if reply is None and is_greeting(text) and lead["data"].get("_step") in (None, "free"):
             reply = flows.menu(language, welcome=not self.db.has_assistant_replied(msg.phone))
         return reply

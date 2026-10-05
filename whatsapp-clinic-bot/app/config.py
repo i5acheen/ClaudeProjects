@@ -46,6 +46,7 @@ class Settings:
     google_service_account_file: Path
     google_sheet_id: str
     google_sheet_tab: str
+    google_calendar_id: str
     sqlite_path: Path
     history_limit: int
     clinic_phone: str
@@ -63,6 +64,10 @@ class Settings:
     @property
     def sheets_enabled(self) -> bool:
         return bool(self.google_sheet_id) and self.google_service_account_file.is_file()
+
+    @property
+    def calendar_enabled(self) -> bool:
+        return bool(self.google_calendar_id) and self.google_service_account_file.is_file()
 
     @property
     def email_alerts_enabled(self) -> bool:
@@ -102,6 +107,7 @@ def load_settings() -> Settings:
         ),
         google_sheet_id=env("GOOGLE_SHEET_ID", ""),
         google_sheet_tab=env("GOOGLE_SHEET_TAB", "Leads"),
+        google_calendar_id=env("GOOGLE_CALENDAR_ID", ""),
         sqlite_path=_resolve(env("SQLITE_PATH", "data/conversations.db")),
         history_limit=int(env("HISTORY_LIMIT", "15")),
         clinic_phone=env("CLINIC_PHONE", ""),

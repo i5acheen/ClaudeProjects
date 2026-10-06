@@ -154,7 +154,13 @@ With coexistence, customers keep messaging the number they know. Staff keep usin
 1. **Through a Meta partner that gives raw Cloud API access** and lets you set your own webhook URL (e.g. 360dialog; some Indian BSPs such as Gupshup/Interakt/AiSensy/WATI/DoubleTick also support coexistence, but check that they let you use your own webhook/bot rather than only their inbox). The partner sends an onboarding link. Then:
    - Open the link → log in with the business's Facebook account → select or create the business portfolio → choose **"Connect your existing WhatsApp Business app"** → enter the number.
    - On the phone, the WhatsApp Business app shows a prompt (or a QR code to scan) to **share chat history** (up to the last 6 months) and contacts. Accept it within the time limit.
-   - Get the **Phone Number ID**, and a token or the partner's API key and base URL. Point the partner's webhook at `https://<service>.onrender.com/webhook`. If the partner's API isn't Meta's Graph URL, the send URL in `app/whatsapp.py` must be adapted.
+   - Get the **Phone Number ID** and the partner's **API key**. In Render set:
+     - `WHATSAPP_TOKEN` = the partner API key
+     - `WHATSAPP_API_URL` = the partner's send-message endpoint (e.g. 360dialog: `https://waba-v2.360dialog.io/messages`)
+     - `WHATSAPP_AUTH_HEADER` = the partner's key header (e.g. `D360-API-KEY`)
+     - `WEBHOOK_URL_KEY` = a long random secret
+   - In the partner dashboard, set the webhook URL to `https://<service>.onrender.com/webhook?key=<WEBHOOK_URL_KEY>`. Partners don't sign webhooks with your Meta App secret, so the bot accepts this secret URL instead.
+   - Check in the partner's docs that their webhook payload is Meta's standard format (most Cloud API partners forward it as-is) and that `smb_message_echoes` is forwarded.
    - Partners usually charge a monthly fee.
 2. **Become a Tech Provider yourself** (free, more work): in the Meta app dashboard, open **Become a Partner → Become Tech Provider**. You need **Business Verification** and **App Review** for advanced access to `whatsapp_business_management` and `whatsapp_business_messaging`. Then:
    - Create an **Embedded Signup configuration** with the WhatsApp Business app onboarding option (Facebook Login for Business → Configurations).

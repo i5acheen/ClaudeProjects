@@ -40,6 +40,9 @@ class Settings:
     verify_token: str
     app_secret: str
     graph_api_version: str
+    whatsapp_api_url: str
+    whatsapp_auth_header: str
+    webhook_url_key: str
     llm_chain: list[str]
     llm_keys: dict[str, str]
     database_url: str
@@ -79,7 +82,7 @@ class Settings:
             "WHATSAPP_TOKEN": self.whatsapp_token,
             "PHONE_NUMBER_ID": self.phone_number_id,
             "VERIFY_TOKEN": self.verify_token,
-            "APP_SECRET": self.app_secret,
+            "APP_SECRET or WEBHOOK_URL_KEY": self.app_secret or self.webhook_url_key,
         }
         missing = [k for k, v in required.items() if not v]
         if not any(self.llm_keys.values()):
@@ -95,6 +98,9 @@ def load_settings() -> Settings:
         verify_token=env("VERIFY_TOKEN", ""),
         app_secret=env("APP_SECRET", ""),
         graph_api_version=env("GRAPH_API_VERSION", "v26.0"),
+        whatsapp_api_url=env("WHATSAPP_API_URL", ""),
+        whatsapp_auth_header=env("WHATSAPP_AUTH_HEADER", ""),
+        webhook_url_key=env("WEBHOOK_URL_KEY", ""),
         llm_chain=[e.strip() for e in (env("LLM_CHAIN") or DEFAULT_LLM_CHAIN).split(",") if e.strip()],
         llm_keys={
             "openrouter": env("OPENROUTER_API_KEY", ""),

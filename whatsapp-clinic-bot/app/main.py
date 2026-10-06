@@ -17,7 +17,7 @@ from .db import Database
 from .flows import Flows
 from .scheduling import GoogleCalendar
 from .llm import build_chain, build_provider
-from .security import verify_signature
+from .security import verify_signature, verify_url_key
 from .sheets import LeadSheet
 from .whatsapp import IncomingMessage, WhatsAppClient, parse_messages, parse_staff_echoes
 
@@ -35,7 +35,8 @@ async def lifespan(app: FastAPI):
         raise RuntimeError(f"Missing required settings: {', '.join(missing)}")
     if not settings.sheets_enabled:
         log.warning("Google Sheets disabled (GOOGLE_SHEET_ID or service account file missing).")
-    wa = WhatsAppClient(settings.whatsapp_token, settings.phone_number_id, settings.graph_api_version)
+    wa = WhatsAppClient(settings.whatsapp_token, settings.phone_number_id, settings.graph_api_version,
+                        settings.whatsapp_api_url, settings.whatsapp_auth_header)
     sheet = (LeadSheet(settings.google_service_account_file, settings.google_sheet_id,
                        settings.google_sheet_tab) if settings.sheets_enabled else None)
     db = Database(settings.database_url or settings.sqlite_path)
@@ -188,7 +189,8 @@ async def verify_webhook(
 @app.post("/webhook")
 async def receive_webhook(request: Request, background: BackgroundTasks):
     raw = await request.body()
-    if not verify_signature(raw, request.headers.get("X-Hub-Signature-256"), settings.app_secret):
+    signed = verify_signature(raw, request.headers.get("X-Hub-Signature-256"), settings.app_secret)
+    if not signed and not verify_url_key(request.query_params.get("key"), settings.webhook_url_key):
         log.warning("Rejected webhook with invalid signature")
         return Response(status_code=403)
 

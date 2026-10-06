@@ -73,9 +73,13 @@ def parse_staff_echoes(payload: dict) -> list[StaffEcho]:
 
 
 class WhatsAppClient:
-    def __init__(self, token: str, phone_number_id: str, api_version: str):
-        self._url = f"https://graph.facebook.com/{api_version}/{phone_number_id}/messages"
-        self._headers = {"Authorization": f"Bearer {token}"}
+    def __init__(self, token: str, phone_number_id: str, api_version: str,
+                 api_url: str = "", auth_header: str = ""):
+        """Meta Cloud API by default. For a BSP (e.g. 360dialog), set api_url to its messages
+        endpoint and auth_header to the header name it expects (e.g. 'D360-API-KEY')."""
+        self._url = api_url or f"https://graph.facebook.com/{api_version}/{phone_number_id}/messages"
+        self._headers = ({auth_header: token} if auth_header and auth_header.lower() != "authorization"
+                         else {"Authorization": f"Bearer {token}"})
         self._http = httpx.AsyncClient(timeout=15)
 
     async def send_text(self, to: str, body: str) -> bool:

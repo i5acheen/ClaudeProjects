@@ -12,3 +12,8 @@ def verify_signature(raw_body: bytes, header_value: str | None, app_secret: str)
         return False
     expected = hmac.new(app_secret.encode(), raw_body, hashlib.sha256).hexdigest()
     return hmac.compare_digest(expected, header_value.removeprefix("sha256="))
+
+
+def verify_url_key(provided: str | None, expected: str) -> bool:
+    """For BSPs that can't sign webhooks: a secret key in the webhook URL (?key=...)."""
+    return bool(expected) and bool(provided) and hmac.compare_digest(provided, expected)

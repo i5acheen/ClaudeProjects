@@ -138,3 +138,29 @@ def test_staff_echo_webhook_is_routed():
     assert app.state.agent.echoes == [("919000000001", "Hi, this is the clinic")]
     assert app.state.agent.handled == []
     assert parse_staff_echoes({"object": "x"}) == []
+
+
+def test_url_key_auth_for_bsp_webhooks():
+    import app.main as m
+
+    c = client()
+    raw = json.dumps(payload([text_msg("wamid.K1")])).encode()
+    hdr = {"Content-Type": "application/json"}
+    assert c.post("/webhook", content=raw, headers=hdr).status_code == 403          # unsigned, no key
+    object.__setattr__(m.settings, "webhook_url_key", "s3cret-key")
+    try:
+        assert c.post("/webhook?key=wrong", content=raw, headers=hdr).status_code == 403
+        assert c.post("/webhook?key=s3cret-key", content=raw, headers=hdr).status_code == 200
+        assert app.state.agent.handled[0].message_id == "wamid.K1"
+    finally:
+        object.__setattr__(m.settings, "webhook_url_key", "")
+
+
+def test_bsp_send_url_and_header():
+    from app.whatsapp import WhatsAppClient
+
+    meta = WhatsAppClient("tok", "123", "v26.0")
+    assert meta._url == "https://graph.facebook.com/v26.0/123/messages"
+    assert meta._headers == {"Authorization": "Bearer tok"}
+    bsp = WhatsAppClient("key", "123", "v26.0", "https://waba-v2.360dialog.io/messages", "D360-API-KEY")
+    assert bsp._url == "https://waba-v2.360dialog.io/messages" and bsp._headers == {"D360-API-KEY": "key"}

@@ -86,7 +86,8 @@ Run `pytest -q`. `tests/test_flows.py` checks every menu title against WhatsApp'
 4. If messages still don't arrive (no `POST /webhook` in the logs), subscribe the WhatsApp Business Account to the app once: Graph API Explorer → select the app → Generate token (whatsapp_business_management) → **POST** `<WABA_ID>/subscribed_apps` → `{"success": true}`.
 5. Send "hi" from the verified number. You should get the language buttons, then the menu.
 
-## 6. AI models (free open-source first)
+## 6. AI models (optional; free open-source first)
+**AI is optional.** With no AI key the bot runs **menu-only** at ₹0: typed questions the menu can't handle get "choose from the menu or call" plus the menu, and are logged in `/admin/insights`. **Emergency words** in `flows.yaml → emergency` always get an instant reply. Add keys later to answer typed questions with AI.
 The bot uses `LLM_CHAIN` (see `app/config.py` `DEFAULT_LLM_CHAIN`) and skips providers that have no key. Set any of:
 - `OPENROUTER_API_KEY`: https://openrouter.ai/keys. `:free` models allow 50 requests/day, or 1,000/day after a one-time $10 credit. Check the live free list at `https://openrouter.ai/api/v1/models` (ids ending `:free`), because models change.
 - `GROQ_API_KEY`: https://console.groq.com/keys (fast; low tokens/minute).

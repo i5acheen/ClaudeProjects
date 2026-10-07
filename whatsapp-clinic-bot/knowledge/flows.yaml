@@ -196,6 +196,8 @@ prompts:
   # ⚠️ [TO BE CONFIRMED BY CLINIC]: documents patients should bring for the scheme.
   scheme_card: {mr: "छान! 👍 तपासणीला येताना योजनेचे कार्ड, आधार कार्ड व रेशन कार्ड सोबत आणा. आमची टीम योजनेची प्रक्रिया पूर्ण करण्यास मदत करेल.", hi: "बढ़िया! 👍 जांच के लिए आते समय योजना का कार्ड, आधार कार्ड और राशन कार्ड साथ लाएं. हमारी टीम योजना की प्रक्रिया में मदद करेगी.", en: "Great! 👍 Please bring your scheme card, Aadhaar card and ration card to the consultation. Our team will help complete the scheme process."}
   scheme_unknown: {mr: "काही हरकत नाही 🙏 आमची टीम तुमची पात्रता तपासेल. तपासणीला येताना आधार कार्ड व रेशन कार्ड सोबत आणा.", hi: "कोई बात नहीं 🙏 हमारी टीम आपकी पात्रता जांचेगी. जांच के लिए आते समय आधार कार्ड और राशन कार्ड साथ लाएं.", en: "No problem 🙏 Our team will check your eligibility. Please bring your Aadhaar card and ration card to the consultation."}
+  # Used when no AI key is set: typed questions get this + the main menu ({phone} = CLINIC_PHONE).
+  no_ai: {mr: "क्षमस्व 🙏 या प्रश्नाचे उत्तर इथे देता येत नाही. तुमचा प्रश्न नोंदवला आहे.\nकृपया खालील मेनूमधून पर्याय निवडा किंवा कॉल करा: {phone}", hi: "क्षमा करें 🙏 इस सवाल का जवाब यहां नहीं दिया जा सकता. आपका सवाल दर्ज कर लिया गया है.\nकृपया नीचे मेनू से विकल्प चुनें या कॉल करें: {phone}", en: "Sorry 🙏 we can't answer that here. Your question has been noted.\nPlease choose from the menu below, or call {phone}"}
   change: {mr: "ठीक आहे, तपशील पुन्हा भरूया.", hi: "ठीक है, जानकारी फिर से भरते हैं.", en: "Okay, let's fill in the details again."}
 
 # Small buttons used under answers.
@@ -232,3 +234,15 @@ followups:
 # Adding other treatments later (e.g. piles, heart): add their problems to `concerns`, their facts to
 # knowledge/clinic_info.md (with the treating doctor), a menu item, and whether the scheme covers them.
 # Only add once the clinic confirms the doctor, treatment and scheme coverage.
+
+# Emergency words: checked on every typed message, with or without AI. The reply goes out instantly.
+emergency:
+  keywords: ["श्वास घ्यायला", "श्वास लाग", "दम लाग", "छातीत दुख", "छातीत", "सांस लेने", "सांस फूल", "छाती में दर्द",
+             "chest pain", "breathless", "can't breathe", "cant breathe", "shwas", "swas ghyayla", "saans",
+             "बेशुद्ध", "बेहोश", "behosh", "beshuddh", "unconscious", "fainted", "रक्तस्त्राव", "खूप रक्त",
+             "खून बह", "heavy bleeding", "bleeding", "khoon", "लकवा", "पक्षाघात", "paralysis", "stroke",
+             "पाय काळा", "पाय निळा", "पैर काला", "पैर नीला", "foot black", "foot blue"]
+  text:
+    mr: "⚠️ हे गंभीर असू शकते. कृपया *लगेच 108 वर कॉल करा* किंवा जवळच्या हॉस्पिटलच्या इमर्जन्सी विभागात जा. उशीर करू नका.\nक्लिनिक: {phone}"
+    hi: "⚠️ यह गंभीर हो सकता है. कृपया *तुरंत 108 पर कॉल करें* या नज़दीकी अस्पताल के इमरजेंसी विभाग में जाएं. देर न करें.\nक्लिनिक: {phone}"
+    en: "⚠️ This could be serious. Please *call 108 immediately* or go to the nearest hospital emergency department. Don't wait.\nClinic: {phone}"

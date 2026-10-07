@@ -130,6 +130,7 @@ pytest -q
 ---
 
 ## How it works
+- **AI is optional.** With no AI key, the bot runs **menu-only** (₹0): typed questions get "please choose from the menu or call the clinic" plus the menu, and are logged in `/admin/insights`. **Emergency words** (breathlessness, chest pain, heavy bleeding, stroke signs…; list in `flows.yaml → emergency`) always get an instant "call 108" reply, with or without AI.
 - **Built for Meta Click-to-WhatsApp ads:** the ad a person came from is saved with their lead (Sheet column "Ad Source", alerts and insights). The welcome and menu lead with **🆓 free treatment under government schemes for eligible patients**, a quick scheme-card check, and the treatment journey (check-up → day-care laser → scheme paperwork → home the same or next day).
 - **Follow-ups:** if a patient stops replying, up to 2 gentle reminders are sent (after about 2h and 20h, texts in `flows.yaml → followups`). They go only inside the free 24-hour window, never after a confirmed booking, and never while staff are chatting. Set `FOLLOWUPS_ENABLED=false` to turn them off.
 - **Menu first, AI second.** After the language picker, patients get a tap menu (`knowledge/flows.yaml`): book an appointment, leg problem, treatment, cost, location, doctor, videos, call-back. Fixed answers and the booking questions (concern → duration → name → city → time → confirm) run **without the AI**: instant, free, and nothing invented. Only typed questions the menu can't handle, and "❓ Other question", go to the AI.

@@ -206,6 +206,18 @@ class Agent:
             await self.sender.send_choices(msg.phone, LANGUAGE_PICKER_BODY, "buttons", LANGUAGE_CHOICES)
             return
 
+        # 0) Emergency words: answer instantly, with or without AI.
+        if self.flows and not msg.choice_id and self.flows.is_emergency(text):
+            lang = language or "mr"
+            self.db.add_message(msg.phone, "user", text)
+            reply_text = self.flows.emergency_text(lang, self.clinic_phone)
+            if await self.sender.send_text(msg.phone, reply_text):
+                self.db.add_message(msg.phone, "assistant", reply_text)
+            self.db.log_event(msg.phone, "emergency", text)
+            await self._save(msg, lead, dict(lead["data"]) | {"status": "Hot", "summary": f"EMERGENCY words: {text[:80]}"},
+                             language, lead["details_confirmed"])
+            return
+
         # 1) Menu / predefined flow first: instant, free, and no risk of invented answers.
         if self.flows and language:
             reply = await self._flow_reply(msg, text, chosen, lead, language)
@@ -213,7 +225,22 @@ class Agent:
                 await self._apply_flow(msg, text, reply, lead, language)
                 return
 
-        # 2) Anything the menu can't handle goes to the LLM.
+        # 2) No AI configured: offer the menu and the clinic number, and log the question for the team.
+        if self.llm is None:
+            if text:
+                self.db.add_message(msg.phone, "user", text)
+            lang = language or "mr"
+            if self.flows:
+                reply = self.flows.no_ai(lang, self.clinic_phone)
+                if await self._send(msg.phone, reply.text, reply.kind, reply.choices, reply.button_label):
+                    self.db.add_message(msg.phone, "assistant", reply.text)
+            else:
+                await self.sender.send_text(msg.phone, self.fallback_reply(language))
+            self.db.log_event(msg.phone, "no_ai", text or "(first message)")
+            await self._save(msg, lead, dict(lead["data"]), lang, lead["details_confirmed"])
+            return
+
+        # 3) Anything the menu can't handle goes to the LLM.
         if text:
             self.db.add_message(msg.phone, "user", text)
         self.db.log_event(msg.phone, "llm", text or "(answer to first message)")

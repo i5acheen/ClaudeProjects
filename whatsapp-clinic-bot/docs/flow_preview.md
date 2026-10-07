@@ -610,3 +610,40 @@ Buttons/options: 📅 Book | 📞 Call me | ☰ Menu
 - Scheme names, whether varicose vein laser is covered, documents to bring
 - Real OPD days/hours in `schedule:` (currently example hours)
 - Medical wording in Marathi/Hindi (translations were written by the developer, not a native speaker)
+
+---
+## Menu-only mode (no AI key) and emergency replies
+
+When no AI key is set, any typed question the menu can't handle gets this reply plus the main menu, and the question is logged in /admin/insights. Emergency words get an instant reply in every mode.
+
+**मराठी: menu-only reply**
+```
+क्षमस्व 🙏 या प्रश्नाचे उत्तर इथे देता येत नाही. तुमचा प्रश्न नोंदवला आहे.
+कृपया खालील मेनूमधून पर्याय निवडा किंवा कॉल करा: +91 96995 59301
+```
+**मराठी: emergency reply**
+```
+⚠️ हे गंभीर असू शकते. कृपया *लगेच 108 वर कॉल करा* किंवा जवळच्या हॉस्पिटलच्या इमर्जन्सी विभागात जा. उशीर करू नका.
+क्लिनिक: +91 96995 59301
+```
+**हिंदी: menu-only reply**
+```
+क्षमा करें 🙏 इस सवाल का जवाब यहां नहीं दिया जा सकता. आपका सवाल दर्ज कर लिया गया है.
+कृपया नीचे मेनू से विकल्प चुनें या कॉल करें: +91 96995 59301
+```
+**हिंदी: emergency reply**
+```
+⚠️ यह गंभीर हो सकता है. कृपया *तुरंत 108 पर कॉल करें* या नज़दीकी अस्पताल के इमरजेंसी विभाग में जाएं. देर न करें.
+क्लिनिक: +91 96995 59301
+```
+**English: menu-only reply**
+```
+Sorry 🙏 we can't answer that here. Your question has been noted.
+Please choose from the menu below, or call +91 96995 59301
+```
+**English: emergency reply**
+```
+⚠️ This could be serious. Please *call 108 immediately* or go to the nearest hospital emergency department. Don't wait.
+Clinic: +91 96995 59301
+```
+Emergency words checked: श्वास घ्यायला, श्वास लाग, दम लाग, छातीत दुख, छातीत, सांस लेने, सांस फूल, छाती में दर्द, chest pain, breathless, can't breathe, cant breathe, shwas, swas ghyayla, saans, बेशुद्ध, बेहोश, behosh, beshuddh, unconscious, fainted, रक्तस्त्राव, खूप रक्त, खून बह, heavy bleeding, bleeding, khoon, लकवा, पक्षाघात, paralysis, stroke, पाय काळा, पाय निळा, पैर काला, पैर नीला, foot black, foot blue

@@ -152,6 +152,21 @@ class Flows:
         items = self.c.get("followups") or []
         return float(items[n]["after_hours"]) if n < len(items) else None
 
+    def is_emergency(self, text: str) -> bool:
+        t = (text or "").lower()
+        return any(k.lower() in t for k in (self.c.get("emergency") or {}).get("keywords", []))
+
+    def emergency_text(self, lang: str, phone: str) -> str:
+        return self.t(self.c["emergency"]["text"], lang).replace("{phone}", phone or "")
+
+    def no_ai(self, lang: str, phone: str) -> FlowReply:
+        """Typed question but no AI configured: apologise, offer the menu and the clinic number."""
+        r = self.menu(lang)
+        r.text = self.t(self.c["prompts"]["no_ai"], lang).replace("{phone}", phone or "")
+        r.route = "no_ai"
+        r.updates = {}
+        return r
+
     def _find(self, section: str, item_id: str) -> dict | None:
         return next((x for x in self.c[section] if x["id"] == item_id), None)
 

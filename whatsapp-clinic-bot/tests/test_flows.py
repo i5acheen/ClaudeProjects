@@ -272,3 +272,38 @@ def test_ad_referral_is_stored_once():
     run(agent.handle(IncomingMessage("m2", PHONE, "text", "menu", "R", None, "Other ad")))
     assert db.get_lead(PHONE)["data"]["_ad"] == "Free varicose vein treatment | ad | 1234"
     assert any(c["route"] == "ad_click" for c in db.route_counts())
+
+
+def test_menu_only_mode_without_ai():
+    db, sender = Database(":memory:"), FakeSender()
+    db.save_lead(PHONE, {}, "mr", None, False)
+    agent = Agent(db, None, sender, None, flows=FLOWS, clinic_phone="+91 96995 59301")
+    run(agent.handle(say("m1", "mala sugar ahe, laser hoil ka?")))
+    to, body, kind, titles = sender.sent[-1]
+    assert kind == "list" and len(titles) == 10                      # the main menu
+    assert "+91 96995 59301" in body and "नोंदवला" in body
+    assert db.recent_events("no_ai")[0]["detail"].startswith("mala sugar")
+    run(agent.handle(tap("m2", "f:m:location")))                     # menu still works
+    assert "maps.google.com" in sender.sent[-1][1]
+
+
+def test_emergency_words_answered_instantly_without_llm():
+    agent, db, llm, sender = make()
+    run(agent.handle(say("m1", "achanak shwas ghyayla tras hotoy ani paay suzla")))
+    assert "108" in sender.sent[-1][1] and llm.calls == []
+    lead = db.get_lead(PHONE)
+    assert lead["data"]["status"] == "Hot" and "EMERGENCY" in lead["data"]["summary"]
+    assert any(c["route"] == "emergency" for c in db.route_counts())
+    # works in menu-only mode too, and in Hindi
+    db2, s2 = Database(":memory:"), FakeSender()
+    db2.save_lead(PHONE, {}, "hi", None, False)
+    run(Agent(db2, None, s2, None, flows=FLOWS).handle(say("m1", "छाती में दर्द हो रहा है")))
+    assert "तुरंत 108" in s2.sent[-1][1]
+
+
+def test_settings_do_not_require_ai_keys():
+    from app.config import load_settings
+
+    s = load_settings()
+    object.__setattr__(s, "llm_keys", {"openrouter": "", "groq": "", "cerebras": "", "gemini": ""})
+    assert not any("API_KEY" in m for m in s.missing_required())

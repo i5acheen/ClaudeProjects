@@ -85,10 +85,8 @@ class Settings:
             "VERIFY_TOKEN": self.verify_token,
             "APP_SECRET or WEBHOOK_URL_KEY": self.app_secret or self.webhook_url_key,
         }
-        missing = [k for k, v in required.items() if not v]
-        if not any(self.llm_keys.values()):
-            missing.append("one of OPENROUTER_API_KEY / GROQ_API_KEY / CEREBRAS_API_KEY / GEMINI_API_KEY")
-        return missing
+        # AI keys are optional: without them, typed questions get the menu + clinic number.
+        return [k for k, v in required.items() if not v]
 
 
 def load_settings() -> Settings:

@@ -41,7 +41,11 @@ async def lifespan(app: FastAPI):
     sheet = (LeadSheet(settings.google_service_account_file, settings.google_sheet_id,
                        settings.google_sheet_tab) if settings.sheets_enabled else None)
     db = Database(settings.database_url or settings.sqlite_path)
-    llm = build_chain(settings.llm_chain, settings.llm_keys)
+    try:
+        llm = build_chain(settings.llm_chain, settings.llm_keys)
+    except RuntimeError:
+        llm = None  # no AI key: menu-only mode
+        log.warning("No AI key set: running menu-only. Typed questions get the menu + clinic number.")
     alerter = Alerter(db, wa, settings.alert_phone, settings.alert_email, settings.smtp_host,
                       settings.smtp_port, settings.smtp_user, settings.smtp_password)
     calendar = None
@@ -60,7 +64,7 @@ async def lifespan(app: FastAPI):
         human_handoff_hours=settings.human_handoff_hours,
     )
     log.info("Started. LLM chain=%s | DB=%s | Sheets=%s | Calendar=%s | Alerts=%s | Diag=%s",
-             [p.name for p in llm.providers], "postgres" if settings.database_url else "sqlite",
+             ([p.name for p in llm.providers] if llm else "OFF (menu-only)"), "postgres" if settings.database_url else "sqlite",
              bool(sheet), bool(calendar), alerter.enabled, settings.enable_diag)
     async def followup_loop():
         while True:
@@ -111,6 +115,8 @@ async def diag_llm(request: Request, token: str = "", entry: str = "", q: str = 
     lead = {"data": {}, "profile_name": None, "details_confirmed": False}
     system = build_system_instruction(lead, True, language, q)
     llm = build_provider(entry, settings.llm_keys) if entry else request.app.state.llm
+    if llm is None and not entry:
+        return {"ok": False, "error": "AI is off (no AI key set)"}
     if llm is None:
         return {"ok": False, "entry": entry, "error": "unknown provider or missing API key"}
     t0 = time.monotonic()
@@ -164,11 +170,12 @@ async def insights(request: Request, token: str = ""):
     db: Database = request.app.state.db
     counts = db.route_counts()
     total = sum(c["n"] for c in counts) or 1
-    llm_n = sum(c["n"] for c in counts if c["route"] == "llm")
+    llm_n = sum(c["n"] for c in counts if c["route"] in ("llm", "no_ai"))
     rows = "".join(f"<tr><td>{html.escape(c['route'])}</td><td>{c['n']}</td>"
                    f"<td>{100 * c['n'] // total}%</td></tr>" for c in counts)
     qs = "".join(f"<tr><td>{html.escape(e['created_at'][:16])}</td><td>…{html.escape(e['phone'][-4:])}</td>"
-                 f"<td>{html.escape(e['detail'] or '')}</td></tr>" for e in db.recent_events("llm", 200))
+                 f"<td>{html.escape(e['detail'] or '')}</td></tr>" for e in sorted(db.recent_events("llm", 200) + db.recent_events("no_ai", 200),
+                                   key=lambda e: e["created_at"], reverse=True)[:200])
     return pages.insights_page(total, llm_n, rows, qs)
 
 

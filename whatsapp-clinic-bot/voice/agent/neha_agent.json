@@ -1,0 +1,75 @@
+{
+  "agent_name": "neha-vascular-center-mr",
+  "agent_type": "other",
+  "agent_welcome_message": "@welcome_mr.txt",
+  "tasks": [
+    {
+      "task_type": "conversation",
+      "toolchain": {
+        "execution": "parallel",
+        "pipelines": [
+          [
+            "transcriber",
+            "llm",
+            "synthesizer"
+          ]
+        ]
+      },
+      "tools_config": {
+        "input": {
+          "provider": "plivo",
+          "format": "wav"
+        },
+        "output": {
+          "provider": "plivo",
+          "format": "wav"
+        },
+        "transcriber": {
+          "provider": "sarvam",
+          "model": "saaras:v4",
+          "language": "mr-IN",
+          "stream": true,
+          "encoding": "linear16",
+          "keywords": "Lahoti,Century,varicose,व्हेरिकोज,शिरा,सूज,योजना,रेशन कार्ड,आयुष्मान,महात्मा फुले,लेझर,संभाजीनगर,औरंगाबाद"
+        },
+        "llm_agent": {
+          "agent_type": "simple_llm_agent",
+          "agent_flow_type": "streaming",
+          "llm_config": {
+            "provider": "google",
+            "family": "google",
+            "model": "gemini-3.5-flash-lite",
+            "max_tokens": 120,
+            "temperature": 0.5
+          }
+        },
+        "synthesizer": {
+          "provider": "sarvam",
+          "stream": true,
+          "audio_format": "wav",
+          "buffer_size": 60,
+          "provider_config": {
+            "voice": "Kavya",
+            "voice_id": "kavya",
+            "model": "bulbul:v3",
+            "language": "mr-IN",
+            "speed": 0.95
+          }
+        }
+      },
+      "task_config": {
+        "hangup_after_silence": 15,
+        "incremental_delay": 700,
+        "number_of_words_for_interruption": 2,
+        "call_terminate": 300,
+        "check_if_user_online": true,
+        "trigger_user_online_message_after": 10,
+        "check_user_online_message": "हॅलो, तुम्ही ऐकताय का?",
+        "use_fillers": false,
+        "backchanneling": false,
+        "hangup_after_LLMCall": true,
+        "call_cancellation_prompt": "You will see a phone call between Neha (clinic assistant) and a patient. Reply with JSON {\"hangup\": \"Yes\"} if the call should end now: Neha has said goodbye/thank you after the patient agreed or declined, the patient asked not to be called, it is a wrong number, the patient is busy and gave a callback time, or Neha advised calling 108. Otherwise reply {\"hangup\": \"No\"}."
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+# Open-source Bolna voice engine (MIT), pinned to the commit this service was tested against.
+bolna @ git+https://github.com/bolna-ai/bolna@8c6dea525ae1e6ef24ca7f9568eb83c7e272ad5b
+plivo>=4.61
+python-dotenv
+httpx
+uvicorn

@@ -59,15 +59,15 @@ answers:
     next: [book, call, menu]
   location:
     text:
-      mr: "📍 *द व्हॅस्कुलर सेंटर*\nसेंच्युरी मल्टिस्पेशालिटी हॉस्पिटल, मध्यवर्ती बस स्थानकासमोर, हॉटेल अजिंक्यच्या मागे, कोतवालपुरा, छत्रपती संभाजीनगर\n🗺️ https://maps.google.com/?cid=3009403215213270248\n📞 +91 99711 21273 / 0240 247 2281\n🕘 वेळ: आमची टीम कॉलवर सांगेल."
-      hi: "📍 *द वैस्कुलर सेंटर*\nसेंचुरी मल्टीस्पेशलिटी हॉस्पिटल, सेंट्रल बस स्टैंड के सामने, होटल अजिंक्य के पीछे, कोतवालपुरा, छत्रपति संभाजीनगर\n🗺️ https://maps.google.com/?cid=3009403215213270248\n📞 +91 99711 21273 / 0240 247 2281\n🕘 समय: हमारी टीम कॉल पर बताएगी."
-      en: "📍 *The Vascular Center*\nCentury Multispeciality Hospital, opposite Central Bus Stand, behind Hotel Ajinkya, Kotwalpura, Chhatrapati Sambhajinagar\n🗺️ https://maps.google.com/?cid=3009403215213270248\n📞 +91 99711 21273 / 0240 247 2281\n🕘 Timings: our team will share them on the call."
+      mr: "📍 *द व्हॅस्कुलर सेंटर*\nसेंच्युरी हॉस्पिटल, सेंट्रल बस स्टँडच्या समोर, हॉटेल अजिंक्यच्या मागे, कोतवालपुरा, छत्रपती संभाजीनगर\n🗺️ https://maps.google.com/?cid=17175394663658005878\n📞 +91 96995 59301 / +91 88057 89301\n🕘 वेळ: आमची टीम कॉलवर सांगेल."
+      hi: "📍 *द वैस्कुलर सेंटर*\nसेंचुरी हॉस्पिटल, सेंट्रल बस स्टैंड के सामने, होटल अजिंक्य के पीछे, कोतवालपुरा, छत्रपति संभाजीनगर\n🗺️ https://maps.google.com/?cid=17175394663658005878\n📞 +91 96995 59301 / +91 88057 89301\n🕘 समय: हमारी टीम कॉल पर बताएगी."
+      en: "📍 *The Vascular Center*\nCentury Hospital, opposite Central Bus Stand, behind Hotel Ajinkya, Kotwalpura, Chhatrapati Sambhajinagar\n🗺️ https://maps.google.com/?cid=17175394663658005878\n📞 +91 96995 59301 / +91 88057 89301\n🕘 Timings: our team will share them on the call."
     next: [book, call, menu]
   doctor:
     text:
-      mr: "🩺 *डॉ. अमोल लाहोटी*\nव्हेरिकोज व्हेन्स स्पेशालिस्ट व एंडोव्हॅस्कुलर सर्जन\n• 9+ वर्षांचा अनुभव, 1000+ रुग्णांवर उपचार\n• MBBS (नायर हॉस्पिटल, मुंबई), MD रेडिओलॉजी (नागपूर)\n• व्हॅस्कुलर व इंटरव्हेन्शनल रेडिओलॉजी (सायन हॉस्पिटल, मुंबई)\n• टाटा मेमोरियल हॉस्पिटल येथे केमोएम्बोलायझेशन प्रशिक्षण\n• Google वर 'Excellent' रेटिंग"
-      hi: "🩺 *डॉ. अमोल लाहोटी*\nवेरिकोज़ वेन्स स्पेशलिस्ट और एंडोवैस्कुलर सर्जन\n• 9+ वर्षों का अनुभव, 1000+ मरीज़ों का इलाज\n• MBBS (नायर हॉस्पिटल, मुंबई), MD रेडियोलॉजी (नागपुर)\n• वैस्कुलर और इंटरवेंशनल रेडियोलॉजी (सायन हॉस्पिटल, मुंबई)\n• टाटा मेमोरियल हॉस्पिटल में केमोएम्बोलाइज़ेशन ट्रेनिंग\n• Google पर 'Excellent' रेटिंग"
-      en: "🩺 *Dr. Amol Lahoti*\nVaricose Veins Specialist & Endovascular Surgeon\n• 9+ years of experience, 1000+ patients treated\n• MBBS (Nair Hospital, Mumbai), MD Radiology (Nagpur)\n• Vascular & Interventional Radiology (Sion Hospital, Mumbai)\n• Chemoembolization training at Tata Memorial Hospital\n• Rated 'Excellent' on Google"
+      mr: "🩺 *डॉ. अमोल लाहोटी*\nव्हेरिकोज व्हेन्स स्पेशालिस्ट व एंडोव्हॅस्कुलर सर्जन\n• 9+ वर्षांचा अनुभव, 1000+ रुग्णांवर उपचार\n• MBBS (नायर हॉस्पिटल, मुंबई), MD रेडिओलॉजी (नागपूर)\n• व्हॅस्कुलर व इंटरव्हेन्शनल रेडिओलॉजी (सायन हॉस्पिटल, मुंबई)\n• टाटा मेमोरियल हॉस्पिटल येथे केमोएम्बोलायझेशन प्रशिक्षण\n• Google वर 'Excellent' रेटिंग: https://g.co/kgs/J7RW2B"
+      hi: "🩺 *डॉ. अमोल लाहोटी*\nवेरिकोज़ वेन्स स्पेशलिस्ट और एंडोवैस्कुलर सर्जन\n• 9+ वर्षों का अनुभव, 1000+ मरीज़ों का इलाज\n• MBBS (नायर हॉस्पिटल, मुंबई), MD रेडियोलॉजी (नागपुर)\n• वैस्कुलर और इंटरवेंशनल रेडियोलॉजी (सायन हॉस्पिटल, मुंबई)\n• टाटा मेमोरियल हॉस्पिटल में केमोएम्बोलाइज़ेशन ट्रेनिंग\n• Google पर 'Excellent' रेटिंग: https://g.co/kgs/J7RW2B"
+      en: "🩺 *Dr. Amol Lahoti*\nVaricose Veins Specialist & Endovascular Surgeon\n• 9+ years of experience, 1000+ patients treated\n• MBBS (Nair Hospital, Mumbai), MD Radiology (Nagpur)\n• Vascular & Interventional Radiology (Sion Hospital, Mumbai)\n• Chemoembolization training at Tata Memorial Hospital\n• Rated 'Excellent' on Google: https://g.co/kgs/J7RW2B"
     next: [book, videos, menu]
   videos:
     text:

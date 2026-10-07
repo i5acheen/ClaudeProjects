@@ -164,3 +164,13 @@ def test_bsp_send_url_and_header():
     assert meta._headers == {"Authorization": "Bearer tok"}
     bsp = WhatsAppClient("key", "123", "v26.0", "https://waba-v2.360dialog.io/messages", "D360-API-KEY")
     assert bsp._url == "https://waba-v2.360dialog.io/messages" and bsp._headers == {"D360-API-KEY": "key"}
+
+
+def test_ctwa_referral_parsed():
+    from app.whatsapp import parse_messages
+
+    m = text_msg("wamid.R1", "Hi")
+    m["referral"] = {"source_url": "https://fb.me/x", "source_type": "ad", "source_id": "120",
+                     "headline": "Free varicose vein treatment", "ctwa_clid": "abc"}
+    parsed = parse_messages(payload([m]))[0]
+    assert parsed.ad == "Free varicose vein treatment | ad | 120"

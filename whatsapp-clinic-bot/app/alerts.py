@@ -36,6 +36,8 @@ class Alerter:
                 f"City: {d.get('city') or '-'}\n"
                 f"Concern: {d.get('concern') or '-'} ({d.get('duration') or '-'})\n"
                 f"Preferred time: {d.get('preferred_time') or '-'}\n"
+                f"Govt scheme: {d.get('scheme') or '-'}\n"
+                f"Ad: {d.get('_ad') or '-'}\n"
                 f"Summary: {d.get('summary') or '-'}")
         await self._send(f"{title}: +{lead['phone']}", body)
 

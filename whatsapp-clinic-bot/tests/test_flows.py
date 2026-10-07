@@ -56,7 +56,7 @@ def test_language_pick_shows_welcome_menu_without_llm():
     run(agent.handle(tap("m2", "lang_mr", "मराठी")))
     assert llm.calls == []
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and "1000+" in body and len(titles) == 9
+    assert kind == "list" and "1000+" in body and "🆓" in body and len(titles) == 10
 
 
 def test_full_booking_flow_without_llm():
@@ -227,3 +227,48 @@ def test_staff_reply_from_business_app_pauses_bot():
     db.save_lead(PHONE, lead["data"] | {"_human_until": 0}, "mr", None, False)
     run(agent.handle(say("m2", "menu")))
     assert sender.sent and sender.sent[-1][2] == "list"
+
+
+def test_scheme_flow_tags_lead_and_goes_to_booking():
+    agent, db, llm, sender = make()
+    run(agent.handle(tap("m1", "f:m:scheme")))
+    to, body, kind, titles = sender.sent[-1]
+    assert "मोफत" in body and kind == "buttons" and titles[0] == "✅ कार्ड आहे"
+    run(agent.handle(tap("m2", "f:scheme:card")))
+    body = sender.sent[-1][1]
+    assert "आधार" in body and sender.sent[-1][2] == "list"          # docs + concern list
+    assert db.get_lead(PHONE)["data"]["scheme"] == "has scheme card"
+    assert llm.calls == []
+
+
+def test_followups_sent_once_each_inside_24h_and_not_after_booking():
+    import time as _t
+
+    agent, db, llm, sender = make()
+    run(agent.handle(say("m1", "menu")))
+    sent_before = len(sender.sent)
+    last = db.get_lead(PHONE)["data"]["_last_user_ts"]
+    assert run(agent.send_followups(now=last + 3600)) == 0              # too early
+    assert run(agent.send_followups(now=last + 2.5 * 3600)) == 1        # first reminder
+    assert "नमस्कार" in sender.sent[-1][1] and sender.sent[-1][2] == "buttons"
+    assert run(agent.send_followups(now=last + 3 * 3600)) == 0          # not twice
+    assert run(agent.send_followups(now=last + 21 * 3600)) == 1         # second reminder
+    assert run(agent.send_followups(now=last + 22 * 3600)) == 0         # none left
+    assert len(sender.sent) == sent_before + 2
+    # a reply resets the clock; outside 24h nothing is sent
+    run(agent.handle(say("m2", "menu")))
+    last2 = db.get_lead(PHONE)["data"]["_last_user_ts"]
+    assert run(agent.send_followups(now=last2 + 25 * 3600)) == 0
+    # confirmed bookings never get reminders
+    lead = db.get_lead(PHONE)
+    db.save_lead(PHONE, lead["data"], "mr", None, True)
+    assert run(agent.send_followups(now=last2 + 3 * 3600)) == 0
+
+
+def test_ad_referral_is_stored_once():
+    agent, db, llm, sender = make()
+    m = IncomingMessage("m1", PHONE, "text", "Hi", "R", None, "Free varicose vein treatment | ad | 1234")
+    run(agent.handle(m))
+    run(agent.handle(IncomingMessage("m2", PHONE, "text", "menu", "R", None, "Other ad")))
+    assert db.get_lead(PHONE)["data"]["_ad"] == "Free varicose vein treatment | ad | 1234"
+    assert any(c["route"] == "ad_click" for c in db.route_counts())

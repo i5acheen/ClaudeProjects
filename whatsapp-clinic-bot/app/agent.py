@@ -169,6 +169,11 @@ class Agent:
             log.warning("Rate limit hit for ...%s, message ignored", msg.phone[-4:])
             return
         lead = self.db.get_lead(msg.phone)
+        if msg.ad and not lead["data"].get("_ad"):  # remember which Meta ad brought this person
+            self.db.save_lead(msg.phone, lead["data"] | {"_ad": msg.ad}, lead["language"],
+                              msg.profile_name, lead["details_confirmed"])
+            self.db.log_event(msg.phone, "ad_click", msg.ad)
+            lead = self.db.get_lead(msg.phone)
         language = lead.get("language")
 
         if msg.type != "text" or not (msg.text or "").strip():
@@ -261,6 +266,37 @@ class Agent:
             log.info("Staff replied to ...%s from the Business app; bot paused %sh",
                      customer[-4:], self.human_handoff_hours)
 
+    async def send_followups(self, now: float | None = None) -> int:
+        """Send due reminders to patients who stopped replying. Only inside the free 24-hour
+        WhatsApp window, never after a confirmed booking, never while staff handle the chat."""
+        if not self.flows:
+            return 0
+        now = now or time.time()
+        sent = 0
+        for phone in self.db.unconfirmed_leads():
+            async with self._locks[phone]:
+                lead = self.db.get_lead(phone)
+                d, lang = lead["data"], lead.get("language")
+                last = d.get("_last_user_ts")
+                n = int(d.get("_followups") or 0)
+                due = self.flows.followup_hours(n)
+                if (not lang or not last or due is None or lead["details_confirmed"]
+                        or d.get("status") == "Cold" or (d.get("_human_until") or 0) > now):
+                    continue
+                age = now - last
+                if age < due * 3600 or age > 23.5 * 3600:
+                    continue
+                reply = self.flows.followup(n, d, lang)
+                if not reply or not await self._send(phone, reply.text, reply.kind, reply.choices):
+                    continue
+                self.db.add_message(phone, "assistant", reply.text)
+                self.db.save_lead(phone, d | {"_followups": n + 1}, lang, None, False)
+                self.db.log_event(phone, reply.route)
+                sent += 1
+        if sent:
+            log.info("Sent %d follow-up(s)", sent)
+        return sent
+
     # ---------- helpers ----------
     async def _flow_reply(self, msg: IncomingMessage, text: str, chosen: str | None, lead: dict,
                     language: str) -> FlowReply | None:
@@ -303,6 +339,8 @@ class Agent:
 
     async def _save(self, msg: IncomingMessage, lead: dict, new_data: dict, language: str | None,
                     confirmed: bool) -> None:
+        # The patient just wrote: restart the follow-up clock.
+        new_data = dict(new_data) | {"_last_user_ts": time.time(), "_followups": 0}
         self.db.save_lead(msg.phone, new_data, language, msg.profile_name, confirmed)
         public = lambda d: {k: d.get(k) for k in LEAD_FIELDS}  # noqa: E731
         changed = (public(new_data) != public(lead["data"]) or language != lead["language"]

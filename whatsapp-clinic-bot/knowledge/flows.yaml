@@ -4,9 +4,9 @@
 # Use ONLY facts from clinic_info.md. Anything not listed in this file goes to the AI.
 
 welcome:
-  mr: "नमस्कार 🙏 द व्हॅस्कुलर सेंटर, डॉ. अमोल लाहोटी (व्हेरिकोज व्हेन्स स्पेशालिस्ट) यांच्या क्लिनिकमध्ये आपलं स्वागत आहे.\n9+ वर्षांच्या अनुभवात सरांनी 1000+ रुग्णांवर उपचार केले आहेत."
-  hi: "नमस्ते 🙏 द वैस्कुलर सेंटर, डॉ. अमोल लाहोटी (वेरिकोज़ वेन्स स्पेशलिस्ट) के क्लिनिक में आपका स्वागत है.\n9+ वर्षों के अनुभव में डॉक्टर साहब ने 1000+ मरीज़ों का इलाज किया है."
-  en: "Hello 🙏 Welcome to The Vascular Center, the clinic of Dr. Amol Lahoti (Varicose Veins Specialist).\nIn 9+ years, Dr. Lahoti has treated 1000+ patients."
+  mr: "नमस्कार 🙏 द व्हॅस्कुलर सेंटर, डॉ. अमोल लाहोटी (व्हेरिकोज व्हेन्स स्पेशालिस्ट) यांच्या क्लिनिकमध्ये आपलं स्वागत आहे.\n9+ वर्षांच्या अनुभवात सरांनी 1000+ रुग्णांवर उपचार केले आहेत.\n🆓 पात्र रुग्णांसाठी सरकारी योजनेअंतर्गत मोफत उपचार."
+  hi: "नमस्ते 🙏 द वैस्कुलर सेंटर, डॉ. अमोल लाहोटी (वेरिकोज़ वेन्स स्पेशलिस्ट) के क्लिनिक में आपका स्वागत है.\n9+ वर्षों के अनुभव में डॉक्टर साहब ने 1000+ मरीज़ों का इलाज किया है.\n🆓 पात्र मरीज़ों के लिए सरकारी योजना में मुफ़्त इलाज."
+  en: "Hello 🙏 Welcome to The Vascular Center, the clinic of Dr. Amol Lahoti (Varicose Veins Specialist).\nIn 9+ years, Dr. Lahoti has treated 1000+ patients.\n🆓 Free treatment for eligible patients under government schemes."
 
 menu:
   text:
@@ -18,6 +18,9 @@ menu:
     - id: book
       title: {mr: "📅 अपॉइंटमेंट बुक करा", hi: "📅 अपॉइंटमेंट बुक करें", en: "📅 Book appointment"}
       description: {mr: "तपासणीसाठी वेळ ठरवा", hi: "जांच के लिए समय तय करें", en: "Fix a time for a consultation"}
+    - id: scheme
+      title: {mr: "🆓 योजनेत मोफत उपचार", hi: "🆓 योजना में मुफ़्त इलाज", en: "🆓 Free under govt scheme"}
+      description: {mr: "पात्र रुग्णांसाठी — खिशातून खर्च नाही", hi: "पात्र मरीज़ों के लिए — जेब से खर्च नहीं", en: "For eligible patients: nothing to pay from pocket"}
     - id: problem
       title: {mr: "🦵 माझा पायाचा त्रास", hi: "🦵 मेरी पैर की तकलीफ", en: "🦵 My leg problem"}
       description: {mr: "फुगलेल्या नसा, सूज, वेदना, जखम…", hi: "उभरी नसें, सूजन, दर्द, घाव…", en: "Bulging veins, swelling, pain, wounds…"}
@@ -47,10 +50,10 @@ menu:
 answers:
   treatment:
     text:
-      mr: "*आधुनिक, कमी त्रासाचे उपचार* 💉\n• लेझर (Endovenous Laser), ग्लू (VenaSeal™) किंवा MOCA\n• छोट्या छिद्रातून, मोठा कट किंवा टाके नाहीत\n• डे-केअर: बहुतेक रुग्ण त्याच दिवशी किंवा दुसऱ्या दिवशी चालत घरी जातात\n• नंतर 3–6 महिने दिवसा स्टॉकिंग्ज\nकोणता उपचार योग्य, हे तपासणी व कलर डॉपलरनंतर ठरते."
-      hi: "*आधुनिक, कम तकलीफ़ वाला इलाज* 💉\n• लेज़र (Endovenous Laser), ग्लू (VenaSeal™) या MOCA\n• छोटे से छेद से, बड़ा कट या टांके नहीं\n• डे-केयर: ज़्यादातर मरीज़ उसी दिन या अगले दिन चलकर घर जाते हैं\n• बाद में 3–6 महीने दिन में स्टॉकिंग्स\nकौन सा इलाज सही है, यह जांच और कलर डॉप्लर के बाद तय होता है."
-      en: "*Modern, minimally invasive treatment* 💉\n• Endovenous laser, VenaSeal™ glue or MOCA\n• Through a small puncture, with no big cut or stitches\n• Day-care: most patients walk home the same or the next day\n• Compression stockings during the day for 3–6 months\nThe right option is decided after examination and Colour Doppler."
-    next: [book, cost, videos]
+      mr: "*आधुनिक, कमी त्रासाचे उपचार* 💉\n• लेझर (Endovenous Laser), ग्लू (VenaSeal™) किंवा MOCA\n• छोट्या छिद्रातून, मोठा कट किंवा टाके नाहीत\n• डे-केअर: बहुतेक रुग्ण त्याच दिवशी किंवा दुसऱ्या दिवशी चालत घरी जातात\n• नंतर 3–6 महिने दिवसा स्टॉकिंग्ज\n🆓 पात्र रुग्णांसाठी हे ऑपरेशन सरकारी योजनेअंतर्गत मोफत होऊ शकते.\nकोणता उपचार योग्य, हे तपासणी व कलर डॉपलरनंतर ठरते."
+      hi: "*आधुनिक, कम तकलीफ़ वाला इलाज* 💉\n• लेज़र (Endovenous Laser), ग्लू (VenaSeal™) या MOCA\n• छोटे से छेद से, बड़ा कट या टांके नहीं\n• डे-केयर: ज़्यादातर मरीज़ उसी दिन या अगले दिन चलकर घर जाते हैं\n• बाद में 3–6 महीने दिन में स्टॉकिंग्स\n🆓 पात्र मरीज़ों के लिए यह ऑपरेशन सरकारी योजना में मुफ़्त हो सकता है.\nकौन सा इलाज सही है, यह जांच और कलर डॉप्लर के बाद तय होता है."
+      en: "*Modern, minimally invasive treatment* 💉\n• Endovenous laser, VenaSeal™ glue or MOCA\n• Through a small puncture, with no big cut or stitches\n• Day-care: most patients walk home the same or the next day\n• Compression stockings during the day for 3–6 months\n🆓 For eligible patients, this procedure can be free under government schemes.\nThe right option is decided after examination and Colour Doppler."
+    next: [book, scheme, videos]
   cost:
     text:
       mr: "*खर्च व मदत* 💰\n• कन्सल्टेशनमध्ये तपासणी + कलर डॉपलर दोन्ही समाविष्ट\n• लेझर उपचार: अंदाजे ₹60,000 – ₹1,20,000 (हॉस्पिटल, उपचार, भूल व औषधांसह)\n• बहुतेक आरोग्य विमा पॉलिसींमध्ये कव्हर\n• पात्र रुग्णांना सरकारी आरोग्य योजनांसाठी मदत\nअचूक खर्च तपासणीनंतरच सांगता येतो. कन्सल्टेशन फी आमची टीम कॉलवर सांगेल."
@@ -75,6 +78,13 @@ answers:
       hi: "🎥 डॉ. लाहोटी के पैरों की नसों की तकलीफ़ और इलाज पर वीडियो:\nhttps://www.youtube.com/@healthylegsforhealthylifeb6496\nअधिक जानकारी: https://dramollahoti.com"
       en: "🎥 Dr. Lahoti's videos on leg vein problems and their treatment:\nhttps://www.youtube.com/@healthylegsforhealthylifeb6496\nMore information: https://dramollahoti.com"
     next: [book, call, menu]
+  scheme:
+    # ⚠️ [TO BE CONFIRMED BY CLINIC]: scheme names, which treatments are covered, and documents needed.
+    text:
+      mr: "🆓 *सरकारी योजनेअंतर्गत मोफत उपचार*\nपात्र रुग्णांसाठी व्हेरिकोज व्हेन्सचे *लेझर ऑपरेशन, ॲडमिशन व औषधे* सरकारी आरोग्य योजनेअंतर्गत *मोफत* होऊ शकतात. खिशातून पैसे भरावे लागत नाहीत.\n1️⃣ तपासणी + कलर डॉपलर\n2️⃣ डॉक्टरांनी सांगितल्यास डे-केअर लेझर उपचार (टाके नाहीत)\n3️⃣ योजनेची सर्व कागदपत्रे आमची टीम करते\n4️⃣ त्याच/दुसऱ्या दिवशी घरी\nतुमच्याकडे आयुष्मान भारत / MJPJAY कार्ड आहे का?"
+      hi: "🆓 *सरकारी योजना के तहत मुफ़्त इलाज*\nपात्र मरीज़ों के लिए वेरिकोज़ वेन्स का *लेज़र ऑपरेशन, भर्ती और दवाइयां* सरकारी स्वास्थ्य योजना में *मुफ़्त* हो सकते हैं. जेब से पैसे नहीं लगते.\n1️⃣ जांच + कलर डॉप्लर\n2️⃣ डॉक्टर की सलाह पर डे-केयर लेज़र इलाज (टांके नहीं)\n3️⃣ योजना के सारे कागज़ात हमारी टीम करती है\n4️⃣ उसी/अगले दिन घर\nक्या आपके पास आयुष्मान भारत / MJPJAY कार्ड है?"
+      en: "🆓 *Free treatment under government schemes*\nFor eligible patients, the varicose vein *laser procedure, admission and medicines* can be *free* under government health schemes, with nothing to pay from your pocket.\n1️⃣ Check-up + Colour Doppler\n2️⃣ If the doctor advises it: day-care laser treatment (no stitches)\n3️⃣ Our team handles all scheme paperwork\n4️⃣ Home the same or next day\nDo you have an Ayushman Bharat / MJPJAY card?"
+    next: []
   other:
     text:
       mr: "नक्की 🙏 तुमचा प्रश्न टाइप करून पाठवा."
@@ -183,6 +193,9 @@ prompts:
     preferred_time: {mr: "सोयीची वेळ", hi: "सही समय", en: "Preferred time"}
   done: {mr: "धन्यवाद, {name}! 🙏\nआमची क्लिनिक टीम लवकरच तुम्हाला कॉल करून अपॉइंटमेंट निश्चित करेल.", hi: "धन्यवाद, {name}! 🙏\nहमारी क्लिनिक टीम जल्द ही आपको कॉल करके अपॉइंटमेंट पक्की करेगी.", en: "Thank you, {name}! 🙏\nOur clinic team will call you soon to confirm the appointment."}
   done_next: [location, videos, menu]
+  # ⚠️ [TO BE CONFIRMED BY CLINIC]: documents patients should bring for the scheme.
+  scheme_card: {mr: "छान! 👍 तपासणीला येताना योजनेचे कार्ड, आधार कार्ड व रेशन कार्ड सोबत आणा. आमची टीम योजनेची प्रक्रिया पूर्ण करण्यास मदत करेल.", hi: "बढ़िया! 👍 जांच के लिए आते समय योजना का कार्ड, आधार कार्ड और राशन कार्ड साथ लाएं. हमारी टीम योजना की प्रक्रिया में मदद करेगी.", en: "Great! 👍 Please bring your scheme card, Aadhaar card and ration card to the consultation. Our team will help complete the scheme process."}
+  scheme_unknown: {mr: "काही हरकत नाही 🙏 आमची टीम तुमची पात्रता तपासेल. तपासणीला येताना आधार कार्ड व रेशन कार्ड सोबत आणा.", hi: "कोई बात नहीं 🙏 हमारी टीम आपकी पात्रता जांचेगी. जांच के लिए आते समय आधार कार्ड और राशन कार्ड साथ लाएं.", en: "No problem 🙏 Our team will check your eligibility. Please bring your Aadhaar card and ration card to the consultation."}
   change: {mr: "ठीक आहे, तपशील पुन्हा भरूया.", hi: "ठीक है, जानकारी फिर से भरते हैं.", en: "Okay, let's fill in the details again."}
 
 # Small buttons used under answers.
@@ -193,5 +206,29 @@ buttons:
   call: {mr: "📞 कॉल हवा", hi: "📞 कॉल करें", en: "📞 Call me"}
   cost: {mr: "💰 खर्च", hi: "💰 खर्च", en: "💰 Cost"}
   menu: {mr: "☰ मेनू", hi: "☰ मेनू", en: "☰ Menu"}
+  scheme: {mr: "🆓 मोफत योजना", hi: "🆓 मुफ़्त योजना", en: "🆓 Free scheme"}
+  scheme_card: {mr: "✅ कार्ड आहे", hi: "✅ कार्ड है", en: "✅ I have a card"}
+  scheme_unknown: {mr: "❓ माहित नाही", hi: "❓ पता नहीं", en: "❓ Not sure"}
   confirm_yes: {mr: "✅ बरोबर आहे", hi: "✅ सही है", en: "✅ Correct"}
   confirm_change: {mr: "✏️ बदला", hi: "✏️ बदलें", en: "✏️ Change"}
+
+# Gentle reminders if a patient stops replying (sent only inside WhatsApp's free 24-hour window,
+# never after the patient confirmed a booking, and never while staff are chatting).
+# Keep them honest: no invented deadlines or scarcity.
+followups:
+  - after_hours: 2
+    text:
+      mr: "नमस्कार{name} 🙏 तुमच्या पायाच्या त्रासाबद्दल अजून काही प्रश्न आहे का?\nपात्र रुग्णांसाठी लेझर ऑपरेशन सरकारी योजनेअंतर्गत मोफत होऊ शकते. तपासणीसाठी वेळ ठरवायची का?"
+      hi: "नमस्ते{name} 🙏 पैरों की तकलीफ़ के बारे में कोई और सवाल है?\nपात्र मरीज़ों के लिए लेज़र ऑपरेशन सरकारी योजना में मुफ़्त हो सकता है. जांच का समय तय करें?"
+      en: "Hello{name} 🙏 Any other questions about your leg problem?\nFor eligible patients, the laser procedure can be free under government schemes. Shall we fix a check-up time?"
+    buttons: [book, scheme, call]
+  - after_hours: 20
+    text:
+      mr: "{name_comma}फुगलेल्या नसांकडे दुर्लक्ष केल्यास सूज व वेदना वाढू शकतात. वेळीच तपासणी केल्यास गुंतागुंत टाळता येते. 🙏\nतुमच्यासाठी सोयीची वेळ ठरवूया का?"
+      hi: "{name_comma}उभरी नसों को नज़रअंदाज़ करने से सूजन और दर्द बढ़ सकता है. समय पर जांच से जटिलताएं टाली जा सकती हैं. 🙏\nआपके लिए सही समय तय करें?"
+      en: "{name_comma}If ignored, varicose veins can lead to more swelling and pain. An early check-up helps avoid complications. 🙏\nShall we fix a convenient time?"
+    buttons: [book, call, menu]
+
+# Adding other treatments later (e.g. piles, heart): add their problems to `concerns`, their facts to
+# knowledge/clinic_info.md (with the treating doctor), a menu item, and whether the scheme covers them.
+# Only add once the clinic confirms the doctor, treatment and scheme coverage.

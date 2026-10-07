@@ -18,6 +18,7 @@ class IncomingMessage:
     text: str | None
     profile_name: str | None
     choice_id: str | None = None  # id of a tapped button / list row, if any
+    ad: str | None = None         # Click-to-WhatsApp ad the person came from (headline / id)
 
 
 def parse_messages(payload: dict) -> list[IncomingMessage]:
@@ -44,7 +45,12 @@ def parse_messages(payload: dict) -> list[IncomingMessage]:
                     text, choice_id, mtype = picked.get("title"), picked.get("id"), "text"
                 elif mtype == "button":  # quick-reply button on a template message
                     text, choice_id, mtype = msg.get("button", {}).get("text"), None, "text"
-                out.append(IncomingMessage(msg_id, sender, mtype, text, names.get(sender), choice_id))
+                ref = msg.get("referral") or {}
+                ad = None
+                if ref:
+                    ad = " | ".join(str(x) for x in (ref.get("headline"), ref.get("source_type"),
+                                                     ref.get("source_id")) if x)[:150] or "ad"
+                out.append(IncomingMessage(msg_id, sender, mtype, text, names.get(sender), choice_id, ad))
     return out
 
 

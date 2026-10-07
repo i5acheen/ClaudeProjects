@@ -130,6 +130,8 @@ pytest -q
 ---
 
 ## How it works
+- **Built for Meta Click-to-WhatsApp ads:** the ad a person came from is saved with their lead (Sheet column "Ad Source", alerts and insights). The welcome and menu lead with **🆓 free treatment under government schemes for eligible patients**, a quick scheme-card check, and the treatment journey (check-up → day-care laser → scheme paperwork → home the same or next day).
+- **Follow-ups:** if a patient stops replying, up to 2 gentle reminders are sent (after about 2h and 20h, texts in `flows.yaml → followups`). They go only inside the free 24-hour window, never after a confirmed booking, and never while staff are chatting. Set `FOLLOWUPS_ENABLED=false` to turn them off.
 - **Menu first, AI second.** After the language picker, patients get a tap menu (`knowledge/flows.yaml`): book an appointment, leg problem, treatment, cost, location, doctor, videos, call-back. Fixed answers and the booking questions (concern → duration → name → city → time → confirm) run **without the AI**: instant, free, and nothing invented. Only typed questions the menu can't handle, and "❓ Other question", go to the AI.
 - **See where the AI is needed:** open `https://<bot-url>/admin/insights?token=<VERIFY_TOKEN>`. It shows how many messages the menu handled and lists every question that went to the AI. Turn frequent ones into new menu answers.
 - `POST /webhook` checks `X-Hub-Signature-256` against `APP_SECRET` (an invalid signature gets 403). It returns **200 immediately** and processes messages in the background. Status updates are ignored and duplicate message IDs are skipped.

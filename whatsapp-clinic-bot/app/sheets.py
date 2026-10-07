@@ -16,6 +16,7 @@ IST = ZoneInfo("Asia/Kolkata")
 HEADERS = [
     "First Seen (IST)", "Last Updated (IST)", "Phone", "WhatsApp Name", "Name", "City/Area",
     "Concern", "Duration", "Preferred Time", "Language", "Status", "Details Confirmed", "Summary",
+    "Govt Scheme", "Ad Source",
 ]
 PHONE_COL = HEADERS.index("Phone") + 1
 
@@ -50,6 +51,7 @@ class LeadSheet:
             d.get("city") or "", d.get("concern") or "", d.get("duration") or "",
             d.get("preferred_time") or "", lead.get("language") or "", d.get("status") or "",
             "Yes" if lead.get("details_confirmed") else "No", d.get("summary") or "",
+            d.get("scheme") or "", d.get("_ad") or "",
         ]
         if cell:
             ws.update([row], f"A{cell.row}", value_input_option="RAW")

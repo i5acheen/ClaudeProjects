@@ -111,6 +111,12 @@ Render free wipes its disk on every restart. Create a free Postgres at https://n
 **Email alerts** (hot and confirmed leads, with name, phone, city, need and chosen slot): use Gmail with 2-Step Verification → **App Password**. Set `ALERT_EMAIL=<recipient>`, `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USER=<sending gmail>`, `SMTP_PASSWORD=<app password>`.
 **WhatsApp alerts:** `ALERT_PHONE=<staff number with country code>`. These arrive only if that number messaged the bot in the last 24 hours (a WhatsApp rule), so set up email too.
 
+## 8b. Meta ads, offers and follow-ups
+- **Click-to-WhatsApp ads:** point the ad at the bot's number and set a pre-filled message (e.g. "Hi, I want to know about free varicose vein treatment"). The bot saves the ad headline/id with the lead (`referral` in the webhook), so the Sheet shows which ad converts.
+- **Main offer** (e.g. free treatment under a government scheme): put it in `flows.yaml` (welcome line, a menu item with an eligibility check, the follow-ups) and in `clinic_info.md`. **Only state offers the business confirms.** Phrase eligibility-based offers as "for eligible patients", and let the team confirm eligibility.
+- **Honest persuasion only:** real benefits, real free slots, real medical reasons to act early. **Never** invented deadlines ("scheme ending soon"), fake scarcity or fear. These mislead customers, and both WhatsApp and Meta ads can restrict accounts for them. For medical businesses, the bot says treatment is free *if the doctor advises it*; it never tells a person they need surgery.
+- **Follow-ups:** `flows.yaml → followups` (default about 2h and 20h after the last message). Sent only inside the free 24-hour window.
+
 ## 9. Test checklist
 - `/health` and `/ready` return `{"ok":true}`.
 - "hi" gets the language buttons. Picking one gets the welcome and menu.

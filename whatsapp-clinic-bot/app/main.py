@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
@@ -61,7 +62,18 @@ async def lifespan(app: FastAPI):
     log.info("Started. LLM chain=%s | DB=%s | Sheets=%s | Calendar=%s | Alerts=%s | Diag=%s",
              [p.name for p in llm.providers], "postgres" if settings.database_url else "sqlite",
              bool(sheet), bool(calendar), alerter.enabled, settings.enable_diag)
+    async def followup_loop():
+        while True:
+            await asyncio.sleep(600)  # every 10 minutes
+            try:
+                await app.state.agent.send_followups()
+            except Exception:
+                log.exception("Follow-up run failed")
+
+    task = asyncio.create_task(followup_loop()) if settings.followups_enabled else None
     yield
+    if task:
+        task.cancel()
     await wa.aclose()
 
 

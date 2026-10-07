@@ -214,3 +214,9 @@ class Database:
                          "ORDER BY id DESC LIMIT ?", (route_prefix + "%", limit), fetch="all")
         return [{"phone": r["phone"], "route": r["route"], "detail": r["detail"],
                  "created_at": str(r["created_at"])} for r in rows]
+
+    def unconfirmed_leads(self, limit: int = 500) -> list[str]:
+        """Phones of recent leads that haven't confirmed a booking (for follow-ups)."""
+        rows = self._run("SELECT phone FROM leads WHERE details_confirmed = 0 ORDER BY updated_at DESC LIMIT ?",
+                         (limit,), fetch="all")
+        return [r["phone"] for r in rows]

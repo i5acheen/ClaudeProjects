@@ -58,6 +58,7 @@ class Settings:
     rate_limit_count: int
     rate_limit_window: int
     human_handoff_hours: float
+    followups_enabled: bool
     alert_phone: str
     alert_email: str
     smtp_host: str
@@ -123,6 +124,7 @@ def load_settings() -> Settings:
         rate_limit_count=int(env("RATE_LIMIT_COUNT", "20")),
         rate_limit_window=int(env("RATE_LIMIT_WINDOW_SECONDS", "600")),
         human_handoff_hours=float(env("HUMAN_HANDOFF_HOURS", "12")),
+        followups_enabled=_bool(env("FOLLOWUPS_ENABLED", "true")),
         alert_phone=env("ALERT_PHONE", ""),
         alert_email=env("ALERT_EMAIL", ""),
         smtp_host=env("SMTP_HOST", ""),

@@ -30,11 +30,12 @@ TYPED_STEPS = {"name", "city", "concern_text", "duration", "preferred_time"}
 
 # Menu item -> fixed answer key, or a special action.
 MENU_ACTIONS = {"book": "book", "problem": "problem", "callback": "callback", "other": "other",
+                "scheme": "scheme",
                 "treatment": "answer", "cost": "answer", "location": "answer", "doctor": "answer",
                 "videos": "answer"}
 # Small "next" buttons -> menu item they open.
 BUTTON_TARGETS = {"book": "book", "location": "location", "videos": "videos", "call": "callback",
-                  "cost": "cost", "menu": "menu"}
+                  "cost": "cost", "menu": "menu", "scheme": "scheme"}
 
 
 @dataclass
@@ -127,6 +128,30 @@ class Flows:
         return FlowReply(self.t(a["text"], lang), "buttons" if btns else "none", btns,
                          updates={"_step": step}, route=f"answer:{key}")
 
+    def scheme_answer(self, lang: str) -> FlowReply:
+        b = self.c["buttons"]
+        ch = [{"id": "f:scheme:card", "title": self.t(b["scheme_card"], lang)},
+              {"id": "f:scheme:unknown", "title": self.t(b["scheme_unknown"], lang)},
+              {"id": "f:go:book", "title": self.t(b["book"], lang)}]
+        return FlowReply(self.t(self.c["answers"]["scheme"]["text"], lang), "buttons", ch,
+                         updates={"_step": None}, route="answer:scheme")
+
+    def followup(self, n: int, data: dict, lang: str) -> FlowReply | None:
+        """The n-th reminder for a patient who stopped replying (None if there isn't one)."""
+        items = self.c.get("followups") or []
+        if n >= len(items):
+            return None
+        f = items[n]
+        name = (data.get("name") or "").strip()
+        text = (self.t(f["text"], lang).replace("{name}", f" {name}" if name else "")
+                .replace("{name_comma}", f"{name}, " if name else ""))
+        btns = self.buttons(f.get("buttons", []), lang)
+        return FlowReply(text, "buttons" if btns else "none", btns, route=f"followup:{n + 1}")
+
+    def followup_hours(self, n: int) -> float | None:
+        items = self.c.get("followups") or []
+        return float(items[n]["after_hours"]) if n < len(items) else None
+
     def _find(self, section: str, item_id: str) -> dict | None:
         return next((x for x in self.c[section] if x["id"] == item_id), None)
 
@@ -212,7 +237,7 @@ class Flows:
     @staticmethod
     def _summary(data: dict) -> str:
         parts = [data.get("concern"), data.get("duration") and f"for {data['duration']}",
-                 data.get("preferred_time") and f"prefers {data['preferred_time']}"]
+                 data.get("preferred_time") and f"prefers {data['preferred_time']}", data.get("scheme")]
         return ", ".join(p for p in parts if p) + " (via menu)"
 
     def _set(self, data: dict, **fields) -> dict:
@@ -261,11 +286,21 @@ class Flows:
                 return self.answer(val, lang)
             if action == "other":
                 return self.answer("other", lang)
+            if action == "scheme":
+                return self.scheme_answer(lang)
             if action in ("book", "problem"):
                 return await self.next_step(data, lang, "book")
             if action == "callback":
                 return await self.next_step(data, lang, "callback")
             return self.menu(lang)
+        if kind == "scheme":  # eligibility answer, then straight into booking
+            label = "has scheme card" if val == "card" else "not sure about scheme"
+            prefix = self.t(self.c["prompts"]["scheme_card" if val == "card" else "scheme_unknown"], lang)
+            upd = {"scheme": label}
+            r = await self.next_step(data | upd, lang, "book", prefix=prefix)
+            r.updates = upd | r.updates
+            r.route = f"scheme:{val}"
+            return r
         if kind == "concern":
             item = self._find("concerns", val)
             if not item:

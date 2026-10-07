@@ -72,7 +72,7 @@
 ## 2b. Why patients choose Dr. Lahoti (use these to build trust; all from the website or owner)
 - **Specialist focus:** a Varicose Veins Specialist and Endovascular Surgeon, with 9+ years in Interventional Radiology, Vascular Doppler and Endovascular & Vascular Surgery.
 - **Experience:** 1000+ patients treated, from routine to complex cases.
-- **Government scheme assistance:** the clinic helps eligible patients get treatment under government health schemes. Specific schemes and eligibility: [TO BE FILLED]. Until then, say the clinic team will check eligibility and guide them on the call.
+- **Free treatment under government schemes (from the clinic owner):** for eligible patients, varicose vein treatment, including the laser procedure, admission and medicines, can be **free of cost** under government health schemes (e.g. Ayushman Bharat / MJPJAY). The clinic team checks eligibility and handles the paperwork. Which schemes, exact coverage and documents: [TO BE CONFIRMED]. Until then, say documents are usually the scheme card, Aadhaar and ration card, and the team will confirm on the call. Never promise a particular person is eligible.
 - **Strong training:** MBBS (Nair Hospital, Mumbai), MD Radiology (Nagpur), Vascular & Interventional Radiology (Sion Hospital, Mumbai), Chemoembolization training at Tata Memorial Hospital. Selected for an international observership fellowship at Johns Hopkins Hospital, USA (2020).
 - **Modern, minimally invasive treatment:** Endovenous LASER, VenaSeal™ glue and MOCA. Done through a small puncture, with no big cut or stitches.
 - **Day-care:** most patients walk home the same day or the next day and resume daily activities. No bed rest needed.

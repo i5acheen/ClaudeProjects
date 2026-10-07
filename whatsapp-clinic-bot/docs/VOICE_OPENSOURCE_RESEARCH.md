@@ -52,6 +52,40 @@ Estimated cost per minute (vs Bolna ₹5.5):
 
 **Fully self-hosted (Option C)** = Pipecat + IndicConformer + Indic Parler-TTS + Sarvam 30B on our own GPU. That's about ₹20–60k/month for the server, so it's only worth it at very high volume or when data must stay on our own servers.
 
+## 5. Bolna open source (github.com/bolna-ai/bolna): checked in detail
+Looked at the code itself on 7 Oct 2026:
+- **License:** MIT. **Very active:** commits on the same day as this check.
+- **Same engine as hosted Bolna:** the agent settings and Neha prompt we tuned on platform.bolna.ai carry over. The config is the same agent JSON (welcome message, prompt, transcriber, synthesizer, engine settings).
+- **Built-in Indian phone providers:** Plivo, **Exotel, Vobiz**, Twilio, plus a generic **SIP trunk** and **FreeSWITCH**.
+- **Speech:** Sarvam STT and TTS (incl. live Marathi/Hindi switching), Azure (free tier), Google, ElevenLabs, Smallest, and others. There's also a **"realtime transcriber" for self-hosted ASR** (e.g. IndicConformer later).
+- **LLM:** via LiteLLM, so Groq / OpenRouter free models (same as our WhatsApp bot), OpenAI, Gemini, Azure.
+- **Speech-to-speech:** **Gemini Live** and OpenAI Realtime are built in.
+- **Local mic test:** `quickstart_client.py` lets you talk to the agent from a laptop microphone with no phone line (₹0).
+- **Runs as:** Docker Compose with 3–4 containers: bolna-app (agent server, port 5001), Redis (stores agents), a Plivo or Twilio call server, and ngrok (only for local testing).
+
+**Missing compared with hosted Bolna:**
+- No dashboard: no Call History UI, recordings viewer or extraction screen. Agents are created and calls placed through a simple REST API.
+- We'd log call results into our own DB, Sheet and email from the call transcript, using code we already have.
+- No WhatsApp-calling transport (Pipecat has one).
+- Smaller community and thinner docs than Pipecat.
+
+### Verdict: Bolna OSS vs Pipecat for us
+| | Bolna OSS | Pipecat |
+|---|---|---|
+| Move the tuned Neha agent over | **Easiest** (same engine and settings) | Rebuild and re-tune |
+| Indian phone lines (Plivo/Exotel/Vobiz) | **Built in** | Plivo/Exotel via serializers |
+| Free WhatsApp inbound calls | No | **Yes** |
+| Gemini Live / Sarvam / free LLMs | Yes | Yes |
+| Dashboard | No (we build simple logging) | No |
+| Community / docs | Smaller | Larger |
+
+**Recommendation:** use **Bolna OSS for the phone follow-up calls** (the main goal).
+- The pilot tuning carries over directly.
+- Indian providers (Vobiz/Plivo at about ₹0.38/min) are built in.
+- Add free WhatsApp inbound calls later with a small Pipecat service, only if patients actually use the 📞 button.
+
+Source: [bolna-ai/bolna on GitHub](https://github.com/bolna-ai/bolna)
+
 ## Sources
 - Frameworks: [Plivo: LiveKit/Pipecat/TEN](https://www.plivo.com/blog/how-to-build-a-voice-ai-agent-livekit-pipecat-ten-or-native/), [Micdrop 2026 comparison](https://micdrop.dev/blog/open-source-voice-agent-frameworks), [Pipecat vs LiveKit vs Bolna](https://www.thinnest.ai/blog/open-source-voice-ai-frameworks), [Soniox wiki](https://soniox.com/wiki/voice-agent-frameworks)
 - Pipecat WhatsApp calling: [docs](https://docs.pipecat.ai/server/services/transport/whatsapp), [guide](https://docs.pipecat.ai/guides/features/whatsapp)

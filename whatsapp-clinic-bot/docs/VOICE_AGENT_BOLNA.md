@@ -156,3 +156,41 @@ Keep the API key out of chat.
 ## Before going beyond the pilot
 - Get the clinic to confirm the scheme names and coverage, OPD hours, and the admission instructions. Then add them to the prompt.
 - Telecom compliance: automated calls must be declared to your telephony provider (TRAI, Sep 2026). Use a properly registered number (not Bolna's test line) and keep consent records.
+
+---
+
+## Tuning after the first test calls (voice changes, no pauses, poor listening)
+
+**1. Voice changes mid-call.** Cause: Bolna treats Marathi and Hindi as look-alike languages and auto-switches between them, and each language can have a different voice.
+- Languages tab → set switching to **"the caller requested for it"**.
+- Use the **same voice** (e.g. `priya`) for both Marathi and Hindi.
+- For the first round of tests, it's simplest to **remove Hindi** and test Marathi only. Add Hindi back later.
+
+**2. Agent doesn't pause / talks over the patient.** Engine tab:
+- Response Rate → **Custom**.
+- **Linear Delay: 600–800 ms.** Older and rural callers pause mid-sentence. Raise it until the agent stops cutting in.
+- **Endpointing** (only shown for some transcribers): 300–400 ms.
+- **Interruption threshold: 2–3 words**, so a cough or "हं" doesn't stop the agent, but a real sentence does.
+- **User online detection ON**, after **10 s**: "हॅलो, तुम्ही ऐकताय का?"
+- **Hangup on user silence: 15 s** (not 6–10), because patients may go to fetch a ration card.
+
+**3. Mishears the patient.** Languages tab → transcriber:
+- Sarvam **saaras:v4** with language set to **Marathi (mr)**, not auto-detect.
+- Add keywords: `Lahoti, Century, varicose, व्हेरिकोज, शिरा, सूज, योजना, रेशन कार्ड, आयुष्मान, महात्मा फुले, लेझर, संभाजीनगर, औरंगाबाद`
+- Test from a quiet room on a mobile network, not speakerphone.
+- If it still mishears, compare one test call each with another transcriber that lists Marathi (check the dropdown), and keep the one with the cleaner transcript in Call History.
+
+**4. Replies too long or rushed.** Voice speed **0.9–0.95**. Add this to the top of the prompt in each language:
+```
+VOICE RULES: Reply in 1 short sentence, max 2 (under 20 words). Ask only one question, then stop and wait.
+If you did not clearly understand, say "माफ करा, परत एकदा सांगाल का?" – never guess.
+Never read lists. Say phone numbers digit by digit in pairs: "छ्याण्णव नव्व्याण्णव, पाच नऊ, तीन शून्य एक".
+Use natural fillers sparingly ("हं", "बरं", "ठीक आहे जी") before answering.
+```
+
+**5. Intelligence tab.**
+- Keep the default preferred LLM (it's part of the flat rate).
+- Temperature low, **0.2–0.3**.
+- Max tokens around **80–100**, so the agent can't give long speeches.
+
+**How to check:** after each change, make one test call. In **Call History**, play the recording and read the transcript side by side. Mishearing shows as wrong words in the transcript; interrupting shows as the agent's reply starting before your sentence ends.

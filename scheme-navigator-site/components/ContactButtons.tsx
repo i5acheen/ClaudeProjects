@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MessageCircle, Phone, PhoneCall } from 'lucide-react';
+import { Bot, MessageCircle, Phone, PhoneCall } from 'lucide-react';
 import type { I18n } from '@/lib/i18n';
 import { telHref } from '@/content/site';
 import { href } from '@/lib/routes';
@@ -23,9 +23,18 @@ export function ContactButtons({
   return (
     <div className={`flex flex-col gap-3 sm:flex-row sm:flex-wrap ${className}`}>
       <WhatsAppLink
+        message={t('whatsappMessage.default')}
+        src={src}
+        target="bot"
+        className="btn btn-whatsapp btn-lg"
+      >
+        <Bot className="size-5" aria-hidden />
+        {t('common.whatsappBot')}
+      </WhatsAppLink>
+      <WhatsAppLink
         message={message ?? t('whatsappMessage.default')}
         src={src}
-        className="btn btn-whatsapp btn-lg"
+        className="btn btn-whatsapp-outline btn-lg"
       >
         <MessageCircle className="size-5" aria-hidden />
         {t('common.whatsapp')}

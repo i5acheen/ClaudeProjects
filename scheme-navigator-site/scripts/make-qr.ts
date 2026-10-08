@@ -1,8 +1,8 @@
 /**
  * Make printable QR codes (PNG + SVG) for posters, camps and ration-shop notices.
  *
- *   npm run qr -- --url https://example.org/mr/get-help --src camp-hadapsar-oct
- *   npm run qr -- --url https://example.org/c/sample-camp-hadapsar --name hadapsar-poster
+ *   npm run qr -- --url https://example.org/mr/get-help --src camp-cidco-oct
+ *   npm run qr -- --url https://example.org/c/sample-camp-sambhajinagar --name sambhajinagar-poster
  *
  * Options:
  *   --url   page to open (required)
@@ -31,7 +31,7 @@ if (!url) {
   process.exit(1);
 }
 if (src && !/^[a-z0-9-]+$/i.test(src)) {
-  console.error('--src may only contain letters, digits and dashes, e.g. camp-hadapsar-oct');
+  console.error('--src may only contain letters, digits and dashes, e.g. camp-cidco-oct');
   process.exit(1);
 }
 

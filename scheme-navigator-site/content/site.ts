@@ -25,13 +25,16 @@ export const site = {
   phone: envOr(process.env.NEXT_PUBLIC_PHONE, '[PHONE]'),
   email: envOr(process.env.NEXT_PUBLIC_EMAIL, '[EMAIL]'),
   address: '[OFFICE ADDRESS]',
-  /** Desk hours shown to visitors, e.g. "9 am to 9 pm, all days". */
-  callbackHours: '[CALLBACK HOURS]',
-  /** "We will call you within X working hours". */
-  callbackWithinHours: '[X]',
+  /** Desk hours shown to visitors (from the launch blueprint: 9 am – 9 pm, seven days). */
+  callbackHours: {
+    en: '9 am – 9 pm, all days',
+    mr: 'सकाळी 9 ते रात्री 9, सर्व दिवस',
+    hi: 'सुबह 9 से रात 9 बजे, सभी दिन',
+  },
+  /** WhatsApp bot (automated assistant) number, digits only with country code. */
+  whatsappBot: envOr(process.env.NEXT_PUBLIC_WHATSAPP_BOT_NUMBER, '[WHATSAPP BOT NUMBER]'),
   /** Districts served at launch (also the form dropdown). Edit names in all three languages. */
   districts: [
-    { id: 'pune', en: 'Pune', mr: 'पुणे', hi: 'पुणे' },
     {
       id: 'chhatrapati-sambhajinagar',
       en: 'Chhatrapati Sambhajinagar (Aurangabad)',

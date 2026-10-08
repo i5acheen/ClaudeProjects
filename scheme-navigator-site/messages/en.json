@@ -56,7 +56,9 @@
     "rightsReserved": "All rights reserved.",
     "back": "Back",
     "tollFree": "toll-free",
-    "opensNewTab": "(opens in a new tab)"
+    "opensNewTab": "(opens in a new tab)",
+    "whatsappBot": "Chat with our WhatsApp assistant",
+    "whatsappBotShort": "Assistant"
   },
   "whatsappMessage": {
     "default": "Hello, I want help with a government health scheme.",
@@ -163,7 +165,7 @@
     "pmjay": {
       "name": "PM-JAY + Mahatma Phule Jan Arogya Yojana",
       "short": "Cashless treatment up to {coverPerFamily} per family per year at empanelled hospitals.",
-      "metaTitle": "Ayushman card and Mahatma Phule Jan Arogya Yojana help in Pune",
+      "metaTitle": "Ayushman card and Mahatma Phule Jan Arogya Yojana help in Chhatrapati Sambhajinagar",
       "metaDescription": "Free help to check your cover under PM-JAY and MJPJAY in Maharashtra: up to {coverPerFamily} cashless treatment per family per year. Free for patients.",
       "intro": "In Maharashtra, Ayushman Bharat PM-JAY and the Mahatma Jyotirao Phule Jan Arogya Yojana work together as one scheme. It gives cashless treatment at empanelled hospitals.",
       "who": [
@@ -206,7 +208,7 @@
     "vay": {
       "name": "Ayushman Vay Vandana (70+)",
       "short": "Everyone aged {vayVandanaAge}+ is covered for up to {vayVandanaCover} a year, whatever their income.",
-      "metaTitle": "Ayushman Vay Vandana card help for seniors 70+ in Pune",
+      "metaTitle": "Ayushman Vay Vandana card help for seniors 70+ in Chhatrapati Sambhajinagar",
       "metaDescription": "Free help for seniors aged 70+ to enrol in Ayushman Vay Vandana: up to {vayVandanaCover} a year, any income. Free for patients.",
       "intro": "Ayushman Vay Vandana started on {vayVandanaLaunched}. It covers senior citizens aged {vayVandanaAge} and above.",
       "who": [
@@ -522,7 +524,7 @@
         },
         {
           "h": "Law",
-          "p": "These terms are governed by the laws of India. [JURISDICTION — e.g. courts in Pune]."
+          "p": "These terms are governed by the laws of India. [JURISDICTION — e.g. courts in Chhatrapati Sambhajinagar]."
         }
       ]
     },
@@ -572,7 +574,7 @@
     "thanksTitle": "Thank you. We have your request.",
     "leadIdLabel": "Your reference number",
     "leadIdHint": "Please note this number. Say it when we call or when you message us.",
-    "callbackPromise": "We will call you within {callbackWithinHours} working hours. Our hours: {callbackHours}.",
+    "callbackPromise": "We will call you back within 5 minutes during working hours ({callbackHours}). Outside these hours, we will call you the next morning.",
     "whatsappNow": "Message us on WhatsApp now",
     "patient": {
       "title": "Request a free callback",
@@ -665,7 +667,7 @@
     "home": "Go to home page"
   },
   "meta": {
-    "homeTitle": "Free help with Ayushman card and government health schemes in Pune",
+    "homeTitle": "Free help with Ayushman card and government health schemes in Chhatrapati Sambhajinagar",
     "homeDescription": "Free help to check your cover, get your Ayushman / Mahatma Phule Jan Arogya Yojana card and papers ready, and reach an empanelled hospital. Free for patients — always.",
     "howDescription": "From your first call to hospital admission: how {business} helps you use government health schemes. Free for patients.",
     "schemesDescription": "Simple guides to PM-JAY, Mahatma Phule Jan Arogya Yojana, Ayushman Vay Vandana and free beds in charitable hospitals in Maharashtra.",

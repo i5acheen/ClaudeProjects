@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { whatsappHref } from '@/lib/whatsapp';
+import { whatsappHref, type WhatsAppTarget } from '@/lib/whatsapp';
 import { readSource } from '@/lib/source';
 
 /** WhatsApp click-to-chat link with a prefilled message tagged with the visit's source. */
@@ -11,6 +11,7 @@ export function WhatsAppLink({
   className,
   children,
   ariaLabel,
+  target = 'desk',
 }: {
   message: string;
   /** Force a source tag (e.g. a camp page). Otherwise the stored visit source is used. */
@@ -18,6 +19,8 @@ export function WhatsAppLink({
   className?: string;
   children: ReactNode;
   ariaLabel?: string;
+  /** 'bot' opens the WhatsApp assistant instead of the desk number. */
+  target?: WhatsAppTarget;
 }) {
   const [tag, setTag] = useState(src);
   useEffect(() => {
@@ -28,7 +31,7 @@ export function WhatsAppLink({
   }, [src]);
   return (
     <a
-      href={whatsappHref(message, tag)}
+      href={whatsappHref(message, tag, target)}
       className={className}
       target="_blank"
       rel="noopener noreferrer"

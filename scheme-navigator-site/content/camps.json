@@ -2,21 +2,21 @@
   "_help": "One object per camp. slug = URL part (/mr/camps/<slug>, short link /c/<slug>). src = tag stored with every enquiry from this camp's QR code. date = YYYY-MM-DD. district = an id from content/site.ts. Text fields need en, mr and hi. Past camps hide automatically.",
   "camps": [
     {
-      "slug": "sample-camp-hadapsar",
-      "src": "camp-hadapsar-sample",
+      "slug": "sample-camp-sambhajinagar",
+      "src": "camp-sambhajinagar-sample",
       "date": "2026-11-15",
       "timeStart": "10:00",
       "timeEnd": "16:00",
-      "district": "pune",
+      "district": "chhatrapati-sambhajinagar",
       "title": {
         "en": "[SAMPLE CAMP — replace before launch] Scheme help and health check camp",
         "mr": "[SAMPLE CAMP — replace before launch] योजना मदत आणि आरोग्य तपासणी शिबिर",
         "hi": "[SAMPLE CAMP — replace before launch] योजना मदद और स्वास्थ्य जांच शिविर"
       },
       "place": {
-        "en": "[CAMP VENUE], Hadapsar, Pune",
-        "mr": "[CAMP VENUE], हडपसर, पुणे",
-        "hi": "[CAMP VENUE], हडपसर, पुणे"
+        "en": "[CAMP VENUE], Chhatrapati Sambhajinagar",
+        "mr": "[CAMP VENUE], छत्रपती संभाजीनगर",
+        "hi": "[CAMP VENUE], छत्रपति संभाजीनगर"
       },
       "screenings": {
         "en": [
@@ -48,7 +48,7 @@
       },
       "organisedWith": "[PARTNER HOSPITAL — add only after a signed agreement]",
       "contactPhone": "",
-      "mapUrl": "https://maps.google.com/?q=Hadapsar,Pune"
+      "mapUrl": "https://maps.google.com/?q=Chhatrapati+Sambhajinagar"
     }
   ]
 }

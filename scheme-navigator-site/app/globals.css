@@ -139,6 +139,14 @@
   .btn-whatsapp:hover {
     background: var(--color-whatsapp-dark);
   }
+  .btn-whatsapp-outline {
+    border: 2px solid var(--color-whatsapp);
+    color: var(--color-whatsapp-dark);
+    background: #fff;
+  }
+  .btn-whatsapp-outline:hover {
+    background: #ecfdf3;
+  }
   .btn-dark {
     background: var(--color-ink);
     color: #fff;

@@ -70,8 +70,9 @@ hard-code them. Each fact has `value`, `display` (per language), `source` and
 
 ### Business details (`content/site.ts`)
 
-Name, office address, desk hours, "call back within X hours", districts (also the
-form's district dropdown), and `privacyPolicyVersion` (bump it whenever the
+Name, office address, desk hours (in three languages), districts (also the
+form's district dropdown — launch: Chhatrapati Sambhajinagar only; add more as
+`{ id, en, mr, hi }` objects), and `privacyPolicyVersion` (bump it whenever the
 privacy policy text changes — it's stored with every consent).
 Phone, WhatsApp, email and site URL come from environment variables.
 
@@ -90,7 +91,7 @@ Each entry becomes `/{lang}/lp/{slug}` — headline, sub-headline, three points,
 patient form, WhatsApp and call. `src` is stored with every enquiry (a `src` or
 UTM tags in the ad URL take priority). Landing pages are hidden from search engines.
 
-Ad URL example: `https://YOUR-DOMAIN/mr/lp/ayushman-card-help-pune?utm_source=facebook&utm_medium=paid&utm_campaign=oct-pune`
+Ad URL example: `https://YOUR-DOMAIN/mr/lp/ayushman-card-help-sambhajinagar?utm_source=facebook&utm_medium=paid&utm_campaign=oct-sambhajinagar`
 
 ### Translations (`messages/*.json`)
 
@@ -147,7 +148,18 @@ report and any CSR report can trace each person.
 
 Source capture: the first page of a visit stores `src` / `utm_*` (from the URL)
 and the landing page for that browser tab; forms and WhatsApp messages include them.
-WhatsApp messages end with `(src: camp-hadapsar-oct)` so the desk can tag chats too.
+WhatsApp messages end with `(src: camp-cidco-oct)` so the desk can tag chats too.
+
+### WhatsApp: assistant bot and desk
+
+There are two WhatsApp numbers:
+
+- **WhatsApp assistant (bot)** — `NEXT_PUBLIC_WHATSAPP_BOT_NUMBER`. Opened by the
+  "Chat with our WhatsApp assistant" button (hero, scheme, camp, FAQ and landing pages)
+  and by the WhatsApp button in the mobile sticky bar. The prefilled message ends with
+  `(src: …)` so the bot can log the source.
+- **Desk (people)** — `NEXT_PUBLIC_WHATSAPP_NUMBER`. Opened by "WhatsApp us" and by the
+  thank-you / error screens (the message includes the lead ID so a person can follow up).
 
 ---
 
@@ -155,10 +167,10 @@ WhatsApp messages end with `(src: camp-hadapsar-oct)` so the desk can tag chats 
 
 ```bash
 # Camp poster → short camp link (already carries the camp's src)
-npm run qr -- --url https://YOUR-DOMAIN/c/sample-camp-hadapsar --name hadapsar-camp
+npm run qr -- --url https://YOUR-DOMAIN/c/sample-camp-sambhajinagar --name sambhajinagar-camp
 
 # Ration-shop notice → Get help page, tagged
-npm run qr -- --url https://YOUR-DOMAIN/mr/get-help --src ration-shop-kothrud
+npm run qr -- --url https://YOUR-DOMAIN/mr/get-help --src ration-shop-cidco
 ```
 
 PNG (1200 px, prints sharply at A4) and SVG files go to `qr-codes/`. Use a new
@@ -212,9 +224,9 @@ Create a profile and keep **name, address and phone exactly the same** as on the
 
 - **Name:** Maharashtra Health Connect (no extra keywords — Google penalises stuffing)
 - **Category:** e.g. "Health consultant" or "Non-profit organisation" — not "Hospital" or "Government office"
-- **Address / service area:** your office, plus service areas Pune and Chhatrapati Sambhajinagar
+- **Address / service area:** your office, plus service area Chhatrapati Sambhajinagar
 - **Phone / website:** same number as `NEXT_PUBLIC_PHONE`; website = `/mr` home page
-- **Hours:** same as `[CALLBACK HOURS]`
+- **Hours:** same as the site (9 am – 9 pm, all days — `callbackHours` in `content/site.ts`)
 - **Description:** "Independent organisation. Free help for patients to check their PM-JAY /
   Mahatma Phule Jan Arogya Yojana / Vay Vandana cover, get documents ready and reach an
   empanelled hospital. Free for patients — we never ask for money. Not a government office."

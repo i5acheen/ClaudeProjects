@@ -72,7 +72,7 @@ export default async function AboutPage({ params }: PageProps<'/[lang]/about'>) 
           </div>
           <div>
             <dt className="font-bold">{t('common.hoursLabel')}</dt>
-            <dd>{rich(site.callbackHours)}</dd>
+            <dd>{i18n.vars.callbackHours}</dd>
           </div>
         </dl>
         <ContactButtons i18n={i18n} className="mt-8" />

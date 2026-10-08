@@ -2,14 +2,14 @@
   "_help": "One object per ad campaign. URL: /<lang>/lp/<slug>. src is stored with every enquiry (a src in the URL wins). scheme = pmjay-mjpjay | vay-vandana | charitable-hospitals | general. Text needs en, mr and hi. Landing pages are not indexed by search engines.",
   "pages": [
     {
-      "slug": "ayushman-card-help-pune",
-      "src": "lp-ayushman-pune",
+      "slug": "ayushman-card-help-sambhajinagar",
+      "src": "lp-ayushman-sambhajinagar",
       "scheme": "pmjay-mjpjay",
-      "district": "pune",
+      "district": "chhatrapati-sambhajinagar",
       "headline": {
-        "en": "Free help with your Ayushman card in Pune",
-        "mr": "पुण्यात आयुष्मान कार्डसाठी मोफत मदत",
-        "hi": "पुणे में आयुष्मान कार्ड के लिए मुफ़्त मदद"
+        "en": "Free help with your Ayushman card in Chhatrapati Sambhajinagar",
+        "mr": "छत्रपती संभाजीनगरमध्ये आयुष्मान कार्डसाठी मोफत मदत",
+        "hi": "छत्रपति संभाजीनगर में आयुष्मान कार्ड के लिए मुफ़्त मदद"
       },
       "subhead": {
         "en": "Find out if your family is covered for cashless treatment up to {coverPerFamily} a year. We help you check and prepare. You pay nothing.",

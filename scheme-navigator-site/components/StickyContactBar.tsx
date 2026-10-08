@@ -1,9 +1,9 @@
-import { MessageCircle, Phone } from 'lucide-react';
+import { Bot, Phone } from 'lucide-react';
 import type { I18n } from '@/lib/i18n';
 import { telHref } from '@/content/site';
 import { WhatsAppLink } from './WhatsAppLink';
 
-/** Mobile-only sticky bar with WhatsApp and Call. */
+/** Mobile-only sticky bar: WhatsApp (opens the WhatsApp assistant bot) and Call. */
 export function StickyContactBar({ i18n, src }: { i18n: I18n; src?: string }) {
   const { t } = i18n;
   return (
@@ -12,9 +12,10 @@ export function StickyContactBar({ i18n, src }: { i18n: I18n; src?: string }) {
         <WhatsAppLink
           message={t('whatsappMessage.default')}
           src={src}
+          target="bot"
           className="btn btn-whatsapp !min-h-13 !px-3"
         >
-          <MessageCircle className="size-5" aria-hidden />
+          <Bot className="size-5" aria-hidden />
           {t('common.whatsappShort')}
         </WhatsAppLink>
         <a href={telHref()} className="btn btn-dark !min-h-13 !px-3">

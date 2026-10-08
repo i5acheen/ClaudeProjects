@@ -37,6 +37,7 @@ for (const file of files) {
 const requiredEnv = [
   'NEXT_PUBLIC_SITE_URL',
   'NEXT_PUBLIC_WHATSAPP_NUMBER',
+  'NEXT_PUBLIC_WHATSAPP_BOT_NUMBER',
   'NEXT_PUBLIC_PHONE',
   'NEXT_PUBLIC_EMAIL',
   'SHEET_WEBHOOK_URL',

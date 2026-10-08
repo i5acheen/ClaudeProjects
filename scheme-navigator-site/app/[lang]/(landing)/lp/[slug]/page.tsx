@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Check, MessageCircle, Phone } from 'lucide-react';
+import { Bot, Check, MessageCircle, Phone } from 'lucide-react';
 import { getLandingPage, landingPages } from '@/content/content';
 import { site, telHref } from '@/content/site';
 import { interpolate } from '@/lib/i18n';
@@ -75,11 +75,20 @@ export default async function LandingPage({ params }: PageProps<'/[lang]/lp/[slu
                   </li>
                 ))}
               </ul>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <WhatsAppLink
                   message={t('whatsappMessage.default')}
                   src={page.src}
+                  target="bot"
                   className="btn btn-whatsapp btn-lg"
+                >
+                  <Bot className="size-5" aria-hidden />
+                  {t('common.whatsappBot')}
+                </WhatsAppLink>
+                <WhatsAppLink
+                  message={t('whatsappMessage.default')}
+                  src={page.src}
+                  className="btn btn-whatsapp-outline btn-lg"
                 >
                   <MessageCircle className="size-5" aria-hidden />
                   {t('common.whatsapp')}

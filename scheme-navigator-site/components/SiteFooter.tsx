@@ -67,7 +67,7 @@ export function SiteFooter({ i18n }: { i18n: I18n }) {
               </div>
               <div>
                 <dt className="inline font-semibold text-ink">{t('common.hoursLabel')}: </dt>
-                <dd className="inline">{rich(site.callbackHours)}</dd>
+                <dd className="inline">{vars.callbackHours}</dd>
               </div>
               <div>
                 <dt className="inline font-semibold text-ink">{t('common.areaLabel')}: </dt>

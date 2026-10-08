@@ -75,7 +75,7 @@ export default async function ForHospitalsPage({ params }: PageProps<'/[lang]/fo
         </div>
         <p className="mt-6 text-base text-muted">{rich(t('hospitals.partnerPlaceholder'))}</p>
       </Section>
-      <Section className="border-t border-line">
+      <Section tone="mist">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
           <div className="card card-plain sm:p-8">
             <p className="mb-4 text-muted">{t('hospitals.formLead')}</p>

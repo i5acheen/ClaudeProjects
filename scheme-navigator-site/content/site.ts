@@ -24,7 +24,8 @@ export const site = {
   /** As dialled, e.g. +919876543210 */
   phone: envOr(process.env.NEXT_PUBLIC_PHONE, '[PHONE]'),
   email: envOr(process.env.NEXT_PUBLIC_EMAIL, '[EMAIL]'),
-  address: '[OFFICE ADDRESS]',
+  // DUMMY — replace with the real office address (must match Google Business Profile).
+  address: 'Office 12, Sample Plaza, CIDCO N-1, Chhatrapati Sambhajinagar 431003',
   /** Desk hours shown to visitors (from the launch blueprint: 9 am – 9 pm, seven days). */
   callbackHours: {
     en: '9 am – 9 pm, all days',

@@ -34,6 +34,18 @@ for (const file of files) {
   });
 }
 
+// Dummy content used for the preview. Never fails the build, but is listed so it isn't forgotten.
+const DUMMY_MARKERS = ['Sample Plaza', 'sample-camp-', "LAST_VERIFIED = '2026-10-08'"];
+const dummies = [];
+for (const file of files) {
+  const text = readFileSync(join(root, file), 'utf8');
+  for (const m of DUMMY_MARKERS) if (text.includes(m)) dummies.push(`${m}  (${file})`);
+}
+if (dummies.length) {
+  console.warn(`\n⚠️  ${dummies.length} DUMMY value(s) to replace before launch:`);
+  dummies.forEach((d) => console.warn(`   ${d}`));
+}
+
 const requiredEnv = [
   'NEXT_PUBLIC_SITE_URL',
   'NEXT_PUBLIC_WHATSAPP_NUMBER',
@@ -53,8 +65,10 @@ const allowed = Boolean(process.env.ALLOW_PLACEHOLDERS);
 
 if (found.size || missingEnv.length) {
   const log = isProd && !allowed ? console.error : console.warn;
-  log(`\n⚠️  ${found.size} placeholder(s) remain:`);
-  for (const [key, where] of found) log(`   ${key}  (${where.length}×, e.g. ${where[0]})`);
+  if (found.size) {
+    log(`\n⚠️  ${found.size} placeholder(s) remain:`);
+    for (const [key, where] of found) log(`   ${key}  (${where.length}×, e.g. ${where[0]})`);
+  }
   if (missingEnv.length) log(`⚠️  Missing env vars: ${missingEnv.join(', ')}`);
   if (isProd && !allowed) {
     console.error(

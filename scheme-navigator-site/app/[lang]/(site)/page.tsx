@@ -38,6 +38,17 @@ export async function generateMetadata({ params }: PageProps<'/[lang]'>): Promis
   });
 }
 
+/** "Free treatment … — we help you use it": the part after the dash gets the lavender highlight (as on the reference site). */
+function highlightAfterDash(title: string) {
+  const i = title.indexOf(' — ');
+  if (i === -1) return title;
+  return (
+    <>
+      {title.slice(0, i)} — <span className="highlight">{title.slice(i + 3)}</span>
+    </>
+  );
+}
+
 const stepIcons = [ClipboardCheck, FileCheck2, Building2];
 const whoIcons = [Users, UserRound, HandHeart];
 const schemeIcons = [ShieldCheck, UserRound, Landmark];
@@ -54,12 +65,12 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
+      <section className="relative overflow-hidden bg-white">
         <div className="container-x grid items-center gap-10 pt-10 pb-10 sm:pt-20 sm:pb-16 lg:grid-cols-[1.5fr_1fr]">
           <div>
             <p className="eyebrow">{rich(t('home.eyebrow'))}</p>
             <h1 className="mt-3 max-w-4xl text-[2.1rem] font-bold tracking-tight text-ink sm:text-6xl">
-              {t('home.title')}
+              {highlightAfterDash(t('home.title'))}
             </h1>
             <p className="mt-5 max-w-2xl text-lg text-muted sm:text-xl">{t('home.lead')}</p>
             <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-warm-100 px-4 py-2 font-semibold text-warm-800">
@@ -85,7 +96,7 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
                 </li>
               );
             })}
-            <li className="flex items-center gap-4 rounded-3xl bg-warm-50 p-5 ring-1 ring-warm-200">
+            <li className="flex items-center gap-4 rounded-3xl bg-brand-50 p-5 ring-1 ring-brand-200">
               <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white text-warm-700">
                 <BadgeIndianRupee className="size-6" />
               </span>
@@ -110,12 +121,12 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
       </section>
 
       {/* Three steps */}
-      <Section title={t('home.stepsTitle')}>
+      <Section title={t('home.stepsTitle')} tone="mist">
         <ol className="grid gap-4 md:grid-cols-3">
           {steps.map((step, i) => {
             const Icon = stepIcons[i] ?? ClipboardCheck;
             return (
-              <li key={step.title} className="card">
+              <li key={step.title} className="card bg-white">
                 <div className="flex items-center gap-3">
                   <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white text-brand-700 ring-1 ring-brand-200">
                     <Icon className="size-6" aria-hidden />
@@ -137,11 +148,7 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
       </Section>
 
       {/* Schemes */}
-      <Section
-        title={t('home.schemesTitle')}
-        lead={t('home.schemesLead')}
-        className="border-t border-line"
-      >
+      <Section title={t('home.schemesTitle')} lead={t('home.schemesLead')}>
         <ul className="grid gap-4 md:grid-cols-3">
           {schemeSlugs.map((slug, i) => {
             const Icon = schemeIcons[i];
@@ -168,12 +175,12 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
       </Section>
 
       {/* Who we help */}
-      <Section title={t('home.whoTitle')}>
+      <Section title={t('home.whoTitle')} tone="mist">
         <ul className="grid gap-4 md:grid-cols-3">
           {who.map((w, i) => {
             const Icon = whoIcons[i] ?? Users;
             return (
-              <li key={w.title} className="card card-warm">
+              <li key={w.title} className="card bg-white">
                 <Icon className="size-8 text-warm-700" aria-hidden />
                 <h3 className="mt-3 text-xl font-bold">{w.title}</h3>
                 <p className="mt-1 text-muted">{w.text}</p>
@@ -184,11 +191,7 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
       </Section>
 
       {/* Camps */}
-      <Section
-        title={t('home.campsTitle')}
-        lead={t('home.campsLead')}
-        className="border-t border-line"
-      >
+      <Section title={t('home.campsTitle')} lead={t('home.campsLead')}>
         {camps.length ? (
           <ul className="grid gap-4 md:grid-cols-3">
             {camps.map((camp) => (
@@ -221,12 +224,12 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
 
       {/* Final CTA */}
       <Section>
-        <div className="rounded-[2rem] bg-brand-800 p-6 text-white sm:p-10">
+        <div className="rounded-[2rem] bg-navy p-6 text-white sm:p-10">
           <h2 className="text-2xl font-bold sm:text-3xl">{t('home.ctaTitle')}</h2>
-          <p className="mt-2 max-w-2xl text-brand-100">{t('home.ctaText')}</p>
+          <p className="mt-2 max-w-2xl text-white/70">{t('home.ctaText')}</p>
           <Link
             href={href(lang, '/get-help')}
-            className="btn btn-lg mt-6 bg-white text-brand-800 hover:bg-brand-50"
+            className="btn btn-lg mt-6 bg-white text-ink hover:bg-brand-100"
           >
             {t('common.requestCallback')}
           </Link>

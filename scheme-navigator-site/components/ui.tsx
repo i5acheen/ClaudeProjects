@@ -13,7 +13,7 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <section className="bg-gradient-to-b from-brand-50 to-white">
+    <section className="border-b border-line bg-white">
       <div className="container-x pt-10 pb-8 sm:pt-16 sm:pb-12">
         {eyebrow && <p className="eyebrow">{rich(eyebrow)}</p>}
         <h1 className="mt-2 max-w-3xl text-[2rem] font-bold tracking-tight text-ink sm:text-5xl">
@@ -32,18 +32,23 @@ export function Section({
   children,
   className = '',
   id,
+  tone = 'white',
 }: {
   title?: string;
   lead?: string;
   children: ReactNode;
   className?: string;
   id?: string;
+  /** Full-width background, alternating white / mist like the reference site. */
+  tone?: 'white' | 'mist';
 }) {
   return (
-    <section id={id} className={`container-x py-8 sm:py-12 ${className}`}>
-      {title && <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">{rich(title)}</h2>}
-      {lead && <p className="mt-2 max-w-2xl text-muted">{rich(lead)}</p>}
-      <div className={title || lead ? 'mt-6' : ''}>{children}</div>
+    <section id={id} className={tone === 'mist' ? 'bg-mist' : ''}>
+      <div className={`container-x py-10 sm:py-16 ${className}`}>
+        {title && <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">{rich(title)}</h2>}
+        {lead && <p className="mt-2 max-w-2xl text-lg text-muted">{rich(lead)}</p>}
+        <div className={title || lead ? 'mt-8' : ''}>{children}</div>
+      </div>
     </section>
   );
 }

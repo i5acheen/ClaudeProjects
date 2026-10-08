@@ -44,7 +44,7 @@ export function ContactButtons({
         {t('common.call')}
       </a>
       {showCallback && (
-        <Link href={href(lang, '/get-help')} className="btn btn-outline btn-lg">
+        <Link href={href(lang, '/get-help')} className="btn btn-primary btn-lg">
           <PhoneCall className="size-5" aria-hidden />
           {t('common.requestCallback')}
         </Link>

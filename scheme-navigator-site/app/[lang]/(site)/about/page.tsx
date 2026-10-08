@@ -48,7 +48,7 @@ export default async function AboutPage({ params }: PageProps<'/[lang]/about'>) 
           </section>
         </div>
       </Section>
-      <Section title={t('common.contactUs')} className="border-t border-line">
+      <Section title={t('common.contactUs')} tone="mist">
         <dl className="grid gap-3 text-lg sm:grid-cols-2">
           <div>
             <dt className="font-bold">{t('common.phoneLabel')}</dt>

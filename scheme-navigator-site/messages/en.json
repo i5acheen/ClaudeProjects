@@ -347,7 +347,7 @@
     ],
     "formTitle": "Talk to us",
     "formLead": "Tell us about your hospital. We will reply soon.",
-    "partnerPlaceholder": "[PARTNER HOSPITAL — add only after a signed agreement]",
+    "partnerPlaceholder": "Partner hospitals will be listed here only after a signed agreement.",
     "metaTitle": "Scheme desk staffing and outreach for empanelled hospitals in Maharashtra",
     "metaDescription": "Arogya Mitra staffing and outreach programmes for PM-JAY / MJPJAY empanelled hospitals. Fixed monthly fees, never per patient."
   },
@@ -400,7 +400,7 @@
     "areaTitle": "Where we work",
     "area": "At launch: {districts}.",
     "teamTitle": "Our team",
-    "team": "[TEAM DETAILS — add real names and roles only]",
+    "team": "Our team is being set up: NHA-trained Arogya Mitras, a tele-counsellor and a field outreach executive, led by the founder.",
     "metaDescription": "{business} is an independent organisation helping patients in Maharashtra use free government health schemes. Free for patients."
   },
   "faq": {
@@ -483,7 +483,7 @@
         },
         {
           "h": "How long we keep it",
-          "p": "[RETENTION PERIOD — e.g. 12 months after your last contact], then we delete it."
+          "p": "We keep it for 12 months after your last contact, then we delete it."
         },
         {
           "h": "Your choices",
@@ -524,7 +524,7 @@
         },
         {
           "h": "Law",
-          "p": "These terms are governed by the laws of India. [JURISDICTION — e.g. courts in Chhatrapati Sambhajinagar]."
+          "p": "These terms are governed by the laws of India. Courts in Chhatrapati Sambhajinagar have jurisdiction.."
         }
       ]
     },

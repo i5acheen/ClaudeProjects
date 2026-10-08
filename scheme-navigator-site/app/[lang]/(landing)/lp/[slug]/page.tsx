@@ -57,7 +57,7 @@ export default async function LandingPage({ params }: PageProps<'/[lang]/lp/[slu
         </div>
       </header>
       <main id="main" tabIndex={-1} className="outline-none">
-        <section className="bg-gradient-to-b from-brand-50 to-white">
+        <section className="bg-white">
           <div className="container-x grid gap-10 py-10 lg:grid-cols-[1fr_1fr] lg:py-16">
             <div>
               <p className="eyebrow">{t('landing.trust')}</p>

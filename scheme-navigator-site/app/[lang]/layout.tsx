@@ -27,7 +27,7 @@ export function generateStaticParams() {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0b6b63',
+  themeColor: '#ffffff',
 };
 
 export async function generateMetadata({ params }: LayoutProps<'/[lang]'>): Promise<Metadata> {

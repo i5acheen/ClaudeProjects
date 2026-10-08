@@ -48,7 +48,7 @@ export function SiteHeader({ i18n }: { i18n: I18n }) {
           </div>
           <Link
             href={href(lang, '/get-help')}
-            className="btn btn-primary hidden !min-h-11 !px-5 !py-2 text-base whitespace-nowrap xl:inline-flex"
+            className="btn btn-dark hidden !min-h-11 !px-5 !py-2 text-base whitespace-nowrap xl:inline-flex"
           >
             {t('nav.getHelp')}
           </Link>

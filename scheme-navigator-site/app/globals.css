@@ -4,30 +4,35 @@
   --font-sans: var(--font-inter), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
   --font-deva: var(--font-devanagari), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
+  /* Palette matches the reference site (ai-automation-website-three.vercel.app). */
   --color-ink: #111827;
   --color-muted: #4b5563;
   --color-line: #e5e7eb;
-  --color-mist: #f8fafb;
+  --color-mist: #f9fafb;
+  --color-navy: #0f172a;
 
-  /* Accent: deep teal (AA on white: 5.5:1 for 700) */
-  --color-brand-50: #effaf8;
-  --color-brand-100: #d5f2ec;
-  --color-brand-200: #a9e3d8;
-  --color-brand-600: #0f7c73;
-  --color-brand-700: #0b6b63;
-  --color-brand-800: #0a564f;
-  --color-brand-900: #083f3b;
+  /* Accent: lavender (600 = 5.6:1 on white, AA) */
+  --color-brand-50: #f5f5ff;
+  --color-brand-100: #ebebff;
+  --color-brand-200: #d9d6ff;
+  --color-brand-300: #b7b1ff;
+  --color-brand-400: #958dff;
+  --color-brand-500: #7b72e8;
+  --color-brand-600: #5b52d6;
+  --color-brand-700: #4a42b8;
+  --color-brand-800: #3b3494;
+  --color-brand-900: #2b2672;
 
-  /* Warm secondary: saffron / clay (700 is AA on white) */
-  --color-warm-50: #fff7ed;
-  --color-warm-100: #ffedd5;
-  --color-warm-200: #fed7aa;
-  --color-warm-600: #c2560c;
-  --color-warm-700: #a3460a;
-  --color-warm-800: #7c3510;
+  /* "warm" now maps to the same lavender family so callouts stay on-palette. */
+  --color-warm-50: #f5f5ff;
+  --color-warm-100: #ebebff;
+  --color-warm-200: #d9d6ff;
+  --color-warm-600: #5b52d6;
+  --color-warm-700: #4a42b8;
+  --color-warm-800: #3b3494;
 
   --color-whatsapp: #0e7a3f;
-  --color-whatsapp-dark: #0b6234;
+  --color-whatsapp-dark: #0b6534;
 }
 
 @layer base {
@@ -62,7 +67,7 @@
     color: inherit;
   }
   :focus-visible {
-    outline: 3px solid var(--color-warm-600);
+    outline: 3px solid var(--color-brand-600);
     outline-offset: 3px;
     border-radius: 6px;
   }
@@ -98,7 +103,7 @@
   .eyebrow {
     font-size: 0.95rem;
     font-weight: 600;
-    color: var(--color-brand-700);
+    color: var(--color-brand-600);
   }
   :lang(en) .eyebrow {
     text-transform: uppercase;
@@ -126,11 +131,11 @@
       color 0.15s;
   }
   .btn-primary {
-    background: var(--color-brand-700);
+    background: var(--color-brand-600);
     color: #fff;
   }
   .btn-primary:hover {
-    background: var(--color-brand-800);
+    background: var(--color-brand-700);
   }
   .btn-whatsapp {
     background: var(--color-whatsapp);
@@ -148,11 +153,11 @@
     background: #ecfdf3;
   }
   .btn-dark {
-    background: var(--color-ink);
+    background: #000;
     color: #fff;
   }
   .btn-dark:hover {
-    background: #000;
+    background: var(--color-ink);
   }
   .btn-outline {
     border: 2px solid var(--color-ink);
@@ -160,7 +165,8 @@
     background: #fff;
   }
   .btn-outline:hover {
-    background: var(--color-mist);
+    background: var(--color-ink);
+    color: #fff;
   }
   .btn-lg {
     min-height: 3.75rem;
@@ -169,12 +175,16 @@
   }
 
   .card {
-    border-radius: 1.75rem;
+    border-radius: 2rem;
     padding: 1.5rem;
     background: var(--color-brand-50);
   }
   .card-warm {
-    background: var(--color-warm-50);
+    background: var(--color-mist);
+    border: 1px solid var(--color-line);
+  }
+  .highlight {
+    color: var(--color-brand-500);
   }
   .card-plain {
     background: #fff;
@@ -220,7 +230,7 @@
     color: var(--color-ink);
   }
   .field:focus {
-    border-color: var(--color-brand-700);
+    border-color: var(--color-brand-600);
     outline: 3px solid var(--color-brand-200);
     outline-offset: 0;
   }

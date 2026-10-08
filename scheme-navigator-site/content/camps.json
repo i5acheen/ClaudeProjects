@@ -1,5 +1,5 @@
 {
-  "_help": "One object per camp. slug = URL part (/mr/camps/<slug>, short link /c/<slug>). src = tag stored with every enquiry from this camp's QR code. date = YYYY-MM-DD. district = an id from content/site.ts. Text fields need en, mr and hi. Past camps hide automatically.",
+  "_help": "One object per camp. slug = URL part (/mr/camps/<slug>, short link /c/<slug>). src = tag stored with every enquiry from this camp's QR code. date = YYYY-MM-DD. district = an id from content/site.ts. Text fields need en, mr and hi. Past camps hide automatically. NOTE: the camp below is DUMMY content for the preview — delete or replace it before launch.",
   "camps": [
     {
       "slug": "sample-camp-sambhajinagar",
@@ -9,14 +9,14 @@
       "timeEnd": "16:00",
       "district": "chhatrapati-sambhajinagar",
       "title": {
-        "en": "[SAMPLE CAMP — replace before launch] Scheme help and health check camp",
-        "mr": "[SAMPLE CAMP — replace before launch] योजना मदत आणि आरोग्य तपासणी शिबिर",
-        "hi": "[SAMPLE CAMP — replace before launch] योजना मदद और स्वास्थ्य जांच शिविर"
+        "en": "Scheme help and health check camp",
+        "mr": "योजना मदत आणि आरोग्य तपासणी शिबिर",
+        "hi": "योजना मदद और स्वास्थ्य जांच शिविर"
       },
       "place": {
-        "en": "[CAMP VENUE], Chhatrapati Sambhajinagar",
-        "mr": "[CAMP VENUE], छत्रपती संभाजीनगर",
-        "hi": "[CAMP VENUE], छत्रपति संभाजीनगर"
+        "en": "Community Hall, CIDCO N-6, Chhatrapati Sambhajinagar",
+        "mr": "सामुदायिक सभागृह, सिडको N-6, छत्रपती संभाजीनगर",
+        "hi": "सामुदायिक भवन, सिडको N-6, छत्रपति संभाजीनगर"
       },
       "screenings": {
         "en": [
@@ -46,9 +46,9 @@
         "mr": ["आधार कार्ड", "रेशन कार्ड", "आधारशी जोडलेला मोबाईल"],
         "hi": ["आधार कार्ड", "राशन कार्ड", "आधार से जुड़ा मोबाइल"]
       },
-      "organisedWith": "[PARTNER HOSPITAL — add only after a signed agreement]",
+      "organisedWith": "",
       "contactPhone": "",
-      "mapUrl": "https://maps.google.com/?q=Chhatrapati+Sambhajinagar"
+      "mapUrl": "https://maps.google.com/?q=CIDCO+N-6,+Chhatrapati+Sambhajinagar"
     }
   ]
 }

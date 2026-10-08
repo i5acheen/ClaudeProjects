@@ -22,7 +22,9 @@ export type Fact = {
   note?: string;
 };
 
-const LAST_VERIFIED = '[LAST VERIFIED DATE]';
+// DUMMY — date of a quick check against public sources, not a full official verification.
+// Re-verify every fact on the official portals before launch and update this date.
+const LAST_VERIFIED = '2026-10-08';
 
 export const facts = {
   // ── Official links ──────────────────────────────────────────────

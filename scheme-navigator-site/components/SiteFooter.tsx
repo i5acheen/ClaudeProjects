@@ -38,7 +38,7 @@ export function SiteFooter({ i18n }: { i18n: I18n }) {
     },
   ];
   return (
-    <footer className="mt-16 border-t border-line bg-mist pb-24 md:pb-0">
+    <footer className="border-t border-line bg-white pb-24 md:pb-0">
       <div className="container-x py-12">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>

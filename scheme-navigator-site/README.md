@@ -208,6 +208,8 @@ PNG (1200 px, prints sharply at A4) and SVG files go to `qr-codes/`. Use a new
 - [ ] Lawyer review of the privacy policy, terms and disclaimer (marked "Draft")
 - [ ] Verify every fact in `content/facts.ts` against official sources; set `lastVerified`
 - [ ] Replace all placeholders (`npm run check:placeholders`); remove `ALLOW_PLACEHOLDERS`
+- [ ] Replace the DUMMY values the build lists (office address in `content/site.ts`, the sample camp,
+      `LAST_VERIFIED` in `content/facts.ts`), plus the dummy team, retention and jurisdiction text
 - [ ] Remove the sample camp; add real camps only with venue permission
 - [ ] Test all three forms on a real Android phone on mobile data
 - [ ] Confirm the WhatsApp and phone numbers work, and the desk sees the `src` tag

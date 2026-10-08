@@ -124,7 +124,7 @@ export default async function SchemePage({ params }: PageProps<'/[lang]/schemes/
         </div>
       </Section>
 
-      <Section title={t('schemes.helpTitle')} className="border-t border-line">
+      <Section title={t('schemes.helpTitle')} tone="mist">
         <p className="max-w-2xl">{t('how.lead')}</p>
         <ContactButtons i18n={i18n} className="mt-6" />
       </Section>

@@ -35,9 +35,8 @@ It runs on our own server using the open-source Bolna engine.
 - [ ] **2.4** Start the server: `uvicorn server:app --port 5001`. Check that http://localhost:5001/health shows `{"ok":true}`.
 - [ ] **2.5** In a second terminal (same folder, venv active):
   ```bash
-  pip install pyaudio sounddevice websockets numpy
-  curl -O https://raw.githubusercontent.com/bolna-ai/bolna/8c6dea525ae1e6ef24ca7f9568eb83c7e272ad5b/local_setup/quickstart_client.py
-  ASSISTANT_ID=neha python quickstart_client.py
+  pip install sounddevice websockets numpy
+  python mic_client.py
   ```
 - [ ] **2.6** I talk to Neha **with headphones on**, about 2 minutes in Marathi. Try these:
   - "हो, बोला"

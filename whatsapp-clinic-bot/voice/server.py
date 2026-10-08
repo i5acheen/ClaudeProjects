@@ -6,7 +6,7 @@ Endpoints:
   POST /plivo/answer/{key}           Plivo asks what to do when the patient picks up -> stream audio to us
   POST /plivo/hangup/{key}           Plivo call-ended callback
   WS   /ws/plivo/{key}               live call audio (Plivo <-> Bolna engine)
-  WS   /chat/v1/{agent_id}           laptop-microphone test (use Bolna's local_setup/quickstart_client.py)
+  WS   /chat/v1/{agent_id}           laptop-microphone test (use voice/mic_client.py)
 
 Secrets come only from environment variables (.env); see .env.example.
 """
@@ -146,12 +146,15 @@ async def plivo_hangup(key: str, request: Request):
 
 # --------------------------------------------------------------------------- live calls
 
-async def _run_call(websocket: WebSocket, io_provider: str, data: dict) -> list[dict]:
+async def _run_call(websocket: WebSocket, io_provider: str, data: dict, web_call: bool = False) -> list[dict]:
     from bolna.agent_manager.assistant_manager import AssistantManager
 
+    # web_call=True is the engine's browser/laptop mode (raw 16 kHz mic in, 24 kHz audio out,
+    # greeting starts after the client's "init" message). Phone calls use the carrier mode.
     manager = AssistantManager(load_agent(io_provider), websocket, AGENT_ID,
                                context_data={"recipient_data": data},
-                               prompt_responses=load_prompts())
+                               prompt_responses=load_prompts(),
+                               is_web_based_call=web_call)
     messages: list[dict] = []
     try:
         async for _, output in manager.run(local=True):
@@ -175,14 +178,14 @@ async def plivo_stream(websocket: WebSocket, key: str):
 
 @app.websocket("/chat/v1/{agent_id}")
 async def mic_test(websocket: WebSocket, agent_id: str):
-    """Laptop-microphone test with Bolna's quickstart_client.py. Disabled unless ENABLE_MIC_TEST=true."""
+    """Laptop-microphone test with voice/mic_client.py. Disabled unless ENABLE_MIC_TEST=true."""
     await websocket.accept()
     if os.getenv("ENABLE_MIC_TEST", "false").lower() != "true":
         await websocket.close()
         return
     data = recipient_data(os.getenv("TEST_PATIENT_NAME", "सचिन"))
     started = time.time()
-    messages = await _run_call(websocket, "default", data)
+    messages = await _run_call(websocket, "default", data, web_call=True)
     await report_call("mic-test", data, messages, time.time() - started)
 
 

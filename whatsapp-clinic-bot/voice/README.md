@@ -18,6 +18,7 @@ voice/
 ├── agent/welcome_mr.txt      # first sentence of every call
 ├── agent_config.py           # loads the above for each call, fills {{patient_name}} etc.
 ├── server.py                 # FastAPI: POST /calls, Plivo callbacks, live audio websocket, mic test
+├── mic_client.py             # laptop microphone client for the ₹0 test
 ├── tests/test_voice.py       # validates the config against the real Bolna engine + server checks
 ├── Dockerfile, requirements.txt, .env.example
 ```
@@ -38,14 +39,16 @@ cd whatsapp-clinic-bot/voice
 python3.11 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env      # fill SARVAM_API_KEY, GOOGLE_API_KEY; set ENABLE_MIC_TEST=true
-uvicorn server:app --port 5001
+python -m uvicorn server:app --port 5001
 ```
 In a second terminal (same folder, venv active):
 ```bash
-pip install pyaudio sounddevice websockets numpy
-curl -O https://raw.githubusercontent.com/bolna-ai/bolna/8c6dea525ae1e6ef24ca7f9568eb83c7e272ad5b/local_setup/quickstart_client.py
-ASSISTANT_ID=neha python quickstart_client.py
+uv pip install sounddevice numpy websockets      # or: pip install …
+python mic_client.py
 ```
+(Bolna's own `quickstart_client.py` no longer works with the current engine, so use our `mic_client.py`.)
+Allow microphone access for Terminal if macOS asks.
+
 **If `python3.11 -m venv .venv` fails at `ensurepip` (common with Homebrew Python on Mac):** use `uv` instead:
 ```bash
 brew install uv

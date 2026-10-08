@@ -137,3 +137,37 @@ def test_no_conversation_outcome_and_report(tmp_path, monkeypatch):
 
 def test_signature():
     assert server.sign(b"abc", "s") == server.sign(b"abc", "s") != server.sign(b"abd", "s")
+
+
+# ---------------------------------------------------------------- mic_client (laptop test client)
+
+def test_mic_client_strips_wav_header():
+    from mic_client import strip_wav_header
+    import struct
+    pcm = b"\x01\x00\x02\x00"
+    wav = b"RIFF" + struct.pack("<I", 36 + len(pcm)) + b"WAVEfmt " + b"\x00" * 20 + b"data" + struct.pack("<I", len(pcm)) + pcm
+    assert strip_wav_header(wav) == pcm
+    assert strip_wav_header(pcm) == pcm
+
+
+def test_mic_client_acks_marks_only_after_audio_played():
+    from mic_client import Player
+    acked = []
+    p = Player(acked.append)
+    p.add_mark("pre")                 # nothing queued -> acknowledged at once
+    assert acked == ["pre"]
+    p.add_audio(b"\x00\x01" * 100)    # 200 bytes
+    p.add_mark("m1")
+    assert acked == ["pre"]           # audio not played yet
+    assert len(p.pull(150)) == 150 and acked == ["pre"]
+    assert len(p.pull(150)) == 50 and acked == ["pre", "m1"]
+
+
+def test_mic_client_clear_drops_pending_audio_and_marks():
+    from mic_client import Player
+    acked = []
+    p = Player(acked.append)
+    p.add_audio(b"\x00\x00" * 10)
+    p.add_mark("m1")
+    p.clear()
+    assert p.pull(100) == b"" and acked == []

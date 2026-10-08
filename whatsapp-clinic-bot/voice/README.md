@@ -6,7 +6,7 @@ on our own server. Same prompt, same Sarvam Marathi voice, about ₹1–1.5/min 
 | Part | What we use | Cost |
 |---|---|---|
 | Call engine | Bolna open source (pinned commit in `requirements.txt`) | free |
-| Listening (STT) | Sarvam `saaras:v4`, Marathi | Sarvam credit (₹1,000 free on sign-up) |
+| Listening (STT) | Sarvam `saaras:v4`, Marathi | Sarvam credit (₹100 free on sign-up ≈ 15–20 two-minute test calls; ~₹30/hr listening + ₹3 per 1,000 chars voice) |
 | Brain (LLM) | Gemini `gemini-3.5-flash-lite` (also used for the end-of-call check and the result summary) | free tier |
 | Voice (TTS) | Sarvam `bulbul:v3`, voice `kavya`, Marathi | Sarvam credit |
 | Phone line | Plivo | ~₹0.38/min + number rental |
@@ -27,8 +27,8 @@ To change what Neha says, edit `agent/neha_prompt_mr.md` or `agent/welcome_mr.tx
 ---
 
 ## Step 1. Accounts and keys (all secrets go in `.env` only; never paste them in chat)
-1. **Sarvam:** sign up at https://dashboard.sarvam.ai → API key → `SARVAM_API_KEY`.
-2. **Gemini:** the key you already use for the WhatsApp bot → `GOOGLE_API_KEY`.
+1. **Sarvam:** sign up at https://dashboard.sarvam.ai → API key → `SARVAM_API_KEY`. The free credit is ₹100; keep **auto top-up off** during testing.
+2. **Gemini:** a **free-tier** key → `GOOGLE_API_KEY`. In AI Studio, check that the key's project shows "Free tier", not a billed or prepaid tier.
 3. **Plivo:** needed only for real phone calls (Step 3). Sign up at https://www.plivo.com, which gives trial credit. Copy Auth ID/Token → `PLIVO_AUTH_ID`, `PLIVO_AUTH_TOKEN`. Buy or rent an Indian number (KYC needed) → `PLIVO_PHONE_NUMBER`. On a trial, calls only go to numbers you verify in Plivo.
 
 ## Step 2. ₹0 test: talk to Neha from your laptop microphone
@@ -46,6 +46,13 @@ pip install pyaudio sounddevice websockets numpy
 curl -O https://raw.githubusercontent.com/bolna-ai/bolna/8c6dea525ae1e6ef24ca7f9568eb83c7e272ad5b/local_setup/quickstart_client.py
 ASSISTANT_ID=neha python quickstart_client.py
 ```
+**If `python3.11 -m venv .venv` fails at `ensurepip` (common with Homebrew Python on Mac):** use `uv` instead:
+```bash
+brew install uv
+rm -rf .venv && uv venv --python 3.11 .venv && source .venv/bin/activate
+uv pip install -r requirements.txt     # and later: uv pip install pyaudio sounddevice websockets numpy
+```
+
 Use headphones so Neha doesn't hear herself. Speak Marathi. When you stop, the call result is saved to `data/calls.jsonl`.
 It records the outcome (booked / call back / not interested…), preferred day and time, scheme card, and a summary.
 

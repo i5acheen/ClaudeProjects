@@ -16,7 +16,7 @@ Prices are from vendor pages or third-party blogs, so verify them before committ
 | Part | Free/open option | Marathi quality | Notes |
 |---|---|---|---|
 | **All-in-one (hears + thinks + speaks)** | **Gemini Live native audio** (gemini-3.8-live / 3.1-flash-live) | Marathi listed (mr / mr-IN). **Must test** | **Free tier** on the Gemini API (limits not published). Paid ≈ $0.023/min (~₹2). Fewest moving parts, very natural turn-taking. Not open source. |
-| STT (hosted) | Sarvam saaras (₹1,000 free credit), **Azure free: 5 h/month** | Sarvam about 8% WER on clean Marathi (vendor claim) | Azure F0 free tier renews every month. |
+| STT (hosted) | Sarvam saaras (₹100 free credit on sign-up), **Azure free: 5 h/month** | Sarvam about 8% WER on clean Marathi (vendor claim) | Azure F0 free tier renews every month. |
 | STT (open) | AI4Bharat **IndicConformer**, **IndicWhisper** (MIT) | Workable; phone audio (8 kHz) adds about 5–10 points of WER | Needs a GPU server to run fast enough for live calls. |
 | TTS (hosted) | Sarvam bulbul (free credit), **Azure free 0.5 M chars/month** (mr-IN Aarohi/Manohar), Google Chirp 3 HD (reportedly 1 M chars free, unverified) | Good | Azure/Google Marathi voices are a bit "announcer"-like; Sarvam sounds more conversational. |
 | TTS (open) | **AI4Bharat Indic Parler-TTS** (Apache) | **Near-human Marathi** in its paper (88 vs 91.8 for human speech) | GPU needed. IndicF5 ranked **last** in a large 2026 listener study, so avoid it. |

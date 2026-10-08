@@ -56,10 +56,16 @@ if (found.size || missingEnv.length) {
   for (const [key, where] of found) log(`   ${key}  (${where.length}×, e.g. ${where[0]})`);
   if (missingEnv.length) log(`⚠️  Missing env vars: ${missingEnv.join(', ')}`);
   if (isProd && !allowed) {
-    console.error('\n✖ Build stopped: replace the placeholders above, or set ALLOW_PLACEHOLDERS=1 for a preview.\n');
+    console.error(
+      '\n✖ Build stopped: replace the placeholders above, or set ALLOW_PLACEHOLDERS=1 for a preview.\n',
+    );
     process.exit(1);
   }
-  log(isProd ? '   (ALLOW_PLACEHOLDERS is set — continuing)\n' : '   (not a production build — continuing)\n');
+  log(
+    isProd
+      ? '   (ALLOW_PLACEHOLDERS is set — continuing)\n'
+      : '   (not a production build — continuing)\n',
+  );
 } else {
   console.log('✓ No placeholders remain and all required env vars are set.');
 }

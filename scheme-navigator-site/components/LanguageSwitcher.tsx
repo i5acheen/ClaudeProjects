@@ -16,7 +16,10 @@ export function LanguageSwitcher({
   const pathname = usePathname() ?? `/${lang}`;
   const rest = pathname.replace(/^\/(mr|hi|en)(?=\/|$)/, '');
   return (
-    <nav aria-label={label} className={`flex items-center rounded-full bg-white ${compact ? 'p-0.5' : 'border border-line p-1'}`}>
+    <nav
+      aria-label={label}
+      className={`flex items-center rounded-full bg-white ${compact ? 'p-0.5' : 'border border-line p-1'}`}
+    >
       {locales.map((l) => (
         <Link
           key={l}

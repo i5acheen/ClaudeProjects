@@ -23,7 +23,9 @@ export function Logo({ name }: { name: string }) {
         <circle cx="20" cy="13" r="2.6" fill="#fff" />
         <circle cx="20" cy="27" r="2.6" fill="#fed7aa" />
       </svg>
-      <span className="text-[1.05rem] leading-tight font-bold text-ink sm:text-lg">{rich(name)}</span>
+      <span className="text-[1.05rem] leading-tight font-bold text-ink sm:text-lg">
+        {rich(name)}
+      </span>
     </span>
   );
 }

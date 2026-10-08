@@ -39,3 +39,8 @@ export const mainNav = [
   { key: 'forHospitals', path: '/for-hospitals' },
   { key: 'forPartners', path: '/for-partners' },
 ] as const;
+
+/** The hospitals page is English by default (Marathi and Hindi stay available via the switcher). */
+export function navHref(lang: Lang, path: string): string {
+  return path === '/for-hospitals' ? href('en', path) : href(lang, path);
+}

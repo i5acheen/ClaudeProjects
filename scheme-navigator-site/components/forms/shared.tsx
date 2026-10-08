@@ -24,7 +24,10 @@ export type ContactInfo = {
   whatsappMessage: string;
 };
 
-export type Rule = { name: string; kind: 'required' | 'mobile' | 'optionalMobile' | 'email' | 'consent' };
+export type Rule = {
+  name: string;
+  kind: 'required' | 'mobile' | 'optionalMobile' | 'email' | 'consent';
+};
 
 function validate(form: HTMLFormElement, rules: Rule[]): Record<string, ErrorKey> {
   const data = new FormData(form);
@@ -48,10 +51,7 @@ function validate(form: HTMLFormElement, rules: Rule[]): Record<string, ErrorKey
 }
 
 type Status =
-  | { state: 'idle' }
-  | { state: 'sending' }
-  | { state: 'error' }
-  | { state: 'done'; leadId: string };
+  { state: 'idle' } | { state: 'sending' } | { state: 'error' } | { state: 'done'; leadId: string };
 
 /** Submit logic shared by all three forms. The form stays mounted on error, so nothing typed is lost. */
 export function useFormSubmit(endpoint: string, rules: Rule[], lang: Lang) {
@@ -108,7 +108,15 @@ export function useFormSubmit(endpoint: string, rules: Rule[], lang: Lang) {
   return { status, errors, onSubmit, summaryRef };
 }
 
-export function FieldError({ id, error, strings }: { id: string; error?: ErrorKey; strings: FormStrings }) {
+export function FieldError({
+  id,
+  error,
+  strings,
+}: {
+  id: string;
+  error?: ErrorKey;
+  strings: FormStrings;
+}) {
   if (!error) return null;
   return (
     <p id={id} className="field-error">
@@ -143,7 +151,8 @@ export function TextField({
   multiline?: boolean;
 }) {
   const id = `f-${name}`;
-  const describedBy = [hint ? `${id}-hint` : '', error ? `${id}-err` : ''].filter(Boolean).join(' ') || undefined;
+  const describedBy =
+    [hint ? `${id}-hint` : '', error ? `${id}-err` : ''].filter(Boolean).join(' ') || undefined;
   const common = {
     id,
     name,
@@ -250,13 +259,7 @@ export function RadioGroup({
       <div className={`grid gap-2 ${grid}`}>
         {options.map((o, i) => (
           <label key={o.value} className="choice">
-            <input
-              type="radio"
-              name={name}
-              value={o.value}
-              id={i === 0 ? id : undefined}
-              aria-invalid={error ? true : undefined}
-            />
+            <input type="radio" name={name} value={o.value} id={i === 0 ? id : undefined} />
             <span>{o.label}</span>
           </label>
         ))}
@@ -360,7 +363,13 @@ export function ErrorPanel({
   );
 }
 
-export function ErrorSummary({ errors, strings }: { errors: Record<string, ErrorKey>; strings: FormStrings }) {
+export function ErrorSummary({
+  errors,
+  strings,
+}: {
+  errors: Record<string, ErrorKey>;
+  strings: FormStrings;
+}) {
   if (!Object.keys(errors).length) return null;
   return (
     <p role="alert" className="rounded-xl bg-red-50 p-3 text-base font-semibold text-red-800">
@@ -419,7 +428,12 @@ export function ThanksPanel({
 
 export function SubmitButton({ sending, strings }: { sending: boolean; strings: FormStrings }) {
   return (
-    <button type="submit" className="btn btn-primary btn-lg w-full sm:w-auto" disabled={sending} aria-busy={sending}>
+    <button
+      type="submit"
+      className="btn btn-primary btn-lg w-full sm:w-auto"
+      disabled={sending}
+      aria-busy={sending}
+    >
       {sending ? strings.sending : strings.submit}
     </button>
   );

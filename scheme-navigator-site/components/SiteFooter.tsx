@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { site, telHref, mailHref } from '@/content/site';
 import type { I18n } from '@/lib/i18n';
 import { rich } from '@/lib/placeholders';
-import { href } from '@/lib/routes';
+import { navHref } from '@/lib/routes';
 import { factText } from '@/content/facts';
 import { Logo } from './Logo';
 
@@ -82,7 +82,7 @@ export function SiteFooter({ i18n }: { i18n: I18n }) {
                 {col.links.map(([key, path]) => (
                   <li key={path}>
                     <Link
-                      href={href(lang, path)}
+                      href={navHref(lang, path)}
                       className="inline-flex min-h-11 items-center text-base text-muted hover:text-ink hover:underline"
                     >
                       {t(`nav.${key}`)}

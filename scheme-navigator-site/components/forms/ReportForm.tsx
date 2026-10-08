@@ -24,20 +24,42 @@ const RULES: Rule[] = [
   { name: 'consent', kind: 'consent' },
 ];
 
-export function ReportForm({ strings, contact, lang }: { strings: FormStrings; contact: ContactInfo; lang: Lang }) {
+export function ReportForm({
+  strings,
+  contact,
+  lang,
+}: {
+  strings: FormStrings;
+  contact: ContactInfo;
+  lang: Lang;
+}) {
   const { status, errors, onSubmit, summaryRef } = useFormSubmit('/api/report', RULES, lang);
   const r = strings.report;
 
   if (status.state === 'done') {
-    return <ThanksPanel title={r.thanksTitle} strings={strings} leadId={status.leadId} contact={contact} />;
+    return (
+      <ThanksPanel
+        title={r.thanksTitle}
+        strings={strings}
+        leadId={status.leadId}
+        contact={contact}
+      />
+    );
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="relative space-y-5" aria-labelledby="report-form-title">
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="relative space-y-5"
+      aria-labelledby="report-form-title"
+    >
       <h2 id="report-form-title" className="text-2xl font-bold">
         {r.title}
       </h2>
-      {status.state === 'error' && <ErrorPanel strings={strings} contact={contact} panelRef={summaryRef} />}
+      {status.state === 'error' && (
+        <ErrorPanel strings={strings} contact={contact} panelRef={summaryRef} />
+      )}
       <ErrorSummary errors={errors} strings={strings} />
       <Honeypot />
       <RadioGroup
@@ -70,7 +92,12 @@ export function ReportForm({ strings, contact, lang }: { strings: FormStrings; c
         autoComplete="tel-national"
         maxLength={16}
       />
-      <ConsentField label={r.consent} strings={strings} error={errors.consent} privacyHref={contact.privacyHref} />
+      <ConsentField
+        label={r.consent}
+        strings={strings}
+        error={errors.consent}
+        privacyHref={contact.privacyHref}
+      />
       <SubmitButton sending={status.state === 'sending'} strings={strings} />
     </form>
   );

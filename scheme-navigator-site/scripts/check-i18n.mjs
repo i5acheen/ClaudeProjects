@@ -45,7 +45,9 @@ for (const lang of ['mr', 'hi']) {
 const list = process.argv.includes('--list');
 for (const [lang, r] of Object.entries(report)) {
   if (r.missing.length) {
-    console.warn(`⚠️  [i18n] ${lang}: ${r.missing.length} string(s) missing (English shown instead):`);
+    console.warn(
+      `⚠️  [i18n] ${lang}: ${r.missing.length} string(s) missing (English shown instead):`,
+    );
     r.missing.slice(0, list ? undefined : 10).forEach((k) => console.warn(`     - ${k}`));
   }
   if (r.unreviewed.length) {
@@ -55,7 +57,10 @@ for (const [lang, r] of Object.entries(report)) {
     if (list) r.unreviewed.forEach((k) => console.warn(`     - ${k}`));
   }
 }
-if (!list) console.warn('   Run `npm run check:i18n -- --list` for every key, or `npm run i18n:export` for a CSV.');
+if (!list)
+  console.warn(
+    '   Run `npm run check:i18n -- --list` for every key, or `npm run i18n:export` for a CSV.',
+  );
 
 if (process.argv.includes('--export')) {
   const esc = (s = '') => `"${String(s).replace(/"/g, '""')}"`;

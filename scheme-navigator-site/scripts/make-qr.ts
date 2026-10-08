@@ -25,7 +25,9 @@ function arg(name: string): string | undefined {
 const url = arg('url');
 const src = arg('src');
 if (!url) {
-  console.error('Usage: npm run qr -- --url <page url> [--src <tag>] [--name <file>] [--out <dir>]');
+  console.error(
+    'Usage: npm run qr -- --url <page url> [--src <tag>] [--name <file>] [--out <dir>]',
+  );
   process.exit(1);
 }
 if (src && !/^[a-z0-9-]+$/i.test(src)) {
@@ -40,7 +42,11 @@ const outDir = arg('out') ?? 'qr-codes';
 const size = Number(arg('size') ?? 1200);
 
 mkdirSync(outDir, { recursive: true });
-const options = { errorCorrectionLevel: 'M' as const, margin: 2, color: { dark: '#000000', light: '#ffffff' } };
+const options = {
+  errorCorrectionLevel: 'M' as const,
+  margin: 2,
+  color: { dark: '#000000', light: '#ffffff' },
+};
 
 const png = await QRCode.toBuffer(target.toString(), { ...options, width: size, type: 'png' });
 writeFileSync(join(outDir, `${name}.png`), png);

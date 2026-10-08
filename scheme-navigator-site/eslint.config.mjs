@@ -5,7 +5,13 @@ const config = [
   ...nextVitals,
   ...nextTs,
   {
-    ignores: ['.next/**', 'node_modules/**', 'next-env.d.ts', 'qr-codes/**', 'scripts/google-apps-script.gs'],
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'next-env.d.ts',
+      'qr-codes/**',
+      'scripts/google-apps-script.gs',
+    ],
   },
 ];
 

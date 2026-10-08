@@ -19,9 +19,27 @@
         "hi": "[CAMP VENUE], हडपसर, पुणे"
       },
       "screenings": {
-        "en": ["Blood pressure", "Blood sugar", "Eye check", "Scheme eligibility check", "Help with Ayushman card"],
-        "mr": ["रक्तदाब", "रक्तातील साखर", "डोळे तपासणी", "योजना पात्रता तपासणी", "आयुष्मान कार्डसाठी मदत"],
-        "hi": ["ब्लड प्रेशर", "ब्लड शुगर", "आंखों की जांच", "योजना पात्रता जांच", "आयुष्मान कार्ड में मदद"]
+        "en": [
+          "Blood pressure",
+          "Blood sugar",
+          "Eye check",
+          "Scheme eligibility check",
+          "Help with Ayushman card"
+        ],
+        "mr": [
+          "रक्तदाब",
+          "रक्तातील साखर",
+          "डोळे तपासणी",
+          "योजना पात्रता तपासणी",
+          "आयुष्मान कार्डसाठी मदत"
+        ],
+        "hi": [
+          "ब्लड प्रेशर",
+          "ब्लड शुगर",
+          "आंखों की जांच",
+          "योजना पात्रता जांच",
+          "आयुष्मान कार्ड में मदद"
+        ]
       },
       "bring": {
         "en": ["Aadhaar card", "Ration card", "Mobile phone linked to Aadhaar"],

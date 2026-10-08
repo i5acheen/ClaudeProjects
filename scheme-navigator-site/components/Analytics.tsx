@@ -69,7 +69,10 @@ export function Analytics({
       <VercelAnalytics />
       {granted && GA_ID && (
         <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+            strategy="afterInteractive"
+          />
           <Script id="ga4" strategy="afterInteractive">
             {gaInit(GA_ID)}
           </Script>
@@ -93,10 +96,18 @@ export function Analytics({
             </Link>
           </p>
           <div className="mt-3 flex gap-2">
-            <button type="button" className="btn btn-primary !min-h-12 flex-1" onClick={() => decide('granted')}>
+            <button
+              type="button"
+              className="btn btn-primary !min-h-12 flex-1"
+              onClick={() => decide('granted')}
+            >
               {accept}
             </button>
-            <button type="button" className="btn btn-outline !min-h-12 flex-1" onClick={() => decide('denied')}>
+            <button
+              type="button"
+              className="btn btn-outline !min-h-12 flex-1"
+              onClick={() => decide('denied')}
+            >
               {decline}
             </button>
           </div>

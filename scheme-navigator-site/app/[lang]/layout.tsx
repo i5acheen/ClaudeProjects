@@ -60,7 +60,14 @@ export default async function RootLayout({ children, params }: LayoutProps<'/[la
     ...(isPlaceholder(site.email) ? {} : { email: site.email }),
     ...(isPlaceholder(site.address)
       ? {}
-      : { address: { '@type': 'PostalAddress', streetAddress: site.address, addressRegion: 'Maharashtra', addressCountry: 'IN' } }),
+      : {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: site.address,
+            addressRegion: 'Maharashtra',
+            addressCountry: 'IN',
+          },
+        }),
     areaServed: site.districts.map((d) => ({ '@type': 'AdministrativeArea', name: d.en })),
     knowsLanguage: ['mr', 'hi', 'en'],
   };

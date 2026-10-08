@@ -59,23 +59,42 @@ export function PatientForm({
 
   if (status.state === 'done') {
     return (
-      <ThanksPanel title={strings.thanksTitle} strings={strings} leadId={status.leadId} contact={contact}>
+      <ThanksPanel
+        title={strings.thanksTitle}
+        strings={strings}
+        leadId={status.leadId}
+        contact={contact}
+      >
         <p className="text-lg">{rich(callbackPromise)}</p>
       </ThanksPanel>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="relative space-y-5" aria-labelledby="patient-form-title">
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="relative space-y-5"
+      aria-labelledby="patient-form-title"
+    >
       <H id="patient-form-title" className="text-2xl font-bold">
         {title ?? p.title}
       </H>
       <p className="rounded-xl bg-brand-50 p-3 font-semibold text-brand-800">{freeNote}</p>
       <p className="rounded-xl bg-warm-50 p-3 text-base text-warm-800">{strings.noDocsNote}</p>
-      {status.state === 'error' && <ErrorPanel strings={strings} contact={contact} panelRef={summaryRef} />}
+      {status.state === 'error' && (
+        <ErrorPanel strings={strings} contact={contact} panelRef={summaryRef} />
+      )}
       <ErrorSummary errors={errors} strings={strings} />
       <Honeypot />
-      <TextField name="name" label={p.name} strings={strings} error={errors.name} required autoComplete="name" />
+      <TextField
+        name="name"
+        label={p.name}
+        strings={strings}
+        error={errors.name}
+        required
+        autoComplete="name"
+      />
       <TextField
         name="mobile"
         label={p.mobile}
@@ -103,7 +122,13 @@ export function PatientForm({
         defaultValue={lang}
         options={locales.map((l) => ({ value: l, label: localeNames[l] }))}
       />
-      <RadioGroup name="who" label={p.who} strings={strings} error={errors.who} options={opts(WHO_OPTIONS, p.whoOptions)} />
+      <RadioGroup
+        name="who"
+        label={p.who}
+        strings={strings}
+        error={errors.who}
+        options={opts(WHO_OPTIONS, p.whoOptions)}
+      />
       <SelectField
         name="helpType"
         label={p.helpType}
@@ -126,7 +151,12 @@ export function PatientForm({
         error={errors.callbackTime}
         options={opts(CALLBACK_OPTIONS, p.callbackOptions)}
       />
-      <ConsentField label={strings.consent} strings={strings} error={errors.consent} privacyHref={contact.privacyHref} />
+      <ConsentField
+        label={strings.consent}
+        strings={strings}
+        error={errors.consent}
+        privacyHref={contact.privacyHref}
+      />
       <SubmitButton sending={status.state === 'sending'} strings={strings} />
     </form>
   );

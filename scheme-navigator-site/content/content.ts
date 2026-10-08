@@ -34,7 +34,7 @@ export const camps = campsData.camps as Camp[];
 export const landingPages = landingData.pages as LandingPage[];
 
 /** Today in India (camps are listed until the end of their day, IST). */
-function todayIST(): string {
+export function todayIST(): string {
   return new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
 }
 
@@ -49,4 +49,8 @@ export function getCamp(slug: string): Camp | undefined {
 
 export function getLandingPage(slug: string): LandingPage | undefined {
   return landingPages.find((p) => p.slug === slug);
+}
+
+export function isPastCamp(camp: Camp): boolean {
+  return camp.date < todayIST();
 }

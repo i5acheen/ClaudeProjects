@@ -16,7 +16,9 @@ export function PageHeader({
     <section className="bg-gradient-to-b from-brand-50 to-white">
       <div className="container-x pt-10 pb-8 sm:pt-16 sm:pb-12">
         {eyebrow && <p className="eyebrow">{rich(eyebrow)}</p>}
-        <h1 className="mt-2 max-w-3xl text-[2rem] font-bold tracking-tight text-ink sm:text-5xl">{rich(title)}</h1>
+        <h1 className="mt-2 max-w-3xl text-[2rem] font-bold tracking-tight text-ink sm:text-5xl">
+          {rich(title)}
+        </h1>
         {lead && <p className="mt-4 max-w-2xl text-lg text-muted sm:text-xl">{rich(lead)}</p>}
         {children}
       </div>

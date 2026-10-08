@@ -1,6 +1,12 @@
 /** Option ids shared by the forms (client) and validation (server). Labels live in messages/*.json. */
 export const WHO_OPTIONS = ['self', 'family', 'senior'] as const;
-export const HELP_OPTIONS = ['check-coverage', 'scheme-card', 'find-hospital', 'doctor-advised', 'other'] as const;
+export const HELP_OPTIONS = [
+  'check-coverage',
+  'scheme-card',
+  'find-hospital',
+  'doctor-advised',
+  'other',
+] as const;
 export const HAS_CARD_OPTIONS = ['yes', 'no', 'not-sure'] as const;
 export const CALLBACK_OPTIONS = ['morning', 'afternoon', 'evening', 'any'] as const;
 export const ORG_OPTIONS = ['hospital', 'csr', 'ngo', 'other'] as const;
@@ -14,7 +20,10 @@ export const ISSUE_OPTIONS = [
 
 /** Indian mobile: optional +91 / 91 / 0 prefix, then 10 digits starting 6–9. */
 export function normaliseMobile(input: string): string | null {
-  const digits = input.replace(/[\s()-]/g, '').replace(/^\+?91(?=\d{10}$)/, '').replace(/^0(?=\d{10}$)/, '');
+  const digits = input
+    .replace(/[\s()-]/g, '')
+    .replace(/^\+?91(?=\d{10}$)/, '')
+    .replace(/^0(?=\d{10}$)/, '');
   return /^[6-9]\d{9}$/.test(digits) ? digits : null;
 }
 

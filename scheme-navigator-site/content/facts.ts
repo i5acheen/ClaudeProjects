@@ -34,7 +34,11 @@ export const facts = {
   },
   linkBeneficiary: {
     value: 'https://beneficiary.nha.gov.in',
-    display: { en: 'beneficiary.nha.gov.in', mr: 'beneficiary.nha.gov.in', hi: 'beneficiary.nha.gov.in' },
+    display: {
+      en: 'beneficiary.nha.gov.in',
+      mr: 'beneficiary.nha.gov.in',
+      hi: 'beneficiary.nha.gov.in',
+    },
     source: 'https://beneficiary.nha.gov.in',
     lastVerified: LAST_VERIFIED,
   },

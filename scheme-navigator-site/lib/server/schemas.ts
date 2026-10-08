@@ -13,16 +13,14 @@ import {
 
 const text = (max: number) => z.string().trim().max(max);
 const requiredText = (max: number) => text(max).min(1, 'required');
-const mobile = z
-  .string()
-  .transform((v, ctx) => {
-    const m = normaliseMobile(v);
-    if (!m) {
-      ctx.addIssue({ code: 'custom', message: 'mobile' });
-      return z.NEVER;
-    }
-    return m;
-  });
+const mobile = z.string().transform((v, ctx) => {
+  const m = normaliseMobile(v);
+  if (!m) {
+    ctx.addIssue({ code: 'custom', message: 'mobile' });
+    return z.NEVER;
+  }
+  return m;
+});
 const optionalMobile = z
   .string()
   .optional()
@@ -74,7 +72,10 @@ export const partnerSchema = z.object({
   contactName: requiredText(80),
   role: text(80).optional().default(''),
   mobile,
-  email: z.union([z.literal(''), z.email('email').max(120)]).optional().default(''),
+  email: z
+    .union([z.literal(''), z.email('email').max(120)])
+    .optional()
+    .default(''),
   city: text(80).optional().default(''),
   message: text(1500).optional().default(''),
 });

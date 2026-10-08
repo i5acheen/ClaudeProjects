@@ -16,7 +16,9 @@ export const site = {
   /** Short name for tight spaces (logo, social cards). */
   shortName: 'Health Connect',
   url: envOr(process.env.NEXT_PUBLIC_SITE_URL, 'https://example.com').replace(/\/$/, ''),
-  domain: envOr(process.env.NEXT_PUBLIC_SITE_URL, '[DOMAIN]').replace(/^https?:\/\//, '').replace(/\/$/, ''),
+  domain: envOr(process.env.NEXT_PUBLIC_SITE_URL, '[DOMAIN]')
+    .replace(/^https?:\/\//, '')
+    .replace(/\/$/, ''),
   /** Digits only, with country code, e.g. 919876543210 */
   whatsapp: envOr(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER, '[WHATSAPP NUMBER]'),
   /** As dialled, e.g. +919876543210 */
@@ -46,7 +48,9 @@ export function isPlaceholder(value: string): boolean {
 }
 
 export function telHref(): string {
-  return isPlaceholder(site.phone) ? '#placeholder-phone' : `tel:${site.phone.replace(/[^\d+]/g, '')}`;
+  return isPlaceholder(site.phone)
+    ? '#placeholder-phone'
+    : `tel:${site.phone.replace(/[^\d+]/g, '')}`;
 }
 
 export function mailHref(): string {

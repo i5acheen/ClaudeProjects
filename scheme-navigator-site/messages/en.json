@@ -219,10 +219,7 @@
         "Treatment at empanelled hospitals.",
         "If your family is already covered, the senior gets extra cover for themselves."
       ],
-      "bring": [
-        "Aadhaar card",
-        "Mobile phone linked to Aadhaar (for OTP)"
-      ],
+      "bring": ["Aadhaar card", "Mobile phone linked to Aadhaar (for OTP)"],
       "how": [
         "Enrol at an empanelled hospital, on the Ayushman app, or on {linkBeneficiary}.",
         "Get your Ayushman Vay Vandana card.",
@@ -278,7 +275,8 @@
           "q": "What if the hospital says no free beds are available?",
           "a": "Ask for it in writing. You can complain to the Charity Commissioner's office. Tell us and we will guide you."
         }
-      ]
+      ],
+      "officialLink": "Charity Commissioner, Maharashtra (official website)"
     }
   },
   "getHelp": {

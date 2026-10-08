@@ -30,7 +30,12 @@ export async function generateMetadata({ params }: PageProps<'/[lang]'>): Promis
   const { lang } = await params;
   if (!isLang(lang)) return {};
   const { t } = getI18n(lang);
-  return pageMetadata({ lang, path: '', title: t('meta.homeTitle'), description: t('meta.homeDescription') });
+  return pageMetadata({
+    lang,
+    path: '',
+    title: t('meta.homeTitle'),
+    description: t('meta.homeDescription'),
+  });
 }
 
 const stepIcons = [ClipboardCheck, FileCheck2, Building2];
@@ -66,12 +71,14 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
         {/* Trust bar */}
         <div className="border-y border-line bg-white">
           <ul className="container-x grid gap-3 py-5 sm:grid-cols-3">
-            {[t('common.freeForPatients'), t('common.independent'), t('common.neverAskMoney')].map((item) => (
-              <li key={item} className="flex items-center gap-3 font-semibold">
-                <ShieldCheck className="size-6 shrink-0 text-brand-700" aria-hidden />
-                {item}
-              </li>
-            ))}
+            {[t('common.freeForPatients'), t('common.independent'), t('common.neverAskMoney')].map(
+              (item) => (
+                <li key={item} className="flex items-center gap-3 font-semibold">
+                  <ShieldCheck className="size-6 shrink-0 text-brand-700" aria-hidden />
+                  {item}
+                </li>
+              ),
+            )}
           </ul>
         </div>
       </section>
@@ -95,13 +102,20 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
             );
           })}
         </ol>
-        <Link href={href(lang, '/how-it-works')} className="link mt-6 inline-flex min-h-12 items-center gap-1">
+        <Link
+          href={href(lang, '/how-it-works')}
+          className="link mt-6 inline-flex min-h-12 items-center gap-1"
+        >
           {t('nav.howItWorks')} <ArrowRight className="size-4" aria-hidden />
         </Link>
       </Section>
 
       {/* Schemes */}
-      <Section title={t('home.schemesTitle')} lead={t('home.schemesLead')} className="border-t border-line">
+      <Section
+        title={t('home.schemesTitle')}
+        lead={t('home.schemesLead')}
+        className="border-t border-line"
+      >
         <ul className="grid gap-4 md:grid-cols-3">
           {schemeSlugs.map((slug, i) => {
             const Icon = schemeIcons[i];
@@ -113,7 +127,9 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
                   className="card card-plain group flex h-full flex-col transition hover:border-brand-600"
                 >
                   <Icon className="size-8 text-brand-700" aria-hidden />
-                  <h3 className="mt-3 text-xl font-bold group-hover:underline">{t(`schemes.${k}.name`)}</h3>
+                  <h3 className="mt-3 text-xl font-bold group-hover:underline">
+                    {t(`schemes.${k}.name`)}
+                  </h3>
                   <p className="mt-2 text-muted">{t(`schemes.${k}.short`)}</p>
                   <span className="mt-auto inline-flex items-center gap-1 pt-4 font-semibold text-brand-700">
                     {t('common.learnMore')} <ArrowRight className="size-4" aria-hidden />
@@ -142,7 +158,11 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
       </Section>
 
       {/* Camps */}
-      <Section title={t('home.campsTitle')} lead={t('home.campsLead')} className="border-t border-line">
+      <Section
+        title={t('home.campsTitle')}
+        lead={t('home.campsLead')}
+        className="border-t border-line"
+      >
         {camps.length ? (
           <ul className="grid gap-4 md:grid-cols-3">
             {camps.map((camp) => (
@@ -154,7 +174,10 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
         ) : (
           <p className="card card-plain">{t('home.noCamps')}</p>
         )}
-        <Link href={href(lang, '/camps')} className="link mt-6 inline-flex min-h-12 items-center gap-1">
+        <Link
+          href={href(lang, '/camps')}
+          className="link mt-6 inline-flex min-h-12 items-center gap-1"
+        >
           {t('home.allCamps')} <ArrowRight className="size-4" aria-hidden />
         </Link>
       </Section>
@@ -175,7 +198,10 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
         <div className="rounded-[2rem] bg-brand-800 p-6 text-white sm:p-10">
           <h2 className="text-2xl font-bold sm:text-3xl">{t('home.ctaTitle')}</h2>
           <p className="mt-2 max-w-2xl text-brand-100">{t('home.ctaText')}</p>
-          <Link href={href(lang, '/get-help')} className="btn btn-lg mt-6 bg-white text-brand-800 hover:bg-brand-50">
+          <Link
+            href={href(lang, '/get-help')}
+            className="btn btn-lg mt-6 bg-white text-brand-800 hover:bg-brand-50"
+          >
             {t('common.requestCallback')}
           </Link>
         </div>

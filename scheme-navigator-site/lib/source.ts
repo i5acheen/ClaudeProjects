@@ -3,7 +3,14 @@
 import { SOURCE_KEYS, type SourceFields } from './form-options';
 
 const STORAGE_KEY = 'mhc_source';
-const TRACKED = ['src', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as const;
+const TRACKED = [
+  'src',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+] as const;
 
 function safeGet(): Partial<SourceFields> {
   try {

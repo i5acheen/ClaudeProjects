@@ -55,17 +55,43 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
-        <div className="container-x pt-10 pb-10 sm:pt-20 sm:pb-16">
-          <p className="eyebrow">{rich(t('home.eyebrow'))}</p>
-          <h1 className="mt-3 max-w-4xl text-[2.1rem] font-bold tracking-tight text-ink sm:text-6xl">
-            {t('home.title')}
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg text-muted sm:text-xl">{t('home.lead')}</p>
-          <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-warm-100 px-4 py-2 font-semibold text-warm-800">
-            <BadgeIndianRupee className="size-5 shrink-0" aria-hidden />
-            {t('home.freeNote')}
-          </p>
-          <ContactButtons i18n={i18n} className="mt-8" />
+        <div className="container-x grid items-center gap-10 pt-10 pb-10 sm:pt-20 sm:pb-16 lg:grid-cols-[1.5fr_1fr]">
+          <div>
+            <p className="eyebrow">{rich(t('home.eyebrow'))}</p>
+            <h1 className="mt-3 max-w-4xl text-[2.1rem] font-bold tracking-tight text-ink sm:text-6xl">
+              {t('home.title')}
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg text-muted sm:text-xl">{t('home.lead')}</p>
+            <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-warm-100 px-4 py-2 font-semibold text-warm-800">
+              <BadgeIndianRupee className="size-5 shrink-0" aria-hidden />
+              {t('home.freeNote')}
+            </p>
+            <ContactButtons i18n={i18n} className="mt-8" />
+          </div>
+          <ol aria-hidden="true" className="hidden space-y-3 lg:block">
+            {steps.map((step, i) => {
+              const Icon = stepIcons[i] ?? ClipboardCheck;
+              return (
+                <li
+                  key={step.title}
+                  className="flex items-center gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-line"
+                >
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-700">
+                    <Icon className="size-6" />
+                  </span>
+                  <span className="text-lg font-bold">
+                    {i + 1}. {step.title}
+                  </span>
+                </li>
+              );
+            })}
+            <li className="flex items-center gap-4 rounded-3xl bg-warm-50 p-5 ring-1 ring-warm-200">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white text-warm-700">
+                <BadgeIndianRupee className="size-6" />
+              </span>
+              <span className="text-lg font-bold text-warm-800">{t('common.freeForPatients')}</span>
+            </li>
+          </ol>
         </div>
 
         {/* Trust bar */}

@@ -28,13 +28,13 @@ export function SiteHeader({ i18n }: { i18n: I18n }) {
         <Link href={href(lang)} className="flex min-h-12 items-center rounded-lg">
           <Logo name={site.name} />
         </Link>
-        <nav aria-label={t('nav.mainNav')} className="hidden lg:block">
+        <nav aria-label={t('nav.mainNav')} className="hidden xl:block">
           <ul className="flex items-center gap-0.5">
             {mainNav.map((n) => (
               <li key={n.key}>
                 <Link
                   href={navHref(lang, n.path)}
-                  className="rounded-full px-3 py-2 text-[0.98rem] font-medium text-muted hover:text-ink"
+                  className="rounded-full px-2.5 py-2 text-[0.98rem] font-medium whitespace-nowrap text-muted hover:text-ink"
                 >
                   {t(`nav.${n.key}`)}
                 </Link>
@@ -48,7 +48,7 @@ export function SiteHeader({ i18n }: { i18n: I18n }) {
           </div>
           <Link
             href={href(lang, '/get-help')}
-            className="btn btn-primary hidden !min-h-11 !px-5 !py-2 text-base lg:inline-flex"
+            className="btn btn-primary hidden !min-h-11 !px-5 !py-2 text-base whitespace-nowrap xl:inline-flex"
           >
             {t('nav.getHelp')}
           </Link>

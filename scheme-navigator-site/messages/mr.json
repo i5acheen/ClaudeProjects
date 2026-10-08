@@ -2,672 +2,674 @@
   "_meta": {
     "language": "mr",
     "reviewed": false,
-    "reviewedKeys": []
+    "reviewedKeys": [],
+    "note": "Draft translation. A native Marathi speaker must review before launch. Add reviewed keys to reviewedKeys, or set reviewed: true."
   },
   "nav": {
-    "home": "Home",
-    "howItWorks": "How it works",
-    "schemes": "Schemes",
-    "getHelp": "Get help",
-    "camps": "Health camps",
-    "forHospitals": "For hospitals",
-    "forPartners": "CSR & NGOs",
-    "about": "About",
-    "faq": "FAQ",
-    "report": "Report a problem",
-    "privacy": "Privacy policy",
-    "terms": "Terms of use",
-    "disclaimer": "Disclaimer",
-    "menu": "Menu",
-    "skip": "Skip to main content",
-    "language": "Language",
-    "mainNav": "Main",
-    "footerNav": "Footer",
-    "patients": "For patients",
-    "organisation": "Organisation",
-    "legal": "Legal"
+    "home": "मुख्य पान",
+    "howItWorks": "आम्ही कशी मदत करतो",
+    "schemes": "योजना",
+    "getHelp": "मदत मिळवा",
+    "camps": "आरोग्य शिबिरे",
+    "forHospitals": "रुग्णालयांसाठी",
+    "forPartners": "CSR आणि NGO",
+    "about": "आमच्याबद्दल",
+    "faq": "प्रश्नोत्तरे",
+    "report": "तक्रार करा",
+    "privacy": "गोपनीयता धोरण",
+    "terms": "वापराच्या अटी",
+    "disclaimer": "अस्वीकरण",
+    "menu": "मेनू",
+    "skip": "मुख्य मजकुराकडे जा",
+    "language": "भाषा",
+    "mainNav": "मुख्य",
+    "footerNav": "तळटीप",
+    "patients": "रुग्णांसाठी",
+    "organisation": "संस्था",
+    "legal": "कायदेशीर"
   },
   "common": {
-    "whatsapp": "WhatsApp us",
-    "call": "Call us",
-    "callShort": "Call",
+    "whatsapp": "WhatsApp करा",
+    "call": "फोन करा",
+    "callShort": "फोन",
     "whatsappShort": "WhatsApp",
-    "requestCallback": "Request a callback",
-    "freeForPatients": "Free for patients — always",
-    "independent": "Independent, not a government office",
-    "neverAskMoney": "We never ask for money",
-    "independenceLine": "{business} is an independent organisation. We are not a government agency. Official information: {linkPmjay}, {linkJeevandayee}, helplines {helplineNational} and {helplineState}.",
-    "learnMore": "Learn more",
-    "readMore": "Read more",
-    "doctorDecides": "We do not give medical advice. The doctor at the hospital decides your treatment.",
-    "infoAsOf": "Information as of {date}. Rules can change — confirm on the official portal or helpline.",
-    "officialHelplines": "Official helplines",
-    "helplineNationalLabel": "Ayushman Bharat (PM-JAY, Vay Vandana)",
-    "helplineStateLabel": "Mahatma Phule Jan Arogya Yojana",
-    "officialLinks": "Official websites",
-    "draftLegal": "Draft — to be reviewed by a lawyer before launch.",
-    "contactUs": "Contact us",
-    "phoneLabel": "Phone",
+    "requestCallback": "आम्ही तुम्हाला फोन करू",
+    "freeForPatients": "रुग्णांसाठी मोफत — नेहमी",
+    "independent": "स्वतंत्र संस्था, सरकारी कार्यालय नाही",
+    "neverAskMoney": "आम्ही कधीही पैसे मागत नाही",
+    "independenceLine": "{business} ही एक स्वतंत्र संस्था आहे. आम्ही सरकारी संस्था नाही. अधिकृत माहिती: {linkPmjay}, {linkJeevandayee}, हेल्पलाइन {helplineNational} आणि {helplineState}.",
+    "learnMore": "अधिक जाणून घ्या",
+    "readMore": "पुढे वाचा",
+    "doctorDecides": "आम्ही वैद्यकीय सल्ला देत नाही. तुमचे उपचार रुग्णालयातील डॉक्टर ठरवतात.",
+    "infoAsOf": "{date} पर्यंतची माहिती. नियम बदलू शकतात — अधिकृत वेबसाइट किंवा हेल्पलाइनवर खात्री करा.",
+    "officialHelplines": "अधिकृत हेल्पलाइन",
+    "helplineNationalLabel": "आयुष्मान भारत (PM-JAY, वय वंदना)",
+    "helplineStateLabel": "महात्मा फुले जन आरोग्य योजना",
+    "officialLinks": "अधिकृत वेबसाइट",
+    "draftLegal": "मसुदा — सुरू करण्यापूर्वी वकिलाकडून तपासणी आवश्यक.",
+    "contactUs": "संपर्क करा",
+    "phoneLabel": "फोन",
     "whatsappLabel": "WhatsApp",
-    "emailLabel": "Email",
-    "addressLabel": "Office",
-    "hoursLabel": "Hours",
-    "areaLabel": "Area we serve",
-    "rightsReserved": "All rights reserved.",
-    "back": "Back",
-    "tollFree": "toll-free",
-    "opensNewTab": "(opens in a new tab)"
+    "emailLabel": "ईमेल",
+    "addressLabel": "कार्यालय",
+    "hoursLabel": "वेळ",
+    "areaLabel": "आमचे कार्यक्षेत्र",
+    "rightsReserved": "सर्व हक्क राखीव.",
+    "back": "मागे",
+    "tollFree": "टोल-फ्री",
+    "opensNewTab": "(नवीन टॅबमध्ये उघडते)"
   },
   "whatsappMessage": {
-    "default": "Hello, I want help with a government health scheme.",
-    "hospital": "Hello, I am writing from a hospital about working with you.",
-    "partner": "Hello, I am writing about a CSR / NGO partnership.",
-    "report": "Hello, I want to report a problem."
+    "default": "नमस्कार, मला सरकारी आरोग्य योजनेसाठी मदत हवी आहे.",
+    "hospital": "नमस्कार, मी एका रुग्णालयाकडून तुमच्यासोबत काम करण्याबद्दल लिहित आहे.",
+    "partner": "नमस्कार, मी CSR / NGO भागीदारीबद्दल लिहित आहे.",
+    "report": "नमस्कार, मला एक तक्रार करायची आहे."
   },
   "home": {
-    "eyebrow": "Free help · {districts}",
-    "title": "Free treatment under government schemes — we help you use it",
-    "lead": "Many families in Maharashtra are covered for cashless treatment but do not know it. We help you check your cover, get your papers ready and reach the right hospital.",
-    "freeNote": "Free for patients. We never ask you for money.",
-    "stepsTitle": "Three simple steps",
+    "eyebrow": "मोफत मदत · {districts}",
+    "title": "सरकारी योजनांमध्ये मोफत उपचार — त्याचा लाभ घ्यायला आम्ही मदत करतो",
+    "lead": "महाराष्ट्रातील अनेक कुटुंबांना कॅशलेस उपचारांचे कव्हर आहे, पण त्यांना ते माहीत नसते. तुमचे कव्हर तपासायला, कागदपत्रे तयार करायला आणि योग्य रुग्णालयापर्यंत पोहोचायला आम्ही मदत करतो.",
+    "freeNote": "रुग्णांसाठी मोफत. आम्ही तुमच्याकडे कधीही पैसे मागत नाही.",
+    "stepsTitle": "तीन सोप्या पायऱ्या",
     "steps": [
       {
-        "title": "Check cover",
-        "text": "We check if you or your family are covered by a government health scheme."
+        "title": "कव्हर तपासा",
+        "text": "तुम्ही किंवा तुमचे कुटुंब सरकारी आरोग्य योजनेत आहात का, ते आम्ही तपासतो."
       },
       {
-        "title": "Get documents ready",
-        "text": "We help you get your scheme card and papers ready."
+        "title": "कागदपत्रे तयार करा",
+        "text": "योजनेचे कार्ड आणि कागदपत्रे तयार करायला आम्ही मदत करतो."
       },
       {
-        "title": "Visit the right hospital",
-        "text": "We help you book a visit at an empanelled hospital and go with you until admission."
+        "title": "योग्य रुग्णालयात जा",
+        "text": "योजनेतील रुग्णालयात भेट ठरवायला आम्ही मदत करतो आणि दाखल होईपर्यंत तुमच्यासोबत असतो."
       }
     ],
-    "schemesTitle": "Schemes we help with",
-    "schemesLead": "Short guides in simple words. Always confirm on the official website.",
-    "campsTitle": "Upcoming health camps",
-    "campsLead": "Meet our team in person. Bring your Aadhaar card and ration card.",
-    "noCamps": "No camps are listed right now. Call or WhatsApp us to ask about the next one.",
-    "allCamps": "See all camps",
-    "whoTitle": "Who we help",
+    "schemesTitle": "या योजनांसाठी आम्ही मदत करतो",
+    "schemesLead": "सोप्या शब्दांत थोडक्यात माहिती. नेहमी अधिकृत वेबसाइटवर खात्री करा.",
+    "campsTitle": "पुढील आरोग्य शिबिरे",
+    "campsLead": "आमच्या टीमला प्रत्यक्ष भेटा. आधार कार्ड आणि रेशन कार्ड सोबत आणा.",
+    "noCamps": "सध्या कोणतेही शिबिर नाही. पुढच्या शिबिराबद्दल विचारण्यासाठी फोन किंवा WhatsApp करा.",
+    "allCamps": "सर्व शिबिरे पहा",
+    "whoTitle": "आम्ही कोणाला मदत करतो",
     "who": [
       {
-        "title": "Families",
-        "text": "Covered by PM-JAY and Mahatma Phule Jan Arogya Yojana."
+        "title": "कुटुंबे",
+        "text": "PM-JAY आणि महात्मा फुले जन आरोग्य योजनेत असलेली कुटुंबे."
       },
       {
-        "title": "Seniors aged 70+",
-        "text": "Covered by Ayushman Vay Vandana, whatever their income."
+        "title": "70+ वयाचे ज्येष्ठ नागरिक",
+        "text": "आयुष्मान वय वंदना योजनेत, उत्पन्न कितीही असो."
       },
       {
-        "title": "Poor patients",
-        "text": "Who can ask for free or low-cost beds at charitable trust hospitals."
+        "title": "गरीब रुग्ण",
+        "text": "धर्मादाय रुग्णालयांत मोफत किंवा कमी दरातील खाटा मागू शकणारे रुग्ण."
       }
     ],
-    "moneyTitle": "If anyone asks you for money",
-    "moneyText": "Scheme treatment is cashless. We never charge patients. If anyone asks you for money in our name, or a hospital asks for money for scheme treatment, tell us and call the official helpline.",
-    "moneyCta": "Report a problem",
-    "ctaTitle": "Not sure where to start?",
-    "ctaText": "Leave your number. We will call you back and explain, in Marathi, Hindi or English."
+    "moneyTitle": "कोणी पैसे मागितले तर",
+    "moneyText": "योजनेतील उपचार कॅशलेस आहेत. आम्ही रुग्णांकडून कधीही पैसे घेत नाही. आमच्या नावाने कोणी पैसे मागितले, किंवा रुग्णालयाने योजनेतील उपचारासाठी पैसे मागितले, तर आम्हाला सांगा आणि अधिकृत हेल्पलाइनवर फोन करा.",
+    "moneyCta": "तक्रार करा",
+    "ctaTitle": "कुठून सुरुवात करायची ते समजत नाही?",
+    "ctaText": "तुमचा नंबर द्या. आम्ही तुम्हाला फोन करून मराठी, हिंदी किंवा इंग्रजीत समजावून सांगू."
   },
   "how": {
-    "title": "How it works",
-    "lead": "We walk with you from your first call up to hospital admission. From admission, the hospital takes over.",
+    "title": "आम्ही कशी मदत करतो",
+    "lead": "पहिल्या फोनपासून रुग्णालयात दाखल होईपर्यंत आम्ही तुमच्यासोबत असतो. दाखल झाल्यानंतर रुग्णालय पुढील जबाबदारी घेते.",
     "steps": [
       {
-        "title": "You contact us",
-        "text": "Call, WhatsApp, fill the form, or meet us at a camp."
+        "title": "तुम्ही आमच्याशी संपर्क करता",
+        "text": "फोन, WhatsApp, फॉर्म किंवा शिबिरात भेटून."
       },
       {
-        "title": "We check your eligibility",
-        "text": "We ask a few simple questions and check which scheme covers you."
+        "title": "आम्ही तुमची पात्रता तपासतो",
+        "text": "आम्ही काही सोपे प्रश्न विचारतो आणि कोणती योजना तुम्हाला लागू आहे ते तपासतो."
       },
       {
-        "title": "We help with your card and documents",
-        "text": "If you need a scheme card, we show you how to get one. We tell you which papers to bring."
+        "title": "कार्ड आणि कागदपत्रांसाठी मदत",
+        "text": "योजनेचे कार्ड हवे असल्यास ते कसे मिळवायचे ते दाखवतो. कोणती कागदपत्रे आणायची ते सांगतो."
       },
       {
-        "title": "We book an OPD visit",
-        "text": "We book a visit at an empanelled hospital and tell you how to get there."
+        "title": "आम्ही OPD भेट ठरवतो",
+        "text": "योजनेतील रुग्णालयात भेट ठरवतो आणि तिथे कसे जायचे ते सांगतो."
       },
       {
-        "title": "The doctor advises",
-        "text": "The hospital doctor examines you. All medical advice comes from the doctor, not from us."
+        "title": "डॉक्टर सल्ला देतात",
+        "text": "रुग्णालयातील डॉक्टर तुमची तपासणी करतात. सर्व वैद्यकीय सल्ला डॉक्टरांकडून येतो, आमच्याकडून नाही."
       },
       {
-        "title": "You decide",
-        "text": "You and your family decide what to do. There is no pressure from us."
+        "title": "निर्णय तुमचा",
+        "text": "पुढे काय करायचे ते तुम्ही आणि तुमचे कुटुंब ठरवता. आमच्याकडून कोणताही दबाव नाही."
       },
       {
-        "title": "We help you reach admission",
-        "text": "We help you get the pre-authorisation papers ready and go with you to admission."
+        "title": "दाखल होईपर्यंत मदत",
+        "text": "पूर्व-मंजुरीची (pre-authorisation) कागदपत्रे तयार करायला मदत करतो आणि दाखल होताना सोबत असतो."
       }
     ],
-    "handoverTitle": "From admission, the hospital takes over",
-    "handoverText": "Treatment, discharge and scheme claims are handled by the hospital and the scheme. Our work ends at admission.",
-    "freeTitle": "Is it free?",
-    "freeText": "Yes. Patients never pay us anything. We are paid by partner hospitals for staff and outreach work, with a fixed fee — never per patient."
+    "handoverTitle": "दाखल झाल्यानंतर रुग्णालय जबाबदारी घेते",
+    "handoverText": "उपचार, डिस्चार्ज आणि योजनेचे क्लेम रुग्णालय आणि योजना हाताळतात. आमचे काम दाखल होताना संपते.",
+    "freeTitle": "हे मोफत आहे का?",
+    "freeText": "हो. रुग्ण आम्हाला कधीही काहीही पैसे देत नाहीत. भागीदार रुग्णालये आम्हाला कर्मचारी आणि जनजागृतीच्या कामासाठी ठरावीक शुल्क देतात — प्रत्येक रुग्णामागे कधीही नाही."
   },
   "schemes": {
-    "title": "Government health schemes",
-    "lead": "Simple guides to the main schemes in Maharashtra. Always check the official website or helpline before you go.",
-    "whoTitle": "Who is covered",
-    "whatTitle": "What is covered",
-    "bringTitle": "What to bring",
-    "howTitle": "How to use it",
-    "helpTitle": "How we help",
-    "faqTitle": "Questions",
-    "officialTitle": "Official links and helplines",
-    "otherSchemes": "Other schemes",
+    "title": "सरकारी आरोग्य योजना",
+    "lead": "महाराष्ट्रातील मुख्य योजनांची सोपी माहिती. जाण्यापूर्वी नेहमी अधिकृत वेबसाइट किंवा हेल्पलाइनवर खात्री करा.",
+    "whoTitle": "कोणाला लाभ मिळतो",
+    "whatTitle": "काय मिळते",
+    "bringTitle": "काय सोबत आणायचे",
+    "howTitle": "लाभ कसा घ्यायचा",
+    "helpTitle": "आम्ही कशी मदत करतो",
+    "faqTitle": "प्रश्न",
+    "officialTitle": "अधिकृत लिंक आणि हेल्पलाइन",
+    "otherSchemes": "इतर योजना",
     "pmjay": {
-      "name": "PM-JAY + Mahatma Phule Jan Arogya Yojana",
-      "short": "Cashless treatment up to {coverPerFamily} per family per year at empanelled hospitals.",
-      "metaTitle": "Ayushman card and Mahatma Phule Jan Arogya Yojana help in Pune",
-      "metaDescription": "Free help to check your cover under PM-JAY and MJPJAY in Maharashtra: up to {coverPerFamily} cashless treatment per family per year. Free for patients.",
-      "intro": "In Maharashtra, Ayushman Bharat PM-JAY and the Mahatma Jyotirao Phule Jan Arogya Yojana work together as one scheme. It gives cashless treatment at empanelled hospitals.",
+      "name": "PM-JAY + महात्मा फुले जन आरोग्य योजना",
+      "short": "योजनेतील रुग्णालयांत प्रत्येक कुटुंबाला वर्षाला {coverPerFamily} पर्यंत कॅशलेस उपचार.",
+      "metaTitle": "आयुष्मान कार्ड मदत पुणे — महात्मा फुले जन आरोग्य योजना रुग्णालय",
+      "metaDescription": "महाराष्ट्रात PM-JAY आणि MJPJAY मधील तुमचे कव्हर तपासायला मोफत मदत: प्रत्येक कुटुंबाला वर्षाला {coverPerFamily} पर्यंत कॅशलेस उपचार. रुग्णांसाठी मोफत.",
+      "intro": "महाराष्ट्रात आयुष्मान भारत PM-JAY आणि महात्मा ज्योतिराव फुले जन आरोग्य योजना एकत्र एकच योजना म्हणून चालतात. योजनेतील रुग्णालयांत कॅशलेस उपचार मिळतात.",
       "who": [
-        "Families in Maharashtra. Coverage was extended to all Maharashtra families in {allFamiliesSince}.",
-        "You use your Aadhaar card or ration card to show you are covered.",
-        "Confirm your own cover on the official website or helpline."
+        "महाराष्ट्रातील कुटुंबे. {allFamiliesSince} पासून महाराष्ट्रातील सर्व कुटुंबांना कव्हर देण्यात आले.",
+        "कव्हर दाखवण्यासाठी आधार कार्ड किंवा रेशन कार्ड वापरा.",
+        "तुमचे कव्हर अधिकृत वेबसाइट किंवा हेल्पलाइनवर तपासा."
       ],
       "what": [
-        "Cashless treatment up to {coverPerFamily} per family per year.",
-        "About {procedureCount} treatments and operations are included.",
-        "Treatment only at empanelled (scheme) hospitals.",
-        "You should not pay for scheme treatment at the hospital."
+        "प्रत्येक कुटुंबाला वर्षाला {coverPerFamily} पर्यंत कॅशलेस उपचार.",
+        "सुमारे {procedureCount} उपचार आणि शस्त्रक्रिया समाविष्ट आहेत.",
+        "उपचार फक्त योजनेतील (अंगीकृत) रुग्णालयांत.",
+        "योजनेतील उपचारासाठी रुग्णालयात पैसे द्यायचे नसतात."
       ],
       "bring": [
-        "Aadhaar card",
-        "Ration card (yellow, orange or white)",
-        "Mobile phone linked to Aadhaar",
-        "Any doctor's papers you already have"
+        "आधार कार्ड",
+        "रेशन कार्ड (पिवळे, केशरी किंवा पांढरे)",
+        "आधारशी जोडलेला मोबाईल",
+        "तुमच्याकडे असलेली डॉक्टरांची कागदपत्रे"
       ],
       "how": [
-        "Go to an empanelled hospital and meet the scheme desk (Arogya Mitra).",
-        "The hospital checks your cover and asks the scheme for approval (pre-authorisation).",
-        "After approval, treatment is cashless."
+        "योजनेतील रुग्णालयात जा आणि योजना कक्षात (आरोग्य मित्र) भेटा.",
+        "रुग्णालय तुमचे कव्हर तपासते आणि योजनेकडून मंजुरी (पूर्व-मंजुरी) मागते.",
+        "मंजुरीनंतर उपचार कॅशलेस होतात."
       ],
       "faq": [
         {
-          "q": "Do I need a card before going to the hospital?",
-          "a": "Not always. The hospital's scheme desk can check your cover using your Aadhaar or ration card. We can help you check before you go."
+          "q": "रुग्णालयात जाण्यापूर्वी कार्ड लागते का?",
+          "a": "नेहमी नाही. रुग्णालयातील योजना कक्ष आधार किंवा रेशन कार्डवरून कव्हर तपासू शकतो. जाण्यापूर्वी तपासायला आम्ही मदत करू शकतो."
         },
         {
-          "q": "Does the hospital decide which treatment I get?",
-          "a": "Yes. The doctor decides your treatment. The scheme decides what it pays for."
+          "q": "कोणते उपचार मिळतील ते रुग्णालय ठरवते का?",
+          "a": "हो. तुमचे उपचार डॉक्टर ठरवतात. योजना कशाचे पैसे देते ते योजना ठरवते."
         },
         {
-          "q": "What if the hospital asks for money?",
-          "a": "Scheme treatment is cashless. Call {helplineState} or {helplineNational}, and tell us."
+          "q": "रुग्णालयाने पैसे मागितले तर?",
+          "a": "योजनेतील उपचार कॅशलेस आहेत. {helplineState} किंवा {helplineNational} वर फोन करा आणि आम्हाला सांगा."
         }
       ]
     },
     "vay": {
-      "name": "Ayushman Vay Vandana (70+)",
-      "short": "Everyone aged {vayVandanaAge}+ is covered for up to {vayVandanaCover} a year, whatever their income.",
-      "metaTitle": "Ayushman Vay Vandana card help for seniors 70+ in Pune",
-      "metaDescription": "Free help for seniors aged 70+ to enrol in Ayushman Vay Vandana: up to {vayVandanaCover} a year, any income. Free for patients.",
-      "intro": "Ayushman Vay Vandana started on {vayVandanaLaunched}. It covers senior citizens aged {vayVandanaAge} and above.",
+      "name": "आयुष्मान वय वंदना (70+)",
+      "short": "{vayVandanaAge}+ वयाच्या प्रत्येकाला, उत्पन्न कितीही असो, वर्षाला {vayVandanaCover} पर्यंत कव्हर.",
+      "metaTitle": "आयुष्मान वय वंदना कार्ड मदत — 70+ ज्येष्ठ नागरिक, पुणे",
+      "metaDescription": "70+ वयाच्या ज्येष्ठांना आयुष्मान वय वंदना नोंदणीसाठी मोफत मदत: वर्षाला {vayVandanaCover} पर्यंत, कोणतेही उत्पन्न. रुग्णांसाठी मोफत.",
+      "intro": "आयुष्मान वय वंदना योजना {vayVandanaLaunched} रोजी सुरू झाली. यात {vayVandanaAge} आणि त्याहून जास्त वयाच्या ज्येष्ठ नागरिकांना कव्हर मिळते.",
       "who": [
-        "Everyone aged {vayVandanaAge} or above.",
-        "Any income — rich or poor.",
-        "Age is checked from your Aadhaar card."
+        "{vayVandanaAge} किंवा त्याहून जास्त वयाचे सर्वजण.",
+        "कोणतेही उत्पन्न — श्रीमंत किंवा गरीब.",
+        "वय आधार कार्डवरून तपासले जाते."
       ],
       "what": [
-        "Cover up to {vayVandanaCover} a year.",
-        "Treatment at empanelled hospitals.",
-        "If your family is already covered, the senior gets extra cover for themselves."
+        "वर्षाला {vayVandanaCover} पर्यंत कव्हर.",
+        "योजनेतील रुग्णालयांत उपचार.",
+        "कुटुंब आधीच योजनेत असेल तर ज्येष्ठ व्यक्तीला स्वतःसाठी जादा कव्हर मिळते."
       ],
-      "bring": ["Aadhaar card", "Mobile phone linked to Aadhaar (for OTP)"],
+      "bring": ["आधार कार्ड", "आधारशी जोडलेला मोबाईल (OTP साठी)"],
       "how": [
-        "Enrol at an empanelled hospital, on the Ayushman app, or on {linkBeneficiary}.",
-        "Get your Ayushman Vay Vandana card.",
-        "Use it at an empanelled hospital when the doctor advises treatment."
+        "योजनेतील रुग्णालयात, आयुष्मान ॲपवर किंवा {linkBeneficiary} वर नोंदणी करा.",
+        "आयुष्मान वय वंदना कार्ड मिळवा.",
+        "डॉक्टरांनी उपचार सांगितल्यावर योजनेतील रुग्णालयात ते वापरा."
       ],
       "faq": [
         {
-          "q": "My father is 72 and we are not poor. Is he covered?",
-          "a": "Yes, this scheme does not look at income. Confirm with helpline {helplineNational}."
+          "q": "माझे वडील 72 वर्षांचे आहेत आणि आम्ही गरीब नाही. त्यांना कव्हर आहे का?",
+          "a": "हो, ही योजना उत्पन्न पाहत नाही. हेल्पलाइन {helplineNational} वर खात्री करा."
         },
         {
-          "q": "Can a son or daughter do the enrolment?",
-          "a": "A family member can help. The senior's Aadhaar and the mobile linked to it are needed for OTP."
+          "q": "मुलगा किंवा मुलगी नोंदणी करू शकतात का?",
+          "a": "कुटुंबातील व्यक्ती मदत करू शकते. OTP साठी ज्येष्ठ व्यक्तीचे आधार आणि त्याला जोडलेला मोबाईल लागतो."
         },
         {
-          "q": "Does enrolment cost money?",
-          "a": "No. Enrolment is free. We also never charge for helping."
+          "q": "नोंदणीसाठी पैसे लागतात का?",
+          "a": "नाही. नोंदणी मोफत आहे. मदतीसाठी आम्हीही कधीही पैसे घेत नाही."
         }
       ]
     },
     "charity": {
-      "name": "Free beds in charitable hospitals",
-      "short": "Charitable trust hospitals keep {charityFreeBedsPercent} of beds free and {charityConcessionBedsPercent} at low cost for poor patients.",
-      "metaTitle": "Free and low-cost beds in charitable hospitals, Maharashtra",
-      "metaDescription": "Charitable trust hospitals in Maharashtra keep {charityFreeBedsPercent} of beds free and {charityConcessionBedsPercent} concessional for poor patients. Free help to ask.",
-      "intro": "Under the Maharashtra Public Trusts Act and a {charityCourtYear} Bombay High Court ruling, charitable trust hospitals must keep some beds for poor and weaker-section patients.",
+      "name": "धर्मादाय रुग्णालयांतील मोफत खाटा",
+      "short": "धर्मादाय (ट्रस्ट) रुग्णालये गरीब रुग्णांसाठी {charityFreeBedsPercent} खाटा मोफत आणि {charityConcessionBedsPercent} खाटा कमी दरात ठेवतात.",
+      "metaTitle": "धर्मादाय रुग्णालयांत मोफत व सवलतीच्या खाटा, महाराष्ट्र",
+      "metaDescription": "महाराष्ट्रातील धर्मादाय रुग्णालये गरीब रुग्णांसाठी {charityFreeBedsPercent} खाटा मोफत आणि {charityConcessionBedsPercent} सवलतीत ठेवतात. विचारायला मोफत मदत.",
+      "intro": "महाराष्ट्र सार्वजनिक विश्वस्त व्यवस्था अधिनियम आणि {charityCourtYear} च्या मुंबई उच्च न्यायालयाच्या निर्णयानुसार, धर्मादाय रुग्णालयांनी गरीब आणि दुर्बल घटकांतील रुग्णांसाठी काही खाटा राखून ठेवल्या पाहिजेत.",
       "who": [
-        "Poor patients and patients from weaker sections.",
-        "Income limits apply. The hospital's charity desk checks them.",
-        "This is separate from the government insurance schemes."
+        "गरीब आणि दुर्बल घटकांतील रुग्ण.",
+        "उत्पन्नाची मर्यादा लागू आहे. रुग्णालयाचा धर्मादाय कक्ष ती तपासतो.",
+        "हे सरकारी विमा योजनांपेक्षा वेगळे आहे."
       ],
       "what": [
-        "{charityFreeBedsPercent} of beds are free.",
-        "Another {charityConcessionBedsPercent} of beds are at a lower (concessional) rate.",
-        "Only at registered charitable trust hospitals."
+        "{charityFreeBedsPercent} खाटा मोफत.",
+        "आणखी {charityConcessionBedsPercent} खाटा कमी (सवलतीच्या) दरात.",
+        "फक्त नोंदणीकृत धर्मादाय रुग्णालयांत."
       ],
       "bring": [
-        "Income certificate or ration card",
-        "Aadhaar card",
-        "Any doctor's papers you already have"
+        "उत्पन्नाचा दाखला किंवा रेशन कार्ड",
+        "आधार कार्ड",
+        "तुमच्याकडे असलेली डॉक्टरांची कागदपत्रे"
       ],
       "how": [
-        "Ask at the hospital's charity or social work desk.",
-        "Show your income papers.",
-        "If you have a complaint, contact the Charity Commissioner's office."
+        "रुग्णालयाच्या धर्मादाय किंवा समाजसेवा कक्षात विचारा.",
+        "उत्पन्नाची कागदपत्रे दाखवा.",
+        "तक्रार असल्यास धर्मादाय आयुक्त कार्यालयाशी संपर्क करा."
       ],
       "faq": [
         {
-          "q": "How do I know if a hospital is a charitable trust hospital?",
-          "a": "Ask the hospital, or check with the Charity Commissioner's office. We can help you find out."
+          "q": "रुग्णालय धर्मादाय आहे हे कसे कळेल?",
+          "a": "रुग्णालयात विचारा, किंवा धर्मादाय आयुक्त कार्यालयाकडे चौकशी करा. आम्ही शोधायला मदत करू शकतो."
         },
         {
-          "q": "What if the hospital says no free beds are available?",
-          "a": "Ask for it in writing. You can complain to the Charity Commissioner's office. Tell us and we will guide you."
+          "q": "रुग्णालयाने मोफत खाट उपलब्ध नाही असे सांगितले तर?",
+          "a": "ते लेखी मागा. तुम्ही धर्मादाय आयुक्त कार्यालयाकडे तक्रार करू शकता. आम्हाला सांगा, आम्ही मार्गदर्शन करू."
         }
-      ]
+      ],
+      "officialLink": "धर्मादाय आयुक्त, महाराष्ट्र (अधिकृत वेबसाइट)"
     }
   },
   "getHelp": {
-    "title": "Get help",
-    "lead": "Tell us a little about what you need. We will call you back. It is free.",
-    "orTitle": "Prefer to talk now?",
-    "orText": "WhatsApp or call us. We speak Marathi, Hindi and English.",
-    "metaDescription": "Request a free callback for help with Ayushman card, Mahatma Phule Jan Arogya Yojana or Vay Vandana. Free for patients."
+    "title": "मदत मिळवा",
+    "lead": "तुम्हाला काय हवे आहे ते थोडक्यात सांगा. आम्ही तुम्हाला फोन करू. हे मोफत आहे.",
+    "orTitle": "आत्ताच बोलायचे आहे?",
+    "orText": "WhatsApp किंवा फोन करा. आम्ही मराठी, हिंदी आणि इंग्रजी बोलतो.",
+    "metaDescription": "आयुष्मान कार्ड, महात्मा फुले जन आरोग्य योजना किंवा वय वंदना यासाठी मोफत मदत — आम्ही तुम्हाला फोन करू. रुग्णांसाठी मोफत."
   },
   "camps": {
-    "title": "Health camps",
-    "lead": "At our camps you can check your scheme cover, get help with your card, and get basic health checks.",
-    "upcoming": "Upcoming camps",
-    "none": "No camps are listed right now. Call or WhatsApp us to ask about the next camp near you.",
-    "when": "When",
-    "where": "Where",
-    "district": "District",
-    "screened": "What is checked",
-    "bring": "What to bring",
-    "organisedWith": "With",
-    "contact": "Contact",
-    "map": "Open in Maps",
-    "shortLink": "Short link",
-    "freeNote": "The camp is free. Nobody at the camp should ask you for money.",
-    "doctorNote": "Camp checks are basic screening, not a diagnosis. A doctor decides any treatment.",
-    "past": "This camp is over.",
-    "details": "Camp details",
-    "metaDescription": "Free health and scheme help camps by {business}. Check your Ayushman cover and get help with your card."
+    "title": "आरोग्य शिबिरे",
+    "lead": "आमच्या शिबिरात तुम्ही योजनेचे कव्हर तपासू शकता, कार्डसाठी मदत घेऊ शकता आणि प्राथमिक आरोग्य तपासणी करू शकता.",
+    "upcoming": "पुढील शिबिरे",
+    "none": "सध्या कोणतेही शिबिर नाही. तुमच्या जवळच्या पुढील शिबिराबद्दल विचारण्यासाठी फोन किंवा WhatsApp करा.",
+    "when": "कधी",
+    "where": "कुठे",
+    "district": "जिल्हा",
+    "screened": "काय तपासले जाते",
+    "bring": "काय सोबत आणायचे",
+    "organisedWith": "सोबत",
+    "contact": "संपर्क",
+    "map": "नकाशात उघडा",
+    "shortLink": "छोटी लिंक",
+    "freeNote": "शिबिर मोफत आहे. शिबिरात कोणीही तुमच्याकडे पैसे मागू नयेत.",
+    "doctorNote": "शिबिरातील तपासणी ही प्राथमिक तपासणी आहे, निदान नाही. कोणतेही उपचार डॉक्टर ठरवतात.",
+    "past": "हे शिबिर संपले आहे.",
+    "details": "शिबिराची माहिती",
+    "metaDescription": "{business} ची मोफत आरोग्य आणि योजना मदत शिबिरे. तुमचे आयुष्मान कव्हर तपासा आणि कार्डसाठी मदत घ्या."
   },
   "hospitals": {
-    "eyebrow": "For empanelled hospitals",
-    "title": "More scheme patients, better prepared, at your scheme desk",
-    "lead": "We help empanelled hospitals reach families who are covered but do not use their cover, and we support your scheme desk before admission.",
-    "offerTitle": "What we offer",
+    "eyebrow": "योजनेतील रुग्णालयांसाठी",
+    "title": "तुमच्या योजना कक्षात जास्त, चांगली तयारी असलेले योजना रुग्ण",
+    "lead": "ज्या कुटुंबांना कव्हर आहे पण ते वापरत नाहीत, त्यांच्यापर्यंत पोहोचायला आम्ही योजनेतील रुग्णालयांना मदत करतो, आणि दाखल होण्यापूर्वी तुमच्या योजना कक्षाला साथ देतो.",
+    "offerTitle": "आम्ही काय देतो",
     "offers": [
       {
-        "title": "Pre-admission scheme desk staffing",
-        "text": "NHA-trained Arogya Mitras and coordinators at your hospital: eligibility checks, card help, documents ready for pre-authorisation, handover at admission, and a monthly report. Discharge and claims stay with your own team."
+        "title": "दाखल होण्यापूर्वीच्या योजना कक्षासाठी कर्मचारी",
+        "text": "तुमच्या रुग्णालयात NHA-प्रशिक्षित आरोग्य मित्र आणि समन्वयक: पात्रता तपासणी, कार्ड मदत, पूर्व-मंजुरीसाठी कागदपत्रे तयार, दाखल होताना हस्तांतरण आणि मासिक अहवाल. डिस्चार्ज आणि क्लेम तुमच्याच टीमकडे राहतात."
       },
       {
-        "title": "Outreach programmes",
-        "text": "Screening camps, community and senior-citizen talks, enrolment drives, and a phone and WhatsApp helpline — in Marathi and Hindi."
+        "title": "जनजागृती कार्यक्रम",
+        "text": "तपासणी शिबिरे, समाज आणि ज्येष्ठ नागरिकांसाठी माहिती सत्रे, नोंदणी मोहीम, आणि फोन व WhatsApp हेल्पलाइन — मराठी आणि हिंदीत."
       }
     ],
-    "feesTitle": "How we charge",
+    "feesTitle": "आमचे शुल्क",
     "fees": [
-      "Fixed monthly fee per staff member, or per programme or camp.",
-      "Never a fee per patient, admission, procedure or claim.",
-      "Patients never pay anything."
+      "प्रत्येक कर्मचाऱ्यासाठी, किंवा प्रत्येक कार्यक्रम/शिबिरासाठी ठरावीक मासिक शुल्क.",
+      "प्रत्येक रुग्ण, दाखल, शस्त्रक्रिया किंवा क्लेममागे कधीही शुल्क नाही.",
+      "रुग्ण कधीही काहीही पैसे देत नाहीत."
     ],
-    "rulesTitle": "How we work",
+    "rulesTitle": "आम्ही कसे काम करतो",
     "rules": [
-      "No clinical role: all medical advice and decisions stay with your doctors.",
-      "Our work ends at admission. Treatment, discharge and claims stay with the hospital.",
-      "Every enquiry gets a lead ID so monthly reports are clear.",
-      "You approve every ad and page about your hospital. No cure claims or guarantees.",
-      "We follow the State Health Agency's rules on outreach and camps."
+      "वैद्यकीय भूमिका नाही: सर्व वैद्यकीय सल्ला आणि निर्णय तुमच्या डॉक्टरांकडे.",
+      "आमचे काम दाखल होताना संपते. उपचार, डिस्चार्ज आणि क्लेम रुग्णालयाकडे.",
+      "प्रत्येक चौकशीला लीड आयडी मिळतो, त्यामुळे मासिक अहवाल स्पष्ट असतात.",
+      "तुमच्या रुग्णालयाबद्दलची प्रत्येक जाहिरात आणि पान तुम्ही मंजूर करता. बरे होण्याचे दावे किंवा हमी नाही.",
+      "जनजागृती आणि शिबिरांबद्दल राज्य आरोग्य संस्थेचे नियम आम्ही पाळतो."
     ],
-    "reportTitle": "What you get every month",
+    "reportTitle": "दर महिन्याला तुम्हाला मिळते",
     "report": [
-      "People reached",
-      "Eligibility checks",
-      "Enrolments helped",
-      "OPD visits booked",
-      "Patients admitted (tracked, never a target)"
+      "पोहोचलेले लोक",
+      "पात्रता तपासण्या",
+      "नोंदणीसाठी केलेली मदत",
+      "ठरवलेल्या OPD भेटी",
+      "दाखल झालेले रुग्ण (फक्त नोंद, कधीही लक्ष्य नाही)"
     ],
-    "formTitle": "Talk to us",
-    "formLead": "Tell us about your hospital. We will reply soon.",
+    "formTitle": "आमच्याशी बोला",
+    "formLead": "तुमच्या रुग्णालयाबद्दल सांगा. आम्ही लवकरच उत्तर देऊ.",
     "partnerPlaceholder": "[PARTNER HOSPITAL — add only after a signed agreement]",
-    "metaTitle": "Scheme desk staffing and outreach for empanelled hospitals in Maharashtra",
-    "metaDescription": "Arogya Mitra staffing and outreach programmes for PM-JAY / MJPJAY empanelled hospitals. Fixed monthly fees, never per patient."
+    "metaTitle": "महाराष्ट्रातील योजनेतील रुग्णालयांसाठी योजना कक्ष कर्मचारी आणि जनजागृती",
+    "metaDescription": "PM-JAY / MJPJAY रुग्णालयांसाठी आरोग्य मित्र कर्मचारी आणि जनजागृती कार्यक्रम. ठरावीक मासिक शुल्क, प्रत्येक रुग्णामागे कधीही नाही."
   },
   "partners": {
-    "eyebrow": "For CSR funders and NGOs",
-    "title": "Help people use the health cover they already have",
-    "lead": "Most families in Maharashtra are now covered for free treatment. Many still do not use it: they do not know they are covered, cannot get a card, or do not know which hospital to go to.",
-    "problemTitle": "The problem",
+    "eyebrow": "CSR निधीदाते आणि NGO साठी",
+    "title": "लोकांना आधीच असलेले आरोग्य कव्हर वापरायला मदत करा",
+    "lead": "महाराष्ट्रातील बहुतेक कुटुंबांना आता मोफत उपचारांचे कव्हर आहे. तरीही अनेकजण ते वापरत नाहीत: त्यांना कव्हर असल्याचे माहीत नसते, कार्ड मिळत नाही, किंवा कोणत्या रुग्णालयात जायचे ते कळत नाही.",
+    "problemTitle": "समस्या",
     "problem": [
-      "People do not know they are covered.",
-      "Seniors and first-time internet users struggle with enrolment.",
-      "Families do not know which hospital accepts the scheme for their treatment.",
-      "Some are wrongly asked to pay."
+      "लोकांना आपल्याला कव्हर आहे हे माहीत नसते.",
+      "ज्येष्ठ आणि पहिल्यांदा इंटरनेट वापरणाऱ्यांना नोंदणी अवघड जाते.",
+      "त्यांच्या उपचारासाठी कोणते रुग्णालय योजना स्वीकारते, हे कुटुंबांना माहीत नसते.",
+      "काहीजणांकडे चुकीने पैसे मागितले जातात."
     ],
-    "doTitle": "What we do",
+    "doTitle": "आम्ही काय करतो",
     "do": [
-      "Awareness in the community: camps, talks, self-help groups, ration-shop notices.",
-      "Eligibility checks and help with scheme enrolment.",
-      "Helping patients reach an empanelled hospital and get to admission.",
-      "A free phone and WhatsApp helpline in Marathi and Hindi."
+      "समाजात जनजागृती: शिबिरे, माहिती सत्रे, बचत गट, रेशन दुकानांवरील सूचना.",
+      "पात्रता तपासणी आणि योजना नोंदणीसाठी मदत.",
+      "रुग्णांना योजनेतील रुग्णालयापर्यंत आणि दाखल होईपर्यंत मदत.",
+      "मराठी आणि हिंदीत मोफत फोन व WhatsApp हेल्पलाइन."
     ],
-    "impactTitle": "How we report impact",
-    "impactLead": "Every person we help gets a lead ID, so each number can be traced. We report:",
+    "impactTitle": "आम्ही परिणाम कसे कळवतो",
+    "impactLead": "आम्ही मदत केलेल्या प्रत्येक व्यक्तीला लीड आयडी मिळतो, त्यामुळे प्रत्येक आकडा तपासता येतो. आम्ही हे कळवतो:",
     "impact": [
-      "People reached",
-      "Eligibility checks",
-      "Enrolments helped",
-      "Patients admitted",
-      "Patients asked to pay anything (target: zero)"
+      "पोहोचलेले लोक",
+      "पात्रता तपासण्या",
+      "नोंदणीसाठी केलेली मदत",
+      "दाखल झालेले रुग्ण",
+      "पैसे मागितले गेलेले रुग्ण (लक्ष्य: शून्य)"
     ],
-    "impactNote": "We will publish numbers only after they are measured. No numbers are shown here yet.",
-    "formTitle": "Partner with us",
-    "formLead": "Tell us about your organisation and what you would like to support.",
-    "metaTitle": "CSR and NGO partnership for patient navigation in Maharashtra",
-    "metaDescription": "Fund outreach and patient navigation that helps poor families and seniors use free government health schemes. Clear impact reporting."
+    "impactNote": "आकडे मोजल्यानंतरच आम्ही ते प्रसिद्ध करू. येथे अजून कोणतेही आकडे दाखवलेले नाहीत.",
+    "formTitle": "आमचे भागीदार व्हा",
+    "formLead": "तुमच्या संस्थेबद्दल आणि तुम्हाला कशाला पाठिंबा द्यायचा आहे ते सांगा.",
+    "metaTitle": "महाराष्ट्रात रुग्ण मार्गदर्शनासाठी CSR आणि NGO भागीदारी",
+    "metaDescription": "गरीब कुटुंबे आणि ज्येष्ठांना मोफत सरकारी आरोग्य योजना वापरायला मदत करणाऱ्या जनजागृती आणि रुग्ण मार्गदर्शनाला निधी द्या. स्पष्ट परिणाम अहवाल."
   },
   "about": {
-    "title": "About us",
-    "missionTitle": "Our mission",
-    "mission": "Every family in Maharashtra that is covered for free treatment should be able to use that cover — easily, in their own language, without paying anyone.",
-    "whatTitle": "What we do",
-    "what": "We help patients and families check their scheme cover, get their card and documents ready, find an empanelled hospital, book an OPD visit, and reach admission. The hospital handles treatment, discharge and claims.",
-    "independenceTitle": "We are independent",
+    "title": "आमच्याबद्दल",
+    "missionTitle": "आमचे ध्येय",
+    "mission": "महाराष्ट्रातील ज्या प्रत्येक कुटुंबाला मोफत उपचारांचे कव्हर आहे, त्यांना ते सहज, स्वतःच्या भाषेत आणि कोणालाही पैसे न देता वापरता आले पाहिजे.",
+    "whatTitle": "आम्ही काय करतो",
+    "what": "रुग्ण आणि कुटुंबांना योजनेचे कव्हर तपासायला, कार्ड आणि कागदपत्रे तयार करायला, योजनेतील रुग्णालय शोधायला, OPD भेट ठरवायला आणि दाखल होईपर्यंत आम्ही मदत करतो. उपचार, डिस्चार्ज आणि क्लेम रुग्णालय हाताळते.",
+    "independenceTitle": "आम्ही स्वतंत्र आहोत",
     "independence": [
-      "We are not a government office, not an insurance company and not a hospital.",
-      "We do not create scheme cards or touch the scheme's claim system.",
-      "We never keep your Aadhaar, ration card or medical documents.",
-      "Patients never pay us. Partner hospitals pay a fixed fee for staff and outreach — never per patient."
+      "आम्ही सरकारी कार्यालय, विमा कंपनी किंवा रुग्णालय नाही.",
+      "आम्ही योजनेचे कार्ड बनवत नाही आणि योजनेच्या क्लेम प्रणालीला हात लावत नाही.",
+      "आम्ही तुमचे आधार, रेशन कार्ड किंवा वैद्यकीय कागदपत्रे कधीही ठेवत नाही.",
+      "रुग्ण आम्हाला कधीही पैसे देत नाहीत. भागीदार रुग्णालये कर्मचारी आणि जनजागृतीसाठी ठरावीक शुल्क देतात — प्रत्येक रुग्णामागे कधीही नाही."
     ],
-    "areaTitle": "Where we work",
-    "area": "At launch: {districts}.",
-    "teamTitle": "Our team",
+    "areaTitle": "आम्ही कुठे काम करतो",
+    "area": "सुरुवातीला: {districts}.",
+    "teamTitle": "आमची टीम",
     "team": "[TEAM DETAILS — add real names and roles only]",
-    "metaDescription": "{business} is an independent organisation helping patients in Maharashtra use free government health schemes. Free for patients."
+    "metaDescription": "{business} ही महाराष्ट्रातील रुग्णांना मोफत सरकारी आरोग्य योजना वापरायला मदत करणारी स्वतंत्र संस्था आहे. रुग्णांसाठी मोफत."
   },
   "faq": {
-    "title": "Frequently asked questions",
-    "metaDescription": "Is it really free? Do you work for the government? What documents do I need? Answers in simple words.",
+    "title": "नेहमी विचारले जाणारे प्रश्न",
+    "metaDescription": "हे खरंच मोफत आहे का? तुम्ही सरकारसाठी काम करता का? कोणती कागदपत्रे लागतात? सोप्या शब्दांत उत्तरे.",
     "items": [
       {
-        "q": "Is it really free?",
-        "a": "Yes. Free for patients — always. We never ask patients for money for any reason: not for card help, forms, travel or 'processing'."
+        "q": "हे खरंच मोफत आहे का?",
+        "a": "हो. रुग्णांसाठी मोफत — नेहमी. आम्ही रुग्णांकडे कोणत्याही कारणासाठी पैसे मागत नाही: कार्ड मदत, फॉर्म, प्रवास किंवा 'प्रोसेसिंग' — कशासाठीही नाही."
       },
       {
-        "q": "Then who pays you?",
-        "a": "Partner hospitals pay us a fixed monthly fee for staff and outreach work, and later CSR funders may support our work. We are never paid per patient."
+        "q": "मग तुम्हाला पैसे कोण देते?",
+        "a": "भागीदार रुग्णालये आम्हाला कर्मचारी आणि जनजागृतीच्या कामासाठी ठरावीक मासिक शुल्क देतात, आणि पुढे CSR निधीदाते आमच्या कामाला पाठिंबा देऊ शकतात. आम्हाला प्रत्येक रुग्णामागे कधीही पैसे मिळत नाहीत."
       },
       {
-        "q": "Do you work for the government?",
-        "a": "No. {business} is an independent organisation. We are not a government agency, not an insurer and not a hospital. Official information is on {linkPmjay} and {linkJeevandayee}."
+        "q": "तुम्ही सरकारसाठी काम करता का?",
+        "a": "नाही. {business} ही एक स्वतंत्र संस्था आहे. आम्ही सरकारी संस्था, विमा कंपनी किंवा रुग्णालय नाही. अधिकृत माहिती {linkPmjay} आणि {linkJeevandayee} वर आहे."
       },
       {
-        "q": "Which hospitals do you work with?",
-        "a": "We help you find an empanelled (scheme) hospital for the treatment you need. You can also search for empanelled hospitals on the official websites."
+        "q": "तुम्ही कोणत्या रुग्णालयांसोबत काम करता?",
+        "a": "तुम्हाला हव्या असलेल्या उपचारासाठी योजनेतील (अंगीकृत) रुग्णालय शोधायला आम्ही मदत करतो. अधिकृत वेबसाइटवरही तुम्ही योजनेतील रुग्णालये शोधू शकता."
       },
       {
-        "q": "What documents do I need?",
-        "a": "Usually your Aadhaar card, ration card and a mobile phone linked to Aadhaar. Bring any doctor's papers you already have. Please do not send documents in our online form — we will guide you on the phone."
+        "q": "कोणती कागदपत्रे लागतात?",
+        "a": "सहसा आधार कार्ड, रेशन कार्ड आणि आधारशी जोडलेला मोबाईल. तुमच्याकडे असलेली डॉक्टरांची कागदपत्रे आणा. कृपया आमच्या ऑनलाइन फॉर्ममध्ये कागदपत्रे पाठवू नका — आम्ही फोनवर मार्गदर्शन करू."
       },
       {
-        "q": "What if a hospital asks me for money?",
-        "a": "Scheme treatment is cashless. Call the official helpline {helplineNational} or {helplineState}, and tell us."
+        "q": "रुग्णालयाने माझ्याकडे पैसे मागितले तर?",
+        "a": "योजनेतील उपचार कॅशलेस आहेत. अधिकृत हेल्पलाइन {helplineNational} किंवा {helplineState} वर फोन करा, आणि आम्हाला सांगा."
       },
       {
-        "q": "Do you decide my treatment?",
-        "a": "No. We do not give medical advice. The doctor at the hospital decides your treatment. You decide whether to go ahead."
+        "q": "माझे उपचार तुम्ही ठरवता का?",
+        "a": "नाही. आम्ही वैद्यकीय सल्ला देत नाही. तुमचे उपचार रुग्णालयातील डॉक्टर ठरवतात. पुढे जायचे की नाही ते तुम्ही ठरवता."
       },
       {
-        "q": "What happens after admission?",
-        "a": "From admission, the hospital takes over. Treatment, discharge and scheme claims are handled by the hospital."
+        "q": "दाखल झाल्यानंतर काय होते?",
+        "a": "दाखल झाल्यानंतर रुग्णालय जबाबदारी घेते. उपचार, डिस्चार्ज आणि योजनेचे क्लेम रुग्णालय हाताळते."
       },
       {
-        "q": "Can you guarantee the scheme will approve my treatment?",
-        "a": "No. The scheme decides approval. We help you check and prepare so you are ready."
+        "q": "योजना माझे उपचार मंजूर करेल याची हमी देता का?",
+        "a": "नाही. मंजुरी योजना ठरवते. तुम्ही तयार असावे म्हणून आम्ही तपासायला आणि तयारी करायला मदत करतो."
       }
     ]
   },
   "report": {
-    "title": "Report a problem or misuse",
-    "lead": "If anyone asks you for money in our name, tell us. We never charge patients.",
-    "callText": "You can also call us on {phone}.",
-    "officialText": "For problems with scheme treatment at a hospital, call the official helplines:",
-    "metaDescription": "Tell us if anyone asks you for money in the name of {business}, or if you face a problem with scheme treatment."
+    "title": "तक्रार किंवा गैरवापराची माहिती द्या",
+    "lead": "आमच्या नावाने कोणी पैसे मागितले तर आम्हाला सांगा. आम्ही रुग्णांकडून कधीही पैसे घेत नाही.",
+    "callText": "तुम्ही आम्हाला {phone} वर फोनही करू शकता.",
+    "officialText": "रुग्णालयातील योजनेच्या उपचारांबद्दल तक्रार असल्यास अधिकृत हेल्पलाइनवर फोन करा:",
+    "metaDescription": "{business} च्या नावाने कोणी पैसे मागितले, किंवा योजनेच्या उपचारात अडचण आली, तर आम्हाला सांगा."
   },
   "legal": {
     "privacy": {
-      "title": "Privacy policy",
-      "updated": "Version {version}",
+      "title": "गोपनीयता धोरण",
+      "updated": "आवृत्ती {version}",
       "sections": [
         {
-          "h": "Who we are",
-          "p": "{business} ('we') helps patients use government health schemes. Contact: {email}, {phone}, {address}."
+          "h": "आम्ही कोण आहोत",
+          "p": "{business} ('आम्ही') रुग्णांना सरकारी आरोग्य योजना वापरायला मदत करते. संपर्क: {email}, {phone}, {address}."
         },
         {
-          "h": "What we collect",
-          "p": "When you fill a form we collect your name, mobile number, district, preferred language, who needs help, the type of help and your preferred callback time. For partner enquiries we collect your organisation and contact details. We also record where you came from (for example a camp QR code or an ad), the date and time of your consent, and the version of this policy."
+          "h": "आम्ही कोणती माहिती घेतो",
+          "p": "तुम्ही फॉर्म भरता तेव्हा आम्ही तुमचे नाव, मोबाईल नंबर, जिल्हा, आवडती भाषा, कोणाला मदत हवी, मदतीचा प्रकार आणि फोनसाठी सोयीची वेळ घेतो. भागीदार चौकशीसाठी तुमच्या संस्थेची आणि संपर्काची माहिती घेतो. तुम्ही कुठून आलात (उदा. शिबिराचा QR कोड किंवा जाहिरात), तुमच्या संमतीची तारीख-वेळ आणि या धोरणाची आवृत्तीही आम्ही नोंदवतो."
         },
         {
-          "h": "What we do not collect",
-          "p": "We do not ask for Aadhaar numbers, ration card numbers, medical reports or diagnoses on this website. Please do not send them. We do not keep copies of your documents."
+          "h": "आम्ही काय घेत नाही",
+          "p": "या वेबसाइटवर आम्ही आधार नंबर, रेशन कार्ड नंबर, वैद्यकीय अहवाल किंवा निदान मागत नाही. कृपया ते पाठवू नका. आम्ही तुमच्या कागदपत्रांच्या प्रती ठेवत नाही."
         },
         {
-          "h": "Why we use it",
-          "p": "Only to contact you by phone or WhatsApp about your request, to help you with the scheme process up to admission, and to count our work in reports (as totals, without your name)."
+          "h": "आम्ही माहिती कशासाठी वापरतो",
+          "p": "फक्त तुमच्या विनंतीबद्दल फोन किंवा WhatsApp वर संपर्क करण्यासाठी, दाखल होईपर्यंत योजनेच्या प्रक्रियेत मदत करण्यासाठी, आणि अहवालात आमच्या कामाची मोजणी करण्यासाठी (फक्त एकूण आकडे, तुमच्या नावाशिवाय)."
         },
         {
-          "h": "Who we share it with",
-          "p": "With a partner hospital only when you ask us to book a visit there. We never sell your data. We do not send your form answers to advertising or analytics companies."
+          "h": "आम्ही कोणाला माहिती देतो",
+          "p": "तुम्ही सांगितल्यावर भागीदार रुग्णालयात भेट ठरवण्यासाठीच त्या रुग्णालयाला. आम्ही तुमची माहिती कधीही विकत नाही. तुमची फॉर्ममधील उत्तरे आम्ही जाहिरात किंवा ॲनालिटिक्स कंपन्यांना पाठवत नाही."
         },
         {
-          "h": "Where it is stored",
-          "p": "In a Google Sheet with access limited to our team, and on our phones for WhatsApp messages."
+          "h": "माहिती कुठे ठेवली जाते",
+          "p": "फक्त आमच्या टीमला प्रवेश असलेल्या Google Sheet मध्ये, आणि WhatsApp संदेशांसाठी आमच्या फोनवर."
         },
         {
-          "h": "How long we keep it",
-          "p": "[RETENTION PERIOD — e.g. 12 months after your last contact], then we delete it."
+          "h": "आम्ही माहिती किती काळ ठेवतो",
+          "p": "[RETENTION PERIOD — e.g. 12 months after your last contact], त्यानंतर आम्ही ती हटवतो."
         },
         {
-          "h": "Your choices",
-          "p": "You can ask us to see, correct or delete your data at any time. Contact {email} or {phone}."
+          "h": "तुमचे पर्याय",
+          "p": "तुम्ही कधीही तुमची माहिती पाहण्यासाठी, दुरुस्त करण्यासाठी किंवा हटवण्यासाठी सांगू शकता. संपर्क: {email} किंवा {phone}."
         },
         {
-          "h": "Cookies and analytics",
-          "p": "We count page visits without cookies. If you accept, we may also use Google Analytics or Meta Pixel to measure our ads. They never receive your form answers."
+          "h": "कुकीज आणि ॲनालिटिक्स",
+          "p": "आम्ही कुकीजशिवाय पानभेटी मोजतो. तुम्ही परवानगी दिल्यास, आमच्या जाहिराती मोजण्यासाठी Google Analytics किंवा Meta Pixel वापरू शकतो. त्यांना तुमची फॉर्ममधील उत्तरे कधीही मिळत नाहीत."
         },
         {
-          "h": "Changes",
-          "p": "If we change this policy we update the version number above."
+          "h": "बदल",
+          "p": "हे धोरण बदलल्यास आम्ही वरील आवृत्ती क्रमांक बदलतो."
         }
       ]
     },
     "terms": {
-      "title": "Terms of use",
+      "title": "वापराच्या अटी",
       "sections": [
         {
-          "h": "Our service",
-          "p": "{business} gives free information and help to patients about government health schemes, up to hospital admission."
+          "h": "आमची सेवा",
+          "p": "{business} रुग्णांना सरकारी आरोग्य योजनांबद्दल, रुग्णालयात दाखल होईपर्यंत, मोफत माहिती आणि मदत देते."
         },
         {
-          "h": "No medical advice",
-          "p": "Nothing on this website or from our team is medical advice. Only a doctor can advise you about treatment."
+          "h": "वैद्यकीय सल्ला नाही",
+          "p": "या वेबसाइटवरील किंवा आमच्या टीमकडून मिळणारी कोणतीही माहिती वैद्यकीय सल्ला नाही. उपचारांबद्दल फक्त डॉक्टरच सल्ला देऊ शकतात."
         },
         {
-          "h": "No guarantees",
-          "p": "Schemes, hospitals and government agencies decide eligibility, approval and treatment. We cannot guarantee any outcome."
+          "h": "कोणतीही हमी नाही",
+          "p": "पात्रता, मंजुरी आणि उपचार योजना, रुग्णालये आणि सरकारी संस्था ठरवतात. आम्ही कोणत्याही परिणामाची हमी देऊ शकत नाही."
         },
         {
-          "h": "Official information",
-          "p": "Scheme rules can change. Always confirm on the official websites and helplines."
+          "h": "अधिकृत माहिती",
+          "p": "योजनेचे नियम बदलू शकतात. नेहमी अधिकृत वेबसाइट आणि हेल्पलाइनवर खात्री करा."
         },
         {
-          "h": "Fair use",
-          "p": "Please give true information in our forms and do not misuse this website."
+          "h": "योग्य वापर",
+          "p": "कृपया आमच्या फॉर्ममध्ये खरी माहिती द्या आणि या वेबसाइटचा गैरवापर करू नका."
         },
         {
-          "h": "Law",
-          "p": "These terms are governed by the laws of India. [JURISDICTION — e.g. courts in Pune]."
+          "h": "कायदा",
+          "p": "या अटींना भारताचे कायदे लागू आहेत. [JURISDICTION — e.g. courts in Pune]."
         }
       ]
     },
     "disclaimer": {
-      "title": "Disclaimer",
+      "title": "अस्वीकरण",
       "sections": [
         {
-          "h": "Independent organisation",
-          "p": "{business} is an independent organisation. We are not a government agency, the National Health Authority, the State Health Assurance Society, an insurance company or a hospital. We are not 'authorised' or 'official' agents of any scheme."
+          "h": "स्वतंत्र संस्था",
+          "p": "{business} ही एक स्वतंत्र संस्था आहे. आम्ही सरकारी संस्था, राष्ट्रीय आरोग्य प्राधिकरण, राज्य आरोग्य हमी सोसायटी, विमा कंपनी किंवा रुग्णालय नाही. आम्ही कोणत्याही योजनेचे 'अधिकृत' प्रतिनिधी नाही."
         },
         {
-          "h": "Information only",
-          "p": "Scheme facts on this website are a simple summary. They may change. The official sources are {linkPmjay}, {linkBeneficiary} and {linkJeevandayee}, and the helplines {helplineNational} and {helplineState}."
+          "h": "फक्त माहिती",
+          "p": "या वेबसाइटवरील योजनांची माहिती थोडक्यात आहे. ती बदलू शकते. अधिकृत स्रोत {linkPmjay}, {linkBeneficiary} आणि {linkJeevandayee}, आणि हेल्पलाइन {helplineNational} व {helplineState} आहेत."
         },
         {
-          "h": "Medical decisions",
-          "p": "We do not give medical advice. Doctors at the hospital decide on treatment."
+          "h": "वैद्यकीय निर्णय",
+          "p": "आम्ही वैद्यकीय सल्ला देत नाही. उपचारांचे निर्णय रुग्णालयातील डॉक्टर घेतात."
         },
         {
-          "h": "Free for patients",
-          "p": "We never charge patients. If anyone asks you for money in our name, please report it."
+          "h": "रुग्णांसाठी मोफत",
+          "p": "आम्ही रुग्णांकडून कधीही पैसे घेत नाही. आमच्या नावाने कोणी पैसे मागितले तर कृपया कळवा."
         }
       ]
     }
   },
   "forms": {
-    "required": "required",
-    "optional": "optional",
-    "submit": "Send",
-    "sending": "Sending…",
-    "select": "Select…",
-    "freeNote": "Free for patients — always. We never ask for money.",
-    "noDocsNote": "Please don't share Aadhaar or medical documents here. Our team will guide you on the phone.",
-    "consent": "I agree that {business} may contact me by phone or WhatsApp about this request. I have read the privacy policy.",
-    "privacyLink": "Read the privacy policy",
-    "errorsTitle": "Please check the form",
+    "required": "आवश्यक",
+    "optional": "ऐच्छिक",
+    "submit": "पाठवा",
+    "sending": "पाठवत आहे…",
+    "select": "निवडा…",
+    "freeNote": "रुग्णांसाठी मोफत — नेहमी. आम्ही कधीही पैसे मागत नाही.",
+    "noDocsNote": "कृपया येथे आधार किंवा वैद्यकीय कागदपत्रे देऊ नका. आमची टीम फोनवर मार्गदर्शन करेल.",
+    "consent": "{business} ने या विनंतीबद्दल मला फोन किंवा WhatsApp वर संपर्क करायला माझी संमती आहे. मी गोपनीयता धोरण वाचले आहे.",
+    "privacyLink": "गोपनीयता धोरण वाचा",
+    "errorsTitle": "कृपया फॉर्म तपासा",
     "errors": {
-      "required": "Please fill this in.",
-      "mobile": "Please enter a 10-digit Indian mobile number.",
-      "email": "Please enter a valid email address.",
-      "consent": "Please tick this box so we can contact you.",
-      "tooLong": "This is too long."
+      "required": "कृपया हे भरा.",
+      "mobile": "कृपया 10 अंकी भारतीय मोबाईल नंबर लिहा.",
+      "email": "कृपया योग्य ईमेल पत्ता लिहा.",
+      "consent": "आम्ही संपर्क करू शकू म्हणून कृपया या चौकटीत खूण करा.",
+      "tooLong": "हे खूप मोठे आहे."
     },
-    "failTitle": "Sorry, your request could not be sent",
-    "failText": "Your answers are still here. Please try again, or contact us directly:",
-    "retry": "Try again",
-    "thanksTitle": "Thank you. We have your request.",
-    "leadIdLabel": "Your reference number",
-    "leadIdHint": "Please note this number. Say it when we call or when you message us.",
-    "callbackPromise": "We will call you within {callbackWithinHours} working hours. Our hours: {callbackHours}.",
-    "whatsappNow": "Message us on WhatsApp now",
+    "failTitle": "माफ करा, तुमची विनंती पाठवता आली नाही",
+    "failText": "तुमची उत्तरे इथेच आहेत. कृपया पुन्हा प्रयत्न करा, किंवा थेट संपर्क करा:",
+    "retry": "पुन्हा प्रयत्न करा",
+    "thanksTitle": "धन्यवाद. तुमची विनंती आम्हाला मिळाली.",
+    "leadIdLabel": "तुमचा संदर्भ क्रमांक",
+    "leadIdHint": "कृपया हा क्रमांक लिहून ठेवा. आम्ही फोन करू तेव्हा किंवा तुम्ही संदेश पाठवाल तेव्हा तो सांगा.",
+    "callbackPromise": "आम्ही {callbackWithinHours} कामाच्या तासांत तुम्हाला फोन करू. आमची वेळ: {callbackHours}.",
+    "whatsappNow": "आत्ताच WhatsApp वर संदेश पाठवा",
     "patient": {
-      "title": "Request a free callback",
-      "name": "Your name",
-      "mobile": "Mobile number",
-      "mobileHint": "10 digits, e.g. 98XXXXXXXX",
-      "district": "District",
-      "districtOther": "Other district",
-      "language": "Preferred language",
-      "who": "Who needs help?",
+      "title": "मोफत फोनसाठी विनंती करा",
+      "name": "तुमचे नाव",
+      "mobile": "मोबाईल नंबर",
+      "mobileHint": "10 अंक, उदा. 98XXXXXXXX",
+      "district": "जिल्हा",
+      "districtOther": "इतर जिल्हा",
+      "language": "आवडती भाषा",
+      "who": "मदत कोणाला हवी आहे?",
       "whoOptions": {
-        "self": "Myself",
-        "family": "A family member",
-        "senior": "A senior aged 70+"
+        "self": "मला स्वतःला",
+        "family": "कुटुंबातील व्यक्तीला",
+        "senior": "70+ वयाच्या ज्येष्ठ व्यक्तीला"
       },
-      "helpType": "What help do you need?",
+      "helpType": "कोणती मदत हवी आहे?",
       "helpOptions": {
-        "check-coverage": "Check my coverage",
-        "scheme-card": "Get a scheme card",
-        "find-hospital": "Find a hospital",
-        "doctor-advised": "A doctor advised treatment",
-        "other": "Other"
+        "check-coverage": "माझे कव्हर तपासायचे आहे",
+        "scheme-card": "योजनेचे कार्ड हवे आहे",
+        "find-hospital": "रुग्णालय शोधायचे आहे",
+        "doctor-advised": "डॉक्टरांनी उपचार सांगितले आहेत",
+        "other": "इतर"
       },
-      "hasCard": "Do you have a scheme card?",
+      "hasCard": "तुमच्याकडे योजनेचे कार्ड आहे का?",
       "hasCardOptions": {
-        "yes": "Yes",
-        "no": "No",
-        "not-sure": "Not sure"
+        "yes": "हो",
+        "no": "नाही",
+        "not-sure": "माहीत नाही"
       },
-      "callbackTime": "Best time to call you",
+      "callbackTime": "फोनसाठी सोयीची वेळ",
       "callbackOptions": {
-        "morning": "Morning (9–12)",
-        "afternoon": "Afternoon (12–4)",
-        "evening": "Evening (4–8)",
-        "any": "Any time"
+        "morning": "सकाळी (9–12)",
+        "afternoon": "दुपारी (12–4)",
+        "evening": "संध्याकाळी (4–8)",
+        "any": "कधीही"
       }
     },
     "partner": {
-      "title": "Partner enquiry",
-      "orgType": "You are a",
+      "title": "भागीदारी चौकशी",
+      "orgType": "तुम्ही आहात",
       "orgOptions": {
-        "hospital": "Hospital",
-        "csr": "Company (CSR)",
-        "ngo": "NGO / foundation",
-        "other": "Other"
+        "hospital": "रुग्णालय",
+        "csr": "कंपनी (CSR)",
+        "ngo": "NGO / फाउंडेशन",
+        "other": "इतर"
       },
-      "orgName": "Organisation name",
-      "contactName": "Your name",
-      "role": "Your role",
-      "mobile": "Mobile number",
-      "email": "Email",
-      "city": "City / district",
-      "message": "How would you like to work together?",
-      "messageHint": "Please don't include any patient details.",
-      "consent": "I agree that {business} may contact me about this enquiry. I have read the privacy policy."
+      "orgName": "संस्थेचे नाव",
+      "contactName": "तुमचे नाव",
+      "role": "तुमचे पद",
+      "mobile": "मोबाईल नंबर",
+      "email": "ईमेल",
+      "city": "शहर / जिल्हा",
+      "message": "आपण एकत्र कसे काम करू शकतो?",
+      "messageHint": "कृपया कोणत्याही रुग्णाची माहिती लिहू नका.",
+      "consent": "{business} ने या चौकशीबद्दल मला संपर्क करायला माझी संमती आहे. मी गोपनीयता धोरण वाचले आहे."
     },
     "report": {
-      "title": "Report a problem",
-      "issue": "What happened?",
+      "title": "तक्रार करा",
+      "issue": "काय झाले?",
       "issueOptions": {
-        "asked-money-our-name": "Someone asked for money in your name",
-        "hospital-asked-money": "A hospital asked for money for scheme treatment",
-        "impersonation": "Someone pretended to be from your team",
-        "website": "Problem with this website",
-        "other": "Other"
+        "asked-money-our-name": "कोणीतरी तुमच्या नावाने पैसे मागितले",
+        "hospital-asked-money": "रुग्णालयाने योजनेतील उपचारासाठी पैसे मागितले",
+        "impersonation": "कोणीतरी तुमच्या टीमचा असल्याचे भासवले",
+        "website": "या वेबसाइटमध्ये अडचण",
+        "other": "इतर"
       },
-      "where": "Where and when? (place, date)",
-      "details": "Tell us briefly what happened",
-      "detailsHint": "Please don't include Aadhaar numbers, medical reports or diagnoses.",
-      "name": "Your name",
-      "mobile": "Mobile number",
-      "anonymousHint": "You can leave name and mobile empty, but then we cannot call you back.",
-      "consent": "I agree that {business} may contact me about this report. I have read the privacy policy.",
-      "thanksTitle": "Thank you for telling us."
+      "where": "कुठे आणि कधी? (ठिकाण, तारीख)",
+      "details": "काय झाले ते थोडक्यात सांगा",
+      "detailsHint": "कृपया आधार नंबर, वैद्यकीय अहवाल किंवा निदान लिहू नका.",
+      "name": "तुमचे नाव",
+      "mobile": "मोबाईल नंबर",
+      "anonymousHint": "नाव आणि मोबाईल रिकामे ठेवू शकता, पण मग आम्ही तुम्हाला परत फोन करू शकणार नाही.",
+      "consent": "{business} ने या तक्रारीबद्दल मला संपर्क करायला माझी संमती आहे. मी गोपनीयता धोरण वाचले आहे.",
+      "thanksTitle": "आम्हाला सांगितल्याबद्दल धन्यवाद."
     }
   },
   "consentBanner": {
-    "text": "We count visits without cookies. May we also use analytics and ad cookies to improve our outreach? They never see your form answers.",
-    "accept": "Accept",
-    "decline": "No, thanks",
-    "policy": "Privacy policy"
+    "text": "आम्ही कुकीजशिवाय भेटी मोजतो. आमची जनजागृती सुधारण्यासाठी ॲनालिटिक्स आणि जाहिरात कुकीज वापरू का? त्यांना तुमची फॉर्ममधील उत्तरे कधीही दिसत नाहीत.",
+    "accept": "चालेल",
+    "decline": "नको",
+    "policy": "गोपनीयता धोरण"
   },
   "landing": {
-    "formTitle": "Get a free callback",
-    "trust": "Free for patients · Independent, not a government office"
+    "formTitle": "मोफत फोनसाठी विनंती करा",
+    "trust": "रुग्णांसाठी मोफत · स्वतंत्र संस्था, सरकारी कार्यालय नाही"
   },
   "notFound": {
-    "title": "Page not found",
-    "text": "This page does not exist. Go to the home page or contact us.",
-    "home": "Go to home page"
+    "title": "पान सापडले नाही",
+    "text": "हे पान अस्तित्वात नाही. मुख्य पानावर जा किंवा आमच्याशी संपर्क करा.",
+    "home": "मुख्य पानावर जा"
   },
   "meta": {
-    "homeTitle": "Free help with Ayushman card and government health schemes in Pune",
-    "homeDescription": "Free help to check your cover, get your Ayushman / Mahatma Phule Jan Arogya Yojana card and papers ready, and reach an empanelled hospital. Free for patients — always.",
-    "howDescription": "From your first call to hospital admission: how {business} helps you use government health schemes. Free for patients.",
-    "schemesDescription": "Simple guides to PM-JAY, Mahatma Phule Jan Arogya Yojana, Ayushman Vay Vandana and free beds in charitable hospitals in Maharashtra.",
+    "homeTitle": "आयुष्मान कार्ड मदत पुणे — सरकारी आरोग्य योजनांसाठी मोफत मदत",
+    "homeDescription": "तुमचे कव्हर तपासायला, आयुष्मान / महात्मा फुले जन आरोग्य योजनेचे कार्ड व कागदपत्रे तयार करायला आणि योजनेतील रुग्णालयापर्यंत पोहोचायला मोफत मदत. रुग्णांसाठी मोफत — नेहमी.",
+    "howDescription": "पहिल्या फोनपासून रुग्णालयात दाखल होईपर्यंत: {business} तुम्हाला सरकारी आरोग्य योजना वापरायला कशी मदत करते. रुग्णांसाठी मोफत.",
+    "schemesDescription": "PM-JAY, महात्मा फुले जन आरोग्य योजना, आयुष्मान वय वंदना आणि महाराष्ट्रातील धर्मादाय रुग्णालयांतील मोफत खाटांची सोपी माहिती.",
     "legalDescription": "{business} — {page}."
   }
 }

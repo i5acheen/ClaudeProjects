@@ -13,7 +13,7 @@ import '../globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const devanagari = Noto_Sans_Devanagari({
   subsets: ['devanagari', 'latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '700'],
   variable: '--font-devanagari',
   display: 'swap',
 });

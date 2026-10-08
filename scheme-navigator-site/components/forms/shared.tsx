@@ -349,7 +349,7 @@ export function ErrorPanel({
       ref={panelRef}
       tabIndex={-1}
       role="alert"
-      className="rounded-2xl border-2 border-red-700 bg-red-50 p-4"
+      className="scroll-mt-36 rounded-2xl border-2 border-red-700 bg-red-50 p-4"
     >
       <p className="flex items-center gap-2 text-lg font-bold text-red-800">
         <AlertTriangle className="size-5" aria-hidden />
@@ -393,10 +393,13 @@ export function ThanksPanel({
 }) {
   return (
     <div
-      ref={(el) => el?.focus()}
+      ref={(el) => {
+        el?.focus({ preventScroll: true });
+        el?.scrollIntoView({ block: 'start' });
+      }}
       tabIndex={-1}
       role="status"
-      className="card space-y-4 outline-none"
+      className="card scroll-mt-36 space-y-4 outline-none"
     >
       <h2 className="flex items-center gap-2 text-2xl font-bold">
         <CheckCircle2 className="size-7 shrink-0 text-brand-700" aria-hidden />
@@ -404,7 +407,9 @@ export function ThanksPanel({
       </h2>
       <div className="rounded-2xl bg-white p-4 ring-1 ring-line">
         <p className="text-base text-muted">{strings.leadIdLabel}</p>
-        <p className="font-mono text-3xl font-bold tracking-wider text-ink">{leadId}</p>
+        <p className="font-mono text-2xl font-bold tracking-wide whitespace-nowrap text-ink sm:text-3xl">
+          {leadId}
+        </p>
         <p className="mt-1 text-base text-muted">{strings.leadIdHint}</p>
       </div>
       {children}

@@ -39,7 +39,7 @@ cd whatsapp-clinic-bot/voice
 python3.11 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env      # fill SARVAM_API_KEY, GOOGLE_API_KEY; set ENABLE_MIC_TEST=true
-python -m uvicorn server:app --port 5001
+python -m uvicorn server:app --host 127.0.0.1 --port 5001
 ```
 In a second terminal (same folder, venv active):
 ```bash

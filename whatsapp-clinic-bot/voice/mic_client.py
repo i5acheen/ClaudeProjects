@@ -5,7 +5,7 @@ acknowledges "mark" messages. The engine uses those acknowledgements to know whe
 speaking, which affects turn-taking, the welcome message and hang-up.
 
 Usage (server running with ENABLE_MIC_TEST=true):
-    python mic_client.py            # or: python mic_client.py --url ws://localhost:5001/chat/v1/neha
+    python mic_client.py            # or: python mic_client.py --url ws://127.0.0.1:5001/chat/v1/neha
 Use headphones. Press Ctrl+C to end the call.
 """
 
@@ -145,7 +145,7 @@ async def run(url: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--url", default="ws://localhost:5001/chat/v1/neha")
+    parser.add_argument("--url", default="ws://127.0.0.1:5001/chat/v1/neha")
     args = parser.parse_args()
     try:
         asyncio.run(run(args.url))

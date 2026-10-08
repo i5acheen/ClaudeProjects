@@ -1,0 +1,676 @@
+{
+  "_meta": {
+    "language": "en",
+    "reviewed": true,
+    "reviewedKeys": []
+  },
+  "nav": {
+    "home": "Home",
+    "howItWorks": "How it works",
+    "schemes": "Schemes",
+    "getHelp": "Get help",
+    "camps": "Health camps",
+    "forHospitals": "For hospitals",
+    "forPartners": "CSR & NGOs",
+    "about": "About",
+    "faq": "FAQ",
+    "report": "Report a problem",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use",
+    "disclaimer": "Disclaimer",
+    "menu": "Menu",
+    "skip": "Skip to main content",
+    "language": "Language",
+    "mainNav": "Main",
+    "footerNav": "Footer",
+    "patients": "For patients",
+    "organisation": "Organisation",
+    "legal": "Legal"
+  },
+  "common": {
+    "whatsapp": "WhatsApp us",
+    "call": "Call us",
+    "callShort": "Call",
+    "whatsappShort": "WhatsApp",
+    "requestCallback": "Request a callback",
+    "freeForPatients": "Free for patients — always",
+    "independent": "Independent, not a government office",
+    "neverAskMoney": "We never ask for money",
+    "independenceLine": "{business} is an independent organisation. We are not a government agency. Official information: {linkPmjay}, {linkJeevandayee}, helplines {helplineNational} and {helplineState}.",
+    "learnMore": "Learn more",
+    "readMore": "Read more",
+    "doctorDecides": "We do not give medical advice. The doctor at the hospital decides your treatment.",
+    "infoAsOf": "Information as of {date}. Rules can change — confirm on the official portal or helpline.",
+    "officialHelplines": "Official helplines",
+    "helplineNationalLabel": "Ayushman Bharat (PM-JAY, Vay Vandana)",
+    "helplineStateLabel": "Mahatma Phule Jan Arogya Yojana",
+    "officialLinks": "Official websites",
+    "draftLegal": "Draft — to be reviewed by a lawyer before launch.",
+    "contactUs": "Contact us",
+    "phoneLabel": "Phone",
+    "whatsappLabel": "WhatsApp",
+    "emailLabel": "Email",
+    "addressLabel": "Office",
+    "hoursLabel": "Hours",
+    "areaLabel": "Area we serve",
+    "rightsReserved": "All rights reserved.",
+    "back": "Back",
+    "tollFree": "toll-free",
+    "opensNewTab": "(opens in a new tab)"
+  },
+  "whatsappMessage": {
+    "default": "Hello, I want help with a government health scheme.",
+    "hospital": "Hello, I am writing from a hospital about working with you.",
+    "partner": "Hello, I am writing about a CSR / NGO partnership.",
+    "report": "Hello, I want to report a problem."
+  },
+  "home": {
+    "eyebrow": "Free help · {districts}",
+    "title": "Free treatment under government schemes — we help you use it",
+    "lead": "Many families in Maharashtra are covered for cashless treatment but do not know it. We help you check your cover, get your papers ready and reach the right hospital.",
+    "freeNote": "Free for patients. We never ask you for money.",
+    "stepsTitle": "Three simple steps",
+    "steps": [
+      {
+        "title": "Check cover",
+        "text": "We check if you or your family are covered by a government health scheme."
+      },
+      {
+        "title": "Get documents ready",
+        "text": "We help you get your scheme card and papers ready."
+      },
+      {
+        "title": "Visit the right hospital",
+        "text": "We help you book a visit at an empanelled hospital and go with you until admission."
+      }
+    ],
+    "schemesTitle": "Schemes we help with",
+    "schemesLead": "Short guides in simple words. Always confirm on the official website.",
+    "campsTitle": "Upcoming health camps",
+    "campsLead": "Meet our team in person. Bring your Aadhaar card and ration card.",
+    "noCamps": "No camps are listed right now. Call or WhatsApp us to ask about the next one.",
+    "allCamps": "See all camps",
+    "whoTitle": "Who we help",
+    "who": [
+      {
+        "title": "Families",
+        "text": "Covered by PM-JAY and Mahatma Phule Jan Arogya Yojana."
+      },
+      {
+        "title": "Seniors aged 70+",
+        "text": "Covered by Ayushman Vay Vandana, whatever their income."
+      },
+      {
+        "title": "Poor patients",
+        "text": "Who can ask for free or low-cost beds at charitable trust hospitals."
+      }
+    ],
+    "moneyTitle": "If anyone asks you for money",
+    "moneyText": "Scheme treatment is cashless. We never charge patients. If anyone asks you for money in our name, or a hospital asks for money for scheme treatment, tell us and call the official helpline.",
+    "moneyCta": "Report a problem",
+    "ctaTitle": "Not sure where to start?",
+    "ctaText": "Leave your number. We will call you back and explain, in Marathi, Hindi or English."
+  },
+  "how": {
+    "title": "How it works",
+    "lead": "We walk with you from your first call up to hospital admission. From admission, the hospital takes over.",
+    "steps": [
+      {
+        "title": "You contact us",
+        "text": "Call, WhatsApp, fill the form, or meet us at a camp."
+      },
+      {
+        "title": "We check your eligibility",
+        "text": "We ask a few simple questions and check which scheme covers you."
+      },
+      {
+        "title": "We help with your card and documents",
+        "text": "If you need a scheme card, we show you how to get one. We tell you which papers to bring."
+      },
+      {
+        "title": "We book an OPD visit",
+        "text": "We book a visit at an empanelled hospital and tell you how to get there."
+      },
+      {
+        "title": "The doctor advises",
+        "text": "The hospital doctor examines you. All medical advice comes from the doctor, not from us."
+      },
+      {
+        "title": "You decide",
+        "text": "You and your family decide what to do. There is no pressure from us."
+      },
+      {
+        "title": "We help you reach admission",
+        "text": "We help you get the pre-authorisation papers ready and go with you to admission."
+      }
+    ],
+    "handoverTitle": "From admission, the hospital takes over",
+    "handoverText": "Treatment, discharge and scheme claims are handled by the hospital and the scheme. Our work ends at admission.",
+    "freeTitle": "Is it free?",
+    "freeText": "Yes. Patients never pay us anything. We are paid by partner hospitals for staff and outreach work, with a fixed fee — never per patient."
+  },
+  "schemes": {
+    "title": "Government health schemes",
+    "lead": "Simple guides to the main schemes in Maharashtra. Always check the official website or helpline before you go.",
+    "whoTitle": "Who is covered",
+    "whatTitle": "What is covered",
+    "bringTitle": "What to bring",
+    "howTitle": "How to use it",
+    "helpTitle": "How we help",
+    "faqTitle": "Questions",
+    "officialTitle": "Official links and helplines",
+    "otherSchemes": "Other schemes",
+    "pmjay": {
+      "name": "PM-JAY + Mahatma Phule Jan Arogya Yojana",
+      "short": "Cashless treatment up to {coverPerFamily} per family per year at empanelled hospitals.",
+      "metaTitle": "Ayushman card and Mahatma Phule Jan Arogya Yojana help in Pune",
+      "metaDescription": "Free help to check your cover under PM-JAY and MJPJAY in Maharashtra: up to {coverPerFamily} cashless treatment per family per year. Free for patients.",
+      "intro": "In Maharashtra, Ayushman Bharat PM-JAY and the Mahatma Jyotirao Phule Jan Arogya Yojana work together as one scheme. It gives cashless treatment at empanelled hospitals.",
+      "who": [
+        "Families in Maharashtra. Coverage was extended to all Maharashtra families in {allFamiliesSince}.",
+        "You use your Aadhaar card or ration card to show you are covered.",
+        "Confirm your own cover on the official website or helpline."
+      ],
+      "what": [
+        "Cashless treatment up to {coverPerFamily} per family per year.",
+        "About {procedureCount} treatments and operations are included.",
+        "Treatment only at empanelled (scheme) hospitals.",
+        "You should not pay for scheme treatment at the hospital."
+      ],
+      "bring": [
+        "Aadhaar card",
+        "Ration card (yellow, orange or white)",
+        "Mobile phone linked to Aadhaar",
+        "Any doctor's papers you already have"
+      ],
+      "how": [
+        "Go to an empanelled hospital and meet the scheme desk (Arogya Mitra).",
+        "The hospital checks your cover and asks the scheme for approval (pre-authorisation).",
+        "After approval, treatment is cashless."
+      ],
+      "faq": [
+        {
+          "q": "Do I need a card before going to the hospital?",
+          "a": "Not always. The hospital's scheme desk can check your cover using your Aadhaar or ration card. We can help you check before you go."
+        },
+        {
+          "q": "Does the hospital decide which treatment I get?",
+          "a": "Yes. The doctor decides your treatment. The scheme decides what it pays for."
+        },
+        {
+          "q": "What if the hospital asks for money?",
+          "a": "Scheme treatment is cashless. Call {helplineState} or {helplineNational}, and tell us."
+        }
+      ]
+    },
+    "vay": {
+      "name": "Ayushman Vay Vandana (70+)",
+      "short": "Everyone aged {vayVandanaAge}+ is covered for up to {vayVandanaCover} a year, whatever their income.",
+      "metaTitle": "Ayushman Vay Vandana card help for seniors 70+ in Pune",
+      "metaDescription": "Free help for seniors aged 70+ to enrol in Ayushman Vay Vandana: up to {vayVandanaCover} a year, any income. Free for patients.",
+      "intro": "Ayushman Vay Vandana started on {vayVandanaLaunched}. It covers senior citizens aged {vayVandanaAge} and above.",
+      "who": [
+        "Everyone aged {vayVandanaAge} or above.",
+        "Any income — rich or poor.",
+        "Age is checked from your Aadhaar card."
+      ],
+      "what": [
+        "Cover up to {vayVandanaCover} a year.",
+        "Treatment at empanelled hospitals.",
+        "If your family is already covered, the senior gets extra cover for themselves."
+      ],
+      "bring": [
+        "Aadhaar card",
+        "Mobile phone linked to Aadhaar (for OTP)"
+      ],
+      "how": [
+        "Enrol at an empanelled hospital, on the Ayushman app, or on {linkBeneficiary}.",
+        "Get your Ayushman Vay Vandana card.",
+        "Use it at an empanelled hospital when the doctor advises treatment."
+      ],
+      "faq": [
+        {
+          "q": "My father is 72 and we are not poor. Is he covered?",
+          "a": "Yes, this scheme does not look at income. Confirm with helpline {helplineNational}."
+        },
+        {
+          "q": "Can a son or daughter do the enrolment?",
+          "a": "A family member can help. The senior's Aadhaar and the mobile linked to it are needed for OTP."
+        },
+        {
+          "q": "Does enrolment cost money?",
+          "a": "No. Enrolment is free. We also never charge for helping."
+        }
+      ]
+    },
+    "charity": {
+      "name": "Free beds in charitable hospitals",
+      "short": "Charitable trust hospitals keep {charityFreeBedsPercent} of beds free and {charityConcessionBedsPercent} at low cost for poor patients.",
+      "metaTitle": "Free and low-cost beds in charitable hospitals, Maharashtra",
+      "metaDescription": "Charitable trust hospitals in Maharashtra keep {charityFreeBedsPercent} of beds free and {charityConcessionBedsPercent} concessional for poor patients. Free help to ask.",
+      "intro": "Under the Maharashtra Public Trusts Act and a {charityCourtYear} Bombay High Court ruling, charitable trust hospitals must keep some beds for poor and weaker-section patients.",
+      "who": [
+        "Poor patients and patients from weaker sections.",
+        "Income limits apply. The hospital's charity desk checks them.",
+        "This is separate from the government insurance schemes."
+      ],
+      "what": [
+        "{charityFreeBedsPercent} of beds are free.",
+        "Another {charityConcessionBedsPercent} of beds are at a lower (concessional) rate.",
+        "Only at registered charitable trust hospitals."
+      ],
+      "bring": [
+        "Income certificate or ration card",
+        "Aadhaar card",
+        "Any doctor's papers you already have"
+      ],
+      "how": [
+        "Ask at the hospital's charity or social work desk.",
+        "Show your income papers.",
+        "If you have a complaint, contact the Charity Commissioner's office."
+      ],
+      "faq": [
+        {
+          "q": "How do I know if a hospital is a charitable trust hospital?",
+          "a": "Ask the hospital, or check with the Charity Commissioner's office. We can help you find out."
+        },
+        {
+          "q": "What if the hospital says no free beds are available?",
+          "a": "Ask for it in writing. You can complain to the Charity Commissioner's office. Tell us and we will guide you."
+        }
+      ]
+    }
+  },
+  "getHelp": {
+    "title": "Get help",
+    "lead": "Tell us a little about what you need. We will call you back. It is free.",
+    "orTitle": "Prefer to talk now?",
+    "orText": "WhatsApp or call us. We speak Marathi, Hindi and English.",
+    "metaDescription": "Request a free callback for help with Ayushman card, Mahatma Phule Jan Arogya Yojana or Vay Vandana. Free for patients."
+  },
+  "camps": {
+    "title": "Health camps",
+    "lead": "At our camps you can check your scheme cover, get help with your card, and get basic health checks.",
+    "upcoming": "Upcoming camps",
+    "none": "No camps are listed right now. Call or WhatsApp us to ask about the next camp near you.",
+    "when": "When",
+    "where": "Where",
+    "district": "District",
+    "screened": "What is checked",
+    "bring": "What to bring",
+    "organisedWith": "With",
+    "contact": "Contact",
+    "map": "Open in Maps",
+    "shortLink": "Short link",
+    "freeNote": "The camp is free. Nobody at the camp should ask you for money.",
+    "doctorNote": "Camp checks are basic screening, not a diagnosis. A doctor decides any treatment.",
+    "past": "This camp is over.",
+    "details": "Camp details",
+    "metaDescription": "Free health and scheme help camps by {business}. Check your Ayushman cover and get help with your card."
+  },
+  "hospitals": {
+    "eyebrow": "For empanelled hospitals",
+    "title": "More scheme patients, better prepared, at your scheme desk",
+    "lead": "We help empanelled hospitals reach families who are covered but do not use their cover, and we support your scheme desk before admission.",
+    "offerTitle": "What we offer",
+    "offers": [
+      {
+        "title": "Pre-admission scheme desk staffing",
+        "text": "NHA-trained Arogya Mitras and coordinators at your hospital: eligibility checks, card help, documents ready for pre-authorisation, handover at admission, and a monthly report. Discharge and claims stay with your own team."
+      },
+      {
+        "title": "Outreach programmes",
+        "text": "Screening camps, community and senior-citizen talks, enrolment drives, and a phone and WhatsApp helpline — in Marathi and Hindi."
+      }
+    ],
+    "feesTitle": "How we charge",
+    "fees": [
+      "Fixed monthly fee per staff member, or per programme or camp.",
+      "Never a fee per patient, admission, procedure or claim.",
+      "Patients never pay anything."
+    ],
+    "rulesTitle": "How we work",
+    "rules": [
+      "No clinical role: all medical advice and decisions stay with your doctors.",
+      "Our work ends at admission. Treatment, discharge and claims stay with the hospital.",
+      "Every enquiry gets a lead ID so monthly reports are clear.",
+      "You approve every ad and page about your hospital. No cure claims or guarantees.",
+      "We follow the State Health Agency's rules on outreach and camps."
+    ],
+    "reportTitle": "What you get every month",
+    "report": [
+      "People reached",
+      "Eligibility checks",
+      "Enrolments helped",
+      "OPD visits booked",
+      "Patients admitted (tracked, never a target)"
+    ],
+    "formTitle": "Talk to us",
+    "formLead": "Tell us about your hospital. We will reply soon.",
+    "partnerPlaceholder": "[PARTNER HOSPITAL — add only after a signed agreement]",
+    "metaTitle": "Scheme desk staffing and outreach for empanelled hospitals in Maharashtra",
+    "metaDescription": "Arogya Mitra staffing and outreach programmes for PM-JAY / MJPJAY empanelled hospitals. Fixed monthly fees, never per patient."
+  },
+  "partners": {
+    "eyebrow": "For CSR funders and NGOs",
+    "title": "Help people use the health cover they already have",
+    "lead": "Most families in Maharashtra are now covered for free treatment. Many still do not use it: they do not know they are covered, cannot get a card, or do not know which hospital to go to.",
+    "problemTitle": "The problem",
+    "problem": [
+      "People do not know they are covered.",
+      "Seniors and first-time internet users struggle with enrolment.",
+      "Families do not know which hospital accepts the scheme for their treatment.",
+      "Some are wrongly asked to pay."
+    ],
+    "doTitle": "What we do",
+    "do": [
+      "Awareness in the community: camps, talks, self-help groups, ration-shop notices.",
+      "Eligibility checks and help with scheme enrolment.",
+      "Helping patients reach an empanelled hospital and get to admission.",
+      "A free phone and WhatsApp helpline in Marathi and Hindi."
+    ],
+    "impactTitle": "How we report impact",
+    "impactLead": "Every person we help gets a lead ID, so each number can be traced. We report:",
+    "impact": [
+      "People reached",
+      "Eligibility checks",
+      "Enrolments helped",
+      "Patients admitted",
+      "Patients asked to pay anything (target: zero)"
+    ],
+    "impactNote": "We will publish numbers only after they are measured. No numbers are shown here yet.",
+    "formTitle": "Partner with us",
+    "formLead": "Tell us about your organisation and what you would like to support.",
+    "metaTitle": "CSR and NGO partnership for patient navigation in Maharashtra",
+    "metaDescription": "Fund outreach and patient navigation that helps poor families and seniors use free government health schemes. Clear impact reporting."
+  },
+  "about": {
+    "title": "About us",
+    "missionTitle": "Our mission",
+    "mission": "Every family in Maharashtra that is covered for free treatment should be able to use that cover — easily, in their own language, without paying anyone.",
+    "whatTitle": "What we do",
+    "what": "We help patients and families check their scheme cover, get their card and documents ready, find an empanelled hospital, book an OPD visit, and reach admission. The hospital handles treatment, discharge and claims.",
+    "independenceTitle": "We are independent",
+    "independence": [
+      "We are not a government office, not an insurance company and not a hospital.",
+      "We do not create scheme cards or touch the scheme's claim system.",
+      "We never keep your Aadhaar, ration card or medical documents.",
+      "Patients never pay us. Partner hospitals pay a fixed fee for staff and outreach — never per patient."
+    ],
+    "areaTitle": "Where we work",
+    "area": "At launch: {districts}.",
+    "teamTitle": "Our team",
+    "team": "[TEAM DETAILS — add real names and roles only]",
+    "metaDescription": "{business} is an independent organisation helping patients in Maharashtra use free government health schemes. Free for patients."
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "metaDescription": "Is it really free? Do you work for the government? What documents do I need? Answers in simple words.",
+    "items": [
+      {
+        "q": "Is it really free?",
+        "a": "Yes. Free for patients — always. We never ask patients for money for any reason: not for card help, forms, travel or 'processing'."
+      },
+      {
+        "q": "Then who pays you?",
+        "a": "Partner hospitals pay us a fixed monthly fee for staff and outreach work, and later CSR funders may support our work. We are never paid per patient."
+      },
+      {
+        "q": "Do you work for the government?",
+        "a": "No. {business} is an independent organisation. We are not a government agency, not an insurer and not a hospital. Official information is on {linkPmjay} and {linkJeevandayee}."
+      },
+      {
+        "q": "Which hospitals do you work with?",
+        "a": "We help you find an empanelled (scheme) hospital for the treatment you need. You can also search for empanelled hospitals on the official websites."
+      },
+      {
+        "q": "What documents do I need?",
+        "a": "Usually your Aadhaar card, ration card and a mobile phone linked to Aadhaar. Bring any doctor's papers you already have. Please do not send documents in our online form — we will guide you on the phone."
+      },
+      {
+        "q": "What if a hospital asks me for money?",
+        "a": "Scheme treatment is cashless. Call the official helpline {helplineNational} or {helplineState}, and tell us."
+      },
+      {
+        "q": "Do you decide my treatment?",
+        "a": "No. We do not give medical advice. The doctor at the hospital decides your treatment. You decide whether to go ahead."
+      },
+      {
+        "q": "What happens after admission?",
+        "a": "From admission, the hospital takes over. Treatment, discharge and scheme claims are handled by the hospital."
+      },
+      {
+        "q": "Can you guarantee the scheme will approve my treatment?",
+        "a": "No. The scheme decides approval. We help you check and prepare so you are ready."
+      }
+    ]
+  },
+  "report": {
+    "title": "Report a problem or misuse",
+    "lead": "If anyone asks you for money in our name, tell us. We never charge patients.",
+    "callText": "You can also call us on {phone}.",
+    "officialText": "For problems with scheme treatment at a hospital, call the official helplines:",
+    "metaDescription": "Tell us if anyone asks you for money in the name of {business}, or if you face a problem with scheme treatment."
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy policy",
+      "updated": "Version {version}",
+      "sections": [
+        {
+          "h": "Who we are",
+          "p": "{business} ('we') helps patients use government health schemes. Contact: {email}, {phone}, {address}."
+        },
+        {
+          "h": "What we collect",
+          "p": "When you fill a form we collect your name, mobile number, district, preferred language, who needs help, the type of help and your preferred callback time. For partner enquiries we collect your organisation and contact details. We also record where you came from (for example a camp QR code or an ad), the date and time of your consent, and the version of this policy."
+        },
+        {
+          "h": "What we do not collect",
+          "p": "We do not ask for Aadhaar numbers, ration card numbers, medical reports or diagnoses on this website. Please do not send them. We do not keep copies of your documents."
+        },
+        {
+          "h": "Why we use it",
+          "p": "Only to contact you by phone or WhatsApp about your request, to help you with the scheme process up to admission, and to count our work in reports (as totals, without your name)."
+        },
+        {
+          "h": "Who we share it with",
+          "p": "With a partner hospital only when you ask us to book a visit there. We never sell your data. We do not send your form answers to advertising or analytics companies."
+        },
+        {
+          "h": "Where it is stored",
+          "p": "In a Google Sheet with access limited to our team, and on our phones for WhatsApp messages."
+        },
+        {
+          "h": "How long we keep it",
+          "p": "[RETENTION PERIOD — e.g. 12 months after your last contact], then we delete it."
+        },
+        {
+          "h": "Your choices",
+          "p": "You can ask us to see, correct or delete your data at any time. Contact {email} or {phone}."
+        },
+        {
+          "h": "Cookies and analytics",
+          "p": "We count page visits without cookies. If you accept, we may also use Google Analytics or Meta Pixel to measure our ads. They never receive your form answers."
+        },
+        {
+          "h": "Changes",
+          "p": "If we change this policy we update the version number above."
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of use",
+      "sections": [
+        {
+          "h": "Our service",
+          "p": "{business} gives free information and help to patients about government health schemes, up to hospital admission."
+        },
+        {
+          "h": "No medical advice",
+          "p": "Nothing on this website or from our team is medical advice. Only a doctor can advise you about treatment."
+        },
+        {
+          "h": "No guarantees",
+          "p": "Schemes, hospitals and government agencies decide eligibility, approval and treatment. We cannot guarantee any outcome."
+        },
+        {
+          "h": "Official information",
+          "p": "Scheme rules can change. Always confirm on the official websites and helplines."
+        },
+        {
+          "h": "Fair use",
+          "p": "Please give true information in our forms and do not misuse this website."
+        },
+        {
+          "h": "Law",
+          "p": "These terms are governed by the laws of India. [JURISDICTION — e.g. courts in Pune]."
+        }
+      ]
+    },
+    "disclaimer": {
+      "title": "Disclaimer",
+      "sections": [
+        {
+          "h": "Independent organisation",
+          "p": "{business} is an independent organisation. We are not a government agency, the National Health Authority, the State Health Assurance Society, an insurance company or a hospital. We are not 'authorised' or 'official' agents of any scheme."
+        },
+        {
+          "h": "Information only",
+          "p": "Scheme facts on this website are a simple summary. They may change. The official sources are {linkPmjay}, {linkBeneficiary} and {linkJeevandayee}, and the helplines {helplineNational} and {helplineState}."
+        },
+        {
+          "h": "Medical decisions",
+          "p": "We do not give medical advice. Doctors at the hospital decide on treatment."
+        },
+        {
+          "h": "Free for patients",
+          "p": "We never charge patients. If anyone asks you for money in our name, please report it."
+        }
+      ]
+    }
+  },
+  "forms": {
+    "required": "required",
+    "optional": "optional",
+    "submit": "Send",
+    "sending": "Sending…",
+    "select": "Select…",
+    "freeNote": "Free for patients — always. We never ask for money.",
+    "noDocsNote": "Please don't share Aadhaar or medical documents here. Our team will guide you on the phone.",
+    "consent": "I agree that {business} may contact me by phone or WhatsApp about this request. I have read the privacy policy.",
+    "privacyLink": "Read the privacy policy",
+    "errorsTitle": "Please check the form",
+    "errors": {
+      "required": "Please fill this in.",
+      "mobile": "Please enter a 10-digit Indian mobile number.",
+      "email": "Please enter a valid email address.",
+      "consent": "Please tick this box so we can contact you.",
+      "tooLong": "This is too long."
+    },
+    "failTitle": "Sorry, your request could not be sent",
+    "failText": "Your answers are still here. Please try again, or contact us directly:",
+    "retry": "Try again",
+    "thanksTitle": "Thank you. We have your request.",
+    "leadIdLabel": "Your reference number",
+    "leadIdHint": "Please note this number. Say it when we call or when you message us.",
+    "callbackPromise": "We will call you within {callbackWithinHours} working hours. Our hours: {callbackHours}.",
+    "whatsappNow": "Message us on WhatsApp now",
+    "patient": {
+      "title": "Request a free callback",
+      "name": "Your name",
+      "mobile": "Mobile number",
+      "mobileHint": "10 digits, e.g. 98XXXXXXXX",
+      "district": "District",
+      "districtOther": "Other district",
+      "language": "Preferred language",
+      "who": "Who needs help?",
+      "whoOptions": {
+        "self": "Myself",
+        "family": "A family member",
+        "senior": "A senior aged 70+"
+      },
+      "helpType": "What help do you need?",
+      "helpOptions": {
+        "check-coverage": "Check my coverage",
+        "scheme-card": "Get a scheme card",
+        "find-hospital": "Find a hospital",
+        "doctor-advised": "A doctor advised treatment",
+        "other": "Other"
+      },
+      "hasCard": "Do you have a scheme card?",
+      "hasCardOptions": {
+        "yes": "Yes",
+        "no": "No",
+        "not-sure": "Not sure"
+      },
+      "callbackTime": "Best time to call you",
+      "callbackOptions": {
+        "morning": "Morning (9–12)",
+        "afternoon": "Afternoon (12–4)",
+        "evening": "Evening (4–8)",
+        "any": "Any time"
+      }
+    },
+    "partner": {
+      "title": "Partner enquiry",
+      "orgType": "You are a",
+      "orgOptions": {
+        "hospital": "Hospital",
+        "csr": "Company (CSR)",
+        "ngo": "NGO / foundation",
+        "other": "Other"
+      },
+      "orgName": "Organisation name",
+      "contactName": "Your name",
+      "role": "Your role",
+      "mobile": "Mobile number",
+      "email": "Email",
+      "city": "City / district",
+      "message": "How would you like to work together?",
+      "messageHint": "Please don't include any patient details.",
+      "consent": "I agree that {business} may contact me about this enquiry. I have read the privacy policy."
+    },
+    "report": {
+      "title": "Report a problem",
+      "issue": "What happened?",
+      "issueOptions": {
+        "asked-money-our-name": "Someone asked for money in your name",
+        "hospital-asked-money": "A hospital asked for money for scheme treatment",
+        "impersonation": "Someone pretended to be from your team",
+        "website": "Problem with this website",
+        "other": "Other"
+      },
+      "where": "Where and when? (place, date)",
+      "details": "Tell us briefly what happened",
+      "detailsHint": "Please don't include Aadhaar numbers, medical reports or diagnoses.",
+      "name": "Your name",
+      "mobile": "Mobile number",
+      "anonymousHint": "You can leave name and mobile empty, but then we cannot call you back.",
+      "consent": "I agree that {business} may contact me about this report. I have read the privacy policy.",
+      "thanksTitle": "Thank you for telling us."
+    }
+  },
+  "consentBanner": {
+    "text": "We count visits without cookies. May we also use analytics and ad cookies to improve our outreach? They never see your form answers.",
+    "accept": "Accept",
+    "decline": "No, thanks",
+    "policy": "Privacy policy"
+  },
+  "landing": {
+    "formTitle": "Get a free callback",
+    "trust": "Free for patients · Independent, not a government office"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "This page does not exist. Go to the home page or contact us.",
+    "home": "Go to home page"
+  },
+  "meta": {
+    "homeTitle": "Free help with Ayushman card and government health schemes in Pune",
+    "homeDescription": "Free help to check your cover, get your Ayushman / Mahatma Phule Jan Arogya Yojana card and papers ready, and reach an empanelled hospital. Free for patients — always.",
+    "howDescription": "From your first call to hospital admission: how {business} helps you use government health schemes. Free for patients.",
+    "schemesDescription": "Simple guides to PM-JAY, Mahatma Phule Jan Arogya Yojana, Ayushman Vay Vandana and free beds in charitable hospitals in Maharashtra.",
+    "legalDescription": "{business} — {page}."
+  }
+}

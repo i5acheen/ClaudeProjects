@@ -1,0 +1,47 @@
+{
+  "_help": "One object per ad campaign. URL: /<lang>/lp/<slug>. src is stored with every enquiry (a src in the URL wins). scheme = pmjay-mjpjay | vay-vandana | charitable-hospitals | general. Text needs en, mr and hi. Landing pages are not indexed by search engines.",
+  "pages": [
+    {
+      "slug": "ayushman-card-help-pune",
+      "src": "lp-ayushman-pune",
+      "scheme": "pmjay-mjpjay",
+      "district": "pune",
+      "headline": {
+        "en": "Free help with your Ayushman card in Pune",
+        "mr": "पुण्यात आयुष्मान कार्डसाठी मोफत मदत",
+        "hi": "पुणे में आयुष्मान कार्ड के लिए मुफ़्त मदद"
+      },
+      "subhead": {
+        "en": "Find out if your family is covered for cashless treatment up to {coverPerFamily} a year. We help you check and prepare. You pay nothing.",
+        "mr": "तुमच्या कुटुंबाला वर्षाला {coverPerFamily} पर्यंत कॅशलेस उपचार मिळतात का ते जाणून घ्या. आम्ही तपासायला आणि तयारी करायला मदत करतो. तुम्ही काहीही पैसे देत नाही.",
+        "hi": "जानिए क्या आपके परिवार को साल में {coverPerFamily} तक कैशलेस इलाज मिलता है। हम जांचने और तैयारी करने में मदद करते हैं। आप कुछ भी नहीं देते।"
+      },
+      "points": {
+        "en": ["Check if you are covered", "Get your card and papers ready", "Find an empanelled hospital"],
+        "mr": ["तुम्हाला कव्हर आहे का ते तपासा", "कार्ड आणि कागदपत्रे तयार करा", "योजनेतील रुग्णालय शोधा"],
+        "hi": ["जांचें कि आप कवर हैं या नहीं", "कार्ड और कागज़ तैयार करें", "योजना वाला अस्पताल ढूंढें"]
+      }
+    },
+    {
+      "slug": "senior-70-plus-health-cover",
+      "src": "lp-vay-vandana",
+      "scheme": "vay-vandana",
+      "district": "",
+      "headline": {
+        "en": "Aged 70 or above? You may get free treatment cover",
+        "mr": "वय 70 किंवा जास्त? तुम्हाला मोफत उपचार कव्हर मिळू शकते",
+        "hi": "उम्र 70 या उससे ज़्यादा? आपको मुफ़्त इलाज कवर मिल सकता है"
+      },
+      "subhead": {
+        "en": "Ayushman Vay Vandana covers everyone aged {vayVandanaAge}+ for up to {vayVandanaCover} a year, whatever their income. We help you enrol. Free for patients.",
+        "mr": "आयुष्मान वय वंदना योजनेत {vayVandanaAge}+ वयाच्या प्रत्येकाला, उत्पन्न कितीही असो, वर्षाला {vayVandanaCover} पर्यंत कव्हर मिळते. नोंदणीसाठी आम्ही मदत करतो. रुग्णांसाठी मोफत.",
+        "hi": "आयुष्मान वय वंदना में {vayVandanaAge}+ उम्र के हर व्यक्ति को, आय कुछ भी हो, साल में {vayVandanaCover} तक कवर मिलता है। नामांकन में हम मदद करते हैं। मरीज़ों के लिए मुफ़्त।"
+      },
+      "points": {
+        "en": ["Any income can apply", "We help with enrolment", "A family member can call for you"],
+        "mr": ["कोणत्याही उत्पन्नाचे लोक अर्ज करू शकतात", "नोंदणीसाठी आम्ही मदत करतो", "कुटुंबातील कोणीही तुमच्यासाठी फोन करू शकतो"],
+        "hi": ["किसी भी आय वाले आवेदन कर सकते हैं", "नामांकन में हम मदद करते हैं", "परिवार का कोई भी आपके लिए फ़ोन कर सकता है"]
+      }
+    }
+  ]
+}

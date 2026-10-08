@@ -1,0 +1,257 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: var(--font-inter), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  --font-deva: var(--font-devanagari), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #111827;
+  --color-muted: #4b5563;
+  --color-line: #e5e7eb;
+  --color-mist: #f8fafb;
+
+  /* Accent: deep teal (AA on white: 5.5:1 for 700) */
+  --color-brand-50: #effaf8;
+  --color-brand-100: #d5f2ec;
+  --color-brand-200: #a9e3d8;
+  --color-brand-600: #0f7c73;
+  --color-brand-700: #0b6b63;
+  --color-brand-800: #0a564f;
+  --color-brand-900: #083f3b;
+
+  /* Warm secondary: saffron / clay (700 is AA on white) */
+  --color-warm-50: #fff7ed;
+  --color-warm-100: #ffedd5;
+  --color-warm-200: #fed7aa;
+  --color-warm-600: #c2560c;
+  --color-warm-700: #a3460a;
+  --color-warm-800: #7c3510;
+
+  --color-whatsapp: #0e7a3f;
+  --color-whatsapp-dark: #0b6234;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5.5rem;
+  }
+  body {
+    background: #fff;
+    color: var(--color-ink);
+    font-size: 1.125rem; /* 18px body on mobile */
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
+  }
+  /* Devanagari needs extra line height so matras are never clipped. */
+  :lang(mr) body,
+  :lang(hi) body {
+    font-family: var(--font-deva);
+    line-height: 1.8;
+  }
+  h1,
+  h2,
+  h3 {
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  :lang(mr) :is(h1, h2, h3),
+  :lang(hi) :is(h1, h2, h3) {
+    line-height: 1.45;
+  }
+  a {
+    color: inherit;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-warm-600);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-x {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container-x {
+      padding-inline: 2rem;
+    }
+  }
+
+  .eyebrow {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-brand-700);
+  }
+  :lang(en) .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.85rem;
+  }
+
+  /* Buttons: padding (not fixed height) so Devanagari never clips. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3.25rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s,
+      color 0.15s;
+  }
+  .btn-primary {
+    background: var(--color-brand-700);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--color-brand-800);
+  }
+  .btn-whatsapp {
+    background: var(--color-whatsapp);
+    color: #fff;
+  }
+  .btn-whatsapp:hover {
+    background: var(--color-whatsapp-dark);
+  }
+  .btn-dark {
+    background: var(--color-ink);
+    color: #fff;
+  }
+  .btn-dark:hover {
+    background: #000;
+  }
+  .btn-outline {
+    border: 2px solid var(--color-ink);
+    color: var(--color-ink);
+    background: #fff;
+  }
+  .btn-outline:hover {
+    background: var(--color-mist);
+  }
+  .btn-lg {
+    min-height: 3.75rem;
+    font-size: 1.125rem;
+    padding-inline: 1.75rem;
+  }
+
+  .card {
+    border-radius: 1.75rem;
+    padding: 1.5rem;
+    background: var(--color-brand-50);
+  }
+  .card-warm {
+    background: var(--color-warm-50);
+  }
+  .card-plain {
+    background: #fff;
+    border: 1px solid var(--color-line);
+  }
+
+  .prose-simple p + p {
+    margin-top: 0.85rem;
+  }
+  .prose-simple ul {
+    list-style: disc;
+    padding-left: 1.4rem;
+  }
+  .prose-simple li + li {
+    margin-top: 0.4rem;
+  }
+
+  .link {
+    color: var(--color-brand-700);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+  }
+  .link:hover {
+    color: var(--color-brand-900);
+  }
+
+  /* Form controls: 48px+ targets, 18px text (prevents iOS zoom). */
+  .field-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+  .field {
+    width: 100%;
+    min-height: 3.25rem;
+    border: 2px solid #9ca3af;
+    border-radius: 0.9rem;
+    padding: 0.6rem 0.9rem;
+    font-size: 1.125rem;
+    line-height: 1.5;
+    background: #fff;
+    color: var(--color-ink);
+  }
+  .field:focus {
+    border-color: var(--color-brand-700);
+    outline: 3px solid var(--color-brand-200);
+    outline-offset: 0;
+  }
+  .field[aria-invalid='true'] {
+    border-color: #b91c1c;
+  }
+  .field-error {
+    color: #b91c1c;
+    font-size: 0.98rem;
+    margin-top: 0.3rem;
+    font-weight: 500;
+  }
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3rem;
+    padding: 0.5rem 0.9rem;
+    border: 2px solid var(--color-line);
+    border-radius: 0.9rem;
+    cursor: pointer;
+  }
+  .choice:has(input:checked) {
+    border-color: var(--color-brand-700);
+    background: var(--color-brand-50);
+  }
+  .choice input {
+    width: 1.35rem;
+    height: 1.35rem;
+    accent-color: var(--color-brand-700);
+    flex-shrink: 0;
+  }
+
+  /* Placeholder highlight — must never reach production. */
+  mark.ph {
+    background: #fde047;
+    color: #111827;
+    padding: 0 0.2em;
+    border-radius: 0.25em;
+    outline: 1px dashed #a16207;
+  }
+}

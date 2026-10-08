@@ -1,0 +1,36 @@
+{
+  "_help": "One object per camp. slug = URL part (/mr/camps/<slug>, short link /c/<slug>). src = tag stored with every enquiry from this camp's QR code. date = YYYY-MM-DD. district = an id from content/site.ts. Text fields need en, mr and hi. Past camps hide automatically.",
+  "camps": [
+    {
+      "slug": "sample-camp-hadapsar",
+      "src": "camp-hadapsar-sample",
+      "date": "2026-11-15",
+      "timeStart": "10:00",
+      "timeEnd": "16:00",
+      "district": "pune",
+      "title": {
+        "en": "[SAMPLE CAMP — replace before launch] Scheme help and health check camp",
+        "mr": "[SAMPLE CAMP — replace before launch] योजना मदत आणि आरोग्य तपासणी शिबिर",
+        "hi": "[SAMPLE CAMP — replace before launch] योजना मदद और स्वास्थ्य जांच शिविर"
+      },
+      "place": {
+        "en": "[CAMP VENUE], Hadapsar, Pune",
+        "mr": "[CAMP VENUE], हडपसर, पुणे",
+        "hi": "[CAMP VENUE], हडपसर, पुणे"
+      },
+      "screenings": {
+        "en": ["Blood pressure", "Blood sugar", "Eye check", "Scheme eligibility check", "Help with Ayushman card"],
+        "mr": ["रक्तदाब", "रक्तातील साखर", "डोळे तपासणी", "योजना पात्रता तपासणी", "आयुष्मान कार्डसाठी मदत"],
+        "hi": ["ब्लड प्रेशर", "ब्लड शुगर", "आंखों की जांच", "योजना पात्रता जांच", "आयुष्मान कार्ड में मदद"]
+      },
+      "bring": {
+        "en": ["Aadhaar card", "Ration card", "Mobile phone linked to Aadhaar"],
+        "mr": ["आधार कार्ड", "रेशन कार्ड", "आधारशी जोडलेला मोबाईल"],
+        "hi": ["आधार कार्ड", "राशन कार्ड", "आधार से जुड़ा मोबाइल"]
+      },
+      "organisedWith": "[PARTNER HOSPITAL — add only after a signed agreement]",
+      "contactPhone": "",
+      "mapUrl": "https://maps.google.com/?q=Hadapsar,Pune"
+    }
+  ]
+}

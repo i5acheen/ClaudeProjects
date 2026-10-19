@@ -591,11 +591,14 @@ export function JournalProvider({
 
   const updateGrowth = useCallback(
     async (months: number, entry: GrowthEntry) => {
-      const clean: GrowthEntry = { height: entry.height?.trim() || undefined, weight: entry.weight?.trim() || undefined };
       const saved = await enqueue(() =>
         repository.update((latest) => {
           const growth = { ...(latest.growth ?? {}) };
-          if (clean.height || clean.weight) growth[String(months)] = clean;
+          // Only the fields passed in change; empty ones are removed.
+          const merged: GrowthEntry = { ...growth[String(months)] };
+          for (const key of Object.keys(entry) as (keyof GrowthEntry)[]) merged[key] = entry[key]?.trim() || undefined;
+          const clean = Object.fromEntries(Object.entries(merged).filter(([, v]) => v)) as GrowthEntry;
+          if (Object.keys(clean).length) growth[String(months)] = clean;
           else delete growth[String(months)];
           return { ...latest, growth };
         }),

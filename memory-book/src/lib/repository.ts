@@ -69,6 +69,7 @@ export function normaliseJournal(raw: unknown): Journal {
       coverFocus: settings.coverFocus,
       coverLabel: settings.coverLabel,
       coverSubtitle: settings.coverSubtitle,
+      monthPages: settings.monthPages,
     },
     memories: Array.isArray(data.memories)
       ? data.memories

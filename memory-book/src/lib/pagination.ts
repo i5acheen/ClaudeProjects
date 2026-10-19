@@ -75,7 +75,7 @@ export function paginate(
   for (const memory of sortMemories(journal.memories)) {
     // A divider page at the start of each month of age.
     const months = monthsOld(journal.settings.dateOfBirth, memory.date);
-    if (months >= 0 && months !== currentMonth) {
+    if (journal.settings.monthPages !== false && months >= 0 && months !== currentMonth) {
       pages.push({ kind: "month", months });
       currentMonth = months;
     }

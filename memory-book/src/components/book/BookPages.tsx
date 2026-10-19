@@ -3,7 +3,7 @@
 import { createContext, useContext } from "react";
 import type { BookSettings, GrowthEntry, Memory, Tag } from "@/lib/types";
 import { pageNumber, type BookPage } from "@/lib/pagination";
-import { ageStamp, longDate, monthOfAgeRange, shortDate } from "@/lib/dates";
+import { ageStamp, longDate, monthOfAgeRange, shortDate, monthPageTitle } from "@/lib/dates";
 import { CONTENT_WIDTH, layoutMemory } from "@/lib/layout";
 import { Doodle } from "./Doodles";
 import { PhotoFrame, WashiTape } from "./PhotoFrame";
@@ -330,7 +330,7 @@ export function SealedLetterPage({ memory, childName, pageNumber }: { memory: Me
 /** A divider at the start of each month of age, with height and weight if you've noted them. */
 export function MonthPage({ months, settings, growth }: { months: number; settings: BookSettings; growth?: GrowthEntry }) {
   const range = monthOfAgeRange(settings.dateOfBirth, months);
-  const label = months === 0 ? "The first month" : `${months} month${months === 1 ? "" : "s"}`;
+  const label = growth?.title?.trim() || monthPageTitle(months);
   return (
     <div className="paper month-page">
       <div className="month-page__body">
@@ -341,6 +341,7 @@ export function MonthPage({ months, settings, growth }: { months: number; settin
         <p className="month-page__range">
           {shortDate(range.from)} – {shortDate(range.to)}
         </p>
+        {growth?.note?.trim() && <p className="month-page__note">{growth.note.trim()}</p>}
         {(growth?.height || growth?.weight) && (
           <div className="month-page__growth">
             {growth.height && (

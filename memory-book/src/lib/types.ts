@@ -68,6 +68,8 @@ export interface BookSettings {
   coverLabel?: "top" | "bottom";
   /** The small line under the title; empty means "for <name> · <birthday>". */
   coverSubtitle?: string;
+  /** Divider pages at the start of each month of age (on unless turned off). */
+  monthPages?: boolean;
 }
 
 /** The Drive folder you drop photos into, so they turn into memories by themselves. */
@@ -82,9 +84,14 @@ export interface WatchedFolder {
 }
 
 /** Height and weight at a month of age, shown on that month's divider page. */
+/** What you've noted for one month of age: shown on that month's divider page. */
 export interface GrowthEntry {
   height?: string;
   weight?: string;
+  /** Your own heading for the month page, instead of "3 months". */
+  title?: string;
+  /** A short line on the month page. */
+  note?: string;
 }
 
 export interface Journal {

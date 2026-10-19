@@ -1011,6 +1011,14 @@ body {
   font-size: 3.8cqw;
   color: var(--ink-soft);
 }
+.month-page__note {
+  max-width: 78%;
+  margin: 4cqw auto 0;
+  font-family: var(--font-hand);
+  font-size: calc(5cqw * var(--hand-scale, 1));
+  line-height: 1.3;
+  color: var(--ink);
+}
 .month-page__growth {
   display: flex;
   gap: 6cqw;

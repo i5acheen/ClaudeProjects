@@ -37,6 +37,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
   const [editingCover, setEditingCover] = useState(false);
   const [theme, setTheme] = useState<CoverTheme>(currentCoverTheme(settings));
   const [hand, setHand] = useState<Handwriting>(currentHandwriting(settings));
+  const [monthPages, setMonthPages] = useState(settings.monthPages !== false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -64,6 +65,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           coverPhoto,
           coverTheme: theme,
           handwriting: hand,
+          monthPages,
         },
         cover.kind === "new" ? cover.photo : undefined,
       );
@@ -150,6 +152,14 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           hand={hand}
           onHand={setHand}
         />
+
+        <label className="mt-6 flex items-start gap-3 font-serif text-lg text-ink">
+          <input type="checkbox" className="mt-1.5 size-4 accent-[var(--accent)]" checked={monthPages} onChange={(e) => setMonthPages(e.target.checked)} />
+          <span>
+            Month pages
+            <span className="block text-sm text-ink-soft">A page at the start of each month (&ldquo;3 months&rdquo;), with height and weight. Rename one from the journal.</span>
+          </span>
+        </label>
 
         <p className="field-label mt-6">Cover photo</p>
         <div className="flex flex-wrap items-end gap-4">

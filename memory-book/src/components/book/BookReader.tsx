@@ -18,6 +18,8 @@ interface BookReaderProps {
   onNewNote?: () => void;
   /** Edit the cover's title and photo (the book's owner only). */
   onEditCover?: () => void;
+  /** Edit a month divider page (the book's owner only). */
+  onEditMonth?: (months: number) => void;
   /** Turn to this memory whenever it changes (e.g. right after saving it). */
   focusMemoryId?: string;
 }
@@ -25,7 +27,7 @@ interface BookReaderProps {
 /** Pages further than this from the open spread are drawn blank until you get near them, so big books stay fast. */
 const RENDER_WINDOW = 4;
 
-export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCover, focusMemoryId }: BookReaderProps) {
+export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCover, onEditMonth, focusMemoryId }: BookReaderProps) {
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
   // One page at a time (phones) needs no filler pages to keep spreads together.
   const pages = useMemo(() => paginate(journal, undefined, orientation === "landscape"), [journal, orientation]);
@@ -74,6 +76,12 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCo
   // The memories on screen right now, for the "Edit" buttons.
   const visible = orientation === "landscape" ? [current, current + 1] : [current];
   const visibleMemories: Memory[] = [];
+  const visibleMonths = onEditMonth
+    ? visible.flatMap((i) => {
+        const page = pages[i];
+        return page?.kind === "month" ? [page.months] : [];
+      })
+    : [];
   for (const i of onEdit ? visible : []) {
     const page = pages[i];
     if (page?.kind === "memory" && !visibleMemories.some((m) => m.id === page.memory.id)) visibleMemories.push(page.memory);
@@ -122,7 +130,7 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCo
         </button>
       </div>
 
-      <div className="book-controls relative flex h-14 shrink-0 items-center justify-center gap-4 font-serif text-ink-soft">
+      <div className="book-controls relative flex h-14 shrink-0 items-center justify-center gap-2 sm:gap-4 font-serif text-ink-soft">
         {!immersive.on && (
           <button type="button" className="round-button absolute left-3 sm:left-5" onClick={immersive.enter} aria-label="Read full screen" title="Read full screen">
             <ExpandIcon />
@@ -136,6 +144,13 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCo
             <button type="button" className="cover-edit-link underline decoration-dotted underline-offset-4 hover:text-ink" onClick={onEditCover}>
               ✎ edit the cover
             </button>
+          ) : visibleMonths.length > 0 && !immersive.on ? (
+            <>
+              <span className="hidden sm:inline">{position} · </span>
+              <button type="button" className="underline decoration-dotted underline-offset-4 hover:text-ink" onClick={() => onEditMonth?.(visibleMonths[0])}>
+                ✎ month page
+              </button>
+            </>
           ) : (
             position
           )}
@@ -149,6 +164,8 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCo
             onEdit={onEdit}
             onNewNote={onNewNote}
             onEditCover={current === 0 ? onEditCover : undefined}
+            months={visibleMonths}
+            onEditMonth={onEditMonth}
             childName={journal.settings.childName}
           />
         )}
@@ -219,8 +236,12 @@ function WriteMenu({
   onEdit,
   onNewNote,
   onEditCover,
+  months = [],
+  onEditMonth,
   childName,
 }: {
+  months?: number[];
+  onEditMonth?: (months: number) => void;
   memories: Memory[];
   childName: string;
   onEditCover?: () => void;
@@ -261,6 +282,17 @@ function WriteMenu({
               <span className="min-w-0">
                 <span className="block text-xs tracking-wide text-ink-faint uppercase">Write on this page</span>
                 <span className="block truncate text-ink">{m.title || "Untitled page"}</span>
+              </span>
+            </button>
+          ))}
+          {months.map((m) => (
+            <button key={`month-${m}`} type="button" role="menuitem" className="write-menu__item" onClick={() => choose(() => onEditMonth?.(m))}>
+              <span className="write-menu__icon" aria-hidden>
+                ✎
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xs tracking-wide text-ink-faint uppercase">Month page</span>
+                <span className="block truncate text-ink">Rename, add a note, or remove</span>
               </span>
             </button>
           ))}

@@ -92,6 +92,11 @@ export function monthOfAgeRange(dob: string, months: number): { from: string; to
   return { from: toDayString(start), to: toDayString(new Date(next.getTime() - DAY_MS)) };
 }
 
+/** The default heading of a month page: "The first month", "1 month", "3 months". */
+export function monthPageTitle(months: number): string {
+  return months === 0 ? "The first month" : `${months} month${months === 1 ? "" : "s"}`;
+}
+
 /** Today as `YYYY-MM-DD` in local time. */
 export function todayString(): string {
   const d = new Date();

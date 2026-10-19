@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { TAGS, type Journal, type Memory, type Tag } from "@/lib/types";
 import { ageStamp, toDayString } from "@/lib/dates";
 import { photoTakenDate, resizePhoto } from "@/lib/images";
+import { samePhoto } from "@/lib/photo-hash";
+import { TAG_META, tagSlug, writingPrompt } from "@/lib/tags";
 import { usePhotoSrc } from "@/components/book/PhotoSource";
 import { useJournal, type DraftPhoto } from "@/components/journal/JournalProvider";
 
@@ -114,15 +116,32 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
     }
 
     setProcessing((n) => n + chosen.length);
+    const known = [
+      ...journal.memories.flatMap((m) => m.photos.map((p) => p.hash)),
+      ...photos.map((p) => (p.kind === "new" ? p.hash : p.ref.hash)),
+    ];
+    let repeats = 0;
     for (const file of chosen) {
       try {
         const processed = await resizePhoto(file);
+        if (processed.hash && known.some((h) => samePhoto(h, processed.hash))) {
+          repeats++;
+          continue;
+        }
+        known.push(processed.hash);
         setPhotos((list) => [...list, { kind: "new", ...processed, key: newId() }]);
       } catch (e) {
         setError(e instanceof Error ? e.message : "That photo couldn't be added.");
       } finally {
         setProcessing((n) => n - 1);
       }
+    }
+    if (repeats) {
+      setError(
+        repeats === 1
+          ? "That photo is already in the book, so it wasn't added again."
+          : `${repeats} photos are already in the book, so they weren't added again.`,
+      );
     }
   }
 
@@ -151,6 +170,8 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
           text: text.trim(),
           tags,
           photos: photos.map(({ key: _key, ...photo }) => photo as DraftPhoto),
+          kind: memory?.kind,
+          sealedUntil: memory?.sealedUntil,
         },
         setProgress,
       );
@@ -343,7 +364,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
             <textarea
               id="memory-text"
               className="ruled-field"
-              placeholder={`Dear ${journal.settings.childName || "little one"}, today…`}
+              placeholder={writingPrompt(tags, journal.settings.childName)}
               value={text}
               rows={7}
               onChange={(e) => setText(e.target.value)}
@@ -353,19 +374,26 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
           {/* Tags */}
           <section className="mt-6">
             <p className="field-label">Tags</p>
-            <div className="flex flex-wrap gap-2.5">
-              {TAGS.map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  aria-pressed={tags.includes(tag)}
-                  onClick={() => toggleTag(tag)}
-                  className={`tag-toggle tag-stamp--${tag.toLowerCase()}`}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
+            {(["moments", "ceremonies"] as const).map((group) => (
+              <div key={group} className={group === "ceremonies" ? "mt-3" : ""}>
+                {group === "ceremonies" && (
+                  <p className="mb-1.5 font-serif text-sm text-ink-faint italic">Milestones &amp; ceremonies</p>
+                )}
+                <div className="flex flex-wrap gap-2.5">
+                  {TAGS.filter((tag) => TAG_META[tag].group === group).map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      aria-pressed={tags.includes(tag)}
+                      onClick={() => toggleTag(tag)}
+                      className={`tag-toggle tag-stamp--${tagSlug(tag)}`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </section>
 
           {!isNew && (

@@ -21,6 +21,8 @@ export interface JournalRepository {
   removePhoto(fileId: string): Promise<void>;
   /** A link to the book's folder, if the storage has one. */
   folderUrl(): string | null;
+  /** The book's own folders, which must never be watched for new photos. */
+  bookFolderIds(): Promise<string[]>;
   /** Creates (or finds) the "Add photos here" folder inside the book folder. */
   createDropFolder(): Promise<{ id: string; name: string }>;
   /** Whose book this is, and whether the signed-in person may change it. */
@@ -75,6 +77,7 @@ export function normaliseJournal(raw: unknown): Journal {
             photos: Array.isArray(m.photos) ? m.photos : [],
           }))
       : [],
+    growth: data.growth && typeof data.growth === "object" ? data.growth : undefined,
     watchedFolder:
       watched && typeof watched.folderId === "string"
         ? {

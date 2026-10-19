@@ -83,6 +83,8 @@ function slotsFor(memory: Memory): Slot[] {
 function photoAreaHeight(memory: Memory): number {
   const n = memory.photos.length;
   if (n === 0) return 0;
+  // No words (yet): let the photos fill the page.
+  if (!memory.text.trim()) return n <= 2 ? 76 : 80;
   const short = memory.text.length <= 200;
   if (n <= 2) return short ? 58 : 50;
   return short ? 62 : 56;

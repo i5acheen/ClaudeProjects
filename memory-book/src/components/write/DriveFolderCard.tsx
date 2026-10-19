@@ -58,6 +58,7 @@ export function DriveFolderCard({ watched, openChooser }: { watched?: WatchedFol
                 Connect a folder in your Drive. Any photo you put there — from your phone&rsquo;s Drive app, your
                 computer, or a family member — shows up here by itself, ready for you to write about.
               </p>
+              {folderWatch.message && <p className="mt-2 font-serif text-sm text-[var(--ink-terracotta)]">{folderWatch.message}</p>}
               {folderWatch.canRead ? (
                 <button type="button" className="chrome-button chrome-button--primary mt-4" onClick={() => setChoosing(true)} disabled={busy}>
                   {busy ? "Connecting…" : "Choose a folder"}

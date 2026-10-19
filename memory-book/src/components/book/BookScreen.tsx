@@ -9,6 +9,7 @@ import { SyncBanner } from "@/components/journal/SyncBanner";
 import { TopBar } from "@/components/ui/TopBar";
 import { BookReader } from "./BookReader";
 import { NoteSheet } from "./NoteSheet";
+import { WritingHintsContext } from "./BookPages";
 
 /** The signed-in book: the same reader as the demo, with your own memories — and you can write straight into it. */
 export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
@@ -35,6 +36,7 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
                 </Link>
               </p>
             )}
+            <WritingHintsContext.Provider value={access.canEdit}>
             <BookReader
               journal={journal}
               startMemoryId={startMemoryId}
@@ -42,6 +44,7 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
               onEdit={access.canEdit ? (memory) => setWriting({ memory }) : undefined}
               onNewNote={access.canEdit ? () => setWriting({}) : undefined}
             />
+            </WritingHintsContext.Provider>
             {writing && (
               <NoteSheet
                 journal={journal}

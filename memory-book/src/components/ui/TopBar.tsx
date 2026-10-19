@@ -20,7 +20,6 @@ interface TopBarProps {
 export function TopBar({ title, basePath, active, demo, canWrite: canWriteProp }: TopBarProps) {
   const book = useOptionalJournal();
   const canWrite = canWriteProp ?? book?.access.canEdit ?? true;
-  const inJournal = active === "book" || active === "timeline";
   return (
     <header className="relative z-10 flex h-14 shrink-0 items-center justify-between gap-2 px-3 sm:px-4">
       <Link
@@ -36,30 +35,20 @@ export function TopBar({ title, basePath, active, demo, canWrite: canWriteProp }
       </Link>
 
       <nav className="section-tabs" aria-label="Sections">
-        {demo ? (
-          <Link href="/" className="section-tab" title="Sign in to write your own book">
-            <PenIcon /> Write
-          </Link>
-        ) : canWrite ? (
+        {!demo && canWrite ? (
           <Link href={`${basePath}/write`} className="section-tab" aria-current={active === "write" ? "page" : undefined}>
             <PenIcon /> Write
           </Link>
         ) : null}
-        <Link href={basePath} className="section-tab" aria-current={inJournal ? "page" : undefined}>
+        <Link href={basePath} className="section-tab" aria-current={active === "book" ? "page" : undefined}>
           <BookIcon /> Journal
+        </Link>
+        <Link href={`${basePath}/timeline`} className="section-tab" aria-current={active === "timeline" ? "page" : undefined}>
+          <GridIcon /> Timeline
         </Link>
       </nav>
 
       <nav className="flex shrink-0 items-center gap-1" aria-label="More">
-        <Link
-          href={`${basePath}/timeline`}
-          className="chrome-button !px-2.5"
-          aria-current={active === "timeline" ? "page" : undefined}
-          title="Timeline"
-        >
-          <GridIcon />
-          <span className="hidden lg:inline">Timeline</span>
-        </Link>
         {demo ? (
           <Link href="/" className="chrome-button chrome-button--primary whitespace-nowrap" title="Sign in to start your own book">
             Start yours

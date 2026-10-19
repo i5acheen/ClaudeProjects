@@ -223,10 +223,10 @@ export function ExportBook({ journal }: { journal: Journal }) {
           <div key={i} className="print-page" style={{ aspectRatio: `100 / ${format.heightCqw}` }}>
             {inset && !FULL_BLEED.has(page.kind) ? (
               <div className="print-page__column">
-                <BookPageView page={page} index={includeCovers ? i : i + 2} settings={settings} />
+                <BookPageView page={page} index={includeCovers ? i : i + 2} settings={settings} growth={journal.growth} />
               </div>
             ) : (
-              <BookPageView page={page} index={includeCovers ? i : i + 2} settings={settings} />
+              <BookPageView page={page} index={includeCovers ? i : i + 2} settings={settings} growth={journal.growth} />
             )}
           </div>
         ))}

@@ -10,6 +10,8 @@ import { SyncBanner } from "@/components/journal/SyncBanner";
 import { TopBar } from "@/components/ui/TopBar";
 import { DriveFolderCard } from "./DriveFolderCard";
 import { WaitingCard } from "./WaitingCard";
+import { DuplicateCleaner } from "./DuplicateCleaner";
+import { GrowthCard } from "./GrowthCard";
 
 /**
  * The writing desk: add photos and words for a new memory, and give words
@@ -48,7 +50,10 @@ export function WriteScreen({ journal }: { journal: Journal }) {
             <h2 id="waiting-heading" className="mb-1 font-hand text-3xl font-bold text-ink">
               Waiting for your words <span className="text-ink-faint">({waiting.length})</span>
             </h2>
-            <p className="mb-4 font-serif text-ink-soft">These photos are already in the book. Add a few lines whenever you have a moment.</p>
+            <p className="font-serif text-ink-soft">These photos are already in the book. Add a few lines whenever you have a moment.</p>
+            <div className="mt-1 mb-4">
+              <DuplicateCleaner compact />
+            </div>
             <div className="space-y-6">
               {waiting.map((memory) => (
                 <WaitingCard key={memory.id} memory={memory} dateOfBirth={settings.dateOfBirth} childName={settings.childName} />
@@ -58,6 +63,8 @@ export function WriteScreen({ journal }: { journal: Journal }) {
         )}
 
         <MemoryEditor journal={journal} variant="inline" />
+
+        <GrowthCard journal={journal} />
 
         <DriveFolderCard watched={journal.watchedFolder} openChooser={openChooser} />
 

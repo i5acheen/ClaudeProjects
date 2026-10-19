@@ -6,7 +6,7 @@ import { memoryPageIndex, pageNumber, paginate } from "@/lib/pagination";
 import { BookPageView } from "./BookPages";
 import { InkFilters } from "./Doodles";
 import { FlipBook, type FlipBookHandle } from "./FlipBook";
-import { ChevronLeft, ChevronRight } from "@/components/ui/Icons";
+import { ChevronLeft, ChevronRight, PenIcon } from "@/components/ui/Icons";
 
 interface BookReaderProps {
   journal: Journal;
@@ -56,11 +56,11 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, focusMem
   const renderPage = useCallback(
     (i: number) =>
       Math.abs(i - current) <= RENDER_WINDOW || i === 0 || i === last ? (
-        <BookPageView page={pages[i]} index={i} settings={journal.settings} />
+        <BookPageView page={pages[i]} index={i} settings={journal.settings} growth={journal.growth} />
       ) : (
         <div className="paper" />
       ),
-    [pages, journal.settings, current, last],
+    [pages, journal.settings, journal.growth, current, last],
   );
 
   const isHard = useCallback((i: number) => i === 0 || i === pages.length - 1, [pages.length]);
@@ -109,7 +109,7 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, focusMem
         </button>
       </div>
 
-      <div className="flex h-14 shrink-0 items-center justify-center gap-4 font-serif text-ink-soft">
+      <div className="relative flex h-14 shrink-0 items-center justify-center gap-4 font-serif text-ink-soft">
         <button className="round-button sm:hidden" onClick={() => bookRef.current?.prev()} disabled={current === 0} aria-label="Previous page">
           <ChevronLeft />
         </button>
@@ -119,28 +119,89 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, focusMem
         <button className="round-button sm:hidden" onClick={() => bookRef.current?.next()} disabled={current >= last} aria-label="Next page">
           <ChevronRight />
         </button>
-        {onEdit &&
-          visibleMemories.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => onEdit(m)}
-              className="chrome-button field-button !h-9 max-w-44 !px-3 !text-sm"
-              title={`Write on “${m.title || "this page"}”`}
-            >
-              <span aria-hidden>✎</span>
-              <span className="truncate">
-                <span className="sm:hidden">Write</span>
-                <span className="hidden sm:inline">{m.title || "Write"}</span>
+        {(onEdit || onNewNote) && (
+          <WriteMenu
+            memories={onEdit ? visibleMemories.filter((m) => !(m.sealedUntil && pages.some((p) => p.kind === "memory" && p.memory.id === m.id && p.sealed))) : []}
+            onEdit={onEdit}
+            onNewNote={onNewNote}
+            childName={journal.settings.childName}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** One quiet pen button; its menu offers the pages on screen and a new note. */
+function WriteMenu({
+  memories,
+  onEdit,
+  onNewNote,
+  childName,
+}: {
+  memories: Memory[];
+  childName: string;
+  onEdit?: (memory: Memory) => void;
+  onNewNote?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", close);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const choose = (action: () => void) => {
+    setOpen(false);
+    action();
+  };
+
+  return (
+    <div ref={ref} className="absolute right-3 bottom-2 sm:right-5">
+      {open && (
+        <div className="write-menu" role="menu">
+          {memories.map((m) => (
+            <button key={m.id} type="button" role="menuitem" className="write-menu__item" onClick={() => choose(() => onEdit?.(m))}>
+              <span className="write-menu__icon" aria-hidden>
+                ✎
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xs tracking-wide text-ink-faint uppercase">Write on this page</span>
+                <span className="block truncate text-ink">{m.title || "Untitled page"}</span>
               </span>
             </button>
           ))}
-        {onNewNote && (
-          <button type="button" onClick={onNewNote} className="chrome-button chrome-button--primary !h-9 !px-3 !text-sm" title="Write a new note in the journal">
-            + Note
-          </button>
-        )}
-      </div>
+          {onNewNote && (
+            <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onNewNote)}>
+              <span className="write-menu__icon write-menu__icon--new" aria-hidden>
+                +
+              </span>
+              <span className="text-ink">Write a letter to {childName || "your little one"}</span>
+            </button>
+          )}
+        </div>
+      )}
+      <button
+        type="button"
+        className="write-fab"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Write in the journal"
+        title="Write in the journal"
+      >
+        <PenIcon />
+      </button>
     </div>
   );
 }

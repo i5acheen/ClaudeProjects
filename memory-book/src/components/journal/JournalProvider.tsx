@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import type { BookSettings, Journal, Memory, PhotoRef, Tag } from "@/lib/types";
+import type { BookSettings, GrowthEntry, Journal, Memory, PhotoRef, Tag } from "@/lib/types";
 import type { BookAccess, FamilyMember, FamilyRole, JournalRepository } from "@/lib/repository";
 import { DriveRepository } from "@/lib/drive/drive-repository";
 import { DRIVE_FULL_SCOPE, DRIVE_READ_SCOPE, DriveError, OfflineError, SignedOutError, canReadFolders } from "@/lib/drive/client";
@@ -11,6 +11,7 @@ import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
 import { createCachedPhotoResolver, primePhotoCache } from "@/lib/photo-cache";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
 import { handwritingStyle } from "@/lib/book-style";
+import { photoHash, samePhoto } from "@/lib/photo-hash";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -18,7 +19,7 @@ import { handwritingStyle } from "@/lib/book-style";
 
 export type DraftPhoto =
   | { kind: "existing"; ref: PhotoRef }
-  | { kind: "new"; blob: Blob; width: number; height: number; uploadedId?: string };
+  | { kind: "new"; blob: Blob; width: number; height: number; hash?: string; uploadedId?: string };
 
 export interface MemoryInput {
   id?: string;
@@ -27,6 +28,8 @@ export interface MemoryInput {
   text: string;
   tags: Tag[];
   photos: DraftPhoto[];
+  kind?: "letter";
+  sealedUntil?: string;
 }
 
 /** A memory saved on this device, waiting to be uploaded to Drive. */
@@ -68,6 +71,10 @@ interface JournalContextValue {
   listFamily(): Promise<FamilyMember[]>;
   inviteFamily(email: string, role: FamilyRole): Promise<void>;
   removeFamily(memberId: string): Promise<void>;
+  /** Height/weight for a month of age (shown on that month's divider page). */
+  updateGrowth(months: number, entry: GrowthEntry): Promise<void>;
+  /** Finds the same photo saved more than once and keeps only the first. */
+  removeDuplicatePhotos(onProgress?: (done: number, total: number) => void): Promise<{ photos: number; pages: number }>;
   /** For family: allow the app to open a book someone shared with you. */
   requestSharedAccess(canAddMemories: boolean): Promise<void>;
 }
@@ -243,7 +250,7 @@ export function JournalProvider({
 
       onProgress?.("Writing it into the book…");
       const photos: PhotoRef[] = draft.input.photos.map((p) =>
-        p.kind === "existing" ? p.ref : { fileId: p.uploadedId!, width: p.width, height: p.height },
+        p.kind === "existing" ? p.ref : { fileId: p.uploadedId!, width: p.width, height: p.height, hash: p.hash },
       );
       const memory: Memory = {
         id: draft.memoryId,
@@ -252,6 +259,8 @@ export function JournalProvider({
         text: draft.input.text,
         tags: draft.input.tags,
         photos,
+        kind: draft.input.kind,
+        sealedUntil: draft.input.sealedUntil || undefined,
         createdAt: draft.savedAt,
         updatedAt: new Date().toISOString(),
       };
@@ -330,7 +339,15 @@ export function JournalProvider({
       const draft: PendingSave = {
         draftId: newId(),
         memoryId,
-        input: { date: input.date, title: input.title, text: input.text, tags: input.tags, photos: input.photos },
+        input: {
+          date: input.date,
+          title: input.title,
+          text: input.text,
+          tags: input.tags,
+          photos: input.photos,
+          kind: input.kind,
+          sealedUntil: input.sealedUntil,
+        },
         previousPhotoIds: previous?.photos.map((p) => p.fileId) ?? [],
         savedAt: previous?.createdAt ?? new Date().toISOString(),
       };
@@ -426,7 +443,7 @@ export function JournalProvider({
               setWatchState((s) => ({ ...s, progress: { done, total } })),
             );
             if (!outcome) break;
-            if (outcome.added > 0 || outcome.skipped > 0) commit(outcome.journal);
+            if (outcome.added > 0 || outcome.skipped > 0 || outcome.alreadyInBook > 0) commit(outcome.journal);
             latest = outcome.journal;
             added += outcome.added;
             skipped += outcome.skipped;
@@ -461,6 +478,11 @@ export function JournalProvider({
 
   const watchFolder = useCallback(
     async (folder: { id: string; name: string } | null) => {
+      if (folder && (await repository.bookFolderIds()).includes(folder.id)) {
+        throw new Error(
+          "That's the book's own folder, where Memory Book keeps its copies. Choose a different folder, or make a new “Add photos here” folder.",
+        );
+      }
       const chosen = folder ?? (await repository.createDropFolder());
       const saved = await enqueue(() =>
         repository.update((latest) => ({
@@ -493,6 +515,43 @@ export function JournalProvider({
       },
     );
   }, []);
+
+  // Repair: an earlier version let you watch the book's own photos folder, which copied photos
+  // over and over. Stop that, and remove the duplicate pages nobody has written on yet.
+  const checkedFolder = useRef<string | null>(null);
+  useEffect(() => {
+    const watched = journal?.watchedFolder;
+    // Check each watched folder once (the copy on this device may be older than the one in Drive).
+    if (status !== "ready" || !watched || checkedFolder.current === watched.folderId) return;
+    checkedFolder.current = watched.folderId;
+    void (async () => {
+      const own = await repository.bookFolderIds().catch((): string[] => []);
+      if (!own.includes(watched.folderId)) return;
+      let removedPhotos: string[] = [];
+      let removed = 0;
+      const saved = await enqueue(() =>
+        repository.update((latest) => {
+          const duplicates = latest.memories.filter((m) => m.source === "drive-folder" && !m.text.trim());
+          removed = duplicates.length;
+          removedPhotos = duplicates.flatMap((m) => m.photos.map((p) => p.fileId));
+          return {
+            ...latest,
+            watchedFolder: undefined,
+            memories: latest.memories.filter((m) => !duplicates.includes(m)),
+          };
+        }),
+      );
+      commit(saved);
+      const inUse = photoIdsInUse(saved);
+      await Promise.all(
+        removedPhotos.filter((id) => !inUse.has(id)).map((id) => repository.removePhoto(id).catch(() => undefined)),
+      );
+      setWatchState((s) => ({
+        ...s,
+        message: `Fixed: the book's own photos folder was being watched, which made copies of copies. Removed ${removed} duplicate page${removed === 1 ? "" : "s"} and stopped watching that folder — please choose a different folder.`,
+      }));
+    })().catch(() => undefined);
+  }, [status, journal?.watchedFolder, repository, enqueue, commit]);
 
   // Check when the book opens, every few minutes while it's open, and when you come back to the tab.
   const watching = status === "ready" && canRead && !!journal?.watchedFolder;
@@ -527,6 +586,86 @@ export function JournalProvider({
     lastAdded: watchState.lastAdded,
     message: watchState.message,
   };
+
+  /* ---------------- growth ---------------- */
+
+  const updateGrowth = useCallback(
+    async (months: number, entry: GrowthEntry) => {
+      const clean: GrowthEntry = { height: entry.height?.trim() || undefined, weight: entry.weight?.trim() || undefined };
+      const saved = await enqueue(() =>
+        repository.update((latest) => {
+          const growth = { ...(latest.growth ?? {}) };
+          if (clean.height || clean.weight) growth[String(months)] = clean;
+          else delete growth[String(months)];
+          return { ...latest, growth };
+        }),
+      );
+      commit(saved);
+    },
+    [repository, enqueue, commit],
+  );
+
+  /* ---------------- duplicate photos ---------------- */
+
+  const removeDuplicatePhotos = useCallback(
+    async (onProgress?: (done: number, total: number) => void) => {
+      const current = journal;
+      if (!current) return { photos: 0, pages: 0 };
+      // Keep the copy on pages you've written on, then the oldest.
+      const order = [...current.memories]
+        .filter((m) => !m.photos.some((p) => p.fileId.startsWith("local:")))
+        .sort((a, b) => Number(!!b.text.trim()) - Number(!!a.text.trim()) || a.createdAt.localeCompare(b.createdAt));
+      const all = order.flatMap((m) => m.photos);
+      const hashes = new Map<string, string>();
+      let done = 0;
+      for (const photo of all) {
+        onProgress?.(done++, all.length);
+        if (photo.hash) {
+          hashes.set(photo.fileId, photo.hash);
+          continue;
+        }
+        try {
+          const blob = (await idbGet<Blob>("photos", `${photo.fileId}:full`)) ?? (await repository.downloadPhoto(photo.fileId));
+          hashes.set(photo.fileId, await photoHash(blob));
+        } catch {
+          // unreadable photo: leave it alone
+        }
+      }
+      onProgress?.(all.length, all.length);
+
+      const seen: string[] = [];
+      const extra = new Set<string>();
+      for (const photo of all) {
+        const hash = hashes.get(photo.fileId);
+        if (!hash) continue;
+        if (seen.some((h) => samePhoto(h, hash))) extra.add(photo.fileId);
+        else seen.push(hash);
+      }
+
+      let pagesRemoved = 0;
+      const saved = await enqueue(() =>
+        repository.update((latest) => {
+          const memories = latest.memories
+            .map((m) => ({
+              ...m,
+              photos: m.photos
+                .filter((p) => !extra.has(p.fileId))
+                .map((p) => (hashes.has(p.fileId) ? { ...p, hash: hashes.get(p.fileId) } : p)),
+            }))
+            .filter((m) => m.photos.length > 0 || m.text.trim());
+          pagesRemoved = latest.memories.length - memories.length;
+          return { ...latest, memories };
+        }),
+      );
+      commit(saved);
+      const inUse = photoIdsInUse(saved);
+      await Promise.all(
+        [...extra].filter((id) => !inUse.has(id)).map((id) => repository.removePhoto(id).catch(() => undefined)),
+      );
+      return { photos: extra.size, pages: pagesRemoved };
+    },
+    [journal, repository, enqueue, commit],
+  );
 
   /* ---------------- family ---------------- */
 
@@ -584,6 +723,8 @@ export function JournalProvider({
         text: draft.input.text,
         tags: draft.input.tags,
         photos,
+        kind: draft.input.kind,
+        sealedUntil: draft.input.sealedUntil || undefined,
         createdAt: draft.savedAt,
         updatedAt: draft.savedAt,
       });
@@ -629,6 +770,8 @@ export function JournalProvider({
     stopWatchingFolder,
     checkFolderNow,
     access,
+    removeDuplicatePhotos,
+    updateGrowth,
     listFamily,
     inviteFamily,
     removeFamily,

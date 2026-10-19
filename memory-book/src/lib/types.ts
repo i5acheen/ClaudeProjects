@@ -6,7 +6,19 @@ import type { CoverTheme, Handwriting } from "./book-style";
  * and so a future multi-user backend can store the same document per book.
  */
 
-export const TAGS = ["First", "Milestone", "Festival", "Family", "Funny"] as const;
+export const TAGS = [
+  "First",
+  "Milestone",
+  "Festival",
+  "Family",
+  "Funny",
+  // Indian milestones and ceremonies
+  "Naamkaran",
+  "Annaprashan",
+  "Mundan",
+  "First Diwali",
+  "First Holi",
+] as const;
 export type Tag = (typeof TAGS)[number];
 
 export interface PhotoRef {
@@ -14,6 +26,8 @@ export interface PhotoRef {
   fileId: string;
   width: number;
   height: number;
+  /** Visual fingerprint (see lib/photo-hash.ts), used to skip duplicates. */
+  hash?: string;
 }
 
 export interface Memory {
@@ -26,6 +40,12 @@ export interface Memory {
   photos: PhotoRef[];
   /** Set when the memory was made automatically from your watched Drive folder. */
   source?: "drive-folder";
+  /** The date couldn't be read from the photo, so it's only a guess — worth checking. */
+  dateGuessed?: boolean;
+  /** A letter to the child (words only, its own page style). */
+  kind?: "letter";
+  /** Time capsule: the letter stays sealed in the book until this date (`YYYY-MM-DD`). */
+  sealedUntil?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,9 +75,17 @@ export interface WatchedFolder {
   lastCheckedAt?: string;
 }
 
+/** Height and weight at a month of age, shown on that month's divider page. */
+export interface GrowthEntry {
+  height?: string;
+  weight?: string;
+}
+
 export interface Journal {
   version: 1;
   settings: BookSettings;
   memories: Memory[];
   watchedFolder?: WatchedFolder;
+  /** Keyed by completed months of age ("0" = the first month). */
+  growth?: Record<string, GrowthEntry>;
 }

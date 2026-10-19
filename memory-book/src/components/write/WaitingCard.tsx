@@ -5,6 +5,7 @@ import { useState } from "react";
 import { TAGS, type Memory, type PhotoRef, type Tag } from "@/lib/types";
 import { ageStamp, longDate } from "@/lib/dates";
 import { seededRandom } from "@/lib/random";
+import { tagSlug, writingPrompt } from "@/lib/tags";
 import { usePhotoSrc } from "@/components/book/PhotoSource";
 import { useJournal } from "@/components/journal/JournalProvider";
 
@@ -78,6 +79,12 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
         <span className="font-serif text-base text-[var(--ink-terracotta)] italic">{ageStamp(dateOfBirth, date)}</span>
       </div>
       <p className="mt-1 font-serif text-xs tracking-[0.14em] text-ink-faint uppercase">{longDate(date)}</p>
+      {memory.dateGuessed && date === memory.date && (
+        <p className="mt-1 font-serif text-sm text-[var(--ink-terracotta)]">
+          We couldn&rsquo;t find when {memory.photos.length === 1 ? "this photo was" : "these photos were"} taken, so this is
+          the day {memory.photos.length === 1 ? "it was" : "they were"} added — please check the date.
+        </p>
+      )}
 
       <input
         className="text-field hand-field mt-3"
@@ -91,7 +98,7 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
         className="ruled-field mt-2"
         rows={4}
         aria-label="The memory"
-        placeholder={`What happened here, ${childName || "little one"}…`}
+        placeholder={writingPrompt(tags, childName)}
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
@@ -103,7 +110,7 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
             type="button"
             aria-pressed={tags.includes(tag)}
             onClick={() => setTags((list) => (list.includes(tag) ? list.filter((t) => t !== tag) : [...list, tag]))}
-            className={`tag-toggle !text-[0.7rem] tag-stamp--${tag.toLowerCase()}`}
+            className={`tag-toggle !text-[0.7rem] tag-stamp--${tagSlug(tag)}`}
           >
             {tag}
           </button>
@@ -115,12 +122,12 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
           {busy ? status : "Save to book"}
         </button>
         <Link href={`/book/edit/${encodeURIComponent(memory.id)}`} className="font-serif text-ink-soft underline decoration-dotted underline-offset-4">
-          more options
+          Edit details
         </Link>
         <span className="flex-1" />
         {confirmRemove ? (
           <span className="flex items-center gap-2 font-serif text-sm text-ink-soft">
-            Leave these photos out of the book?
+            {memory.photos.length === 1 ? "Take this photo out of the book?" : "Take these photos out of the book?"} Your originals stay in Drive.
             <button type="button" className="chrome-button danger-button !h-9 !px-3 !text-sm" onClick={remove} disabled={busy}>
               Yes
             </button>
@@ -130,7 +137,7 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
           </span>
         ) : (
           <button type="button" className="font-serif text-sm text-ink-faint underline decoration-dotted underline-offset-4" onClick={() => setConfirmRemove(true)}>
-            not for the book
+            {memory.photos.length === 1 ? "Skip this photo" : "Skip these photos"}
           </button>
         )}
       </div>

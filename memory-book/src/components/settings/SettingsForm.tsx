@@ -12,6 +12,7 @@ import { usePhotoSrc } from "@/components/book/PhotoSource";
 import { useJournal } from "@/components/journal/JournalProvider";
 import { StylePickers } from "./StylePickers";
 import { FamilyCard } from "./FamilyCard";
+import { DuplicateCleaner } from "@/components/write/DuplicateCleaner";
 import {
   coverTheme as currentCoverTheme,
   handwriting as currentHandwriting,
@@ -206,6 +207,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
             .
           </p>
         )}
+        {access.canEdit && <DuplicateCleaner />}
         <button type="button" className="chrome-button field-button" onClick={handleSignOut}>
           Sign out
         </button>

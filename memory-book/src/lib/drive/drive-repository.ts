@@ -97,6 +97,11 @@ export class DriveRepository implements JournalRepository {
     return trashFile(fileId);
   }
 
+  async bookFolderIds(): Promise<string[]> {
+    const location = await this.requireLocation();
+    return [location.folderId, location.photosFolderId];
+  }
+
   async createDropFolder(): Promise<{ id: string; name: string }> {
     const location = await this.requireLocation();
     const existing = (await findFiles(inFolderQuery(location.folderId))).find((f) => f.appProperties?.[KEY] === "drop");

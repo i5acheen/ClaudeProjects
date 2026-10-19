@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Journal, Memory } from "@/lib/types";
-import { ageStamp, monthLabel, shortDate } from "@/lib/dates";
+import { ageStamp, isSealed, longDate, monthLabel, shortDate } from "@/lib/dates";
 import { sortMemories } from "@/lib/pagination";
 import { seededRandom } from "@/lib/random";
 import { usePhotoSrc } from "@/components/book/PhotoSource";
@@ -45,6 +45,10 @@ export function Timeline({ journal, basePath }: { journal: Journal; basePath: st
 function TimelineCard({ memory, href }: { memory: Memory; href: string }) {
   const thumb = usePhotoSrc(memory.photos[0]?.fileId, "thumb");
   const tilt = seededRandom(memory.id).range(-2, 2);
+  const sealed = isSealed(memory.sealedUntil);
+  const caption = sealed
+    ? `Sealed until ${longDate(memory.sealedUntil!)}`
+    : memory.title || memory.text.slice(0, 40) || (memory.kind === "letter" ? "A letter" : "");
 
   return (
     <Link
@@ -53,12 +57,16 @@ function TimelineCard({ memory, href }: { memory: Memory; href: string }) {
       style={{ transform: `rotate(${tilt}deg)` }}
     >
       <div className="relative aspect-square overflow-hidden bg-[#e8dfd0]">
-        {thumb ? (
+        {sealed || (memory.kind === "letter" && !thumb) ? (
+          <div className="grid h-full place-items-center text-5xl" aria-label={sealed ? "Sealed letter" : "Letter"}>
+            {sealed ? "💌" : "✉️"}
+          </div>
+        ) : thumb ? (
           <img src={thumb} alt="" className="h-full w-full object-cover saturate-[.92] sepia-[.07]" loading="lazy" />
         ) : (
           <div className="grid h-full place-items-center font-hand text-4xl text-ink-faint">✎</div>
         )}
-        {memory.photos.length > 1 && (
+        {!sealed && memory.photos.length > 1 && (
           <span className="absolute right-1.5 bottom-1.5 rounded-full bg-black/35 px-2 py-0.5 font-serif text-xs text-white">
             +{memory.photos.length - 1}
           </span>
@@ -67,7 +75,7 @@ function TimelineCard({ memory, href }: { memory: Memory; href: string }) {
       <p className="mt-2 font-serif text-[0.7rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">
         {shortDate(memory.date)}
       </p>
-      <p className="truncate font-hand text-xl leading-tight text-ink">{memory.title || memory.text.slice(0, 40)}</p>
+      <p className={`truncate leading-tight text-ink ${sealed ? "font-serif text-sm italic" : "font-hand text-xl"}`}>{caption}</p>
     </Link>
   );
 }

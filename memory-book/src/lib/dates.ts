@@ -75,6 +75,33 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
+/** Whole months of age on a date (0 in the first month; negative before birth). */
+export function monthsOld(dob: string, on: string): number {
+  const birth = parseDay(dob);
+  const day = parseDay(on);
+  if (day < birth) return -1;
+  let months = (day.getUTCFullYear() - birth.getUTCFullYear()) * 12 + (day.getUTCMonth() - birth.getUTCMonth());
+  if (addMonths(birth, months).getTime() > day.getTime()) months -= 1;
+  return months;
+}
+
+/** The first and last day of a month of age, e.g. 3 → 7 Aug – 6 Sep. */
+export function monthOfAgeRange(dob: string, months: number): { from: string; to: string } {
+  const start = addMonths(parseDay(dob), months);
+  const next = addMonths(parseDay(dob), months + 1);
+  return { from: toDayString(start), to: toDayString(new Date(next.getTime() - DAY_MS)) };
+}
+
+/** Today as `YYYY-MM-DD` in local time. */
+export function todayString(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** Whether a time-capsule letter is still sealed today. */
+export const isSealed = (sealedUntil?: string) => !!sealedUntil && todayString() < sealedUntil;
+
 /** "Thursday, 7 May 2026" */
 export function longDate(iso: string): string {
   const d = parseDay(iso);

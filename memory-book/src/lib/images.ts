@@ -1,11 +1,15 @@
 "use client";
 
+import { photoHash } from "./photo-hash";
+
 /** Photo processing in the browser, before anything is uploaded. */
 
 export interface ProcessedPhoto {
   blob: Blob;
   width: number;
   height: number;
+  /** Visual fingerprint, to spot a photo that's already in the book. */
+  hash?: string;
 }
 
 export const MAX_PHOTO_SIZE = 2000;
@@ -42,7 +46,8 @@ async function encode(bitmap: ImageBitmap, maxSize: number, quality: number): Pr
 export async function resizePhoto(file: Blob, maxSize = MAX_PHOTO_SIZE): Promise<ProcessedPhoto> {
   const bitmap = await decode(file);
   try {
-    return await encode(bitmap, maxSize, JPEG_QUALITY);
+    const processed = await encode(bitmap, maxSize, JPEG_QUALITY);
+    return { ...processed, hash: await photoHash(bitmap).catch(() => undefined) };
   } finally {
     bitmap.close();
   }
@@ -58,19 +63,31 @@ export async function makeThumbnail(blob: Blob, maxSize = 520): Promise<Blob> {
   }
 }
 
-/** The date the photo was taken (`YYYY-MM-DD`), if the camera recorded it. */
-export async function photoTakenDate(file: Blob): Promise<string | undefined> {
+/** "IMG_20260507_101500.jpg", "PXL_20260507…", "2026-05-07 10.15.00.jpg", "WhatsApp Image 2026-05-07…" → "2026-05-07" */
+export function dateFromFileName(name: string): string | undefined {
+  const match = name.match(/(20\d{2})[-_.]?(0[1-9]|1[0-2])[-_.]?(0[1-9]|[12]\d|3[01])(?!\d)/);
+  return match ? `${match[1]}-${match[2]}-${match[3]}` : undefined;
+}
+
+/**
+ * The date the photo was taken (`YYYY-MM-DD`): from the camera's own record
+ * inside the file, or else from a date in the file name.
+ */
+export async function photoTakenDate(file: Blob, fileName?: string): Promise<string | undefined> {
   try {
     const exifr = (await import("exifr")).default;
-    const data = (await exifr.parse(file, ["DateTimeOriginal", "CreateDate"])) as
-      | { DateTimeOriginal?: Date; CreateDate?: Date }
+    const data = (await exifr.parse(file, ["DateTimeOriginal", "CreateDate", "DateTimeDigitized", "ModifyDate"])) as
+      | Record<string, Date | undefined>
       | undefined;
-    const date = data?.DateTimeOriginal ?? data?.CreateDate;
-    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return undefined;
-    // EXIF times are the camera's local time, so read them back as local.
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    const date = data?.DateTimeOriginal ?? data?.CreateDate ?? data?.DateTimeDigitized ?? data?.ModifyDate;
+    if (date instanceof Date && !Number.isNaN(date.getTime())) {
+      // EXIF times are the camera's local time, so read them back as local.
+      const pad = (n: number) => String(n).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    }
   } catch {
-    return undefined;
+    // no readable camera data
   }
+  const name = fileName ?? (file instanceof File ? file.name : "");
+  return name ? dateFromFileName(name) : undefined;
 }

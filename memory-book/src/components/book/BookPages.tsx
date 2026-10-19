@@ -1,32 +1,28 @@
 "use client";
 
-import type { BookSettings, Memory, Tag } from "@/lib/types";
+import { createContext, useContext } from "react";
+import type { BookSettings, GrowthEntry, Memory, Tag } from "@/lib/types";
 import { pageNumber, type BookPage } from "@/lib/pagination";
-import { ageStamp, longDate, shortDate } from "@/lib/dates";
+import { ageStamp, longDate, monthOfAgeRange, shortDate } from "@/lib/dates";
 import { CONTENT_WIDTH, layoutMemory } from "@/lib/layout";
 import { Doodle } from "./Doodles";
 import { PhotoFrame, WashiTape } from "./PhotoFrame";
 import { usePhotoSrc } from "./PhotoSource";
 import { useFitText } from "./useFitText";
 import { coverTheme } from "@/lib/book-style";
+import { TAG_META, tagSlug } from "@/lib/tags";
 import { usePageFormat } from "./PageFormatContext";
 
 /* ------------------------------------------------------------------ */
 /* Shared bits                                                         */
 /* ------------------------------------------------------------------ */
 
-const TAG_ICON: Record<Tag, string> = {
-  First: "✦",
-  Milestone: "★",
-  Festival: "✿",
-  Family: "♥",
-  Funny: "☺",
-};
+
 
 function TagStamp({ tag, rotate }: { tag: Tag; rotate: number }) {
   return (
-    <span className={`tag-stamp tag-stamp--${tag.toLowerCase()}`} style={{ transform: `rotate(${rotate}deg)` }}>
-      <span aria-hidden>{TAG_ICON[tag]}</span> {tag}
+    <span className={`tag-stamp tag-stamp--${tagSlug(tag)}`} style={{ transform: `rotate(${rotate}deg)` }}>
+      <span aria-hidden>{TAG_META[tag].icon}</span> {tag}
     </span>
   );
 }
@@ -180,16 +176,19 @@ interface MemoryPageProps {
   continued: boolean;
   hasMore: boolean;
   dateOfBirth: string;
+  childName: string;
   pageNumber: number;
 }
 
-export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, pageNumber }: MemoryPageProps) {
+export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, childName, pageNumber }: MemoryPageProps) {
   const layout = layoutMemory(memory, pageNumber, usePageFormat());
   const textRef = useFitText<HTMLDivElement>(text);
   const { top, bottom } = layout.doodles;
+  const showHints = useContext(WritingHintsContext);
+  const isLetter = memory.kind === "letter";
 
   return (
-    <article className="paper memory-page">
+    <article className={`paper memory-page${isLetter ? " memory-page--letter" : ""}`}>
       {continued ? (
         <header className="memory-page__header memory-page__header--continued">
           <p className="memory-date">{longDate(memory.date)}</p>
@@ -197,6 +196,7 @@ export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, page
         </header>
       ) : (
         <header className="memory-page__header">
+          {isLetter && <p className="letter-eyebrow">a letter for {childName}</p>}
           <p className="memory-date">{longDate(memory.date)}</p>
           <p className="memory-age">{ageStamp(dateOfBirth, memory.date)}</p>
           {memory.title && (
@@ -237,6 +237,8 @@ export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, page
           <p key={i}>{para}</p>
         ))}
         {hasMore && <p className="memory-more">continued overleaf →</p>}
+        {/* Only on screen, for whoever can write: never in the PDF. */}
+        {showHints && !text.trim() && !continued && <p className="memory-hint">✎ add a few lines…</p>}
       </div>
 
       <footer className="memory-page__footer">
@@ -292,7 +294,90 @@ export function EndPage({ settings }: { settings: BookSettings }) {
 /* Dispatcher                                                          */
 /* ------------------------------------------------------------------ */
 
-export function BookPageView({ page, index, settings }: { page: BookPage; index: number; settings: BookSettings }) {
+/** Turned on in the signed-in book for people who can write, to show gentle "add a few lines" hints. */
+export const WritingHintsContext = createContext(false);
+
+/** A time-capsule letter that isn't open yet. */
+export function SealedLetterPage({ memory, childName, pageNumber }: { memory: Memory; childName: string; pageNumber: number }) {
+  return (
+    <div className="paper sealed-page">
+      <div className="sealed-page__body">
+        <div className="envelope" aria-hidden>
+          <span className="envelope__flap" />
+          <span className="envelope__seal">
+            <Doodle kind="heart" color="#fbe9df" size="7cqw" />
+          </span>
+        </div>
+        <p className="sealed-page__for">a letter for {childName}</p>
+        {memory.title && <p className="sealed-page__title">{memory.title}</p>}
+        <p className="sealed-page__until">sealed until {longDate(memory.sealedUntil!)}</p>
+        <p className="sealed-page__written">written {longDate(memory.date)}</p>
+      </div>
+      <footer className="memory-page__footer">
+        <div />
+        <PageNumber n={pageNumber} />
+        <div />
+      </footer>
+    </div>
+  );
+}
+
+/** A divider at the start of each month of age, with height and weight if you've noted them. */
+export function MonthPage({ months, settings, growth }: { months: number; settings: BookSettings; growth?: GrowthEntry }) {
+  const range = monthOfAgeRange(settings.dateOfBirth, months);
+  const label = months === 0 ? "The first month" : `${months} month${months === 1 ? "" : "s"}`;
+  return (
+    <div className="paper month-page">
+      <div className="month-page__body">
+        <Doodle kind="sparkle" color="var(--ink-honey)" size="6cqw" rotate={-10} />
+        <p className="month-page__eyebrow">{settings.childName}</p>
+        <h2 className="month-page__title">{label}</h2>
+        <Squiggle />
+        <p className="month-page__range">
+          {shortDate(range.from)} – {shortDate(range.to)}
+        </p>
+        {(growth?.height || growth?.weight) && (
+          <div className="month-page__growth">
+            {growth.height && (
+              <span className="growth-badge">
+                <span className="growth-badge__label">height</span>
+                <span className="growth-badge__value">{growth.height}</span>
+              </span>
+            )}
+            {growth.weight && (
+              <span className="growth-badge growth-badge--weight">
+                <span className="growth-badge__label">weight</span>
+                <span className="growth-badge__value">{growth.weight}</span>
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** A quiet page that keeps a two-page memory together on one spread. */
+export function FillerPage({ seed }: { seed: number }) {
+  const kinds = ["flower", "heart", "moon", "star"] as const;
+  return (
+    <div className="paper filler-page">
+      <Doodle kind={kinds[seed % kinds.length]} color="var(--ink-faint)" size="10cqw" rotate={seed % 2 ? 8 : -8} />
+    </div>
+  );
+}
+
+export function BookPageView({
+  page,
+  index,
+  settings,
+  growth,
+}: {
+  page: BookPage;
+  index: number;
+  settings: BookSettings;
+  growth?: Record<string, GrowthEntry>;
+}) {
   switch (page.kind) {
     case "cover":
       return <CoverPage settings={settings} />;
@@ -302,7 +387,14 @@ export function BookPageView({ page, index, settings }: { page: BookPage; index:
       return <EndpaperPage side={page.side} settings={settings} />;
     case "title":
       return <TitlePage settings={settings} />;
+    case "month":
+      return <MonthPage months={page.months} settings={settings} growth={growth?.[String(page.months)]} />;
+    case "filler":
+      return <FillerPage seed={index} />;
     case "memory":
+      if (page.sealed) {
+        return <SealedLetterPage memory={page.memory} childName={settings.childName} pageNumber={pageNumber(index)} />;
+      }
       return (
         <MemoryPage
           memory={page.memory}
@@ -310,6 +402,7 @@ export function BookPageView({ page, index, settings }: { page: BookPage; index:
           continued={page.continued}
           hasMore={page.hasMore}
           dateOfBirth={settings.dateOfBirth}
+          childName={settings.childName}
           pageNumber={pageNumber(index)}
         />
       );

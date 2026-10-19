@@ -249,6 +249,7 @@ export interface DriveImage {
   mimeType: string;
   createdTime: string;
   imageMediaMetadata?: { time?: string; width?: number; height?: number };
+  appProperties?: Record<string, string>;
 }
 
 async function listAll<T>(query: string, fields: string, orderBy = "createdTime"): Promise<T[]> {
@@ -275,7 +276,7 @@ async function listAll<T>(query: string, fields: string, orderBy = "createdTime"
 export function listImagesInFolder(folderId: string): Promise<DriveImage[]> {
   return listAll<DriveImage>(
     `${inFolderQuery(folderId)} and mimeType contains 'image/'`,
-    "id,name,mimeType,createdTime,imageMediaMetadata(time,width,height)",
+    "id,name,mimeType,createdTime,imageMediaMetadata(time,width,height),appProperties",
   );
 }
 

@@ -36,11 +36,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </Link>
 
       <div className="max-w-sm text-center md:text-left">
-        <h1 className="font-serif text-5xl font-semibold text-ink">Memory Book</h1>
+        <h1 className="text-5xl font-semibold text-ink">Memory Book</h1>
         <p className="mt-3 font-hand text-2xl leading-snug text-ink-soft">
           A little keepsake journal of the everyday moments — written now, to be read when she&rsquo;s grown.
         </p>
-        <ul className="mt-5 space-y-1.5 font-serif text-lg text-ink-soft">
+        <ul className="mt-5 space-y-1.5 text-lg text-ink-soft">
           <li>✦ No account, no database — nothing is stored with us.</li>
           <li>✦ Your child&rsquo;s details, photos and words live only in your own Google Drive.</li>
           <li>✦ Drop photos into a Drive folder and they appear, ready for your words.</li>
@@ -63,7 +63,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           </Link>
         </div>
 
-        <p className="mt-5 font-serif text-base">
+        <p className="mt-5 text-base">
           <Link href="/privacy" className="text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">
             How your privacy is protected
           </Link>
@@ -71,9 +71,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
         <InstallApp className="mt-6 text-left" />
 
-        {error && <p className="mt-4 font-serif text-[var(--ink-terracotta)]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>}
+        {error && <p className="mt-4 text-[var(--ink-terracotta)]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>}
         {!signInConfigured && (
-          <div id="setup-needed" className="mt-5 rounded-lg border border-dashed border-ink-faint/60 bg-white/40 p-4 font-serif text-base text-ink-soft">
+          <div id="setup-needed" className="mt-5 rounded-lg border border-dashed border-ink-faint/60 bg-white/40 p-4 text-base text-ink-soft">
             <b className="text-ink">Sign-in is almost ready.</b> It switches on once this app&rsquo;s Google keys are added
             (a one-time, 15-minute setup — see <i>README → steps 1 and 2</i>). Until then, the demo book works without
             signing in.

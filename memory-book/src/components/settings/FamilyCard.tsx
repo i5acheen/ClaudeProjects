@@ -50,17 +50,17 @@ export function FamilyCard() {
 
   return (
     <div className="sheet mt-6">
-      <h2 className="font-hand text-3xl font-bold text-ink">Family</h2>
-      <p className="mt-1 font-serif text-lg text-ink-soft">
+      <h2 className="ui-h2">Family</h2>
+      <p className="mt-1 text-lg text-ink-soft">
         Share the book with grandparents, a partner or anyone close. They sign in with their own Google account — the
         book stays in your Drive.
       </p>
 
       <ul className="mt-4 divide-y divide-[rgba(120,90,70,0.12)]">
-        {members === null && <li className="py-2 font-serif text-ink-faint">Loading…</li>}
-        {members?.length === 0 && <li className="py-2 font-serif text-ink-faint italic">Not shared with anyone yet.</li>}
+        {members === null && <li className="py-2 text-ink-faint">Loading…</li>}
+        {members?.length === 0 && <li className="py-2 text-ink-faint italic">Not shared with anyone yet.</li>}
         {members?.map((m) => (
-          <li key={m.id} className="flex items-center gap-3 py-2.5 font-serif">
+          <li key={m.id} className="flex items-center gap-3 py-2.5">
             <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--accent-soft)] text-sm font-bold text-[var(--accent-dark)] uppercase">
               {(m.name || m.email)[0]}
             </span>
@@ -96,9 +96,9 @@ export function FamilyCard() {
         </button>
       </form>
       {message && (
-        <p className={`mt-3 font-serif text-sm ${message.ok ? "text-ink-soft" : "text-[var(--ink-terracotta)]"}`}>{message.text}</p>
+        <p className={`mt-3 text-sm ${message.ok ? "text-ink-soft" : "text-[var(--ink-terracotta)]"}`}>{message.text}</p>
       )}
-      <p className="mt-3 font-serif text-sm text-ink-faint italic">
+      <p className="mt-3 text-sm text-ink-faint italic">
         While the app is in Google&rsquo;s &ldquo;Testing&rdquo; mode, also add their email as a test user in Google Cloud
         (Google Auth Platform → Audience).
       </p>

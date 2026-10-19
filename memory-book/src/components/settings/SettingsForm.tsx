@@ -112,8 +112,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
   return (
     <div className="mx-auto max-w-xl px-3 sm:px-4">
       {!access.isOwner && (
-        <div className="sheet mb-6 font-serif text-lg text-ink-soft">
-          <h1 className="font-hand text-4xl font-bold text-ink">{settings.bookTitle}</h1>
+        <div className="sheet mb-6 text-lg text-ink-soft">
+          <h1 className="ui-h1">{settings.bookTitle}</h1>
           <p className="mt-2">
             This is {access.ownerName ? <b className="text-ink">{access.ownerName}</b> : "a family member"}&rsquo;s book,
             shared with you{access.canEdit ? " — you can add memories too" : ""}. It lives in their Google Drive.
@@ -123,7 +123,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
 
       {access.isOwner && (
       <form className="sheet" onSubmit={save}>
-        <h1 className="font-hand text-4xl font-bold text-ink">Book settings</h1>
+        <h1 className="ui-h1">Book settings</h1>
 
         <label className="field-label mt-6" htmlFor="child-name">
           Child&rsquo;s name
@@ -153,7 +153,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           onHand={setHand}
         />
 
-        <label className="mt-6 flex items-start gap-3 font-serif text-lg text-ink">
+        <label className="mt-6 flex items-start gap-3 text-lg text-ink">
           <input type="checkbox" className="mt-1.5 size-4 accent-[var(--accent)]" checked={monthPages} onChange={(e) => setMonthPages(e.target.checked)} />
           <span>
             Month pages
@@ -172,7 +172,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
               Upload a photo
             </button>
             {(settings.coverPhoto || cover.kind === "new" || cover.kind === "existing") && (
-              <button type="button" className="text-left font-serif text-sm text-ink-soft underline decoration-dotted" onClick={() => setCover({ kind: "none" })}>
+              <button type="button" className="text-left text-sm text-ink-soft underline decoration-dotted" onClick={() => setCover({ kind: "none" })}>
                 No cover photo
               </button>
             )}
@@ -180,7 +180,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           <input ref={fileInput} type="file" accept="image/*" hidden onChange={(e) => void chooseFile(e.target.files)} />
         </div>
         {settings.coverPhoto && cover.kind === "keep" && (
-          <button type="button" className="mt-3 font-serif text-ink-soft underline decoration-dotted underline-offset-4" onClick={() => setEditingCover(true)}>
+          <button type="button" className="mt-3 text-ink-soft underline decoration-dotted underline-offset-4" onClick={() => setEditingCover(true)}>
             Move the photo, title label &amp; wording on the cover
           </button>
         )}
@@ -203,7 +203,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           <button type="submit" className="chrome-button chrome-button--primary !h-12 !px-6 !text-lg" disabled={status === "Saving…"}>
             Save settings
           </button>
-          <span className="font-serif text-ink-soft" role="status">
+          <span className="text-ink-soft" role="status">
             {error ? <span className="text-[var(--ink-terracotta)]">{error}</span> : status}
           </span>
         </div>
@@ -215,8 +215,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
 
       {access.isOwner && <FamilyCard />}
 
-      <div className="sheet mt-6 space-y-4 font-serif text-lg text-ink-soft">
-        <h2 className="font-hand text-3xl font-bold text-ink">Your book</h2>
+      <div className="sheet mt-6 space-y-4 text-lg text-ink-soft">
+        <h2 className="ui-h2">Your book</h2>
         <InstallApp />
         <p>
           <Link href="/book/export" className="text-ink underline decoration-dotted underline-offset-4">

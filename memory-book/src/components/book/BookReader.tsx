@@ -6,7 +6,7 @@ import { memoryPageIndex, pageNumber, paginate } from "@/lib/pagination";
 import { BookPageView } from "./BookPages";
 import { InkFilters } from "./Doodles";
 import { FlipBook, type FlipBookHandle } from "./FlipBook";
-import { ChevronLeft, ChevronRight, CloseIcon, ExpandIcon, PenIcon } from "@/components/ui/Icons";
+import { ChevronLeft, ChevronRight, CloseIcon, ExpandIcon, MoonIcon, PenIcon, SunIcon } from "@/components/ui/Icons";
 
 interface BookReaderProps {
   journal: Journal;
@@ -14,8 +14,10 @@ interface BookReaderProps {
   startMemoryId?: string;
   /** Write on the page you're reading (not in the demo). */
   onEdit?: (memory: Memory) => void;
-  /** Add a words-only note (not in the demo). */
+  /** Write a letter to your child (not in the demo). */
   onNewNote?: () => void;
+  /** Add a new page with photos and words (not in the demo). */
+  onNewPage?: () => void;
   /** Edit the cover's title and photo (the book's owner only). */
   onEditCover?: () => void;
   /** Edit a month divider page (the book's owner only). */
@@ -27,7 +29,7 @@ interface BookReaderProps {
 /** Pages further than this from the open spread are drawn blank until you get near them, so big books stay fast. */
 const RENDER_WINDOW = 4;
 
-export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCover, onEditMonth, focusMemoryId }: BookReaderProps) {
+export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onNewPage, onEditCover, onEditMonth, focusMemoryId }: BookReaderProps) {
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
   // One page at a time (phones) needs no filler pages to keep spreads together.
   const pages = useMemo(() => paginate(journal, undefined, orientation === "landscape"), [journal, orientation]);
@@ -89,15 +91,26 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCo
 
   return (
     <div
-      className={immersive.on ? `book-immersive ${immersive.idle ? "book-immersive--idle" : ""}` : "flex min-h-0 flex-1 flex-col"}
+      className={immersive.on ? `book-immersive ${immersive.night ? "book-immersive--night" : ""} ${immersive.idle ? "book-immersive--idle" : ""}` : "flex min-h-0 flex-1 flex-col"}
       onPointerMove={immersive.wake}
       onPointerDown={immersive.wake}
     >
       <InkFilters />
       {immersive.on && (
-        <button type="button" className="immersive-close" onClick={immersive.exit} aria-label="Leave full screen">
-          <CloseIcon />
-        </button>
+        <div className="immersive-tools">
+          <button
+            type="button"
+            className="immersive-tool"
+            onClick={immersive.toggleNight}
+            aria-label={immersive.night ? "Light background" : "Dark background"}
+            title={immersive.night ? "Light background" : "Dark background"}
+          >
+            {immersive.night ? <SunIcon /> : <MoonIcon />}
+          </button>
+          <button type="button" className="immersive-tool" onClick={immersive.exit} aria-label="Leave full screen" title="Leave full screen">
+            <CloseIcon />
+          </button>
+        </div>
       )}
       <div className={`relative flex min-h-0 flex-1 items-center justify-center ${immersive.on ? "px-1 py-2 sm:px-10 sm:py-6" : "px-2 sm:px-6"}`}>
         <button
@@ -130,7 +143,7 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCo
         </button>
       </div>
 
-      <div className="book-controls relative flex h-14 shrink-0 items-center justify-center gap-2 sm:gap-4 font-serif text-ink-soft">
+      <div className="book-controls relative flex h-14 shrink-0 items-center justify-center gap-2 sm:gap-4 text-ink-soft">
         {!immersive.on && (
           <button type="button" className="round-button absolute left-3 sm:left-5" onClick={immersive.enter} aria-label="Read full screen" title="Read full screen">
             <ExpandIcon />
@@ -158,11 +171,12 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCo
         <button className="round-button sm:hidden" onClick={() => bookRef.current?.next()} disabled={current >= last} aria-label="Next page">
           <ChevronRight />
         </button>
-        {!immersive.on && (onEdit || onNewNote) && (
+        {!immersive.on && (onEdit || onNewNote || onNewPage) && (
           <WriteMenu
             memories={onEdit ? visibleMemories.filter((m) => !(m.sealedUntil && pages.some((p) => p.kind === "memory" && p.memory.id === m.id && p.sealed))) : []}
             onEdit={onEdit}
             onNewNote={onNewNote}
+            onNewPage={onNewPage}
             onEditCover={current === 0 ? onEditCover : undefined}
             months={visibleMonths}
             onEditMonth={onEditMonth}
@@ -179,9 +193,12 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCo
  * browser's real full screen where it can (not on iPhone), and fades the
  * controls away while you read.
  */
+const NIGHT_KEY = "memory-book:reading-night";
+
 function useImmersive() {
   const [on, setOn] = useState(false);
   const [idle, setIdle] = useState(false);
+  const [night, setNight] = useState(false);
   const timer = useRef<number | undefined>(undefined);
 
   const wake = useCallback(() => {
@@ -190,7 +207,23 @@ function useImmersive() {
     timer.current = window.setTimeout(() => setIdle(true), 2800);
   }, []);
 
+  const toggleNight = useCallback(() => {
+    setNight((value) => {
+      try {
+        localStorage.setItem(NIGHT_KEY, value ? "0" : "1");
+      } catch {
+        // just for this visit
+      }
+      return !value;
+    });
+  }, []);
+
   const enter = useCallback(() => {
+    try {
+      setNight(localStorage.getItem(NIGHT_KEY) === "1");
+    } catch {
+      // keep the default
+    }
     setOn(true);
     wake();
     const root = document.documentElement;
@@ -216,18 +249,18 @@ function useImmersive() {
     document.body.classList.add("is-reading");
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     const color = meta?.content;
-    if (meta) meta.content = "#2b201a";
+    if (meta) meta.content = night ? "#1c1a18" : "#ebe5de";
     return () => {
       document.removeEventListener("fullscreenchange", onChange);
       window.removeEventListener("keydown", onKey);
       document.body.classList.remove("is-reading");
       if (meta && color) meta.content = color;
     };
-  }, [on, exit, wake]);
+  }, [on, night, exit, wake]);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  return { on, idle, enter, exit, wake };
+  return { on, idle, night, enter, exit, wake, toggleNight };
 }
 
 /** One quiet pen button; its menu offers the pages on screen and a new note. */
@@ -235,6 +268,7 @@ function WriteMenu({
   memories,
   onEdit,
   onNewNote,
+  onNewPage,
   onEditCover,
   months = [],
   onEditMonth,
@@ -247,6 +281,7 @@ function WriteMenu({
   onEditCover?: () => void;
   onEdit?: (memory: Memory) => void;
   onNewNote?: () => void;
+  onNewPage?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -274,6 +309,17 @@ function WriteMenu({
     <div ref={ref} className="absolute right-3 bottom-2 sm:right-5">
       {open && (
         <div className="write-menu" role="menu">
+          {onNewPage && (
+            <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onNewPage)}>
+              <span className="write-menu__icon write-menu__icon--new" aria-hidden>
+                +
+              </span>
+              <span className="min-w-0">
+                <span className="block text-ink">New page</span>
+                <span className="block text-xs text-ink-faint">Photos and a few lines</span>
+              </span>
+            </button>
+          )}
           {memories.map((m) => (
             <button key={m.id} type="button" role="menuitem" className="write-menu__item" onClick={() => choose(() => onEdit?.(m))}>
               <span className="write-menu__icon" aria-hidden>
@@ -306,8 +352,8 @@ function WriteMenu({
           )}
           {onNewNote && (
             <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onNewNote)}>
-              <span className="write-menu__icon write-menu__icon--new" aria-hidden>
-                +
+              <span className="write-menu__icon" aria-hidden>
+                ✉
               </span>
               <span className="text-ink">Write a letter to {childName || "your little one"}</span>
             </button>

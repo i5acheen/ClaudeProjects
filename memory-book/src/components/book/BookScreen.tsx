@@ -15,7 +15,7 @@ import { WritingHintsContext } from "./BookPages";
 
 /** The signed-in book: the same reader as the demo, with your own memories — and you can write straight into it. */
 export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
-  const [writing, setWriting] = useState<{ memory?: Memory } | null>(null);
+  const [writing, setWriting] = useState<{ memory?: Memory; letter?: boolean } | null>(null);
   const [focusId, setFocusId] = useState<string>();
   const [editingCover, setEditingCover] = useState(false);
   const [editingMonth, setEditingMonth] = useState<number | null>(null);
@@ -46,7 +46,8 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
               startMemoryId={startMemoryId}
               focusMemoryId={focusId}
               onEdit={access.canEdit ? (memory) => setWriting({ memory }) : undefined}
-              onNewNote={access.canEdit ? () => setWriting({}) : undefined}
+              onNewNote={access.canEdit ? () => setWriting({ letter: true }) : undefined}
+              onNewPage={access.canEdit ? () => setWriting({}) : undefined}
               onEditCover={access.isOwner ? () => setEditingCover(true) : undefined}
               onEditMonth={access.canEdit ? setEditingMonth : undefined}
             />
@@ -57,6 +58,7 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
               <NoteSheet
                 journal={journal}
                 memory={writing.memory}
+                letter={writing.letter}
                 onClose={() => setWriting(null)}
                 onSaved={(id) => {
                   setWriting(null);

@@ -29,7 +29,7 @@ export function DuplicateCleaner({ compact }: { compact?: boolean }) {
   }
 
   return (
-    <div className={compact ? "font-serif text-sm text-ink-soft" : "font-serif text-lg text-ink-soft"}>
+    <div className={compact ? "text-sm text-ink-soft" : "text-lg text-ink-soft"}>
       {compact && !status && <span>Seeing the same photos more than once? </span>}
       {!busy && (
         <button type="button" className={compact ? "underline decoration-dotted underline-offset-4 hover:text-ink" : "chrome-button field-button"} onClick={run}>

@@ -47,10 +47,10 @@ export function WriteScreen({ journal }: { journal: Journal }) {
       <div className="mx-auto max-w-xl space-y-8 px-3 pt-2 sm:px-4">
         {waiting.length > 0 && (
           <section aria-labelledby="waiting-heading">
-            <h2 id="waiting-heading" className="mb-1 font-hand text-3xl font-bold text-ink">
+            <h2 id="waiting-heading" className="mb-1 ui-h2">
               Waiting for your words <span className="text-ink-faint">({waiting.length})</span>
             </h2>
-            <p className="font-serif text-ink-soft">These photos are already in the book. Add a few lines whenever you have a moment.</p>
+            <p className="text-ink-soft">These photos are already in the book. Add a few lines whenever you have a moment.</p>
             <div className="mt-1 mb-4">
               <DuplicateCleaner compact />
             </div>
@@ -68,7 +68,7 @@ export function WriteScreen({ journal }: { journal: Journal }) {
 
         <DriveFolderCard watched={journal.watchedFolder} openChooser={openChooser} />
 
-        <p className="text-center font-serif text-lg text-ink-soft">
+        <p className="text-center text-lg text-ink-soft">
           <Link href="/book" className="underline decoration-dotted underline-offset-4 hover:text-ink">
             Open the journal →
           </Link>

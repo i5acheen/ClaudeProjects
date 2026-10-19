@@ -123,11 +123,11 @@ export function ExportBook({ journal }: { journal: Journal }) {
 
       <div className="no-print mx-auto max-w-xl px-3 sm:px-4">
         <div className="sheet">
-          <h1 className="font-hand text-4xl font-bold text-ink">Download as a PDF</h1>
-          <p className="mt-2 font-serif text-lg text-ink-soft">A print-ready copy of the book, to keep or to have printed.</p>
+          <h1 className="ui-h1">Download as a PDF</h1>
+          <p className="mt-2 text-lg text-ink-soft">A print-ready copy of the book, to keep or to have printed.</p>
 
           <p className="field-label mt-6">Which memories?</p>
-          <div className="space-y-2.5 font-serif text-lg text-ink">
+          <div className="space-y-2.5 text-lg text-ink">
             <Choice checked={rangeKind === "all"} onChange={() => setRangeKind("all")}>
               The whole book
             </Choice>
@@ -172,7 +172,7 @@ export function ExportBook({ journal }: { journal: Journal }) {
           </div>
 
           <p className="field-label mt-6">Page size</p>
-          <div className="space-y-2.5 font-serif text-lg text-ink">
+          <div className="space-y-2.5 text-lg text-ink">
             {PRINT_FORMATS.map((f) => (
               <Choice key={f.id} checked={formatId === f.id} onChange={() => setFormatId(f.id)}>
                 {f.label}
@@ -180,7 +180,7 @@ export function ExportBook({ journal }: { journal: Journal }) {
             ))}
           </div>
 
-          <label className="mt-6 flex items-center gap-3 font-serif text-lg text-ink">
+          <label className="mt-6 flex items-center gap-3 text-lg text-ink">
             <input type="checkbox" className="size-5 accent-[var(--accent)]" checked={includeCovers} onChange={(e) => setIncludeCovers(e.target.checked)} />
             Include the covers and patterned endpapers
           </label>
@@ -194,12 +194,12 @@ export function ExportBook({ journal }: { journal: Journal }) {
             >
               {preparing ? `Preparing photos… ${loaded.done} of ${loaded.total}` : "Save as PDF"}
             </button>
-            <span className="font-serif text-ink-soft">
+            <span className="text-ink-soft">
               {memoryCount} {memoryCount === 1 ? "memory" : "memories"} · {pages.length} pages
             </span>
           </div>
 
-          <details className="mt-6 font-serif text-base text-ink-soft">
+          <details className="mt-6 text-base text-ink-soft">
             <summary className="cursor-pointer text-ink">How to save the PDF</summary>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
               <li>A print window opens. As the printer, choose <b>Save as PDF</b> (on iPhone: tap Share → Save to Files).</li>

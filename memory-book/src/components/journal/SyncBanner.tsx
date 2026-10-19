@@ -8,7 +8,7 @@ export function SyncBanner() {
   if (pendingCount === 0 && !error) return null;
 
   return (
-    <div className="mx-auto mb-1 flex max-w-xl items-center justify-center gap-3 px-4 text-center font-serif text-sm text-ink-soft">
+    <div className="mx-auto mb-1 flex max-w-xl items-center justify-center gap-3 px-4 text-center text-sm text-ink-soft">
       {pendingCount > 0 ? (
         <>
           <span>

@@ -60,8 +60,8 @@ export function SetupForm() {
       <form className="sheet w-full max-w-xl" onSubmit={submit}>
 {step === "details" ? (
           <>
-        <h1 className="font-hand text-4xl font-bold text-ink">Let&rsquo;s start your book</h1>
-        <p className="mt-2 font-serif text-lg text-ink-soft">
+        <h1 className="ui-h1">Let&rsquo;s start your book</h1>
+        <p className="mt-2 text-lg text-ink-soft">
           We&rsquo;ll make a folder called <em>Memory Book – {childName.trim() || "…"}</em> in your Google Drive. Your
           photos and words are kept there, and nowhere else.
         </p>
@@ -119,8 +119,8 @@ export function SetupForm() {
           </>
         ) : (
           <>
-        <h1 className="font-hand text-4xl font-bold text-ink">Choose a style</h1>
-        <p className="mt-2 font-serif text-lg text-ink-soft">
+        <h1 className="ui-h1">Choose a style</h1>
+        <p className="mt-2 text-lg text-ink-soft">
           Pick a cover and a writing style for {childName.trim() || "your"}&rsquo;s book. You can change both any time in
           Settings.
         </p>
@@ -136,7 +136,7 @@ export function SetupForm() {
         )}
 
         {step === "details" && (
-          <div className="mt-8 rounded-xl border border-dashed border-[rgba(120,90,70,0.25)] bg-white/60 p-4 font-serif text-ink-soft">
+          <div className="mt-8 rounded-xl border border-dashed border-[rgba(120,90,70,0.25)] bg-white/60 p-4 text-ink-soft">
             <p className="text-lg text-ink">Has someone shared their Memory Book with you?</p>
             <p className="mt-1 text-sm">
               Google will ask you to let Memory Book open books shared with your account.
@@ -152,11 +152,11 @@ export function SetupForm() {
           </div>
         )}
 
-        <p className="mt-6 font-serif text-sm text-ink-faint italic">
+        <p className="mt-6 text-sm text-ink-faint italic">
           🔒 These details are saved only in your Google Drive (in <code>journal.json</code>), never on our side.
         </p>
 
-        {error && <p className="mt-4 font-serif text-[var(--ink-terracotta)]">{error}</p>}
+        {error && <p className="mt-4 text-[var(--ink-terracotta)]">{error}</p>}
 
         <div className="mt-8 flex gap-3">
           {step === "style" && (

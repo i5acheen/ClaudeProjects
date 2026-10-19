@@ -35,12 +35,12 @@ export function StylePickers({
             <span className="block aspect-[3/4] w-24 overflow-hidden rounded-sm [container-type:size]">
               <CoverPage settings={{ ...preview, coverTheme: id }} />
             </span>
-            <span className="mt-1.5 block text-center font-serif text-sm text-ink-soft">{COVER_THEMES[id].label}</span>
+            <span className="mt-1.5 block text-center text-sm text-ink-soft">{COVER_THEMES[id].label}</span>
           </button>
         ))}
       </div>
       {theme === "photo" && !preview.coverPhoto && (
-        <p className="font-serif text-sm text-ink-faint italic">Add a cover photo to see this style — it fills the whole cover.</p>
+        <p className="text-sm text-ink-faint italic">Add a cover photo to see this style — it fills the whole cover.</p>
       )}
 
       <p className="field-label mt-6">Writing style</p>
@@ -53,7 +53,7 @@ export function StylePickers({
             >
               Dear {preview.childName || "little one"}, today…
             </span>
-            <span className="mt-0.5 block font-serif text-xs tracking-wide text-ink-faint uppercase">
+            <span className="mt-0.5 block text-xs tracking-wide text-ink-faint uppercase">
               {HANDWRITING[id].label} · {HANDWRITING[id].sample}
             </span>
           </button>

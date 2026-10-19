@@ -225,7 +225,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
 
   const saveControls = (
     <>
-      <p className="min-w-0 flex-1 font-serif text-sm text-ink-soft" role="status" aria-live="polite">
+      <p className="min-w-0 flex-1 text-sm text-ink-soft" role="status" aria-live="polite">
         {error ? (
           <span className="text-[var(--ink-terracotta)]">{error}</span>
         ) : progress ? (
@@ -258,7 +258,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
 
   const sheet = (
         <div className="sheet">
-          <h1 className="font-hand text-4xl font-bold text-ink">
+          <h1 className="ui-h1">
             {inline ? "Write a new memory" : isNew ? "A new memory" : "Edit memory"}
           </h1>
 
@@ -288,7 +288,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
                 <button type="button" className="chrome-button field-button" onClick={() => galleryInput.current?.click()}>
                   <span aria-hidden>🖼</span> Choose photos
                 </button>
-                <span className="self-center font-serif text-sm text-ink-faint italic">up to {MAX_PHOTOS}</span>
+                <span className="self-center text-sm text-ink-faint italic">up to {MAX_PHOTOS}</span>
               </div>
             )}
             <input
@@ -334,7 +334,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
               required
             />
             {date && (
-              <p className="mt-2 font-serif text-lg text-[var(--ink-terracotta)] italic">
+              <p className="mt-2 text-lg text-[var(--ink-terracotta)] italic">
                 {ageStamp(journal.settings.dateOfBirth, date)}
                 {dateFromPhoto && <span className="ml-2 text-sm text-ink-faint not-italic">· taken from the photo</span>}
               </p>
@@ -377,7 +377,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
             {(["moments", "ceremonies"] as const).map((group) => (
               <div key={group} className={group === "ceremonies" ? "mt-3" : ""}>
                 {group === "ceremonies" && (
-                  <p className="mb-1.5 font-serif text-sm text-ink-faint italic">Milestones &amp; ceremonies</p>
+                  <p className="mb-1.5 text-sm text-ink-faint italic">Milestones &amp; ceremonies</p>
                 )}
                 <div className="flex flex-wrap gap-2.5">
                   {TAGS.filter((tag) => TAG_META[tag].group === group).map((tag) => (
@@ -399,7 +399,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
           {!isNew && (
             <section className="mt-10 border-t border-dashed border-ink-faint/50 pt-5">
               {confirmDelete ? (
-                <div className="flex flex-wrap items-center gap-3 font-serif text-ink-soft">
+                <div className="flex flex-wrap items-center gap-3 text-ink-soft">
                   <span>Delete this memory and its photos?</span>
                   <button type="button" className="chrome-button danger-button" onClick={remove} disabled={saving}>
                     Yes, delete
@@ -409,7 +409,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
                   </button>
                 </div>
               ) : (
-                <button type="button" className="font-serif text-[var(--ink-terracotta)] underline decoration-dotted underline-offset-4" onClick={() => setConfirmDelete(true)}>
+                <button type="button" className="text-[var(--ink-terracotta)] underline decoration-dotted underline-offset-4" onClick={() => setConfirmDelete(true)}>
                   Delete this memory
                 </button>
               )}

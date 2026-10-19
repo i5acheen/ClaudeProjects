@@ -6,15 +6,15 @@ export const metadata = { title: "Memory Book — privacy" };
 export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
-      <div className="sheet font-serif text-lg leading-relaxed text-ink-soft">
-        <h1 className="font-hand text-5xl font-bold text-ink">Your memories stay yours</h1>
+      <div className="sheet text-lg leading-relaxed text-ink-soft">
+        <h1 className="ui-h1">Your memories stay yours</h1>
         <p className="mt-4">
           Memory Book has <b className="text-ink">no database and no storage of its own</b>. Everything you put into
           it lives in <b className="text-ink">your own Google Drive</b>, in a folder you can open, move, download or
           delete at any time.
         </p>
 
-        <h2 className="mt-8 font-hand text-3xl font-bold text-ink">What is saved, and where</h2>
+        <h2 className="mt-8 ui-h2">What is saved, and where</h2>
         <ul className="mt-2 list-disc space-y-2 pl-6">
           <li>
             <b className="text-ink">Your child&rsquo;s name, date of birth, the book title and your note</b> — in{" "}
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
           </li>
         </ul>
 
-        <h2 className="mt-8 font-hand text-3xl font-bold text-ink">What we never do</h2>
+        <h2 className="mt-8 ui-h2">What we never do</h2>
         <ul className="mt-2 list-disc space-y-2 pl-6">
           <li>We don&rsquo;t keep a copy of your photos, words or your child&rsquo;s details — anywhere.</li>
           <li>
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
           <li>No ads, no tracking, no analytics, no selling or sharing of anything.</li>
         </ul>
 
-        <h2 className="mt-8 font-hand text-3xl font-bold text-ink">The Google permissions we ask for</h2>
+        <h2 className="mt-8 ui-h2">The Google permissions we ask for</h2>
         <ul className="mt-2 list-disc space-y-2 pl-6">
           <li>
             <b className="text-ink">Your name and email</b> — only to know it&rsquo;s you. They&rsquo;re kept in an

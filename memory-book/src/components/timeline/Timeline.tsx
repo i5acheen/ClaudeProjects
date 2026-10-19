@@ -19,8 +19,8 @@ export function Timeline({ journal, basePath }: { journal: Journal; basePath: st
       {groups.map(({ label, memories }) => (
         <section key={label} className="mb-10 sm:grid sm:grid-cols-[10rem_1fr] sm:gap-8">
           <div className="mb-4 sm:sticky sm:top-4 sm:mb-0 sm:self-start sm:text-right">
-            <h2 className="font-serif text-2xl font-semibold text-ink">{label}</h2>
-            <p className="font-serif text-base italic text-ink-soft">
+            <h2 className="text-2xl font-semibold text-ink">{label}</h2>
+            <p className="text-base italic text-ink-soft">
               {ageStamp(journal.settings.dateOfBirth, memories[0].date)}
             </p>
           </div>
@@ -32,7 +32,7 @@ export function Timeline({ journal, basePath }: { journal: Journal; basePath: st
         </section>
       ))}
       {groups.length > 0 && (
-        <p className="mt-6 text-center font-serif text-lg text-ink-soft">
+        <p className="mt-6 text-center text-lg text-ink-soft">
           <Link href={`${basePath}/export`} className="underline decoration-dotted underline-offset-4 hover:text-ink">
             Download the book as a PDF
           </Link>
@@ -67,15 +67,15 @@ function TimelineCard({ memory, href }: { memory: Memory; href: string }) {
           <div className="grid h-full place-items-center font-hand text-4xl text-ink-faint">✎</div>
         )}
         {!sealed && memory.photos.length > 1 && (
-          <span className="absolute right-1.5 bottom-1.5 rounded-full bg-black/35 px-2 py-0.5 font-serif text-xs text-white">
+          <span className="absolute right-1.5 bottom-1.5 rounded-full bg-black/35 px-2 py-0.5 text-xs text-white">
             +{memory.photos.length - 1}
           </span>
         )}
       </div>
-      <p className="mt-2 font-serif text-[0.7rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">
+      <p className="mt-2 text-[0.7rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">
         {shortDate(memory.date)}
       </p>
-      <p className={`truncate leading-tight text-ink ${sealed ? "font-serif text-sm italic" : "font-hand text-xl"}`}>{caption}</p>
+      <p className={`truncate leading-tight text-ink ${sealed ? "text-sm italic" : "font-hand text-xl"}`}>{caption}</p>
     </Link>
   );
 }

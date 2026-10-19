@@ -76,11 +76,11 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
-        <span className="font-serif text-base text-[var(--ink-terracotta)] italic">{ageStamp(dateOfBirth, date)}</span>
+        <span className="text-base text-[var(--ink-terracotta)] italic">{ageStamp(dateOfBirth, date)}</span>
       </div>
-      <p className="mt-1 font-serif text-xs tracking-[0.14em] text-ink-faint uppercase">{longDate(date)}</p>
+      <p className="mt-1 text-xs tracking-[0.14em] text-ink-faint uppercase">{longDate(date)}</p>
       {memory.dateGuessed && date === memory.date && (
-        <p className="mt-1 font-serif text-sm text-[var(--ink-terracotta)]">
+        <p className="mt-1 text-sm text-[var(--ink-terracotta)]">
           We couldn&rsquo;t find when {memory.photos.length === 1 ? "this photo was" : "these photos were"} taken, so this is
           the day {memory.photos.length === 1 ? "it was" : "they were"} added — please check the date.
         </p>
@@ -121,12 +121,12 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
         <button type="button" className="chrome-button chrome-button--primary !h-11 !px-5" onClick={save} disabled={busy}>
           {busy ? status : "Save to book"}
         </button>
-        <Link href={`/book/edit/${encodeURIComponent(memory.id)}`} className="font-serif text-ink-soft underline decoration-dotted underline-offset-4">
+        <Link href={`/book/edit/${encodeURIComponent(memory.id)}`} className="text-ink-soft underline decoration-dotted underline-offset-4">
           Edit details
         </Link>
         <span className="flex-1" />
         {confirmRemove ? (
-          <span className="flex items-center gap-2 font-serif text-sm text-ink-soft">
+          <span className="flex items-center gap-2 text-sm text-ink-soft">
             {memory.photos.length === 1 ? "Take this photo out of the book?" : "Take these photos out of the book?"} Your originals stay in Drive.
             <button type="button" className="chrome-button danger-button !h-9 !px-3 !text-sm" onClick={remove} disabled={busy}>
               Yes
@@ -136,12 +136,12 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
             </button>
           </span>
         ) : (
-          <button type="button" className="font-serif text-sm text-ink-faint underline decoration-dotted underline-offset-4" onClick={() => setConfirmRemove(true)}>
+          <button type="button" className="text-sm text-ink-faint underline decoration-dotted underline-offset-4" onClick={() => setConfirmRemove(true)}>
             {memory.photos.length === 1 ? "Skip this photo" : "Skip these photos"}
           </button>
         )}
       </div>
-      {error && <p className="mt-2 font-serif text-sm text-[var(--ink-terracotta)]">{error}</p>}
+      {error && <p className="mt-2 text-sm text-[var(--ink-terracotta)]">{error}</p>}
     </article>
   );
 }

@@ -41,12 +41,12 @@ export function GrowthCard({ journal }: { journal: Journal }) {
   const range = monthOfAgeRange(dateOfBirth, months);
   return (
     <section className="sheet" aria-labelledby="growth-heading">
-      <h2 id="growth-heading" className="font-hand text-3xl font-bold text-ink">
+      <h2 id="growth-heading" className="ui-h2">
         Growing up
       </h2>
-      <p className="font-serif text-ink-soft">Height and weight for each month, printed on the month&rsquo;s divider page.</p>
+      <p className="text-ink-soft">Height and weight for each month, printed on the month&rsquo;s divider page.</p>
       <div className="mt-3 flex flex-wrap items-end gap-3">
-        <label className="font-serif text-sm text-ink-soft">
+        <label className="text-sm text-ink-soft">
           Month
           <select className="text-field mt-1 block !w-auto !text-base" value={months} onChange={(e) => setMonths(Number(e.target.value))}>
             {Array.from({ length: current + 1 }, (_, i) => current - i).map((m) => (
@@ -57,11 +57,11 @@ export function GrowthCard({ journal }: { journal: Journal }) {
             ))}
           </select>
         </label>
-        <label className="font-serif text-sm text-ink-soft">
+        <label className="text-sm text-ink-soft">
           Height
           <input className="text-field mt-1 block !w-28 !text-base" placeholder="62 cm" value={height} maxLength={20} onChange={(e) => setHeight(e.target.value)} />
         </label>
-        <label className="font-serif text-sm text-ink-soft">
+        <label className="text-sm text-ink-soft">
           Weight
           <input className="text-field mt-1 block !w-28 !text-base" placeholder="6.2 kg" value={weight} maxLength={20} onChange={(e) => setWeight(e.target.value)} />
         </label>
@@ -69,10 +69,10 @@ export function GrowthCard({ journal }: { journal: Journal }) {
           Save
         </button>
       </div>
-      <p className="mt-2 font-serif text-xs tracking-[0.12em] text-ink-faint uppercase">
+      <p className="mt-2 text-xs tracking-[0.12em] text-ink-faint uppercase">
         {shortDate(range.from)} – {shortDate(range.to)}
       </p>
-      {status && <p className="mt-1 font-serif text-sm text-ink-soft">{status}</p>}
+      {status && <p className="mt-1 text-sm text-ink-soft">{status}</p>}
     </section>
   );
 }

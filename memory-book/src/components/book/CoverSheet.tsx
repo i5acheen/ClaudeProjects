@@ -71,7 +71,7 @@ export function CoverSheet({
   return (
     <div className="note-backdrop" role="dialog" aria-modal aria-label="Edit the cover" onClick={onClose}>
       <div className="note-sheet" onClick={(e) => e.stopPropagation()}>
-        <h2 className="font-hand text-3xl font-bold text-ink">Edit the cover</h2>
+        <h2 className="ui-h2">Edit the cover</h2>
 
         <div className="mt-4 flex flex-col gap-5 sm:flex-row">
           <div className="mx-auto aspect-[3/4] w-40 shrink-0 overflow-hidden rounded-sm shadow-md [container-type:size] sm:mx-0">
@@ -120,7 +120,7 @@ export function CoverSheet({
         {settings.coverPhoto ? (
           <div className="mt-5">
             <p className="field-label">Keep in view</p>
-            <p className="mb-2 font-serif text-sm text-ink-soft">Tap the part of the photo that matters most — like a face.</p>
+            <p className="mb-2 text-sm text-ink-soft">Tap the part of the photo that matters most — like a face.</p>
             <div
               ref={picker}
               className="focus-picker"
@@ -138,7 +138,7 @@ export function CoverSheet({
             </div>
           </div>
         ) : (
-          <p className="mt-5 font-serif text-sm text-ink-soft">
+          <p className="mt-5 text-sm text-ink-soft">
             No cover photo yet —{" "}
             <Link href="/book/settings" className="underline decoration-dotted underline-offset-4">
               choose one in Settings
@@ -155,7 +155,7 @@ export function CoverSheet({
             Cancel
           </button>
         </div>
-        {error && <p className="mt-2 font-serif text-sm text-[var(--ink-terracotta)]">{error}</p>}
+        {error && <p className="mt-2 text-sm text-[var(--ink-terracotta)]">{error}</p>}
       </div>
     </div>
   );

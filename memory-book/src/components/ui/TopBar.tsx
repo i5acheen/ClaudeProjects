@@ -24,11 +24,12 @@ export function TopBar({ title, basePath, active, demo, canWrite: canWriteProp }
     <header className="relative z-10 flex h-14 shrink-0 items-center justify-between gap-2 px-3 sm:px-4">
       <Link
         href={demo ? "/" : canWrite ? `${basePath}/write` : basePath}
-        className="hidden min-w-0 truncate font-serif text-lg font-semibold italic text-ink-soft hover:text-ink md:block"
+        className="hidden min-w-0 items-center gap-2.5 truncate text-[0.95rem] font-semibold tracking-tight text-ink hover:opacity-80 md:flex"
       >
-        {title}
+        <img src="/icons/icon-192.png" alt="" className="size-8 shrink-0 rounded-[0.6rem] shadow-sm" />
+        <span className="truncate">{title}</span>
         {demo && (
-          <span className="ml-2 rounded-full bg-white/50 px-2 py-0.5 align-middle font-serif text-xs tracking-wider text-ink-soft uppercase not-italic">
+          <span className="rounded-full bg-ink/5 px-2 py-0.5 text-[0.7rem] font-semibold tracking-wide text-ink-soft uppercase">
             demo
           </span>
         )}

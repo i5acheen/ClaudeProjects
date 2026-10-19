@@ -62,8 +62,8 @@ export function Notice({ title, children }: { title: string; children: React.Rea
   return (
     <div className="flex min-h-[70dvh] items-center justify-center px-4">
       <div className="sheet max-w-md text-center">
-        <h1 className="font-hand text-4xl font-bold text-ink">{title}</h1>
-        <div className="mt-3 font-serif text-lg text-ink-soft">{children}</div>
+        <h1 className="ui-h1">{title}</h1>
+        <div className="mt-3 text-lg text-ink-soft">{children}</div>
       </div>
     </div>
   );

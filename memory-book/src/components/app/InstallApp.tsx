@@ -61,8 +61,8 @@ export function InstallApp({ className = "" }: { className?: string }) {
   return (
     <div className={`install-app ${className}`}>
       <img src="/icons/icon-192.png" alt="" className="size-12 shrink-0 rounded-xl shadow-sm" />
-      <div className="min-w-0 flex-1 font-serif text-ink-soft">
-        <p className="font-hand text-2xl leading-tight font-bold text-ink">Keep it on your home screen</p>
+      <div className="min-w-0 flex-1 text-ink-soft">
+        <p className="ui-h3">Keep it on your home screen</p>
         <p className="text-sm">Opens like an app, full screen, with its own icon. Free, no app store needed.</p>
         {mode === "prompt" && (
           <button type="button" className="chrome-button chrome-button--primary mt-2 !h-10 !px-5" onClick={install}>

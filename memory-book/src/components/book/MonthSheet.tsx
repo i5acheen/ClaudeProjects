@@ -44,7 +44,7 @@ export function MonthSheet({ journal, months, onClose }: { journal: Journal; mon
   return (
     <div className="note-backdrop" role="dialog" aria-modal aria-label="Edit the month page" onClick={onClose}>
       <div className="note-sheet" onClick={(e) => e.stopPropagation()}>
-        <h2 className="font-hand text-3xl font-bold text-ink">Month page</h2>
+        <h2 className="ui-h2">Month page</h2>
 
         <div className="mt-4 flex flex-col gap-5 sm:flex-row">
           <div className="mx-auto aspect-[3/4] w-40 shrink-0 overflow-hidden rounded-sm shadow-md [container-type:size] sm:mx-0">
@@ -62,11 +62,11 @@ export function MonthSheet({ journal, months, onClose }: { journal: Journal; mon
             <input id="month-note" className="text-field hand-field" value={note} maxLength={120} placeholder="The month you found your feet" onChange={(e) => setNote(e.target.value)} />
 
             <div className="mt-4 flex gap-3">
-              <label className="font-serif text-sm text-ink-soft">
+              <label className="text-sm text-ink-soft">
                 Height
                 <input className="text-field mt-1 block !w-28 !text-base" placeholder="62 cm" value={height} maxLength={20} onChange={(e) => setHeight(e.target.value)} />
               </label>
-              <label className="font-serif text-sm text-ink-soft">
+              <label className="text-sm text-ink-soft">
                 Weight
                 <input className="text-field mt-1 block !w-28 !text-base" placeholder="6.2 kg" value={weight} maxLength={20} onChange={(e) => setWeight(e.target.value)} />
               </label>
@@ -84,7 +84,7 @@ export function MonthSheet({ journal, months, onClose }: { journal: Journal; mon
         </div>
 
         {access.isOwner && (
-        <div className="mt-6 border-t border-dashed border-ink-faint/50 pt-4 font-serif text-sm text-ink-soft">
+        <div className="mt-6 border-t border-dashed border-ink-faint/50 pt-4 text-sm text-ink-soft">
           Prefer the book without month pages?{" "}
           <button type="button" className="text-ink underline decoration-dotted underline-offset-4" onClick={turnOff} disabled={status !== null}>
             Remove all month pages

@@ -67,3 +67,15 @@ export const FolderIcon = ({ className }: IconProps) => (
     <path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" />
   </svg>
 );
+
+export const ExpandIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+  </svg>
+);
+
+export const CloseIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </svg>
+);

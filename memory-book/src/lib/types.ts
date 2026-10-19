@@ -62,6 +62,12 @@ export interface BookSettings {
   coverTheme?: CoverTheme;
   /** Handwriting font, see lib/book-style.ts. */
   handwriting?: Handwriting;
+  /** The point of the cover photo to keep in view (percent from left/top), e.g. the face. */
+  coverFocus?: { x: number; y: number };
+  /** Where the title label sits on a full-photo cover. */
+  coverLabel?: "top" | "bottom";
+  /** The small line under the title; empty means "for <name> · <birthday>". */
+  coverSubtitle?: string;
 }
 
 /** The Drive folder you drop photos into, so they turn into memories by themselves. */

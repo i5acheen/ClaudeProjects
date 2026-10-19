@@ -54,19 +54,20 @@ function Squiggle({ color = "var(--ink-rose)" }: { color?: string }) {
 export function CoverPage({ settings }: { settings: BookSettings }) {
   const coverSrc = usePhotoSrc(settings.coverPhoto?.fileId);
   const theme = coverTheme(settings);
+  const subtitle = settings.coverSubtitle?.trim() || `for ${settings.childName} · ${shortDate(settings.dateOfBirth)}`;
+  const focus = settings.coverFocus;
+  const imgStyle = focus ? { objectPosition: `${focus.x}% ${focus.y}%` } : undefined;
 
   // Full photo: the picture fills the cover, the title sits on a cream label.
   if (theme === "photo" && coverSrc) {
     return (
       <div className="cover cover--photo">
-        <img className="cover__bleed" src={coverSrc} alt="" draggable={false} />
+        <img className="cover__bleed" src={coverSrc} alt="" draggable={false} style={imgStyle} />
         <div className="cover__shade" />
-        <div className="cover__label">
+        <div className={`cover__label cover__label--${settings.coverLabel ?? "bottom"}`}>
           <h1 className="cover__title">{settings.bookTitle}</h1>
           <span className="cover__rule" />
-          <p className="cover__subtitle">
-            for {settings.childName} · {shortDate(settings.dateOfBirth)}
-          </p>
+          <p className="cover__subtitle">{subtitle}</p>
         </div>
       </div>
     );
@@ -79,13 +80,11 @@ export function CoverPage({ settings }: { settings: BookSettings }) {
         <div className="portrait__head">
           <h1 className="cover__title">{settings.bookTitle}</h1>
           <span className="cover__rule" />
-          <p className="cover__subtitle">
-            for {settings.childName} · {shortDate(settings.dateOfBirth)}
-          </p>
+          <p className="cover__subtitle">{subtitle}</p>
         </div>
         <div className="portrait__photo">
           {coverSrc ? (
-            <img src={coverSrc} alt="" draggable={false} />
+            <img src={coverSrc} alt="" draggable={false} style={imgStyle} />
           ) : (
             <Doodle kind="heart" color="var(--cover-ink)" size="22cqw" />
           )}
@@ -101,13 +100,19 @@ export function CoverPage({ settings }: { settings: BookSettings }) {
         <h1 className="cover__title">{settings.bookTitle}</h1>
         <div className="cover__window">
           {coverSrc ? (
-            <img src={coverSrc} alt="" draggable={false} />
+            <img src={coverSrc} alt="" draggable={false} style={imgStyle} />
           ) : (
             <Doodle kind="heart" color="var(--cover-ink)" size="20cqw" />
           )}
         </div>
-        <p className="cover__name">for {settings.childName}</p>
-        <p className="cover__born">born {longDate(settings.dateOfBirth)}</p>
+        {settings.coverSubtitle?.trim() ? (
+          <p className="cover__name">{settings.coverSubtitle.trim()}</p>
+        ) : (
+          <>
+            <p className="cover__name">for {settings.childName}</p>
+            <p className="cover__born">born {longDate(settings.dateOfBirth)}</p>
+          </>
+        )}
         <div className="cover__stars" aria-hidden>
           <Doodle kind="sparkle" color="var(--cover-ink)" size="5cqw" rotate={-8} />
           <Doodle kind={theme === "sage" ? "flower" : "star"} color="var(--cover-ink)" size="4cqw" rotate={12} />

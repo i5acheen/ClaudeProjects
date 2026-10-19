@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InstallApp } from "@/components/app/InstallApp";
 import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
 import { CoverPage } from "@/components/book/BookPages";
@@ -67,6 +68,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             How your privacy is protected
           </Link>
         </p>
+
+        <InstallApp className="mt-6 text-left" />
 
         {error && <p className="mt-4 font-serif text-[var(--ink-terracotta)]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>}
         {!signInConfigured && (

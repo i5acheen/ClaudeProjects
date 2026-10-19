@@ -13,6 +13,8 @@ import { useJournal } from "@/components/journal/JournalProvider";
 import { StylePickers } from "./StylePickers";
 import { FamilyCard } from "./FamilyCard";
 import { DuplicateCleaner } from "@/components/write/DuplicateCleaner";
+import { CoverSheet } from "@/components/book/CoverSheet";
+import { InstallApp } from "@/components/app/InstallApp";
 import {
   coverTheme as currentCoverTheme,
   handwriting as currentHandwriting,
@@ -32,6 +34,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
   const [dedication, setDedication] = useState(settings.dedication ?? "");
   const [cover, setCover] = useState<CoverChoice>({ kind: "keep" });
   const [pickingCover, setPickingCover] = useState(false);
+  const [editingCover, setEditingCover] = useState(false);
   const [theme, setTheme] = useState<CoverTheme>(currentCoverTheme(settings));
   const [hand, setHand] = useState<Handwriting>(currentHandwriting(settings));
   const [status, setStatus] = useState<string | null>(null);
@@ -51,6 +54,9 @@ export function SettingsForm({ journal }: { journal: Journal }) {
         cover.kind === "keep" ? settings.coverPhoto : cover.kind === "existing" ? cover.ref : undefined;
       await updateSettings(
         {
+          ...settings,
+          // A different photo needs its own focus point.
+          coverFocus: cover.kind === "keep" ? settings.coverFocus : undefined,
           childName: childName.trim(),
           dateOfBirth,
           bookTitle: bookTitle.trim() || "Memory Book",
@@ -92,6 +98,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
         .forEach((k) => localStorage.removeItem(k));
       await idbClear("photos");
       await idbClear("drafts");
+      // Saved copies of your signed-in pages (for opening offline).
+      if ("caches" in window) for (const key of await caches.keys()) if (key.startsWith("pages-")) await caches.delete(key);
     } catch {
       // nothing to clear
     }
@@ -161,6 +169,11 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           </div>
           <input ref={fileInput} type="file" accept="image/*" hidden onChange={(e) => void chooseFile(e.target.files)} />
         </div>
+        {settings.coverPhoto && cover.kind === "keep" && (
+          <button type="button" className="mt-3 font-serif text-ink-soft underline decoration-dotted underline-offset-4" onClick={() => setEditingCover(true)}>
+            Move the photo, title label &amp; wording on the cover
+          </button>
+        )}
         {pickingCover && (
           <div className="cover-photo-grid mt-4 grid grid-cols-4 gap-2 sm:grid-cols-6">
             {allPhotos.map((photo) => (
@@ -188,10 +201,13 @@ export function SettingsForm({ journal }: { journal: Journal }) {
 
       )}
 
+      {editingCover && <CoverSheet settings={settings} onClose={() => setEditingCover(false)} onSaved={(s) => setBookTitle(s.bookTitle)} />}
+
       {access.isOwner && <FamilyCard />}
 
       <div className="sheet mt-6 space-y-4 font-serif text-lg text-ink-soft">
         <h2 className="font-hand text-3xl font-bold text-ink">Your book</h2>
+        <InstallApp />
         <p>
           <Link href="/book/export" className="text-ink underline decoration-dotted underline-offset-4">
             Download as a PDF

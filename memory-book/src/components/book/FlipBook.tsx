@@ -33,6 +33,16 @@ interface FlipBookProps {
 export const PAGE_WIDTH = 450;
 export const PAGE_HEIGHT = 600;
 const MIN_PAGE_WIDTH = 280;
+/** On a tall phone screen a single page may grow taller, like a slim notebook, to fill it. */
+const TALLEST_PAGE = 0.6;
+
+/** Page width ÷ height for a space: 3:4 for open spreads, taller for one page on a phone. */
+function pageRatio(width: number, height: number): number {
+  const base = PAGE_WIDTH / PAGE_HEIGHT;
+  if (!width || !height || Math.min(width, height * base * 2) >= MIN_PAGE_WIDTH * 2) return base;
+  const ratio = Math.min(base, Math.max(TALLEST_PAGE, width / height));
+  return Math.round(ratio * 20) / 20;
+}
 
 export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(function FlipBook(
   { pageCount, isHard, renderPage, startPage = 0, onFlip, onOrientationChange, className },
@@ -41,6 +51,7 @@ export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(function FlipB
   const containerRef = useRef<HTMLDivElement>(null);
   const flipRef = useRef<PageFlipType | null>(null);
   const [pageEls, setPageEls] = useState<HTMLElement[]>([]);
+  const [ratio, setRatio] = useState(PAGE_WIDTH / PAGE_HEIGHT);
 
   // Keep the latest callbacks/values without rebuilding the book.
   const latest = useRef({ isHard, onFlip, onOrientationChange, startPage });
@@ -82,7 +93,12 @@ export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(function FlipB
     // book that still fits the available height (two pages, or one on phones).
     const fit = () => {
       const { width, height } = container.getBoundingClientRect();
-      const ratio = PAGE_WIDTH / PAGE_HEIGHT;
+      // A different page shape needs a new book (the library fixes it at the start).
+      const wanted = pageRatio(width, height);
+      if (wanted !== ratio) {
+        setRatio(wanted);
+        return;
+      }
       const spread = Math.min(width, height * ratio * 2);
       const bookWidth = spread >= MIN_PAGE_WIDTH * 2 ? spread : Math.min(width, height * ratio);
       host.style.width = `${Math.floor(bookWidth)}px`;
@@ -96,12 +112,12 @@ export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(function FlipB
       if (cancelled) return;
       flip = new PageFlip(host, {
         width: PAGE_WIDTH,
-        height: PAGE_HEIGHT,
+        height: Math.round(PAGE_WIDTH / ratio),
         size: "stretch",
         minWidth: MIN_PAGE_WIDTH,
         maxWidth: 640,
-        minHeight: 373,
-        maxHeight: 853,
+        minHeight: Math.round(MIN_PAGE_WIDTH / ratio),
+        maxHeight: Math.round(640 / ratio),
         showCover: true,
         usePortrait: true,
         drawShadow: true,
@@ -131,7 +147,7 @@ export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(function FlipB
       host.remove();
       setPageEls([]);
     };
-  }, [pageCount]);
+  }, [pageCount, ratio]);
 
   return (
     <div ref={containerRef} className={className}>

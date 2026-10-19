@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6d3c6"/>
+      <stop offset="1" stop-color="#e9a48f"/>
+    </linearGradient>
+    <linearGradient id="cover" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dc8670"/>
+      <stop offset="1" stop-color="#c2604c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- pages peeking out -->
+  <rect x="158" y="128" width="210" height="262" rx="14" fill="#fbf4ea"/>
+  <rect x="150" y="120" width="210" height="262" rx="14" fill="#fffaf2"/>
+  <!-- cover -->
+  <rect x="140" y="112" width="210" height="262" rx="16" fill="url(#cover)"/>
+  <rect x="140" y="112" width="30" height="262" rx="12" fill="#a94f3e" opacity="0.55"/>
+  <rect x="186" y="140" width="140" height="206" rx="8" fill="none" stroke="#fbe6d6" stroke-width="4" opacity="0.7"/>
+  <path d="M256 296c-27-19-43-34-41-52 2-15 19-20 29-10 4 4 8 9 12 13 3-5 7-9 12-12 13-7 28 0 27 16-1 18-19 33-39 45z" fill="#fff4e8"/>
+</svg>

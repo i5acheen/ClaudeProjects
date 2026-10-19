@@ -9,12 +9,14 @@ import { SyncBanner } from "@/components/journal/SyncBanner";
 import { TopBar } from "@/components/ui/TopBar";
 import { BookReader } from "./BookReader";
 import { NoteSheet } from "./NoteSheet";
+import { CoverSheet } from "./CoverSheet";
 import { WritingHintsContext } from "./BookPages";
 
 /** The signed-in book: the same reader as the demo, with your own memories — and you can write straight into it. */
 export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
   const [writing, setWriting] = useState<{ memory?: Memory } | null>(null);
   const [focusId, setFocusId] = useState<string>();
+  const [editingCover, setEditingCover] = useState(false);
   const { access } = useJournal();
 
   return (
@@ -43,8 +45,10 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
               focusMemoryId={focusId}
               onEdit={access.canEdit ? (memory) => setWriting({ memory }) : undefined}
               onNewNote={access.canEdit ? () => setWriting({}) : undefined}
+              onEditCover={access.isOwner ? () => setEditingCover(true) : undefined}
             />
             </WritingHintsContext.Provider>
+            {editingCover && <CoverSheet settings={journal.settings} onClose={() => setEditingCover(false)} />}
             {writing && (
               <NoteSheet
                 journal={journal}

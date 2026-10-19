@@ -62,7 +62,12 @@ export function sortMemories(memories: Memory[]): Memory[] {
   return [...memories].sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt));
 }
 
-export function paginate(journal: Journal, format: PageFormat = SCREEN_FORMAT): BookPage[] {
+export function paginate(
+  journal: Journal,
+  format: PageFormat = SCREEN_FORMAT,
+  /** False when the book is read one page at a time (phones): no filler pages needed. */
+  spreads = true,
+): BookPage[] {
   const fit = roominess(format);
   const pages: BookPage[] = [{ kind: "cover" }, { kind: "endpaper", side: "front" }, { kind: "title" }];
 
@@ -90,7 +95,7 @@ export function paginate(journal: Journal, format: PageFormat = SCREEN_FORMAT): 
     }
 
     // Keep a two-page memory on one spread: it must start on a left page (odd index).
-    if (chunks.length > 1 && pages.length % 2 === 0) pages.push({ kind: "filler" });
+    if (spreads && chunks.length > 1 && pages.length % 2 === 0) pages.push({ kind: "filler" });
     chunks.forEach((text, i) =>
       pages.push({ kind: "memory", memory, text, continued: i > 0, hasMore: i < chunks.length - 1 }),
     );

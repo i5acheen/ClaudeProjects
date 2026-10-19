@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Caveat, Cormorant_Garamond, Courier_Prime, Indie_Flower, Kalam, Lora, Patrick_Hand } from "next/font/google";
 import "./globals.css";
+import { ServiceWorker } from "@/components/app/ServiceWorker";
 
 const caveat = Caveat({
   subsets: ["latin"],
@@ -25,6 +26,13 @@ const lora = Lora({ subsets: ["latin"], weight: ["400", "600"], style: ["normal"
 export const metadata: Metadata = {
   title: "Memory Book",
   description: "A hand-made feeling baby journal, kept safe in your own Google Drive.",
+  applicationName: "Memory Book",
+  appleWebApp: { capable: true, title: "Memory Book", statusBarStyle: "default" },
+  icons: {
+    icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
@@ -37,7 +45,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${caveat.variable} ${cormorant.variable} ${kalam.variable} ${patrick.variable} ${indie.variable} ${lora.variable} ${courier.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ServiceWorker />
+      </body>
     </html>
   );
 }

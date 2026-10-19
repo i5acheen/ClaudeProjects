@@ -6,7 +6,7 @@ import { memoryPageIndex, pageNumber, paginate } from "@/lib/pagination";
 import { BookPageView } from "./BookPages";
 import { InkFilters } from "./Doodles";
 import { FlipBook, type FlipBookHandle } from "./FlipBook";
-import { ChevronLeft, ChevronRight, PenIcon } from "@/components/ui/Icons";
+import { ChevronLeft, ChevronRight, CloseIcon, ExpandIcon, PenIcon } from "@/components/ui/Icons";
 
 interface BookReaderProps {
   journal: Journal;
@@ -16,6 +16,8 @@ interface BookReaderProps {
   onEdit?: (memory: Memory) => void;
   /** Add a words-only note (not in the demo). */
   onNewNote?: () => void;
+  /** Edit the cover's title and photo (the book's owner only). */
+  onEditCover?: () => void;
   /** Turn to this memory whenever it changes (e.g. right after saving it). */
   focusMemoryId?: string;
 }
@@ -23,8 +25,10 @@ interface BookReaderProps {
 /** Pages further than this from the open spread are drawn blank until you get near them, so big books stay fast. */
 const RENDER_WINDOW = 4;
 
-export function BookReader({ journal, startMemoryId, onEdit, onNewNote, focusMemoryId }: BookReaderProps) {
-  const pages = useMemo(() => paginate(journal), [journal]);
+export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onEditCover, focusMemoryId }: BookReaderProps) {
+  const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
+  // One page at a time (phones) needs no filler pages to keep spreads together.
+  const pages = useMemo(() => paginate(journal, undefined, orientation === "landscape"), [journal, orientation]);
   const startPage = useMemo(
     () => (startMemoryId ? (memoryPageIndex(pages).get(startMemoryId) ?? 0) : 0),
     [pages, startMemoryId],
@@ -32,8 +36,8 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, focusMem
 
   const bookRef = useRef<FlipBookHandle>(null);
   const [current, setCurrent] = useState(startPage);
-  const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
   const last = pages.length - 1;
+  const immersive = useImmersive();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -76,9 +80,18 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, focusMem
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div
+      className={immersive.on ? `book-immersive ${immersive.idle ? "book-immersive--idle" : ""}` : "flex min-h-0 flex-1 flex-col"}
+      onPointerMove={immersive.wake}
+      onPointerDown={immersive.wake}
+    >
       <InkFilters />
-      <div className="relative flex min-h-0 flex-1 items-center justify-center px-2 sm:px-6">
+      {immersive.on && (
+        <button type="button" className="immersive-close" onClick={immersive.exit} aria-label="Leave full screen">
+          <CloseIcon />
+        </button>
+      )}
+      <div className={`relative flex min-h-0 flex-1 items-center justify-center ${immersive.on ? "px-1 py-2 sm:px-10 sm:py-6" : "px-2 sm:px-6"}`}>
         <button
           className="round-button absolute left-2 z-10 hidden sm:grid"
           onClick={() => bookRef.current?.prev()}
@@ -109,21 +122,33 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, focusMem
         </button>
       </div>
 
-      <div className="relative flex h-14 shrink-0 items-center justify-center gap-4 font-serif text-ink-soft">
+      <div className="book-controls relative flex h-14 shrink-0 items-center justify-center gap-4 font-serif text-ink-soft">
+        {!immersive.on && (
+          <button type="button" className="round-button absolute left-3 sm:left-5" onClick={immersive.enter} aria-label="Read full screen" title="Read full screen">
+            <ExpandIcon />
+          </button>
+        )}
         <button className="round-button sm:hidden" onClick={() => bookRef.current?.prev()} disabled={current === 0} aria-label="Previous page">
           <ChevronLeft />
         </button>
         <span className="min-w-36 text-center text-base italic" aria-live="polite">
-          {position}
+          {current === 0 && onEditCover && !immersive.on ? (
+            <button type="button" className="cover-edit-link underline decoration-dotted underline-offset-4 hover:text-ink" onClick={onEditCover}>
+              ✎ edit the cover
+            </button>
+          ) : (
+            position
+          )}
         </span>
         <button className="round-button sm:hidden" onClick={() => bookRef.current?.next()} disabled={current >= last} aria-label="Next page">
           <ChevronRight />
         </button>
-        {(onEdit || onNewNote) && (
+        {!immersive.on && (onEdit || onNewNote) && (
           <WriteMenu
             memories={onEdit ? visibleMemories.filter((m) => !(m.sealedUntil && pages.some((p) => p.kind === "memory" && p.memory.id === m.id && p.sealed))) : []}
             onEdit={onEdit}
             onNewNote={onNewNote}
+            onEditCover={current === 0 ? onEditCover : undefined}
             childName={journal.settings.childName}
           />
         )}
@@ -132,15 +157,73 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, focusMem
   );
 }
 
+/**
+ * Full-screen reading: the book alone on a desk, filling the screen. Uses the
+ * browser's real full screen where it can (not on iPhone), and fades the
+ * controls away while you read.
+ */
+function useImmersive() {
+  const [on, setOn] = useState(false);
+  const [idle, setIdle] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+
+  const wake = useCallback(() => {
+    setIdle(false);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setIdle(true), 2800);
+  }, []);
+
+  const enter = useCallback(() => {
+    setOn(true);
+    wake();
+    const root = document.documentElement;
+    if (root.requestFullscreen && !document.fullscreenElement) root.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+  }, [wake]);
+
+  const exit = useCallback(() => {
+    setOn(false);
+    window.clearTimeout(timer.current);
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!on) return;
+    // Leaving the browser's full screen (Esc, back gesture) also leaves reading mode.
+    const onChange = () => !document.fullscreenElement && setOn(false);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") exit();
+      else wake();
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    window.addEventListener("keydown", onKey);
+    document.body.classList.add("is-reading");
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    const color = meta?.content;
+    if (meta) meta.content = "#2b201a";
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      window.removeEventListener("keydown", onKey);
+      document.body.classList.remove("is-reading");
+      if (meta && color) meta.content = color;
+    };
+  }, [on, exit, wake]);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  return { on, idle, enter, exit, wake };
+}
+
 /** One quiet pen button; its menu offers the pages on screen and a new note. */
 function WriteMenu({
   memories,
   onEdit,
   onNewNote,
+  onEditCover,
   childName,
 }: {
   memories: Memory[];
   childName: string;
+  onEditCover?: () => void;
   onEdit?: (memory: Memory) => void;
   onNewNote?: () => void;
 }) {
@@ -181,6 +264,14 @@ function WriteMenu({
               </span>
             </button>
           ))}
+          {onEditCover && (
+            <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onEditCover)}>
+              <span className="write-menu__icon" aria-hidden>
+                ✎
+              </span>
+              <span className="text-ink">Edit the cover &amp; title</span>
+            </button>
+          )}
           {onNewNote && (
             <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onNewNote)}>
               <span className="write-menu__icon write-menu__icon--new" aria-hidden>

@@ -188,6 +188,13 @@ Memory Book – <child's name>/
   project is in *Testing* mode, also add their email as a test user (step 1c), and in Google
   Cloud's **Data Access** add the scope `https://www.googleapis.com/auth/drive` too — it's only
   requested from family members who can add memories.
+- **Install it like an app (free, no app store).** On Android (Chrome): open the site, tap
+  **Install Memory Book** in Settings or on the first page, or the browser menu **⋮ → Install app**.
+  On iPhone (Safari): **Share → Add to Home Screen**. On a computer (Chrome/Edge): the install
+  icon at the right of the address bar. It then opens full screen with its own icon. Only the
+  app itself is saved on the device — your journal still lives in your Google Drive.
+- **Reading full screen.** In the Journal, tap the ⛶ button (bottom left) to read the book on its
+  own, filling the screen. Tap ✕ or press Esc to come back.
 - **iPhone photos (HEIC)** are converted automatically when chosen on the phone. On a
   computer, Chrome can't read HEIC files — choose JPEGs there.
 - **PDF export** uses your browser's *Save as PDF*. In the print window pick **Save as PDF**,

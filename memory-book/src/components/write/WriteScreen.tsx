@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useJournal } from "@/components/journal/JournalProvider";
 import type { Journal } from "@/lib/types";
 import { MemoryEditor } from "@/components/editor/MemoryEditor";
 import { SyncBanner } from "@/components/journal/SyncBanner";
@@ -19,6 +21,13 @@ export function WriteScreen({ journal }: { journal: Journal }) {
     .filter((m) => !m.text.trim() && m.photos.length > 0)
     .sort((a, b) => b.date.localeCompare(a.date));
   const [openChooser, setOpenChooser] = useState(false);
+  const { access } = useJournal();
+  const router = useRouter();
+
+  // Family who can only view the book have nothing to write here.
+  useEffect(() => {
+    if (!access.canEdit) router.replace("/book");
+  }, [access.canEdit, router]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

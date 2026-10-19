@@ -23,6 +23,26 @@ export interface JournalRepository {
   folderUrl(): string | null;
   /** Creates (or finds) the "Add photos here" folder inside the book folder. */
   createDropFolder(): Promise<{ id: string; name: string }>;
+  /** Whose book this is, and whether the signed-in person may change it. */
+  access(): Promise<BookAccess>;
+  listFamily(): Promise<FamilyMember[]>;
+  inviteFamily(email: string, role: FamilyRole, message: string): Promise<void>;
+  removeFamily(memberId: string): Promise<void>;
+}
+
+export type FamilyRole = "reader" | "writer";
+
+export interface FamilyMember {
+  id: string;
+  email: string;
+  name?: string;
+  role: FamilyRole;
+}
+
+export interface BookAccess {
+  isOwner: boolean;
+  canEdit: boolean;
+  ownerName?: string;
 }
 
 export function emptyJournal(settings: BookSettings): Journal {
@@ -41,6 +61,8 @@ export function normaliseJournal(raw: unknown): Journal {
       dateOfBirth: settings.dateOfBirth ?? new Date().toISOString().slice(0, 10),
       bookTitle: settings.bookTitle ?? "Memory Book",
       coverPhoto: settings.coverPhoto,
+      coverTheme: settings.coverTheme,
+      handwriting: settings.handwriting,
       dedication: settings.dedication,
     },
     memories: Array.isArray(data.memories)

@@ -1,13 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import type { Memory } from "@/lib/types";
 import { BookGate } from "@/components/journal/BookGate";
+import { useJournal } from "@/components/journal/JournalProvider";
 import { SyncBanner } from "@/components/journal/SyncBanner";
 import { TopBar } from "@/components/ui/TopBar";
 import { BookReader } from "./BookReader";
+import { NoteSheet } from "./NoteSheet";
 
-/** The signed-in book: the same reader as the demo, with your own memories. */
+/** The signed-in book: the same reader as the demo, with your own memories — and you can write straight into it. */
 export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
+  const [writing, setWriting] = useState<{ memory?: Memory } | null>(null);
+  const [focusId, setFocusId] = useState<string>();
+  const { access } = useJournal();
+
   return (
     <main className="flex h-dvh flex-col overflow-hidden">
       <BookGate>
@@ -15,15 +23,36 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
           <>
             <TopBar title={journal.settings.bookTitle} basePath="/book" active="book" />
             <SyncBanner />
-            {journal.memories.length === 0 && (
+            {journal.memories.length === 0 && access.canEdit && (
               <p className="text-center font-hand text-2xl text-ink-soft">
                 Your book is ready.{" "}
+                <button type="button" onClick={() => setWriting({})} className="underline decoration-dotted underline-offset-4 hover:text-ink">
+                  Write the first page
+                </button>{" "}
+                or{" "}
                 <Link href="/book/write" className="underline decoration-dotted underline-offset-4 hover:text-ink">
-                  Add the first memory
+                  add photos
                 </Link>
               </p>
             )}
-            <BookReader journal={journal} startMemoryId={startMemoryId} editHref={(id) => `/book/edit/${encodeURIComponent(id)}`} />
+            <BookReader
+              journal={journal}
+              startMemoryId={startMemoryId}
+              focusMemoryId={focusId}
+              onEdit={access.canEdit ? (memory) => setWriting({ memory }) : undefined}
+              onNewNote={access.canEdit ? () => setWriting({}) : undefined}
+            />
+            {writing && (
+              <NoteSheet
+                journal={journal}
+                memory={writing.memory}
+                onClose={() => setWriting(null)}
+                onSaved={(id) => {
+                  setWriting(null);
+                  setFocusId(id);
+                }}
+              />
+            )}
           </>
         )}
       </BookGate>

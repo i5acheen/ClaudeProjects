@@ -2,14 +2,15 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { BookSettings, Journal, Memory, PhotoRef, Tag } from "@/lib/types";
-import type { JournalRepository } from "@/lib/repository";
+import type { BookAccess, FamilyMember, FamilyRole, JournalRepository } from "@/lib/repository";
 import { DriveRepository } from "@/lib/drive/drive-repository";
-import { DRIVE_READ_SCOPE, DriveError, OfflineError, SignedOutError, canReadFolders } from "@/lib/drive/client";
+import { DRIVE_FULL_SCOPE, DRIVE_READ_SCOPE, DriveError, OfflineError, SignedOutError, canReadFolders } from "@/lib/drive/client";
 import { importFromWatchedFolder } from "@/lib/folder-import";
 import { signIn } from "next-auth/react";
 import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
 import { createCachedPhotoResolver, primePhotoCache } from "@/lib/photo-cache";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
+import { handwritingStyle } from "@/lib/book-style";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -62,6 +63,13 @@ interface JournalContextValue {
   watchFolder(folder: { id: string; name: string } | null): Promise<void>;
   stopWatchingFolder(): Promise<void>;
   checkFolderNow(): Promise<void>;
+  /** Whose book this is; family who can only view get `canEdit: false`. */
+  access: BookAccess;
+  listFamily(): Promise<FamilyMember[]>;
+  inviteFamily(email: string, role: FamilyRole): Promise<void>;
+  removeFamily(memberId: string): Promise<void>;
+  /** For family: allow the app to open a book someone shared with you. */
+  requestSharedAccess(canAddMemories: boolean): Promise<void>;
 }
 
 export interface FolderWatchState {
@@ -77,6 +85,11 @@ export interface FolderWatchState {
 const FOLDER_CHECK_INTERVAL = 3 * 60_000;
 
 const JournalContext = createContext<JournalContextValue | null>(null);
+
+/** Like useJournal, but returns null outside a signed-in book (e.g. the demo). */
+export function useOptionalJournal(): JournalContextValue | null {
+  return useContext(JournalContext);
+}
 
 export function useJournal(): JournalContextValue {
   const value = useContext(JournalContext);
@@ -159,6 +172,8 @@ export function JournalProvider({
 
   /* ---------------- loading ---------------- */
 
+  const [access, setAccess] = useState<BookAccess>({ isOwner: true, canEdit: true });
+
   const reload = useCallback(async () => {
     setError(null);
     try {
@@ -167,6 +182,10 @@ export function JournalProvider({
       if (loaded) {
         commit(loaded);
         setStatus("ready");
+        repository
+          .access()
+          .then(setAccess)
+          .catch(() => undefined);
       } else {
         setStatus("setup");
       }
@@ -509,6 +528,42 @@ export function JournalProvider({
     message: watchState.message,
   };
 
+  /* ---------------- family ---------------- */
+
+  const listFamily = useCallback(() => repository.listFamily(), [repository]);
+  const removeFamily = useCallback((id: string) => repository.removeFamily(id), [repository]);
+  const inviteFamily = useCallback(
+    async (email: string, role: FamilyRole) => {
+      const child = journal?.settings.childName || "our little one";
+      const message =
+        `You're invited to ${child}'s Memory Book${role === "writer" ? " — you can add memories too" : ""}. ` +
+        `Open ${window.location.origin} and sign in with Google using this email address, then choose "Open a book shared with me".`;
+      await repository.inviteFamily(email, role, message);
+    },
+    [repository, journal],
+  );
+  const requestSharedAccess = useCallback(async (canAddMemories: boolean) => {
+    await signIn(
+      "google",
+      { redirectTo: "/book" },
+      {
+        scope: `openid email profile https://www.googleapis.com/auth/drive.file ${canAddMemories ? DRIVE_FULL_SCOPE : DRIVE_READ_SCOPE}`,
+        include_granted_scopes: "true",
+      },
+    );
+  }, []);
+
+  // The chosen handwriting font applies everywhere: book, editor, PDF.
+  const chosenHand = journal?.settings.handwriting;
+  useEffect(() => {
+    const vars = handwritingStyle({ handwriting: chosenHand });
+    const root = document.documentElement;
+    for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
+    return () => {
+      for (const name of Object.keys(vars)) root.style.removeProperty(name);
+    };
+  }, [chosenHand]);
+
   /* ---------------- what the book shows ---------------- */
 
   // Local previews for photos that haven't uploaded yet.
@@ -573,6 +628,11 @@ export function JournalProvider({
     watchFolder,
     stopWatchingFolder,
     checkFolderNow,
+    access,
+    listFamily,
+    inviteFamily,
+    removeFamily,
+    requestSharedAccess,
   };
 
   return (

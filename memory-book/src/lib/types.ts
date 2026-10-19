@@ -1,3 +1,5 @@
+import type { CoverTheme, Handwriting } from "./book-style";
+
 /**
  * The shape of everything stored in `journal.json`.
  * Kept deliberately plain (no classes) so it serialises to/from Drive as-is,
@@ -36,6 +38,10 @@ export interface BookSettings {
   coverPhoto?: PhotoRef;
   /** Short handwritten note on the title page. */
   dedication?: string;
+  /** Cover style, see lib/book-style.ts. */
+  coverTheme?: CoverTheme;
+  /** Handwriting font, see lib/book-style.ts. */
+  handwriting?: Handwriting;
 }
 
 /** The Drive folder you drop photos into, so they turn into memories by themselves. */

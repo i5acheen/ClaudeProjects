@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Cormorant_Garamond } from "next/font/google";
+import { Caveat, Cormorant_Garamond, Courier_Prime, Indie_Flower, Kalam, Lora, Patrick_Hand } from "next/font/google";
 import "./globals.css";
 
 const caveat = Caveat({
@@ -15,13 +15,20 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
 });
 
+// Alternative handwriting fonts, chosen in Settings.
+const kalam = Kalam({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-kalam" });
+const patrick = Patrick_Hand({ subsets: ["latin"], weight: "400", variable: "--font-patrick" });
+const indie = Indie_Flower({ subsets: ["latin"], weight: "400", variable: "--font-indie" });
+const courier = Courier_Prime({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-courier" });
+const lora = Lora({ subsets: ["latin"], weight: ["400", "600"], style: ["normal", "italic"], variable: "--font-lora" });
+
 export const metadata: Metadata = {
   title: "Memory Book",
   description: "A hand-made feeling baby journal, kept safe in your own Google Drive.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ece3d6",
+  themeColor: "#fbf7f2",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -29,7 +36,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${caveat.variable} ${cormorant.variable}`}>
+    <html lang="en" className={`${caveat.variable} ${cormorant.variable} ${kalam.variable} ${patrick.variable} ${indie.variable} ${lora.variable} ${courier.variable}`}>
       <body>{children}</body>
     </html>
   );

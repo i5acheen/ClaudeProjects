@@ -1,6 +1,17 @@
 import type { BookSettings, Journal } from "../types";
-import { emptyJournal, normaliseJournal, type JournalRepository } from "../repository";
 import {
+  emptyJournal,
+  normaliseJournal,
+  type BookAccess,
+  type FamilyMember,
+  type FamilyRole,
+  type JournalRepository,
+} from "../repository";
+import {
+  addPermission,
+  getFileAccess,
+  listPermissions,
+  removePermission,
   appPropertyQuery,
   createFile,
   createFolder,
@@ -94,6 +105,41 @@ export class DriveRepository implements JournalRepository {
     return { id: folder.id, name: folder.name };
   }
 
+  async access(): Promise<BookAccess> {
+    const location = await this.requireLocation();
+    const access = await getFileAccess(location.journalFileId);
+    const owner = access.owners?.[0];
+    return {
+      isOwner: access.ownedByMe,
+      canEdit: access.capabilities?.canEdit ?? access.ownedByMe,
+      ownerName: owner?.displayName ?? owner?.emailAddress,
+    };
+  }
+
+  async listFamily(): Promise<FamilyMember[]> {
+    const location = await this.requireLocation();
+    const permissions = await listPermissions(location.folderId);
+    return permissions
+      .filter((p) => p.type === "user" && p.emailAddress && (p.role === "reader" || p.role === "writer" || p.role === "commenter"))
+      .map((p) => ({
+        id: p.id,
+        email: p.emailAddress!,
+        name: p.displayName,
+        role: p.role === "writer" ? "writer" : "reader",
+      }));
+  }
+
+  async inviteFamily(email: string, role: FamilyRole, message: string): Promise<void> {
+    const location = await this.requireLocation();
+    // Sharing the folder shares everything in it: journal.json and the photos.
+    await addPermission(location.folderId, email, role, message);
+  }
+
+  async removeFamily(memberId: string): Promise<void> {
+    const location = await this.requireLocation();
+    await removePermission(location.folderId, memberId);
+  }
+
   folderUrl(): string | null {
     return this.location ? `https://drive.google.com/drive/folders/${this.location.folderId}` : null;
   }
@@ -113,8 +159,9 @@ export class DriveRepository implements JournalRepository {
   private async locate(): Promise<Location | null> {
     if (this.location) return this.location;
 
-    // Oldest first, so if two were ever created we keep using the original.
-    const [folder] = await findFiles(appPropertyQuery(KEY, "root"));
+    // Your own book first (oldest, if two were ever made); otherwise one shared with you by family.
+    const [own] = await findFiles(`${appPropertyQuery(KEY, "root")} and 'me' in owners`);
+    const folder = own ?? (await findFiles(`${appPropertyQuery(KEY, "root")} and sharedWithMe`).catch(() => []))[0];
     if (!folder) return null;
 
     const children = await findFiles(inFolderQuery(folder.id));

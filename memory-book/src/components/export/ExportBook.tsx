@@ -181,7 +181,7 @@ export function ExportBook({ journal }: { journal: Journal }) {
           </div>
 
           <label className="mt-6 flex items-center gap-3 font-serif text-lg text-ink">
-            <input type="checkbox" className="size-5 accent-[var(--cloth)]" checked={includeCovers} onChange={(e) => setIncludeCovers(e.target.checked)} />
+            <input type="checkbox" className="size-5 accent-[var(--accent)]" checked={includeCovers} onChange={(e) => setIncludeCovers(e.target.checked)} />
             Include the covers and patterned endpapers
           </label>
 
@@ -241,7 +241,7 @@ const FULL_BLEED = new Set<BookPage["kind"]>(["cover", "back", "endpaper"]);
 function Choice({ checked, onChange, children }: { checked: boolean; onChange: () => void; children: React.ReactNode }) {
   return (
     <label className="flex cursor-pointer items-start gap-3">
-      <input type="radio" className="mt-1.5 size-4 accent-[var(--cloth)]" checked={checked} onChange={onChange} />
+      <input type="radio" className="mt-1.5 size-4 accent-[var(--accent)]" checked={checked} onChange={onChange} />
       <span className="flex min-w-0 flex-1 flex-col">{children}</span>
     </label>
   );

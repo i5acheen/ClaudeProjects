@@ -10,12 +10,20 @@ import { idbClear } from "@/lib/idb";
 import { forgetAccessToken } from "@/lib/drive/client";
 import { usePhotoSrc } from "@/components/book/PhotoSource";
 import { useJournal } from "@/components/journal/JournalProvider";
+import { StylePickers } from "./StylePickers";
+import { FamilyCard } from "./FamilyCard";
+import {
+  coverTheme as currentCoverTheme,
+  handwriting as currentHandwriting,
+  type CoverTheme,
+  type Handwriting,
+} from "@/lib/book-style";
 
 type CoverChoice = { kind: "keep" } | { kind: "none" } | { kind: "existing"; ref: PhotoRef } | { kind: "new"; photo: ProcessedPhoto };
 
 export function SettingsForm({ journal }: { journal: Journal }) {
   const router = useRouter();
-  const { updateSettings, folderUrl, pendingCount } = useJournal();
+  const { updateSettings, folderUrl, pendingCount, access } = useJournal();
   const { settings } = journal;
   const [childName, setChildName] = useState(settings.childName);
   const [dateOfBirth, setDateOfBirth] = useState(settings.dateOfBirth);
@@ -23,6 +31,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
   const [dedication, setDedication] = useState(settings.dedication ?? "");
   const [cover, setCover] = useState<CoverChoice>({ kind: "keep" });
   const [pickingCover, setPickingCover] = useState(false);
+  const [theme, setTheme] = useState<CoverTheme>(currentCoverTheme(settings));
+  const [hand, setHand] = useState<Handwriting>(currentHandwriting(settings));
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -45,6 +55,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           bookTitle: bookTitle.trim() || "Memory Book",
           dedication: dedication.trim() || undefined,
           coverPhoto,
+          coverTheme: theme,
+          handwriting: hand,
         },
         cover.kind === "new" ? cover.photo : undefined,
       );
@@ -88,6 +100,17 @@ export function SettingsForm({ journal }: { journal: Journal }) {
 
   return (
     <div className="mx-auto max-w-xl px-3 sm:px-4">
+      {!access.isOwner && (
+        <div className="sheet mb-6 font-serif text-lg text-ink-soft">
+          <h1 className="font-hand text-4xl font-bold text-ink">{settings.bookTitle}</h1>
+          <p className="mt-2">
+            This is {access.ownerName ? <b className="text-ink">{access.ownerName}</b> : "a family member"}&rsquo;s book,
+            shared with you{access.canEdit ? " — you can add memories too" : ""}. It lives in their Google Drive.
+          </p>
+        </div>
+      )}
+
+      {access.isOwner && (
       <form className="sheet" onSubmit={save}>
         <h1 className="font-hand text-4xl font-bold text-ink">Book settings</h1>
 
@@ -111,6 +134,14 @@ export function SettingsForm({ journal }: { journal: Journal }) {
         </label>
         <textarea id="dedication" className="ruled-field" rows={3} value={dedication} onChange={(e) => setDedication(e.target.value)} maxLength={300} />
 
+        <StylePickers
+          preview={{ ...settings, childName, bookTitle }}
+          theme={theme}
+          onTheme={setTheme}
+          hand={hand}
+          onHand={setHand}
+        />
+
         <p className="field-label mt-6">Cover photo</p>
         <div className="flex flex-wrap items-end gap-4">
           <CoverPreview choice={cover} current={settings.coverPhoto} />
@@ -130,7 +161,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           <input ref={fileInput} type="file" accept="image/*" hidden onChange={(e) => void chooseFile(e.target.files)} />
         </div>
         {pickingCover && (
-          <div className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-6">
+          <div className="cover-photo-grid mt-4 grid grid-cols-4 gap-2 sm:grid-cols-6">
             {allPhotos.map((photo) => (
               <CoverOption
                 key={photo.fileId}
@@ -153,6 +184,10 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           </span>
         </div>
       </form>
+
+      )}
+
+      {access.isOwner && <FamilyCard />}
 
       <div className="sheet mt-6 space-y-4 font-serif text-lg text-ink-soft">
         <h2 className="font-hand text-3xl font-bold text-ink">Your book</h2>

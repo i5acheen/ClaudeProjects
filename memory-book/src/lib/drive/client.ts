@@ -81,7 +81,8 @@ export const DRIVE_READ_SCOPE = "https://www.googleapis.com/auth/drive.readonly"
 /** Whether you've allowed the app to read photos in a folder you chose (needed for folder watching). */
 export async function canReadFolders(): Promise<boolean> {
   await getAccessToken();
-  return cachedToken?.scope.split(" ").includes(DRIVE_READ_SCOPE) ?? false;
+  const granted = cachedToken?.scope.split(" ") ?? [];
+  return granted.includes(DRIVE_READ_SCOPE) || granted.includes("https://www.googleapis.com/auth/drive");
 }
 
 /** For tests and sign-out. */
@@ -285,4 +286,54 @@ export function listFolders(parentId: string): Promise<DriveFile[]> {
     FILE_FIELDS,
     "name",
   );
+}
+
+/* ------------------------------------------------------------------ */
+/* Sharing with family (Drive's own sharing — nothing stored by us)     */
+/* ------------------------------------------------------------------ */
+
+export const DRIVE_FULL_SCOPE = "https://www.googleapis.com/auth/drive";
+
+export interface DrivePermission {
+  id: string;
+  type: string;
+  role: "owner" | "organizer" | "fileOrganizer" | "writer" | "commenter" | "reader";
+  emailAddress?: string;
+  displayName?: string;
+}
+
+export async function listPermissions(fileId: string): Promise<DrivePermission[]> {
+  const response = await driveFetch(
+    `${API}/files/${encodeURIComponent(fileId)}/permissions?fields=permissions(id,type,role,emailAddress,displayName)`,
+  );
+  return ((await response.json()) as { permissions: DrivePermission[] }).permissions;
+}
+
+/** Shares a file or folder with someone; Google emails them the invitation. */
+export async function addPermission(fileId: string, email: string, role: "reader" | "writer", message: string) {
+  const params = new URLSearchParams({ sendNotificationEmail: "true", emailMessage: message });
+  await driveFetch(`${API}/files/${encodeURIComponent(fileId)}/permissions?${params}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "user", role, emailAddress: email }),
+  });
+}
+
+export async function removePermission(fileId: string, permissionId: string) {
+  await driveFetch(`${API}/files/${encodeURIComponent(fileId)}/permissions/${encodeURIComponent(permissionId)}`, {
+    method: "DELETE",
+  });
+}
+
+export interface FileAccess {
+  ownedByMe: boolean;
+  capabilities?: { canEdit?: boolean };
+  owners?: { displayName?: string; emailAddress?: string }[];
+}
+
+export async function getFileAccess(fileId: string): Promise<FileAccess> {
+  const response = await driveFetch(
+    `${API}/files/${encodeURIComponent(fileId)}?fields=ownedByMe,capabilities(canEdit),owners(displayName,emailAddress)`,
+  );
+  return (await response.json()) as FileAccess;
 }

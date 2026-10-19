@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Journal, Memory } from "@/lib/types";
 import { memoryPageIndex, pageNumber, paginate } from "@/lib/pagination";
@@ -13,14 +12,18 @@ interface BookReaderProps {
   journal: Journal;
   /** Open the book at this memory (from the timeline). */
   startMemoryId?: string;
-  /** Where the "Edit" button for a memory goes (not shown in the demo). */
-  editHref?: (memoryId: string) => string;
+  /** Write on the page you're reading (not in the demo). */
+  onEdit?: (memory: Memory) => void;
+  /** Add a words-only note (not in the demo). */
+  onNewNote?: () => void;
+  /** Turn to this memory whenever it changes (e.g. right after saving it). */
+  focusMemoryId?: string;
 }
 
 /** Pages further than this from the open spread are drawn blank until you get near them, so big books stay fast. */
 const RENDER_WINDOW = 4;
 
-export function BookReader({ journal, startMemoryId, editHref }: BookReaderProps) {
+export function BookReader({ journal, startMemoryId, onEdit, onNewNote, focusMemoryId }: BookReaderProps) {
   const pages = useMemo(() => paginate(journal), [journal]);
   const startPage = useMemo(
     () => (startMemoryId ? (memoryPageIndex(pages).get(startMemoryId) ?? 0) : 0),
@@ -41,6 +44,15 @@ export function BookReader({ journal, startMemoryId, editHref }: BookReaderProps
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // After saving, turn to the page that was just written.
+  useEffect(() => {
+    if (!focusMemoryId) return;
+    const index = memoryPageIndex(pages).get(focusMemoryId);
+    if (index === undefined) return;
+    const timer = window.setTimeout(() => bookRef.current?.flipTo(index), 150);
+    return () => window.clearTimeout(timer);
+  }, [focusMemoryId, pages]);
+
   const renderPage = useCallback(
     (i: number) =>
       Math.abs(i - current) <= RENDER_WINDOW || i === 0 || i === last ? (
@@ -58,7 +70,7 @@ export function BookReader({ journal, startMemoryId, editHref }: BookReaderProps
   // The memories on screen right now, for the "Edit" buttons.
   const visible = orientation === "landscape" ? [current, current + 1] : [current];
   const visibleMemories: Memory[] = [];
-  for (const i of editHref ? visible : []) {
+  for (const i of onEdit ? visible : []) {
     const page = pages[i];
     if (page?.kind === "memory" && !visibleMemories.some((m) => m.id === page.memory.id)) visibleMemories.push(page.memory);
   }
@@ -107,21 +119,27 @@ export function BookReader({ journal, startMemoryId, editHref }: BookReaderProps
         <button className="round-button sm:hidden" onClick={() => bookRef.current?.next()} disabled={current >= last} aria-label="Next page">
           <ChevronRight />
         </button>
-        {editHref &&
+        {onEdit &&
           visibleMemories.map((m) => (
-            <Link
+            <button
               key={m.id}
-              href={editHref(m.id)}
-              className="chrome-button !h-9 max-w-44 !px-3 !text-sm"
-              title={`Edit “${m.title || "this memory"}”`}
+              type="button"
+              onClick={() => onEdit(m)}
+              className="chrome-button field-button !h-9 max-w-44 !px-3 !text-sm"
+              title={`Write on “${m.title || "this page"}”`}
             >
               <span aria-hidden>✎</span>
               <span className="truncate">
-                <span className="sm:hidden">Edit</span>
-                <span className="hidden sm:inline">{m.title || "Edit"}</span>
+                <span className="sm:hidden">Write</span>
+                <span className="hidden sm:inline">{m.title || "Write"}</span>
               </span>
-            </Link>
+            </button>
           ))}
+        {onNewNote && (
+          <button type="button" onClick={onNewNote} className="chrome-button chrome-button--primary !h-9 !px-3 !text-sm" title="Write a new note in the journal">
+            + Note
+          </button>
+        )}
       </div>
     </div>
   );

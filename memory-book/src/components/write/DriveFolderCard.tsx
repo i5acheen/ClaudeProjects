@@ -186,7 +186,7 @@ function FolderChooser({ onChoose, onClose }: { onChoose: (folder: { id: string;
           {folders?.length === 0 && <li className="py-3 font-serif text-ink-faint italic">No folders inside.</li>}
           {folders?.map((folder) => (
             <li key={folder.id}>
-              <button type="button" className="flex w-full items-center gap-2 py-2.5 text-left font-serif text-lg text-ink hover:text-[var(--cloth)]" onClick={() => setPath([...path, folder])}>
+              <button type="button" className="flex w-full items-center gap-2 py-2.5 text-left font-serif text-lg text-ink hover:text-[var(--accent)]" onClick={() => setPath([...path, folder])}>
                 <FolderIcon /> {folder.name}
               </button>
             </li>

@@ -15,6 +15,11 @@ Photos and words are stored in **your own Google Drive**, not on anyone's server
 - **Edit or delete** any memory.
 - **Download a PDF** of the whole book, one year of her life, a calendar year or any dates —
   A4 or 8 × 8 inch square, ready to print.
+- **Write straight into the journal**: tap ✎ on any page to change its words, or **+ Note** for a
+  words-only page.
+- **Styles**: seven cover designs and six writing styles (handwritten fonts or typewriter),
+  chosen when you start the book and changeable any time.
+- **Family sharing** by email — see below.
 - **Settings**: name, date of birth, book title, a note for the first page, cover photo.
 - **Works with a bad connection**: a memory is saved on the phone first and uploads by itself
   when the connection is back.
@@ -176,9 +181,13 @@ Memory Book – <child's name>/
   button. To stop this, you can later click **Publish app** under **Audience** in Google
   Cloud; because the app only uses the limited `drive.file` permission this is usually quick,
   but Google may ask for a privacy-policy link.
-- **Family logins.** Anyone you add as a test user (and in `ALLOWED_EMAILS`) can sign in, but
-  each person's book lives in *their own* Drive. Sharing one book between several accounts is
-  a planned next step.
+- **Family sharing.** In **Settings → Family**, invite someone by email as *can view* or
+  *can add memories*. The app shares your book folder through Google Drive's own sharing, and
+  Google emails them the invitation — nothing about your family is stored by Memory Book. They
+  sign in with that Google account and choose **"Open a book shared with me"**. While your Google
+  project is in *Testing* mode, also add their email as a test user (step 1c), and in Google
+  Cloud's **Data Access** add the scope `https://www.googleapis.com/auth/drive` too — it's only
+  requested from family members who can add memories.
 - **iPhone photos (HEIC)** are converted automatically when chosen on the phone. On a
   computer, Chrome can't read HEIC files — choose JPEGs there.
 - **PDF export** uses your browser's *Save as PDF*. In the print window pick **Save as PDF**,

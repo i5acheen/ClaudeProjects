@@ -18,7 +18,7 @@ export function SetupForm() {
 
   // Already have a book (e.g. set up on another device)? Go straight to it.
   useEffect(() => {
-    if (status === "ready") router.replace("/book");
+    if (status === "ready") router.replace("/book/write");
   }, [status, router]);
 
   if (status === "loading" || status === "ready") return <LoadingBook />;
@@ -34,7 +34,7 @@ export function SetupForm() {
         bookTitle: bookTitle.trim() || `Little Moments`,
         dedication: dedication.trim() || undefined,
       });
-      router.replace("/book");
+      router.replace("/book/write");
     } catch (err) {
       setWorking(false);
       setError(err instanceof Error ? err.message : "Couldn't create your book. Please try again.");
@@ -101,6 +101,10 @@ export function SetupForm() {
           onChange={(e) => setDedication(e.target.value)}
           maxLength={300}
         />
+
+        <p className="mt-6 font-serif text-sm text-ink-faint italic">
+          🔒 These details are saved only in your Google Drive (in <code>journal.json</code>), never on our side.
+        </p>
 
         {error && <p className="mt-4 font-serif text-[var(--ink-terracotta)]">{error}</p>}
 

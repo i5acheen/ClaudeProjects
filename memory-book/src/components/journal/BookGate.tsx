@@ -25,7 +25,7 @@ export function BookGate({ children }: { children: (journal: Journal) => React.R
     return (
       <Notice title="Please sign in again">
         <p>For your security, Google asks you to sign in again from time to time. Anything you saved on this device is kept.</p>
-        <button className="chrome-button chrome-button--primary mt-6" onClick={() => signIn("google", { redirectTo: "/book" })}>
+        <button className="chrome-button chrome-button--primary mt-6" onClick={() => signIn("google", { redirectTo: window.location.pathname })}>
           Sign in with Google
         </button>
       </Notice>

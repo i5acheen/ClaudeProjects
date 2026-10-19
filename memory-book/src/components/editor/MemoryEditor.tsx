@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TAGS, type Journal, type Memory, type Tag } from "@/lib/types";
 import { ageStamp, toDayString } from "@/lib/dates";
 import { photoTakenDate, resizePhoto } from "@/lib/images";
@@ -32,11 +32,23 @@ const newId = () =>
     ? crypto.randomUUID()
     : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
-export function MemoryEditor({ journal, memory }: { journal: Journal; memory?: Memory }) {
+interface MemoryEditorProps {
+  journal: Journal;
+  memory?: Memory;
+  /**
+   * "page": a full screen with a save bar fixed to the bottom (editing).
+   * "inline": a card on the Write page that clears itself after saving.
+   */
+  variant?: "page" | "inline";
+}
+
+export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditorProps) {
   const router = useRouter();
   const { saveMemory, deleteMemory } = useJournal();
   const isNew = !memory;
-  const memoryId = useMemo(() => memory?.id ?? newId(), [memory]);
+  const inline = variant === "inline";
+  const [memoryId, setMemoryId] = useState(() => memory?.id ?? newId());
+  const [savedId, setSavedId] = useState<string | null>(null);
 
   const [photos, setPhotos] = useState<EditorPhoto[]>(
     () => memory?.photos.map((ref) => ({ kind: "existing" as const, ref, key: ref.fileId })) ?? [],
@@ -143,6 +155,20 @@ export function MemoryEditor({ journal, memory }: { journal: Journal; memory?: M
         setProgress,
       );
       if (isNew) localStorage.removeItem(NEW_DRAFT_KEY);
+      if (inline) {
+        // Clear the card for the next memory.
+        setSavedId(memoryId);
+        setMemoryId(newId());
+        setPhotos([]);
+        setTitle("");
+        setText("");
+        setTags([]);
+        setDate(today());
+        setDateTouched(false);
+        setDateFromPhoto(false);
+        setProgress(null);
+        return;
+      }
       if (result === "queued") {
         setProgress("Saved on this device — it will upload when you're back online.");
         // Without a connection the book page can't load yet, so stay here.
@@ -176,17 +202,44 @@ export function MemoryEditor({ journal, memory }: { journal: Journal; memory?: M
 
   /* ---------------- view ---------------- */
 
-  return (
-    <main className="min-h-dvh pb-28">
-      <header className="flex h-14 items-center justify-between px-4">
-        <Link href={memory ? `/book?memory=${encodeURIComponent(memory.id)}` : "/book"} className="chrome-button">
-          ← <span>Back to the book</span>
+  const saveControls = (
+    <>
+      <p className="min-w-0 flex-1 font-serif text-sm text-ink-soft" role="status" aria-live="polite">
+        {error ? (
+          <span className="text-[var(--ink-terracotta)]">{error}</span>
+        ) : progress ? (
+          progress
+        ) : savedId ? (
+          <>
+            Saved ✓{" "}
+            <Link href={`/book?memory=${encodeURIComponent(savedId)}`} className="underline decoration-dotted underline-offset-4">
+              see it in the journal
+            </Link>
+          </>
+        ) : null}
+      </p>
+      {keptOffline ? (
+        <Link href="/book" className="chrome-button chrome-button--primary !h-12 shrink-0 !px-6 !text-lg">
+          Back to the book
         </Link>
-      </header>
+      ) : (
+        <button
+          type="button"
+          className="chrome-button chrome-button--primary !h-12 shrink-0 !px-6 !text-lg"
+          onClick={save}
+          disabled={saving || processing > 0}
+        >
+          {saving ? "Saving…" : isNew ? "Save to book" : "Save changes"}
+        </button>
+      )}
+    </>
+  );
 
-      <div className="mx-auto max-w-xl px-3 sm:px-4">
+  const sheet = (
         <div className="sheet">
-          <h1 className="font-hand text-4xl font-bold text-ink">{isNew ? "A new memory" : "Edit memory"}</h1>
+          <h1 className="font-hand text-4xl font-bold text-ink">
+            {inline ? "Write a new memory" : isNew ? "A new memory" : "Edit memory"}
+          </h1>
 
           {/* Photos */}
           <section className="mt-5" aria-label="Photos">
@@ -334,30 +387,26 @@ export function MemoryEditor({ journal, memory }: { journal: Journal; memory?: M
               )}
             </section>
           )}
+
+          {inline && <div className="mt-8 flex items-center justify-between gap-3">{saveControls}</div>}
         </div>
-      </div>
+  );
+
+  if (inline) return sheet;
+
+  return (
+    <main className="min-h-dvh pb-28">
+      <header className="flex h-14 items-center justify-between px-4">
+        <Link href={memory ? `/book?memory=${encodeURIComponent(memory.id)}` : "/book/write"} className="chrome-button">
+          ← <span>{memory ? "Back to the journal" : "Back"}</span>
+        </Link>
+      </header>
+
+      <div className="mx-auto max-w-xl px-3 sm:px-4">{sheet}</div>
 
       {/* Save bar — stays at the bottom on phones */}
       <div className="save-bar">
-        <div className="mx-auto flex max-w-xl items-center justify-between gap-3 px-4">
-          <p className="min-w-0 flex-1 font-serif text-sm text-ink-soft" role="status" aria-live="polite">
-            {error ? <span className="text-[var(--ink-terracotta)]">{error}</span> : progress}
-          </p>
-          {keptOffline ? (
-            <Link href="/book" className="chrome-button chrome-button--primary !h-12 shrink-0 !px-6 !text-lg">
-              Back to the book
-            </Link>
-          ) : (
-            <button
-              type="button"
-              className="chrome-button chrome-button--primary !h-12 shrink-0 !px-6 !text-lg"
-              onClick={save}
-              disabled={saving || processing > 0}
-            >
-              {saving ? "Saving…" : isNew ? "Save to book" : "Save changes"}
-            </button>
-          )}
-        </div>
+        <div className="mx-auto flex max-w-xl items-center justify-between gap-3 px-4">{saveControls}</div>
       </div>
     </main>
   );

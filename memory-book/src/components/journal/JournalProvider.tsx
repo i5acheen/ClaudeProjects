@@ -4,7 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { BookSettings, Journal, Memory, PhotoRef, Tag } from "@/lib/types";
 import type { JournalRepository } from "@/lib/repository";
 import { DriveRepository } from "@/lib/drive/drive-repository";
-import { OfflineError, SignedOutError } from "@/lib/drive/client";
+import { DRIVE_READ_SCOPE, DriveError, OfflineError, SignedOutError, canReadFolders } from "@/lib/drive/client";
+import { importFromWatchedFolder } from "@/lib/folder-import";
+import { signIn } from "next-auth/react";
 import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
 import { createCachedPhotoResolver, primePhotoCache } from "@/lib/photo-cache";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
@@ -53,7 +55,26 @@ interface JournalContextValue {
   updateSettings(settings: BookSettings, newCover?: { blob: Blob; width: number; height: number }): Promise<void>;
   syncNow(): Promise<void>;
   reload(): Promise<void>;
+  folderWatch: FolderWatchState;
+  /** Sends you to Google once, to allow reading the folder you choose. */
+  requestFolderPermission(returnTo: string): Promise<void>;
+  /** Starts watching a folder (pass null to use a new "Add photos here" folder in the book folder). */
+  watchFolder(folder: { id: string; name: string } | null): Promise<void>;
+  stopWatchingFolder(): Promise<void>;
+  checkFolderNow(): Promise<void>;
 }
+
+export interface FolderWatchState {
+  /** "off": no folder; "needs-permission": folder chosen but reading isn't allowed (yet) on this account. */
+  status: "off" | "needs-permission" | "idle" | "checking" | "error";
+  canRead: boolean;
+  progress?: { done: number; total: number };
+  lastAdded?: number;
+  message?: string;
+}
+
+/** How often the watched folder is checked while the app is open. */
+const FOLDER_CHECK_INTERVAL = 3 * 60_000;
 
 const JournalContext = createContext<JournalContextValue | null>(null);
 
@@ -352,6 +373,142 @@ export function JournalProvider({
     [journal, repository, commit],
   );
 
+  /* ---------------- watching a Drive folder ---------------- */
+
+  const [canRead, setCanRead] = useState(false);
+  const [watchState, setWatchState] = useState<Omit<FolderWatchState, "status" | "canRead"> & { checking: boolean; failed: boolean }>({
+    checking: false,
+    failed: false,
+  });
+  const journalRef = useRef(journal);
+  journalRef.current = journal;
+
+  useEffect(() => {
+    if (status !== "ready") return;
+    canReadFolders()
+      .then(setCanRead)
+      .catch(() => setCanRead(false));
+  }, [status]);
+
+  const checkFolderNow = useCallback(
+    () =>
+      enqueue(async () => {
+        const current = journalRef.current;
+        if (!current?.watchedFolder) return;
+        setWatchState((s) => ({ ...s, checking: true, failed: false, message: undefined }));
+        try {
+          let added = 0;
+          let remaining = 0;
+          let skipped = 0;
+          let latest = current;
+          // Keep going in batches until the folder is caught up.
+          do {
+            const outcome = await importFromWatchedFolder(repository, latest, (done, total) =>
+              setWatchState((s) => ({ ...s, progress: { done, total } })),
+            );
+            if (!outcome) break;
+            if (outcome.added > 0 || outcome.skipped > 0) commit(outcome.journal);
+            latest = outcome.journal;
+            added += outcome.added;
+            skipped += outcome.skipped;
+            remaining = outcome.remaining;
+          } while (remaining > 0);
+          setWatchState({
+            checking: false,
+            failed: false,
+            lastAdded: added,
+            message: skipped
+              ? `${skipped} photo${skipped === 1 ? "" : "s"} couldn't be opened (iPhone HEIC photos need "Most Compatible" in Camera settings).`
+              : undefined,
+          });
+        } catch (e) {
+          const denied = e instanceof DriveError && (e.status === 403 || e.status === 404);
+          if (denied) setCanRead(false);
+          setWatchState({
+            checking: false,
+            failed: !denied,
+            message: denied
+              ? "The app isn't allowed to read that folder yet."
+              : e instanceof OfflineError
+                ? "Offline — will check again when you're back online."
+                : e instanceof Error
+                  ? e.message
+                  : "Couldn't check the folder.",
+          });
+        }
+      }),
+    [enqueue, repository, commit],
+  );
+
+  const watchFolder = useCallback(
+    async (folder: { id: string; name: string } | null) => {
+      const chosen = folder ?? (await repository.createDropFolder());
+      const saved = await enqueue(() =>
+        repository.update((latest) => ({
+          ...latest,
+          watchedFolder:
+            latest.watchedFolder?.folderId === chosen.id
+              ? latest.watchedFolder
+              : { folderId: chosen.id, folderName: chosen.name, importedFileIds: [], skippedFileIds: [] },
+        })),
+      );
+      commit(saved);
+      journalRef.current = saved;
+      await checkFolderNow();
+    },
+    [repository, enqueue, commit, checkFolderNow],
+  );
+
+  const stopWatchingFolder = useCallback(async () => {
+    const saved = await enqueue(() => repository.update((latest) => ({ ...latest, watchedFolder: undefined })));
+    commit(saved);
+  }, [repository, enqueue, commit]);
+
+  const requestFolderPermission = useCallback(async (returnTo: string) => {
+    await signIn(
+      "google",
+      { redirectTo: returnTo },
+      {
+        scope: `openid email profile https://www.googleapis.com/auth/drive.file ${DRIVE_READ_SCOPE}`,
+        include_granted_scopes: "true",
+      },
+    );
+  }, []);
+
+  // Check when the book opens, every few minutes while it's open, and when you come back to the tab.
+  const watching = status === "ready" && canRead && !!journal?.watchedFolder;
+  useEffect(() => {
+    if (!watching) return;
+    void checkFolderNow();
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible" && navigator.onLine) void checkFolderNow();
+    }, FOLDER_CHECK_INTERVAL);
+    const onVisible = () => document.visibilityState === "visible" && void checkFolderNow();
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("online", onVisible);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", onVisible);
+    };
+  }, [watching, checkFolderNow]);
+
+  const folderWatch: FolderWatchState = {
+    status: !journal?.watchedFolder
+      ? "off"
+      : !canRead
+        ? "needs-permission"
+        : watchState.checking
+          ? "checking"
+          : watchState.failed
+            ? "error"
+            : "idle",
+    canRead,
+    progress: watchState.checking ? watchState.progress : undefined,
+    lastAdded: watchState.lastAdded,
+    message: watchState.message,
+  };
+
   /* ---------------- what the book shows ---------------- */
 
   // Local previews for photos that haven't uploaded yet.
@@ -411,6 +568,11 @@ export function JournalProvider({
     updateSettings,
     syncNow,
     reload,
+    folderWatch,
+    requestFolderPermission,
+    watchFolder,
+    stopWatchingFolder,
+    checkFolderNow,
   };
 
   return (

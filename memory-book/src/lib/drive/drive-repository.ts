@@ -17,7 +17,8 @@ import {
  *
  *   Memory Book – <child name>/
  *   ├─ journal.json      all text, dates, tags and photo IDs
- *   └─ photos/           one JPEG per photo
+ *   ├─ photos/           one JPEG per photo
+ *   └─ Add photos here/  (optional) drop photos in; they become memories
  *
  * Files are found again by hidden "appProperties" tags, so renaming or
  * moving the folder in Drive doesn't break anything.
@@ -30,6 +31,8 @@ interface Location {
   photosFolderId: string;
   journalFileId: string;
 }
+
+export const DROP_FOLDER_NAME = "Add photos here";
 
 export const folderName = (childName: string) => `Memory Book – ${childName.trim() || "my child"}`;
 
@@ -81,6 +84,14 @@ export class DriveRepository implements JournalRepository {
 
   removePhoto(fileId: string): Promise<void> {
     return trashFile(fileId);
+  }
+
+  async createDropFolder(): Promise<{ id: string; name: string }> {
+    const location = await this.requireLocation();
+    const existing = (await findFiles(inFolderQuery(location.folderId))).find((f) => f.appProperties?.[KEY] === "drop");
+    if (existing) return { id: existing.id, name: existing.name };
+    const folder = await createFolder(DROP_FOLDER_NAME, location.folderId, { [KEY]: "drop" });
+    return { id: folder.id, name: folder.name };
   }
 
   folderUrl(): string | null {

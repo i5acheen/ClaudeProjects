@@ -11,11 +11,18 @@ import Google from "next-auth/providers/google";
  */
 
 export const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+/**
+ * Only asked for if you switch on "watch a Drive folder": lets the app read
+ * the photos you put in that folder (it still only writes its own files).
+ */
+export const DRIVE_READ_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
     accessTokenExpires?: number;
+    /** Space-separated Google permissions granted so far. */
+    scope?: string;
     error?: "RefreshTokenError";
   }
 }
@@ -24,6 +31,7 @@ declare module "@auth/core/jwt" {
   interface JWT {
     accessToken?: string;
     accessTokenExpires?: number;
+    scope?: string;
     refreshToken?: string;
     error?: "RefreshTokenError";
   }
@@ -43,6 +51,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       authorization: {
         params: {
           scope: `openid email profile ${DRIVE_SCOPE}`,
+          // Keep permissions granted earlier (e.g. folder watching) when signing in again.
+          include_granted_scopes: "true",
           // Needed to get a refresh token, so you stay signed in.
           access_type: "offline",
           prompt: "consent",
@@ -65,6 +75,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           ...token,
           accessToken: account.access_token,
           accessTokenExpires: (account.expires_at ?? Math.floor(Date.now() / 1000) + 3600) * 1000,
+          scope: account.scope,
           refreshToken: account.refresh_token ?? token.refreshToken,
           error: undefined,
         };
@@ -89,12 +100,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           access_token?: string;
           expires_in?: number;
           refresh_token?: string;
+          scope?: string;
         };
         if (!response.ok || !refreshed.access_token) throw new Error("Token refresh failed");
         return {
           ...token,
           accessToken: refreshed.access_token,
           accessTokenExpires: Date.now() + (refreshed.expires_in ?? 3600) * 1000,
+          scope: refreshed.scope ?? token.scope,
           refreshToken: refreshed.refresh_token ?? token.refreshToken,
           error: undefined,
         };
@@ -106,6 +119,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session({ session, token }) {
       session.accessToken = token.accessToken;
       session.accessTokenExpires = token.accessTokenExpires;
+      session.scope = token.scope;
       session.error = token.error;
       return session;
     },

@@ -1,8 +1,6 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { BookGate } from "@/components/journal/BookGate";
-import { MemoryEditor } from "@/components/editor/MemoryEditor";
-
+/** Writing now happens on the Write page. */
 export default function NewMemoryPage() {
-  return <BookGate>{(journal) => <MemoryEditor journal={journal} />}</BookGate>;
+  redirect("/book/write");
 }

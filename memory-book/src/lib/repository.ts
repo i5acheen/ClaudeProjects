@@ -21,6 +21,8 @@ export interface JournalRepository {
   removePhoto(fileId: string): Promise<void>;
   /** A link to the book's folder, if the storage has one. */
   folderUrl(): string | null;
+  /** Creates (or finds) the "Add photos here" folder inside the book folder. */
+  createDropFolder(): Promise<{ id: string; name: string }>;
 }
 
 export function emptyJournal(settings: BookSettings): Journal {
@@ -30,6 +32,7 @@ export function emptyJournal(settings: BookSettings): Journal {
 /** Defensive parse of a stored journal, so a hand-edited file can't crash the app. */
 export function normaliseJournal(raw: unknown): Journal {
   const data = (raw ?? {}) as Partial<Journal>;
+  const watched = data.watchedFolder;
   const settings = (data.settings ?? {}) as Partial<BookSettings>;
   return {
     version: 1,
@@ -50,5 +53,15 @@ export function normaliseJournal(raw: unknown): Journal {
             photos: Array.isArray(m.photos) ? m.photos : [],
           }))
       : [],
+    watchedFolder:
+      watched && typeof watched.folderId === "string"
+        ? {
+            folderId: watched.folderId,
+            folderName: watched.folderName ?? "",
+            importedFileIds: Array.isArray(watched.importedFileIds) ? watched.importedFileIds : [],
+            skippedFileIds: Array.isArray(watched.skippedFileIds) ? watched.skippedFileIds : [],
+            lastCheckedAt: watched.lastCheckedAt,
+          }
+        : undefined,
   };
 }

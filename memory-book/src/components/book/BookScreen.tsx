@@ -18,7 +18,7 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
             {journal.memories.length === 0 && (
               <p className="text-center font-hand text-2xl text-ink-soft">
                 Your book is ready.{" "}
-                <Link href="/book/new" className="underline decoration-dotted underline-offset-4 hover:text-ink">
+                <Link href="/book/write" className="underline decoration-dotted underline-offset-4 hover:text-ink">
                   Add the first memory
                 </Link>
               </p>

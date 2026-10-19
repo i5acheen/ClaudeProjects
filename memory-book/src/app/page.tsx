@@ -14,11 +14,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const { error } = await searchParams;
   const signInConfigured = Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_SECRET);
   const session = signInConfigured ? await auth().catch(() => null) : null;
-  if (session?.user) redirect("/book");
+  if (session?.user) redirect("/book/write");
 
   async function signInWithGoogle() {
     "use server";
-    await signIn("google", { redirectTo: "/book" });
+    await signIn("google", { redirectTo: "/book/write" });
   }
 
   return (
@@ -39,7 +39,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <p className="mt-3 font-hand text-2xl leading-snug text-ink-soft">
           A little keepsake journal of the everyday moments — written now, to be read when she&rsquo;s grown.
         </p>
-        <p className="mt-4 font-serif text-lg text-ink-soft">Your photos and words stay in your own Google Drive.</p>
+        <ul className="mt-5 space-y-1.5 font-serif text-lg text-ink-soft">
+          <li>✦ No account, no database — nothing is stored with us.</li>
+          <li>✦ Your child&rsquo;s details, photos and words live only in your own Google Drive.</li>
+          <li>✦ Drop photos into a Drive folder and they appear, ready for your words.</li>
+        </ul>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row md:flex-col lg:flex-row">
           {signInConfigured ? (
@@ -49,18 +53,28 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               </button>
             </form>
           ) : (
-            <button className="chrome-button !h-12 justify-center !px-6 !text-lg whitespace-nowrap" disabled title="Google sign-in hasn't been set up yet">
-              Sign in with Google
-            </button>
+            <a href="#setup-needed" className="chrome-button chrome-button--primary !h-12 justify-center !px-6 !text-lg whitespace-nowrap opacity-60">
+              <GoogleMark /> Sign in with Google
+            </a>
           )}
           <Link href="/demo" className="chrome-button field-button !h-12 justify-center !px-6 !text-lg whitespace-nowrap">
             Open the demo book
           </Link>
         </div>
 
+        <p className="mt-5 font-serif text-base">
+          <Link href="/privacy" className="text-ink-soft underline decoration-dotted underline-offset-4 hover:text-ink">
+            How your privacy is protected
+          </Link>
+        </p>
+
         {error && <p className="mt-4 font-serif text-[var(--ink-terracotta)]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>}
         {!signInConfigured && (
-          <p className="mt-4 font-serif text-sm text-ink-faint italic">Google sign-in is not set up yet — the demo book works without it.</p>
+          <div id="setup-needed" className="mt-5 rounded-lg border border-dashed border-ink-faint/60 bg-white/40 p-4 font-serif text-base text-ink-soft">
+            <b className="text-ink">Sign-in is almost ready.</b> It switches on once this app&rsquo;s Google keys are added
+            (a one-time, 15-minute setup — see <i>README → steps 1 and 2</i>). Until then, the demo book works without
+            signing in.
+          </div>
         )}
       </div>
     </main>

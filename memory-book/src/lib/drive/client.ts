@@ -31,7 +31,7 @@ export class DriveError extends Error {
 /* Access token                                                        */
 /* ------------------------------------------------------------------ */
 
-let cachedToken: { token: string; expires: number } | null = null;
+let cachedToken: { token: string; expires: number; scope: string } | null = null;
 let pendingToken: Promise<string> | null = null;
 
 /** Gets a fresh access token; the server refreshes it with Google when needed. */
@@ -53,11 +53,12 @@ export function getAccessToken(force = false): Promise<string> {
 interface SessionResponse {
   accessToken?: string;
   accessTokenExpires?: number;
+  scope?: string;
   error?: string;
 }
 
 /** Asks our server for the session (Auth.js refreshes Google's token there if it has expired). */
-async function fetchSessionToken(): Promise<{ token: string; expires: number }> {
+async function fetchSessionToken(): Promise<{ token: string; expires: number; scope: string }> {
   let session: SessionResponse | null;
   try {
     const response = await fetch("/api/auth/session", { cache: "no-store" });
@@ -68,7 +69,19 @@ async function fetchSessionToken(): Promise<{ token: string; expires: number }> 
     throw new OfflineError();
   }
   if (!session?.accessToken || session.error) throw new SignedOutError();
-  return { token: session.accessToken, expires: session.accessTokenExpires ?? Date.now() + 5 * 60_000 };
+  return {
+    token: session.accessToken,
+    expires: session.accessTokenExpires ?? Date.now() + 5 * 60_000,
+    scope: session.scope ?? "",
+  };
+}
+
+export const DRIVE_READ_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
+
+/** Whether you've allowed the app to read photos in a folder you chose (needed for folder watching). */
+export async function canReadFolders(): Promise<boolean> {
+  await getAccessToken();
+  return cachedToken?.scope.split(" ").includes(DRIVE_READ_SCOPE) ?? false;
 }
 
 /** For tests and sign-out. */
@@ -224,3 +237,52 @@ export async function updateMetadata(fileId: string, metadata: { name?: string; 
 
 /** Moves a file to the Drive bin (recoverable for 30 days) rather than deleting it forever. */
 export const trashFile = (fileId: string) => updateMetadata(fileId, { trashed: true });
+
+/* ------------------------------------------------------------------ */
+/* Reading a folder you chose (needs the read-only permission)          */
+/* ------------------------------------------------------------------ */
+
+export interface DriveImage {
+  id: string;
+  name: string;
+  mimeType: string;
+  createdTime: string;
+  imageMediaMetadata?: { time?: string; width?: number; height?: number };
+}
+
+async function listAll<T>(query: string, fields: string, orderBy = "createdTime"): Promise<T[]> {
+  const items: T[] = [];
+  let pageToken: string | undefined;
+  do {
+    const params = new URLSearchParams({
+      q: `${query} and trashed = false`,
+      fields: `nextPageToken,files(${fields})`,
+      orderBy,
+      pageSize: "200",
+      spaces: "drive",
+    });
+    if (pageToken) params.set("pageToken", pageToken);
+    const response = await driveFetch(`${API}/files?${params}`);
+    const body = (await response.json()) as { files: T[]; nextPageToken?: string };
+    items.push(...body.files);
+    pageToken = body.nextPageToken;
+  } while (pageToken);
+  return items;
+}
+
+/** Every photo directly inside a folder, oldest first. */
+export function listImagesInFolder(folderId: string): Promise<DriveImage[]> {
+  return listAll<DriveImage>(
+    `${inFolderQuery(folderId)} and mimeType contains 'image/'`,
+    "id,name,mimeType,createdTime,imageMediaMetadata(time,width,height)",
+  );
+}
+
+/** Sub-folders of a folder ("root" = My Drive), A–Z. */
+export function listFolders(parentId: string): Promise<DriveFile[]> {
+  return listAll<DriveFile>(
+    `${inFolderQuery(parentId)} and mimeType = 'application/vnd.google-apps.folder'`,
+    FILE_FIELDS,
+    "name",
+  );
+}

@@ -22,6 +22,8 @@ export interface Memory {
   text: string;
   tags: Tag[];
   photos: PhotoRef[];
+  /** Set when the memory was made automatically from your watched Drive folder. */
+  source?: "drive-folder";
   createdAt: string;
   updatedAt: string;
 }
@@ -36,8 +38,20 @@ export interface BookSettings {
   dedication?: string;
 }
 
+/** The Drive folder you drop photos into, so they turn into memories by themselves. */
+export interface WatchedFolder {
+  folderId: string;
+  folderName: string;
+  /** Photos already brought into the book (so they're never added twice). */
+  importedFileIds: string[];
+  /** Photos that couldn't be read (e.g. a format the browser can't open). */
+  skippedFileIds: string[];
+  lastCheckedAt?: string;
+}
+
 export interface Journal {
   version: 1;
   settings: BookSettings;
   memories: Memory[];
+  watchedFolder?: WatchedFolder;
 }

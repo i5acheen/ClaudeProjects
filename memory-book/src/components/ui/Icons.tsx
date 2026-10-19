@@ -54,3 +54,16 @@ export const ChevronRight = ({ className }: IconProps) => (
     <path d="M9 5l7 7-7 7" />
   </svg>
 );
+
+export const PenIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1z" />
+    <path d="M14.5 6.5l3 3" />
+  </svg>
+);
+
+export const FolderIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" />
+  </svg>
+);

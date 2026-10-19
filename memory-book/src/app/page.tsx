@@ -43,7 +43,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <ul className="mt-5 space-y-1.5 text-lg text-ink-soft">
           <li>✦ No account, no database — nothing is stored with us.</li>
           <li>✦ Your child&rsquo;s details, photos and words live only in your own Google Drive.</li>
-          <li>✦ Drop photos into a Drive folder and they appear, ready for your words.</li>
+          <li>✦ Pick photos from your phone or Google Drive — the app only ever sees the ones you choose.</li>
         </ul>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row md:flex-col lg:flex-row">

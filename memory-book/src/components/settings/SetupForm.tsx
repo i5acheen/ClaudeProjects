@@ -10,7 +10,7 @@ import { StylePickers } from "./StylePickers";
 /** First sign-in: name the child, and the book's folder is created in Google Drive. */
 export function SetupForm() {
   const router = useRouter();
-  const { status, setupBook, requestSharedAccess } = useJournal();
+  const { status, setupBook, openSharedBook } = useJournal();
   const [childName, setChildName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [bookTitle, setBookTitle] = useState("");
@@ -139,14 +139,22 @@ export function SetupForm() {
           <div className="mt-8 rounded-xl border border-dashed border-[rgba(120,90,70,0.25)] bg-white/60 p-4 text-ink-soft">
             <p className="text-lg text-ink">Has someone shared their Memory Book with you?</p>
             <p className="mt-1 text-sm">
-              Google will ask you to let Memory Book open books shared with your account.
+              If it doesn&rsquo;t open straight away, Google will show you the books shared with you — choose it once.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" className="chrome-button field-button" onClick={() => requestSharedAccess(false)}>
-                I was invited to view
-              </button>
-              <button type="button" className="chrome-button field-button" onClick={() => requestSharedAccess(true)}>
-                I was invited to add memories
+              <button
+                type="button"
+                className="chrome-button field-button"
+                onClick={async () => {
+                  setError(null);
+                  try {
+                    await openSharedBook();
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : "Couldn't open the shared book.");
+                  }
+                }}
+              >
+                Open a book shared with me
               </button>
             </div>
           </div>

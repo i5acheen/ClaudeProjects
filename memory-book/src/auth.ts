@@ -11,11 +11,6 @@ import Google from "next-auth/providers/google";
  */
 
 export const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
-/**
- * Only asked for if you switch on "watch a Drive folder": lets the app read
- * the photos you put in that folder (it still only writes its own files).
- */
-export const DRIVE_READ_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 
 declare module "next-auth" {
   interface Session {
@@ -50,9 +45,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       authorization: {
         params: {
+          // Only ever this small permission: files the app creates, or that you pick in Google's picker.
           scope: `openid email profile ${DRIVE_SCOPE}`,
-          // Keep permissions granted earlier (e.g. folder watching) when signing in again.
-          include_granted_scopes: "true",
           // Needed to get a refresh token, so you stay signed in.
           access_type: "offline",
           prompt: "consent",

@@ -16,8 +16,14 @@ import {
   createFile,
   createFolder,
   downloadFile,
+  downloadRevision,
   findFiles,
+  headRevision,
+  listRevisionIds,
   inFolderQuery,
+  isPublicPermission,
+  listOwnedFiles,
+  listPublicFiles,
   trashFile,
   updateFileContent,
   updateMetadata,
@@ -28,8 +34,7 @@ import {
  *
  *   Memory Book – <child name>/
  *   ├─ journal.json      all text, dates, tags and photo IDs
- *   ├─ photos/           one JPEG per photo
- *   └─ Add photos here/  (optional) drop photos in; they become memories
+ *   └─ photos/           one JPEG per photo
  *
  * Files are found again by hidden "appProperties" tags, so renaming or
  * moving the folder in Drive doesn't break anything.
@@ -41,9 +46,12 @@ interface Location {
   folderId: string;
   photosFolderId: string;
   journalFileId: string;
+  /** Older photos have had "editors can share" switched off. */
+  sharingLocked?: boolean;
 }
 
-export const DROP_FOLDER_NAME = "Add photos here";
+/** Marks a book whose older files have been locked against re-sharing. */
+const SHARING_LOCKED = "memoryBookSharingLocked";
 
 export const folderName = (childName: string) => `Memory Book – ${childName.trim() || "my child"}`;
 
@@ -71,11 +79,33 @@ export class DriveRepository implements JournalRepository {
     return journal;
   }
 
+  /**
+   * Saves a change to the journal without losing anyone else's.
+   *
+   * Two people (or two phones) can save at the same moment. So: read an exact
+   * version, apply the change, write, then look at the file's version history.
+   * If someone else's save landed between our read and our write, our write
+   * replaced it — so apply our change again on top of their version and write
+   * once more. Both changes end up in the book.
+   */
   async update(change: (journal: Journal) => Journal): Promise<Journal> {
     const location = await this.requireLocation();
-    const latest = await this.read(location);
-    const next = change(latest);
-    await updateFileContent(location.journalFileId, jsonBlob(next));
+    const id = location.journalFileId;
+    let base = await this.snapshot(id).catch(() => null);
+    const latest = base?.journal ?? (await this.read(location));
+    let next = change(latest);
+
+    for (let attempt = 0; ; attempt++) {
+      const written = await updateFileContent(id, jsonBlob(next));
+      if (!base || !written || attempt >= 4) break;
+      const history = await listRevisionIds(id).catch(() => null);
+      const at = history?.indexOf(written) ?? -1;
+      if (!history || at <= 0 || history[at - 1] === base.revision) break;
+      // Someone else saved in between: rebuild on top of their version.
+      const theirs = history[at - 1];
+      next = change(normaliseJournal(JSON.parse(await (await downloadRevision(id, theirs)).text())));
+      base = { revision: written, journal: next };
+    }
 
     if (next.settings.childName !== latest.settings.childName) {
       await updateMetadata(location.folderId, { name: folderName(next.settings.childName) }).catch(() => undefined);
@@ -100,14 +130,6 @@ export class DriveRepository implements JournalRepository {
   async bookFolderIds(): Promise<string[]> {
     const location = await this.requireLocation();
     return [location.folderId, location.photosFolderId];
-  }
-
-  async createDropFolder(): Promise<{ id: string; name: string }> {
-    const location = await this.requireLocation();
-    const existing = (await findFiles(inFolderQuery(location.folderId))).find((f) => f.appProperties?.[KEY] === "drop");
-    if (existing) return { id: existing.id, name: existing.name };
-    const folder = await createFolder(DROP_FOLDER_NAME, location.folderId, { [KEY]: "drop" });
-    return { id: folder.id, name: folder.name };
   }
 
   async access(): Promise<BookAccess> {
@@ -145,11 +167,52 @@ export class DriveRepository implements JournalRepository {
     await removePermission(location.folderId, memberId);
   }
 
+  /**
+   * Keeps the book private (book owner only):
+   * - family who can add memories can't share it onwards, and
+   * - any "anyone with the link" or whole-organisation sharing is removed.
+   * Returns how many such public shares were removed.
+   */
+  async secureSharing(): Promise<{ removedPublicShares: number }> {
+    const location = await this.requireLocation();
+    const core = [location.folderId, location.photosFolderId, location.journalFileId];
+    await Promise.all(core.map((id) => updateMetadata(id, { writersCanShare: false }).catch(() => undefined)));
+
+    // Once per book: lock the photos added before this protection existed.
+    if (!location.sharingLocked) {
+      const photos = await listOwnedFiles(location.photosFolderId);
+      for (let i = 0; i < photos.length; i += 8) {
+        await Promise.all(photos.slice(i, i + 8).map((p) => updateMetadata(p.id, { writersCanShare: false }).catch(() => undefined)));
+      }
+      await updateMetadata(location.folderId, { appProperties: { [SHARING_LOCKED]: "1" } });
+      location.sharingLocked = true;
+    }
+
+    const suspects = new Set([...core, ...(await listPublicFiles([location.folderId, location.photosFolderId])).map((f) => f.id)]);
+    let removedPublicShares = 0;
+    for (const fileId of suspects) {
+      const permissions = await listPermissions(fileId).catch(() => []);
+      for (const permission of permissions.filter(isPublicPermission)) {
+        await removePermission(fileId, permission.id);
+        removedPublicShares++;
+      }
+    }
+    return { removedPublicShares };
+  }
+
   folderUrl(): string | null {
     return this.location ? `https://drive.google.com/drive/folders/${this.location.folderId}` : null;
   }
 
   /* -------------------------------------------------------------- */
+
+  /** The journal's current version ID and exactly that version's contents. */
+  private async snapshot(fileId: string): Promise<{ revision: string; journal: Journal } | null> {
+    const revision = await headRevision(fileId);
+    if (!revision) return null;
+    const journal = normaliseJournal(JSON.parse(await (await downloadRevision(fileId, revision)).text()));
+    return { revision, journal };
+  }
 
   private async read(location: Location): Promise<Journal> {
     return normaliseJournal(JSON.parse(await (await downloadFile(location.journalFileId)).text()));
@@ -177,7 +240,12 @@ export class DriveRepository implements JournalRepository {
     if (!photos) photos = await createFolder("photos", folder.id, { [KEY]: "photos" });
     if (!journal) return null;
 
-    this.location = { folderId: folder.id, photosFolderId: photos.id, journalFileId: journal.id };
+    this.location = {
+      folderId: folder.id,
+      photosFolderId: photos.id,
+      journalFileId: journal.id,
+      sharingLocked: folder.appProperties?.[SHARING_LOCKED] === "1",
+    };
     return this.location;
   }
 }

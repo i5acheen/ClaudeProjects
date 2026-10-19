@@ -3,6 +3,9 @@
 *Part 0 of the production-readiness work. Audit date: 19 October 2026. Code reviewed: branch
 `claude/memory-book-journal-roqoir`, commit `b68e793`. No code was changed for this audit.*
 
+> **Update (Part 1):** all four High findings are fixed and tested (status below). The Medium and
+> Low findings are still open; most are covered by Part 2.
+
 ## The short version
 
 - **Nothing Critical was found.** No one can open another family's book by guessing a link or
@@ -59,7 +62,24 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
     that keeps the small scope and explain it to you.
   - **Your part:** turn on the Picker in Google Cloud. It's a 5-minute task; it will be in
     `PRODUCTION_CHECKLIST.md`.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 1).**
+  - The app now asks everyone for `drive.file` only, and no longer keeps permissions granted
+    earlier.
+  - **Photos from Google Drive:** you choose photos in Google's picker, and the app can open
+    only those. Automatic folder watching is gone, because it needed the wide permission.
+  - **Family:** a shared book usually opens straight away. If Google doesn't show it, they
+    choose it once in the picker.
+  - **Tests:**
+    - the app can't open a Drive photo you haven't picked;
+    - family open a shared book through the picker;
+    - no wider permission is requested anywhere in the code.
+  - **You must:**
+    - Switch on the Picker API and add its two settings (README step 1c-2).
+    - Remove `drive.readonly` and `drive` from Google Cloud → Data Access.
+    - On the live site, check with your own and a family account that the book opens and
+      that photos can be picked.
+    - Anyone who granted the old wide permission can remove it at
+      myaccount.google.com/permissions, then sign in again.
 
 ### H-2 · A "can add memories" member can re-share the book with anyone, even publicly
 - **Where:** `src/lib/drive/drive-repository.ts:137-141` (sharing the book folder),
@@ -73,7 +93,15 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
   2. Each time the owner opens the book, check its sharing list. Remove any "anyone with the
      link" or whole-organisation sharing, and anyone the owner didn't invite, and tell the
      owner.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 1).**
+  - Every new file and folder is created with "editors can share" switched off.
+  - The first time the owner opens the book, older photos are locked the same way.
+  - Each time the owner opens the book, any "anyone with the link" or whole-organisation
+    sharing is removed, and a 🔒 note explains what happened.
+  - **Tests:**
+    - a "can add" member is refused when they try to share;
+    - every book file is locked;
+    - a public link added outside the app is removed, and the owner is told.
 
 ### H-3 · No security headers, while the browser holds a Google access key
 - **Where:**
@@ -98,7 +126,16 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
     `Permissions-Policy` (no microphone, location or payment APIs unless needed),
     `X-Content-Type-Options: nosniff` and `Cross-Origin-Opener-Policy`.
   - Add a test that checks the headers are present.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 1).**
+  - Every page now has a strict Content-Security-Policy with a fresh one-time code (nonce)
+    on each request: `src/proxy.ts` and `src/lib/security/csp.ts`.
+  - All other responses get `X-Frame-Options`, `nosniff`, `Referrer-Policy`,
+    `Permissions-Policy`, `Cross-Origin-Opener-Policy` and HSTS (`next.config.ts`).
+  - **Tests:**
+    - the headers are present and the nonce changes on every request;
+    - no part of the app is blocked by its own policy.
+  - **How to check:** open the live site, press F12, go to **Network**, click the page and look
+    at **Response Headers**.
 
 ### H-4 · Two people saving at the same moment can lose a memory
 - **Where:** `src/lib/drive/drive-repository.ts:74-79`. Saving reads `journal.json`, adds the
@@ -114,7 +151,14 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
   4. Add a test that runs two saves at once and checks both memories survive.
 - **Fix later (Part 2, A1/A2):** split the journal into one small file per memory, so two
   people adding different memories never touch the same file.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 1).**
+  - A save now reads one exact version of `journal.json` and writes the change.
+  - It then checks Drive's version history. If someone else's save landed in between, it
+    re-applies the change on top of their version, so both are kept.
+  - **Test:** a family member's memory is saved "at the same moment" as yours, and both are in
+    the book afterwards.
+  - Splitting the journal into one file per memory (Part 2, A1) will make this even more
+    robust.
 
 ---
 
@@ -266,7 +310,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
 | Uploads: real images only, no SVG/HTML, GPS removed | ✅ Every photo (memories, cover, folder imports) is opened and redrawn as a new JPEG in the browser before upload. Anything that isn't an image fails, SVG/HTML can't get through, and **all photo metadata, including GPS location, is removed**. The date taken is read first. |
 | Drive search "injection" through names | ✅ Values are escaped (`client.ts:153`); the child's name is never put into a search. |
 | Server fetching user-supplied URLs (SSRF) | ✅ The server fetches only Google's fixed token address. |
-| Secrets in code, `NEXT_PUBLIC_` variables, git history | ✅ None. `.env.local` is not in git; the only env file in the history is `.env.example`, with empty values. |
+| Secrets in code, `NEXT_PUBLIC_` variables, git history | ✅ No secrets. `.env.local` is not in git; the only env file in the history is `.env.example`, with empty values. The two new `NEXT_PUBLIC_GOOGLE_…` values for Google's picker are **public by design**. Restricting the key to your website and the Picker API (README step 1c-2) makes it useless anywhere else. |
 | Error pages exposing internals | ✅ There are no custom API routes, and Next.js hides stack traces in production. |
 | `npm audit` | ✅ **0 known vulnerabilities**. Outdated: `next-auth` is beta (L-6); `typescript` and `@types/node` have newer major versions, which only affect development. |
 | Premium and payments trusted from the browser or Drive | ⏳ Not in the code yet. Rules for that work: **plan status lives only on our server**, is set only after verifying Razorpay's signed webhook, and is never read from the browser or from Drive files. |
@@ -280,7 +324,8 @@ would ever go there. Your privacy promise would become "*your child's photos and
 only in your own Google Drive*" (still true), rather than "*we store nothing*". I'll suggest a
 specific option when we reach that step.
 
-## What I'll do in Part 1 (after your approval)
+## Part 1 — done
 
-I'll fix **H-1 to H-4**, add a test for each, and update the status lines above. For H-1 I'll
-ask you to switch on Google's Picker in Google Cloud (5 minutes, step by step).
+H-1 to H-4 are fixed, with tests. For H-1 you need to switch on Google's picker in Google Cloud
+(about 5 minutes, README step 1c-2). Until you do, "Choose photos from Google Drive" shows a
+message saying it isn't set up yet; everything else works as before.

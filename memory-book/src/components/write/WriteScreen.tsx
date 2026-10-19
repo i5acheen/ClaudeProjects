@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useJournal } from "@/components/journal/JournalProvider";
 import type { Journal } from "@/lib/types";
@@ -22,7 +22,6 @@ export function WriteScreen({ journal }: { journal: Journal }) {
   const waiting = journal.memories
     .filter((m) => !m.text.trim() && m.photos.length > 0)
     .sort((a, b) => b.date.localeCompare(a.date));
-  const [openChooser, setOpenChooser] = useState(false);
   const { access } = useJournal();
   const router = useRouter();
 
@@ -30,14 +29,6 @@ export function WriteScreen({ journal }: { journal: Journal }) {
   useEffect(() => {
     if (!access.canEdit) router.replace("/book");
   }, [access.canEdit, router]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.has("choose-folder")) {
-      setOpenChooser(true);
-      window.history.replaceState(null, "", "/book/write");
-    }
-  }, []);
 
   return (
     <main className="min-h-dvh pb-20">
@@ -66,7 +57,7 @@ export function WriteScreen({ journal }: { journal: Journal }) {
 
         <GrowthCard journal={journal} />
 
-        <DriveFolderCard watched={journal.watchedFolder} openChooser={openChooser} />
+        <DriveFolderCard />
 
         <p className="text-center text-lg text-ink-soft">
           <Link href="/book" className="underline decoration-dotted underline-offset-4 hover:text-ink">

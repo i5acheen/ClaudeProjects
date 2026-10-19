@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Caveat, Cormorant_Garamond, Courier_Prime, Indie_Flower, Kalam, Lora, Patrick_Hand, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ServiceWorker } from "@/components/app/ServiceWorker";
@@ -45,7 +46,9 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Every page is rendered per request, so its scripts carry that request's CSP nonce.
+  await headers();
   return (
     <html lang="en" className={`${jakarta.variable} ${caveat.variable} ${cormorant.variable} ${kalam.variable} ${patrick.variable} ${indie.variable} ${lora.variable} ${courier.variable}`}>
       <body>

@@ -23,13 +23,13 @@ export interface JournalRepository {
   folderUrl(): string | null;
   /** The book's own folders, which must never be watched for new photos. */
   bookFolderIds(): Promise<string[]>;
-  /** Creates (or finds) the "Add photos here" folder inside the book folder. */
-  createDropFolder(): Promise<{ id: string; name: string }>;
   /** Whose book this is, and whether the signed-in person may change it. */
   access(): Promise<BookAccess>;
   listFamily(): Promise<FamilyMember[]>;
   inviteFamily(email: string, role: FamilyRole, message: string): Promise<void>;
   removeFamily(memberId: string): Promise<void>;
+  /** Owner only: stops onward sharing and removes public links; returns how many were removed. */
+  secureSharing(): Promise<{ removedPublicShares: number }>;
 }
 
 export type FamilyRole = "reader" | "writer";

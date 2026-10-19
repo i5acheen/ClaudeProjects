@@ -2,21 +2,22 @@
 
 import type { Journal, Memory, PhotoRef } from "./types";
 import type { JournalRepository } from "./repository";
-import { DriveError, OfflineError, SignedOutError, downloadFile, listImagesInFolder, type DriveImage } from "./drive/client";
+import { DriveError, OfflineError, SignedOutError, downloadFile, type DriveImage } from "./drive/client";
 import { photoTakenDate, resizePhoto } from "./images";
 import { primePhotoCache } from "./photo-cache";
 import { samePhoto } from "./photo-hash";
 
 /**
- * Brings new photos from your watched Drive folder into the book.
+ * Brings photos you picked from your Google Drive into the book.
  *
- * Each new photo is copied into the book's own photos/ folder (resized to
- * 2000px) — your original stays exactly where you put it. Photos taken on
- * the same day become one memory (up to 4 photos), waiting for your words.
+ * Each photo is copied into the book's own photos/ folder (resized, with
+ * location data removed) — your original stays exactly where it is. Photos
+ * taken on the same day become one memory (up to 4 photos), waiting for your
+ * words. Photos already in the book are skipped.
  */
 
-/** Keeps each check quick; the rest come in on the next check. */
-const MAX_PER_CHECK = 24;
+/** Saved in small batches, so a long import never loses much if interrupted. */
+const BATCH = 12;
 const MAX_PHOTOS_PER_MEMORY = 4;
 
 export interface ImportOutcome {
@@ -26,6 +27,8 @@ export interface ImportOutcome {
   alreadyInBook: number;
   skipped: number;
   remaining: number;
+  /** The photos not imported yet (pass these to the next call). */
+  rest: DriveImage[];
 }
 
 /** "2026:06:15 10:30:00" (camera time) → "2026-06-15" */
@@ -55,22 +58,18 @@ interface ImportedPhoto {
 const hashesIn = (journal: Journal) =>
   journal.memories.flatMap((m) => m.photos.map((p) => p.hash)).filter((h): h is string => !!h);
 
-export async function importFromWatchedFolder(
+/** Imports the next batch of `files`; call again with `remaining` until it reaches 0. */
+export async function importDriveFiles(
   repository: JournalRepository,
   journal: Journal,
+  files: DriveImage[],
   onProgress?: (done: number, total: number) => void,
-): Promise<ImportOutcome | null> {
-  const watched = journal.watchedFolder;
-  if (!watched) return null;
+): Promise<ImportOutcome> {
+  // Never bring in the book's own photo copies (that would copy them again and again).
+  const fresh = files.filter((f) => !f.appProperties?.memoryBook);
+  if (fresh.length === 0) return { journal, added: 0, alreadyInBook: files.length, skipped: 0, remaining: 0, rest: [] };
 
-  const known = new Set([...watched.importedFileIds, ...watched.skippedFileIds]);
-  const fresh = (await listImagesInFolder(watched.folderId)).filter(
-    // Never bring in the book's own photo copies (that would copy them again and again).
-    (f) => !known.has(f.id) && !f.appProperties?.memoryBook,
-  );
-  if (fresh.length === 0) return { journal, added: 0, alreadyInBook: 0, skipped: 0, remaining: 0 };
-
-  const batch = fresh.slice(0, MAX_PER_CHECK);
+  const batch = fresh.slice(0, BATCH);
   const imported: ImportedPhoto[] = [];
   const skipped: string[] = [];
   /** Photos that are already in the book: noted as handled, but not added again. */
@@ -89,7 +88,7 @@ export async function importFromWatchedFolder(
       if (resized.hash) knownHashes.push(resized.hash);
       const taken = cameraDate(file) ?? (await photoTakenDate(original, file.name));
       const date = taken ?? localDay(file.createdTime);
-      const baseName = file.name.replace(/\.[^.]+$/, "");
+      const baseName = (file.name ?? "photo").replace(/\.[^.]+$/, "");
       const fileId = await repository.uploadPhoto(resized.blob, `${date}-${baseName}.jpg`);
       await primePhotoCache(fileId, resized.blob);
       imported.push({
@@ -110,27 +109,13 @@ export async function importFromWatchedFolder(
 
   let duplicates: ImportedPhoto[] = [];
   const saved = await repository.update((latest) => {
-    // Another device may have imported some of these in the meantime.
-    // …or added the same picture another way.
-    const already = new Set(latest.watchedFolder?.importedFileIds ?? []);
+    // The same picture may have been added another way in the meantime (e.g. on another phone).
     const before = new Set(hashesIn(journal));
     const addedMeanwhile = hashesIn(latest).filter((h) => !before.has(h));
-    duplicates = imported.filter(
-      (p) => already.has(p.sourceId) || addedMeanwhile.some((h) => samePhoto(h, p.photo.hash)),
-    );
-    const toAdd = imported.filter((p) => !already.has(p.sourceId));
-    const memories = addToMemories(latest.memories, toAdd);
-    const current = latest.watchedFolder ?? watched;
-    return {
-      ...latest,
-      memories,
-      watchedFolder: {
-        ...current,
-        importedFileIds: [...current.importedFileIds, ...toAdd.map((p) => p.sourceId), ...alreadyInBook],
-        skippedFileIds: [...current.skippedFileIds, ...skipped.filter((id) => !current.skippedFileIds.includes(id))],
-        lastCheckedAt: new Date().toISOString(),
-      },
-    };
+    const ids = new Set(latest.memories.map((m) => m.id));
+    duplicates = imported.filter((p) => ids.has(`drive-${p.sourceId}`) || addedMeanwhile.some((h) => samePhoto(h, p.photo.hash)));
+    const toAdd = imported.filter((p) => !duplicates.includes(p));
+    return { ...latest, memories: addToMemories(latest.memories, toAdd) };
   });
 
   // Copies made twice by two devices at once: bin the spare ones.
@@ -142,6 +127,7 @@ export async function importFromWatchedFolder(
     alreadyInBook: alreadyInBook.length,
     skipped: skipped.length,
     remaining: fresh.length - batch.length,
+    rest: fresh.slice(batch.length),
   };
 }
 

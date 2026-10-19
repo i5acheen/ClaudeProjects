@@ -50,13 +50,9 @@ export default function PrivacyPage() {
             encrypted sign-in cookie in your own browser, not on our side.
           </li>
           <li>
-            <b className="text-ink">Files this app creates</b> (<code>drive.file</code>) — to save the book. The app
-            can&rsquo;t see any other file in your Drive with this permission.
-          </li>
-          <li>
-            <b className="text-ink">Read your Drive</b> (<code>drive.readonly</code>) —{" "}
-            <i>only if you switch on &ldquo;Photos from Google Drive&rdquo;</i>. It&rsquo;s used solely to look for new
-            photos in the one folder you choose, so they can be copied into your book. Your originals are never changed.
+            <b className="text-ink">Only the files this app creates, or that you choose</b> (<code>drive.file</code>) — to
+            save the book, and to copy in photos you pick yourself in Google&rsquo;s own window. This is the only Drive
+            permission Memory Book ever asks for: it can&rsquo;t see or change anything else in your Drive.
           </li>
         </ul>
         <p className="mt-4">

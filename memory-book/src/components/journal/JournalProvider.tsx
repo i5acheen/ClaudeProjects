@@ -4,9 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { BookSettings, GrowthEntry, Journal, Memory, PhotoRef, Tag } from "@/lib/types";
 import type { BookAccess, FamilyMember, FamilyRole, JournalRepository } from "@/lib/repository";
 import { DriveRepository } from "@/lib/drive/drive-repository";
-import { DRIVE_FULL_SCOPE, DRIVE_READ_SCOPE, DriveError, OfflineError, SignedOutError, canReadFolders } from "@/lib/drive/client";
-import { importFromWatchedFolder } from "@/lib/folder-import";
-import { signIn } from "next-auth/react";
+import { DriveError, OfflineError, SignedOutError, getAccessToken, getImageInfo } from "@/lib/drive/client";
+import { pickFromDrive, type PickedFile } from "@/lib/drive/picker";
+import { importDriveFiles } from "@/lib/folder-import";
 import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
 import { createCachedPhotoResolver, primePhotoCache } from "@/lib/photo-cache";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
@@ -47,6 +47,9 @@ type Status = "loading" | "setup" | "ready" | "error" | "signed-out";
 interface JournalContextValue {
   status: Status;
   error: string | null;
+  /** A one-off note for the book's owner (e.g. a public link was removed). */
+  notice: string | null;
+  dismissNotice(): void;
   /** The book as saved in Drive, plus anything still waiting to upload. */
   journal: Journal | null;
   pendingCount: number;
@@ -59,13 +62,9 @@ interface JournalContextValue {
   updateSettings(settings: BookSettings, newCover?: { blob: Blob; width: number; height: number }): Promise<void>;
   syncNow(): Promise<void>;
   reload(): Promise<void>;
-  folderWatch: FolderWatchState;
-  /** Sends you to Google once, to allow reading the folder you choose. */
-  requestFolderPermission(returnTo: string): Promise<void>;
-  /** Starts watching a folder (pass null to use a new "Add photos here" folder in the book folder). */
-  watchFolder(folder: { id: string; name: string } | null): Promise<void>;
-  stopWatchingFolder(): Promise<void>;
-  checkFolderNow(): Promise<void>;
+  driveImport: DriveImportState;
+  /** Opens Google's picker; the photos you choose become memories waiting for words. */
+  addFromDrive(): Promise<void>;
   /** Whose book this is; family who can only view get `canEdit: false`. */
   access: BookAccess;
   listFamily(): Promise<FamilyMember[]>;
@@ -76,20 +75,19 @@ interface JournalContextValue {
   /** Finds the same photo saved more than once and keeps only the first. */
   removeDuplicatePhotos(onProgress?: (done: number, total: number) => void): Promise<{ photos: number; pages: number }>;
   /** For family: allow the app to open a book someone shared with you. */
-  requestSharedAccess(canAddMemories: boolean): Promise<void>;
+  /** Family: open a book someone shared with you. */
+  openSharedBook(): Promise<void>;
 }
 
-export interface FolderWatchState {
-  /** "off": no folder; "needs-permission": folder chosen but reading isn't allowed (yet) on this account. */
-  status: "off" | "needs-permission" | "idle" | "checking" | "error";
-  canRead: boolean;
+export interface DriveImportState {
+  importing: boolean;
   progress?: { done: number; total: number };
   lastAdded?: number;
   message?: string;
 }
 
-/** How often the watched folder is checked while the app is open. */
-const FOLDER_CHECK_INTERVAL = 3 * 60_000;
+/** The Drive folder you last picked photos from, to open the picker there next time (this device only). */
+const LAST_FOLDER_KEY = "memory-book:last-photo-folder";
 
 const JournalContext = createContext<JournalContextValue | null>(null);
 
@@ -155,6 +153,7 @@ export function JournalProvider({
   const repository = useMemo(() => providedRepository ?? new DriveRepository(), [providedRepository]);
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [journal, setJournal] = useState<Journal | null>(null);
   const [pending, setPending] = useState<PendingSave[]>([]);
   const [syncing, setSyncing] = useState(false);
@@ -191,7 +190,16 @@ export function JournalProvider({
         setStatus("ready");
         repository
           .access()
-          .then(setAccess)
+          .then(async (found) => {
+            setAccess(found);
+            // The owner's app keeps the book private every time it opens.
+            if (!found.isOwner) return;
+            const { removedPublicShares } = await repository.secureSharing();
+            if (removedPublicShares > 0)
+              setNotice(
+                "Someone had shared part of this book with a public link. That link has been switched off — only the family you invited can see it.",
+              );
+          })
           .catch(() => undefined);
       } else {
         setStatus("setup");
@@ -409,112 +417,71 @@ export function JournalProvider({
     [journal, repository, commit],
   );
 
-  /* ---------------- watching a Drive folder ---------------- */
+  /* ---------------- photos from Google Drive ---------------- */
 
-  const [canRead, setCanRead] = useState(false);
-  const [watchState, setWatchState] = useState<Omit<FolderWatchState, "status" | "canRead"> & { checking: boolean; failed: boolean }>({
-    checking: false,
-    failed: false,
-  });
+  const [importState, setImportState] = useState<DriveImportState>({ importing: false });
+
+  const addFromDrive = useCallback(async () => {
+    setImportState({ importing: false });
+    let picked: PickedFile[];
+    try {
+      let folderId: string | undefined;
+      try {
+        folderId = localStorage.getItem(LAST_FOLDER_KEY) ?? undefined;
+      } catch {
+        // no saved folder
+      }
+      picked = (await pickFromDrive(await getAccessToken(), { kind: "photos", folderId })).filter(
+        (f) => !f.mimeType || f.mimeType.startsWith("image/"),
+      );
+    } catch (e) {
+      setImportState({ importing: false, message: e instanceof Error ? e.message : "Couldn't open Google Drive." });
+      return;
+    }
+    if (picked.length === 0) return;
+    try {
+      if (picked[0].parentId) localStorage.setItem(LAST_FOLDER_KEY, picked[0].parentId);
+    } catch {
+      // fine
+    }
+
+    await enqueue(async () => {
+      setImportState({ importing: true, progress: { done: 0, total: picked.length } });
+      try {
+        let rest = await Promise.all(picked.map((f) => getImageInfo(f.id)));
+        let latest = journalRef.current!;
+        let added = 0;
+        let skipped = 0;
+        let alreadyInBook = 0;
+        let done = 0;
+        while (rest.length) {
+          const outcome = await importDriveFiles(repository, latest, rest, (n) =>
+            setImportState((s) => ({ ...s, progress: { done: done + n, total: picked.length } })),
+          );
+          done += rest.length - outcome.rest.length;
+          commit(outcome.journal);
+          latest = outcome.journal;
+          added += outcome.added;
+          skipped += outcome.skipped;
+          alreadyInBook += outcome.alreadyInBook;
+          rest = outcome.rest;
+        }
+        const notes = [
+          alreadyInBook ? `${alreadyInBook} ${alreadyInBook === 1 ? "was" : "were"} already in the book` : "",
+          skipped ? `${skipped} couldn't be opened (iPhone HEIC photos need "Most Compatible" in Camera settings)` : "",
+        ].filter(Boolean);
+        setImportState({ importing: false, lastAdded: added, message: notes.length ? `${notes.join("; ")}.` : undefined });
+      } catch (e) {
+        setImportState({
+          importing: false,
+          message: e instanceof OfflineError ? "You're offline — try again when you're back online." : e instanceof Error ? e.message : "Couldn't bring in the photos.",
+        });
+      }
+    });
+  }, [enqueue, repository, commit]);
+
   const journalRef = useRef(journal);
   journalRef.current = journal;
-
-  useEffect(() => {
-    if (status !== "ready") return;
-    canReadFolders()
-      .then(setCanRead)
-      .catch(() => setCanRead(false));
-  }, [status]);
-
-  const checkFolderNow = useCallback(
-    () =>
-      enqueue(async () => {
-        const current = journalRef.current;
-        if (!current?.watchedFolder) return;
-        setWatchState((s) => ({ ...s, checking: true, failed: false, message: undefined }));
-        try {
-          let added = 0;
-          let remaining = 0;
-          let skipped = 0;
-          let latest = current;
-          // Keep going in batches until the folder is caught up.
-          do {
-            const outcome = await importFromWatchedFolder(repository, latest, (done, total) =>
-              setWatchState((s) => ({ ...s, progress: { done, total } })),
-            );
-            if (!outcome) break;
-            if (outcome.added > 0 || outcome.skipped > 0 || outcome.alreadyInBook > 0) commit(outcome.journal);
-            latest = outcome.journal;
-            added += outcome.added;
-            skipped += outcome.skipped;
-            remaining = outcome.remaining;
-          } while (remaining > 0);
-          setWatchState({
-            checking: false,
-            failed: false,
-            lastAdded: added,
-            message: skipped
-              ? `${skipped} photo${skipped === 1 ? "" : "s"} couldn't be opened (iPhone HEIC photos need "Most Compatible" in Camera settings).`
-              : undefined,
-          });
-        } catch (e) {
-          const denied = e instanceof DriveError && (e.status === 403 || e.status === 404);
-          if (denied) setCanRead(false);
-          setWatchState({
-            checking: false,
-            failed: !denied,
-            message: denied
-              ? "The app isn't allowed to read that folder yet."
-              : e instanceof OfflineError
-                ? "Offline — will check again when you're back online."
-                : e instanceof Error
-                  ? e.message
-                  : "Couldn't check the folder.",
-          });
-        }
-      }),
-    [enqueue, repository, commit],
-  );
-
-  const watchFolder = useCallback(
-    async (folder: { id: string; name: string } | null) => {
-      if (folder && (await repository.bookFolderIds()).includes(folder.id)) {
-        throw new Error(
-          "That's the book's own folder, where Memory Book keeps its copies. Choose a different folder, or make a new “Add photos here” folder.",
-        );
-      }
-      const chosen = folder ?? (await repository.createDropFolder());
-      const saved = await enqueue(() =>
-        repository.update((latest) => ({
-          ...latest,
-          watchedFolder:
-            latest.watchedFolder?.folderId === chosen.id
-              ? latest.watchedFolder
-              : { folderId: chosen.id, folderName: chosen.name, importedFileIds: [], skippedFileIds: [] },
-        })),
-      );
-      commit(saved);
-      journalRef.current = saved;
-      await checkFolderNow();
-    },
-    [repository, enqueue, commit, checkFolderNow],
-  );
-
-  const stopWatchingFolder = useCallback(async () => {
-    const saved = await enqueue(() => repository.update((latest) => ({ ...latest, watchedFolder: undefined })));
-    commit(saved);
-  }, [repository, enqueue, commit]);
-
-  const requestFolderPermission = useCallback(async (returnTo: string) => {
-    await signIn(
-      "google",
-      { redirectTo: returnTo },
-      {
-        scope: `openid email profile https://www.googleapis.com/auth/drive.file ${DRIVE_READ_SCOPE}`,
-        include_granted_scopes: "true",
-      },
-    );
-  }, []);
 
   // Repair: an earlier version let you watch the book's own photos folder, which copied photos
   // over and over. Stop that, and remove the duplicate pages nobody has written on yet.
@@ -546,46 +513,12 @@ export function JournalProvider({
       await Promise.all(
         removedPhotos.filter((id) => !inUse.has(id)).map((id) => repository.removePhoto(id).catch(() => undefined)),
       );
-      setWatchState((s) => ({
+      setImportState((s) => ({
         ...s,
-        message: `Fixed: the book's own photos folder was being watched, which made copies of copies. Removed ${removed} duplicate page${removed === 1 ? "" : "s"} and stopped watching that folder — please choose a different folder.`,
+        message: `Fixed: the book's own photos folder was being watched, which made copies of copies. Removed ${removed} duplicate page${removed === 1 ? "" : "s"}.`,
       }));
     })().catch(() => undefined);
   }, [status, journal?.watchedFolder, repository, enqueue, commit]);
-
-  // Check when the book opens, every few minutes while it's open, and when you come back to the tab.
-  const watching = status === "ready" && canRead && !!journal?.watchedFolder;
-  useEffect(() => {
-    if (!watching) return;
-    void checkFolderNow();
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible" && navigator.onLine) void checkFolderNow();
-    }, FOLDER_CHECK_INTERVAL);
-    const onVisible = () => document.visibilityState === "visible" && void checkFolderNow();
-    document.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("online", onVisible);
-    return () => {
-      window.clearInterval(timer);
-      document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("online", onVisible);
-    };
-  }, [watching, checkFolderNow]);
-
-  const folderWatch: FolderWatchState = {
-    status: !journal?.watchedFolder
-      ? "off"
-      : !canRead
-        ? "needs-permission"
-        : watchState.checking
-          ? "checking"
-          : watchState.failed
-            ? "error"
-            : "idle",
-    canRead,
-    progress: watchState.checking ? watchState.progress : undefined,
-    lastAdded: watchState.lastAdded,
-    message: watchState.message,
-  };
 
   /* ---------------- growth ---------------- */
 
@@ -684,16 +617,21 @@ export function JournalProvider({
     },
     [repository, journal],
   );
-  const requestSharedAccess = useCallback(async (canAddMemories: boolean) => {
-    await signIn(
-      "google",
-      { redirectTo: "/book" },
-      {
-        scope: `openid email profile https://www.googleapis.com/auth/drive.file ${canAddMemories ? DRIVE_FULL_SCOPE : DRIVE_READ_SCOPE}`,
-        include_granted_scopes: "true",
-      },
-    );
-  }, []);
+  const openSharedBook = useCallback(async () => {
+    // A book made with Memory Book usually opens as soon as it's shared with you;
+    // if not, you choose it once in Google's own picker, which lets the app open just that book.
+    let found = await repository.load().catch(() => null);
+    if (!found) {
+      const picked = await pickFromDrive(await getAccessToken(), { kind: "book" });
+      if (picked.length === 0) return;
+      found = await repository.load();
+      if (!found)
+        throw new Error(
+          "That isn't a Memory Book shared with you. Ask the person who invited you to check they shared it with this Google account.",
+        );
+    }
+    await reload();
+  }, [repository, reload]);
 
   // The chosen handwriting font applies everywhere: book, editor, PDF.
   const chosenHand = journal?.settings.handwriting;
@@ -757,6 +695,8 @@ export function JournalProvider({
   const value: JournalContextValue = {
     status,
     error,
+    notice,
+    dismissNotice: () => setNotice(null),
     journal: displayJournal,
     pendingCount: pending.length,
     syncing,
@@ -767,18 +707,15 @@ export function JournalProvider({
     updateSettings,
     syncNow,
     reload,
-    folderWatch,
-    requestFolderPermission,
-    watchFolder,
-    stopWatchingFolder,
-    checkFolderNow,
+    driveImport: importState,
+    addFromDrive,
     access,
     removeDuplicatePhotos,
     updateGrowth,
     listFamily,
     inviteFamily,
     removeFamily,
-    requestSharedAccess,
+    openSharedBook,
   };
 
   return (

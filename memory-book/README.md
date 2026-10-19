@@ -72,16 +72,30 @@ then, so if a name below doesn't match exactly, look for the closest one.
    Google Drive files you use with this app"*). If it isn't listed, paste
    `https://www.googleapis.com/auth/drive.file` into *"Manually add scopes"*.
    Click **Update**, then **Save**.
-   > This is the main Drive permission. It can see the files the app creates itself — never the
-   > rest of your Drive.
-
-   **Also add** `https://www.googleapis.com/auth/drive.readonly` (*"See and download all your
-   Google Drive files"*). It's only requested if you switch on **Photos from Google Drive** on
-   the Write page — the app uses it to look for new photos in the one folder you choose.
+   > This is the **only** Drive permission Memory Book asks for. It can see the files the app
+   > creates itself, and photos or books you pick in Google's own picker window — never the
+   > rest of your Drive. (If you added `drive.readonly` or `drive` here earlier, remove them.)
 6. Under **Branding**, add the privacy policy link `https://memory-book-lovat.vercel.app/privacy`.
 7. In the left menu open **Audience**. Leave *Publishing status* on **Testing**. Under
    **Test users** click **Add users** and add your Gmail address — plus anyone in the family
    who should be able to sign in. **Save**.
+
+### 1c-2. Switch on Google's picker (for "Photos from Google Drive" and family)
+
+1. In the search bar type **Google Picker API**, open it and click **Enable**.
+2. Open **APIs & Services → Credentials → Create credentials → API key**. Copy the key.
+3. Click the new key to edit it:
+   - **Application restrictions**: *Websites*; add `https://memory-book-lovat.vercel.app/*`
+     (and later your own domain, plus `http://localhost:3000/*` for testing).
+   - **API restrictions**: *Restrict key* → tick only **Google Picker API**. **Save**.
+4. Find your **project number**: click the project name at the top → it's the number next to
+   *Project number* (not the project ID).
+5. In Vercel → your project → **Settings → Environment Variables** add:
+   - `NEXT_PUBLIC_GOOGLE_PICKER_API_KEY` = the API key from step 2
+   - `NEXT_PUBLIC_GOOGLE_CLOUD_PROJECT_NUMBER` = the project number from step 4
+
+   > These two are meant to be public (they appear in the web page), unlike the client secret.
+   > The restrictions in step 3 make the key useless on any other website.
 
 ### 1d. Create the keys ("OAuth client")
 
@@ -184,10 +198,13 @@ Memory Book – <child's name>/
 - **Family sharing.** In **Settings → Family**, invite someone by email as *can view* or
   *can add memories*. The app shares your book folder through Google Drive's own sharing, and
   Google emails them the invitation — nothing about your family is stored by Memory Book. They
-  sign in with that Google account and choose **"Open a book shared with me"**. While your Google
-  project is in *Testing* mode, also add their email as a test user (step 1c), and in Google
-  Cloud's **Data Access** add the scope `https://www.googleapis.com/auth/drive` too — it's only
-  requested from family members who can add memories.
+  sign in with that Google account; the book usually opens straight away. If it doesn't, they tap
+  **"Open a book shared with me"** and choose it once in Google's picker. Family never give the app
+  access to the rest of their Drive, and people who can add memories can't share the book onwards.
+  While your Google project is in *Testing* mode, also add their email as a test user (step 1c).
+- **Photos from Google Drive.** On the Write page, tap **Choose photos from Google Drive** and pick
+  photos in Google's window (it remembers the folder you used last). They're copied into the book,
+  resized and without location data, ready for your words. Photos already in the book are skipped.
 - **Install it like an app (free, no app store).** On Android (Chrome): open the site, tap
   **Install Memory Book** in Settings or on the first page, or the browser menu **⋮ → Install app**.
   On iPhone (Safari): **Share → Add to Home Screen**. On a computer (Chrome/Edge): the install

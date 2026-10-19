@@ -76,14 +76,6 @@ async function fetchSessionToken(): Promise<{ token: string; expires: number; sc
   };
 }
 
-export const DRIVE_READ_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
-
-/** Whether you've allowed the app to read photos in a folder you chose (needed for folder watching). */
-export async function canReadFolders(): Promise<boolean> {
-  await getAccessToken();
-  const granted = cachedToken?.scope.split(" ") ?? [];
-  return granted.includes(DRIVE_READ_SCOPE) || granted.includes("https://www.googleapis.com/auth/drive");
-}
 
 /** For tests and sign-out. */
 export function forgetAccessToken() {
@@ -181,6 +173,8 @@ export async function createFolder(name: string, parentId: string | null, appPro
       mimeType: "application/vnd.google-apps.folder",
       parents: parentId ? [parentId] : undefined,
       appProperties,
+      // Family who can add memories still can't share the book onwards.
+      writersCanShare: false,
     }),
   });
   return (await response.json()) as DriveFile;
@@ -205,7 +199,7 @@ export async function createFile(
   content: Blob,
   appProperties: Record<string, string> = {},
 ): Promise<DriveFile> {
-  const { body, contentType } = multipartBody({ name, parents: [parentId], appProperties }, content);
+  const { body, contentType } = multipartBody({ name, parents: [parentId], appProperties, writersCanShare: false }, content);
   const response = await driveFetch(`${UPLOAD}/files?uploadType=multipart&fields=${FILE_FIELDS}`, {
     method: "POST",
     headers: { "Content-Type": contentType },
@@ -214,13 +208,43 @@ export async function createFile(
   return (await response.json()) as DriveFile;
 }
 
-/** Replaces the contents of an existing file. */
-export async function updateFileContent(fileId: string, content: Blob): Promise<void> {
-  await driveFetch(`${UPLOAD}/files/${encodeURIComponent(fileId)}?uploadType=media`, {
+/** Replaces the contents of an existing file; returns the new version's revision ID. */
+export async function updateFileContent(fileId: string, content: Blob): Promise<string | undefined> {
+  const response = await driveFetch(`${UPLOAD}/files/${encodeURIComponent(fileId)}?uploadType=media&fields=headRevisionId`, {
     method: "PATCH",
     headers: { "Content-Type": content.type || "application/octet-stream" },
     body: content,
   });
+  return ((await response.json().catch(() => ({}))) as { headRevisionId?: string }).headRevisionId;
+}
+
+/* Versions of a file: used to notice when two people save at the same moment. */
+
+/** The ID of the file's current version. */
+export async function headRevision(fileId: string): Promise<string | undefined> {
+  const response = await driveFetch(`${API}/files/${encodeURIComponent(fileId)}?fields=headRevisionId`);
+  return ((await response.json()) as { headRevisionId?: string }).headRevisionId;
+}
+
+/** The contents of one exact version of a file. */
+export async function downloadRevision(fileId: string, revisionId: string): Promise<Blob> {
+  const response = await driveFetch(`${API}/files/${encodeURIComponent(fileId)}/revisions/${encodeURIComponent(revisionId)}?alt=media`);
+  return response.blob();
+}
+
+/** All kept version IDs of a file, oldest first. */
+export async function listRevisionIds(fileId: string): Promise<string[]> {
+  const ids: string[] = [];
+  let pageToken: string | undefined;
+  do {
+    const params = new URLSearchParams({ fields: "nextPageToken,revisions(id)", pageSize: "1000" });
+    if (pageToken) params.set("pageToken", pageToken);
+    const response = await driveFetch(`${API}/files/${encodeURIComponent(fileId)}/revisions?${params}`);
+    const body = (await response.json()) as { revisions?: { id: string }[]; nextPageToken?: string };
+    ids.push(...(body.revisions ?? []).map((r) => r.id));
+    pageToken = body.nextPageToken;
+  } while (pageToken);
+  return ids;
 }
 
 export async function downloadFile(fileId: string): Promise<Blob> {
@@ -228,7 +252,10 @@ export async function downloadFile(fileId: string): Promise<Blob> {
   return response.blob();
 }
 
-export async function updateMetadata(fileId: string, metadata: { name?: string; trashed?: boolean }) {
+export async function updateMetadata(
+  fileId: string,
+  metadata: { name?: string; trashed?: boolean; writersCanShare?: boolean; appProperties?: Record<string, string> },
+) {
   await driveFetch(`${API}/files/${encodeURIComponent(fileId)}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -240,7 +267,7 @@ export async function updateMetadata(fileId: string, metadata: { name?: string; 
 export const trashFile = (fileId: string) => updateMetadata(fileId, { trashed: true });
 
 /* ------------------------------------------------------------------ */
-/* Reading a folder you chose (needs the read-only permission)          */
+/* Photos you picked from your Drive                                   */
 /* ------------------------------------------------------------------ */
 
 export interface DriveImage {
@@ -272,28 +299,20 @@ async function listAll<T>(query: string, fields: string, orderBy = "createdTime"
   return items;
 }
 
-/** Every photo directly inside a folder, oldest first. */
-export function listImagesInFolder(folderId: string): Promise<DriveImage[]> {
-  return listAll<DriveImage>(
-    `${inFolderQuery(folderId)} and mimeType contains 'image/'`,
-    "id,name,mimeType,createdTime,imageMediaMetadata(time,width,height),appProperties",
+/** Details of one photo you picked in Google's picker (the app may read it now). */
+export async function getImageInfo(fileId: string): Promise<DriveImage> {
+  const response = await driveFetch(
+    `${API}/files/${encodeURIComponent(fileId)}?fields=id,name,mimeType,createdTime,imageMediaMetadata(time,width,height),appProperties`,
   );
+  return (await response.json()) as DriveImage;
 }
 
-/** Sub-folders of a folder ("root" = My Drive), A–Z. */
-export function listFolders(parentId: string): Promise<DriveFile[]> {
-  return listAll<DriveFile>(
-    `${inFolderQuery(parentId)} and mimeType = 'application/vnd.google-apps.folder'`,
-    FILE_FIELDS,
-    "name",
-  );
-}
+
 
 /* ------------------------------------------------------------------ */
 /* Sharing with family (Drive's own sharing — nothing stored by us)     */
 /* ------------------------------------------------------------------ */
 
-export const DRIVE_FULL_SCOPE = "https://www.googleapis.com/auth/drive";
 
 export interface DrivePermission {
   id: string;
@@ -337,4 +356,25 @@ export async function getFileAccess(fileId: string): Promise<FileAccess> {
     `${API}/files/${encodeURIComponent(fileId)}?fields=ownedByMe,capabilities(canEdit),owners(displayName,emailAddress)`,
   );
   return (await response.json()) as FileAccess;
+}
+
+/* ------------------------------------------------------------------ */
+/* Keeping the book private                                            */
+/* ------------------------------------------------------------------ */
+
+/** Sharing that reaches beyond named people: "anyone with the link" or a whole organisation. */
+export const isPublicPermission = (p: DrivePermission) => p.type === "anyone" || p.type === "domain";
+
+/** IDs of files in these folders that are shared beyond named people. */
+export function listPublicFiles(folderIds: string[]): Promise<{ id: string }[]> {
+  const parents = folderIds.map((id) => inFolderQuery(id)).join(" or ");
+  const visibility = ["anyoneWithLink", "anyoneCanFind", "domainWithLink", "domainCanFind"]
+    .map((v) => `visibility = '${v}'`)
+    .join(" or ");
+  return listAll<{ id: string }>(`(${parents}) and (${visibility})`, "id");
+}
+
+/** IDs of all files in a folder that you own. */
+export function listOwnedFiles(folderId: string): Promise<{ id: string }[]> {
+  return listAll<{ id: string }>(`${inFolderQuery(folderId)} and 'me' in owners`, "id");
 }

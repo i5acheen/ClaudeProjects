@@ -67,9 +67,14 @@ then, so if a name below doesn't match exactly, look for the closest one.
    Google Drive files you use with this app"*). If it isn't listed, paste
    `https://www.googleapis.com/auth/drive.file` into *"Manually add scopes"*.
    Click **Update**, then **Save**.
-   > This is the *only* Drive permission the app asks for. It can see the files it creates
-   > itself — never the rest of your Drive.
-6. In the left menu open **Audience**. Leave *Publishing status* on **Testing**. Under
+   > This is the main Drive permission. It can see the files the app creates itself — never the
+   > rest of your Drive.
+
+   **Also add** `https://www.googleapis.com/auth/drive.readonly` (*"See and download all your
+   Google Drive files"*). It's only requested if you switch on **Photos from Google Drive** on
+   the Write page — the app uses it to look for new photos in the one folder you choose.
+6. Under **Branding**, add the privacy policy link `https://memory-book-lovat.vercel.app/privacy`.
+7. In the left menu open **Audience**. Leave *Publishing status* on **Testing**. Under
    **Test users** click **Add users** and add your Gmail address — plus anyone in the family
    who should be able to sign in. **Save**.
 

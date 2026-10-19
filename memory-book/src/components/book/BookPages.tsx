@@ -8,6 +8,7 @@ import { Doodle } from "./Doodles";
 import { PhotoFrame, WashiTape } from "./PhotoFrame";
 import { usePhotoSrc } from "./PhotoSource";
 import { useFitText } from "./useFitText";
+import { usePageFormat } from "./PageFormatContext";
 
 /* ------------------------------------------------------------------ */
 /* Shared bits                                                         */
@@ -137,7 +138,7 @@ interface MemoryPageProps {
 }
 
 export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, pageNumber }: MemoryPageProps) {
-  const layout = layoutMemory(memory, pageNumber);
+  const layout = layoutMemory(memory, pageNumber, usePageFormat());
   const textRef = useFitText<HTMLDivElement>(text);
   const { top, bottom } = layout.doodles;
 

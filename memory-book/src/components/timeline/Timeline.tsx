@@ -31,6 +31,13 @@ export function Timeline({ journal, basePath }: { journal: Journal; basePath: st
           </div>
         </section>
       ))}
+      {groups.length > 0 && (
+        <p className="mt-6 text-center font-serif text-lg text-ink-soft">
+          <Link href={`${basePath}/export`} className="underline decoration-dotted underline-offset-4 hover:text-ink">
+            Download the book as a PDF
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

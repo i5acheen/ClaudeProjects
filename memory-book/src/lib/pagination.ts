@@ -1,4 +1,5 @@
 import type { Journal, Memory } from "./types";
+import { SCREEN_FORMAT, roominess, type PageFormat } from "./page-format";
 
 /**
  * Turns a journal into an ordered list of physical book pages.
@@ -53,15 +54,16 @@ export function sortMemories(memories: Memory[]): Memory[] {
   return [...memories].sort((a, b) => a.date.localeCompare(b.date) || a.createdAt.localeCompare(b.createdAt));
 }
 
-export function paginate(journal: Journal): BookPage[] {
+export function paginate(journal: Journal, format: PageFormat = SCREEN_FORMAT): BookPage[] {
+  const fit = roominess(format);
   const pages: BookPage[] = [{ kind: "cover" }, { kind: "endpaper", side: "front" }, { kind: "title" }];
 
   for (const memory of sortMemories(journal.memories)) {
-    const capacity = CAPACITY_BY_PHOTOS[Math.min(memory.photos.length, 4)];
+    const capacity = Math.round(CAPACITY_BY_PHOTOS[Math.min(memory.photos.length, 4)] * fit);
     let [first, rest] = splitText(memory.text, capacity);
     pages.push({ kind: "memory", memory, text: first, continued: false, hasMore: rest.length > 0 });
     while (rest) {
-      [first, rest] = splitText(rest, CONTINUATION_CAPACITY);
+      [first, rest] = splitText(rest, Math.round(CONTINUATION_CAPACITY * fit));
       pages.push({ kind: "memory", memory, text: first, continued: true, hasMore: rest.length > 0 });
     }
   }

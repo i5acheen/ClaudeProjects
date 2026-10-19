@@ -1,5 +1,6 @@
 import type { Memory } from "./types";
 import { seededRandom } from "./random";
+import { SCREEN_FORMAT, roominess, type PageFormat } from "./page-format";
 import {
   DOODLES,
   TAPE_COLORS,
@@ -89,10 +90,10 @@ function photoAreaHeight(memory: Memory): number {
 
 const INK_COLORS = ["var(--ink-rose)", "var(--ink-sage)", "var(--ink-honey)", "var(--ink-sky)", "var(--ink-terracotta)"];
 
-export function layoutMemory(memory: Memory, part = 0): MemoryLayout {
+export function layoutMemory(memory: Memory, part = 0, format: PageFormat = SCREEN_FORMAT): MemoryLayout {
   const rng = seededRandom(memory.id);
   const doodleRng = seededRandom(`${memory.id}:${part}`);
-  const areaHeight = photoAreaHeight(memory);
+  const areaHeight = photoAreaHeight(memory) * Math.min(roominess(format), 1.12);
   const slots = slotsFor(memory);
 
   const primary: FrameStyle = rng.pick(["polaroid", "tape", "corners"] as const);

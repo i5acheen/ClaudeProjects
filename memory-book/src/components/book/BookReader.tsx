@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Journal } from "@/lib/types";
+import type { Journal, Memory } from "@/lib/types";
 import { memoryPageIndex, pageNumber, paginate } from "@/lib/pagination";
 import { BookPageView } from "./BookPages";
 import { InkFilters } from "./Doodles";
@@ -12,9 +13,14 @@ interface BookReaderProps {
   journal: Journal;
   /** Open the book at this memory (from the timeline). */
   startMemoryId?: string;
+  /** Where the "Edit" button for a memory goes (not shown in the demo). */
+  editHref?: (memoryId: string) => string;
 }
 
-export function BookReader({ journal, startMemoryId }: BookReaderProps) {
+/** Pages further than this from the open spread are drawn blank until you get near them, so big books stay fast. */
+const RENDER_WINDOW = 4;
+
+export function BookReader({ journal, startMemoryId, editHref }: BookReaderProps) {
   const pages = useMemo(() => paginate(journal), [journal]);
   const startPage = useMemo(
     () => (startMemoryId ? (memoryPageIndex(pages).get(startMemoryId) ?? 0) : 0),
@@ -36,13 +42,26 @@ export function BookReader({ journal, startMemoryId }: BookReaderProps) {
   }, []);
 
   const renderPage = useCallback(
-    (i: number) => <BookPageView page={pages[i]} index={i} settings={journal.settings} />,
-    [pages, journal.settings],
+    (i: number) =>
+      Math.abs(i - current) <= RENDER_WINDOW || i === 0 || i === last ? (
+        <BookPageView page={pages[i]} index={i} settings={journal.settings} />
+      ) : (
+        <div className="paper" />
+      ),
+    [pages, journal.settings, current, last],
   );
 
   const isHard = useCallback((i: number) => i === 0 || i === pages.length - 1, [pages.length]);
 
   const position = describePosition(current, last, orientation);
+
+  // The memories on screen right now, for the "Edit" buttons.
+  const visible = orientation === "landscape" ? [current, current + 1] : [current];
+  const visibleMemories: Memory[] = [];
+  for (const i of editHref ? visible : []) {
+    const page = pages[i];
+    if (page?.kind === "memory" && !visibleMemories.some((m) => m.id === page.memory.id)) visibleMemories.push(page.memory);
+  }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -88,6 +107,21 @@ export function BookReader({ journal, startMemoryId }: BookReaderProps) {
         <button className="round-button sm:hidden" onClick={() => bookRef.current?.next()} disabled={current >= last} aria-label="Next page">
           <ChevronRight />
         </button>
+        {editHref &&
+          visibleMemories.map((m) => (
+            <Link
+              key={m.id}
+              href={editHref(m.id)}
+              className="chrome-button !h-9 max-w-44 !px-3 !text-sm"
+              title={`Edit “${m.title || "this memory"}”`}
+            >
+              <span aria-hidden>✎</span>
+              <span className="truncate">
+                <span className="sm:hidden">Edit</span>
+                <span className="hidden sm:inline">{m.title || "Edit"}</span>
+              </span>
+            </Link>
+          ))}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { BookSettings, GrowthEntry, Journal, Memory, PhotoRef, Tag } from "@/lib/types";
 import type { BookAccess, BookSummary, FamilyMember, FamilyRole, JournalRepository } from "@/lib/repository";
 import { DriveRepository } from "@/lib/drive/drive-repository";
-import { DriveError, OfflineError, SignedOutError, getAccessToken, getImageInfo, isStorageFull } from "@/lib/drive/client";
+import { DriveError, NoDrivePermissionError, OfflineError, SignedOutError, getAccessToken, getImageInfo, isStorageFull } from "@/lib/drive/client";
 import { pickFromDrive, type PickedFile } from "@/lib/drive/picker";
 import { fromDrive, importPhotos, type IncomingPhoto } from "@/lib/folder-import";
 import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
@@ -48,7 +48,7 @@ interface PendingSave {
   savedAt: string;
 }
 
-type Status = "loading" | "setup" | "ready" | "error" | "signed-out";
+type Status = "loading" | "setup" | "ready" | "error" | "signed-out" | "needs-permission";
 
 interface JournalContextValue {
   status: Status;
@@ -137,7 +137,7 @@ const newId = () =>
 export function friendlyError(error: unknown): string {
   if (isStorageFull(error))
     return "Your Google Drive is full. Your memory is kept safely on this device and will upload by itself once there's space — free some up in Google Drive, or get more at one.google.com.";
-  if (error instanceof SignedOutError || error instanceof OfflineError) return error.message;
+  if (error instanceof SignedOutError || error instanceof OfflineError || error instanceof NoDrivePermissionError) return error.message;
   if (error instanceof DriveError) {
     if (error.status === 404) return "Something in this book can't be found in Google Drive any more — it may have been deleted or unshared.";
     if (error.status === 403) return "Google Drive didn't allow this. If it's someone else's book, you may only be able to view it.";
@@ -219,6 +219,7 @@ export function JournalProvider({
   );
 
   const handleError = useCallback((e: unknown) => {
+    if (e instanceof NoDrivePermissionError) setStatus("needs-permission");
     if (e instanceof SignedOutError) {
       setStatus("signed-out");
       // Signed out (e.g. the sign-in expired): don't leave the book readable on this device.
@@ -265,7 +266,15 @@ export function JournalProvider({
       }
     } catch (e) {
       // Offline (or Drive hiccup) but we have a copy from last time: keep reading.
-      setStatus((current) => (current === "ready" ? "ready" : e instanceof SignedOutError ? "signed-out" : "error"));
+      setStatus((current) =>
+        e instanceof NoDrivePermissionError
+          ? "needs-permission"
+          : current === "ready"
+            ? "ready"
+            : e instanceof SignedOutError
+              ? "signed-out"
+              : "error",
+      );
       handleError(e);
     }
   }, [repository, commit, handleError]);

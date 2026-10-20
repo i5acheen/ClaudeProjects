@@ -13,6 +13,18 @@ export class SignedOutError extends Error {
   }
 }
 
+/** Signed in, but the Google Drive permission wasn't given (e.g. the box was unticked on Google's screen). */
+export class NoDrivePermissionError extends Error {
+  name = "NoDrivePermissionError";
+  constructor() {
+    super("Memory Book needs your permission to keep the book in your Google Drive.");
+  }
+}
+
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+/** Google's reasons for "this sign-in doesn't include that permission". */
+const MISSING_SCOPE = new Set(["insufficientPermissions", "ACCESS_TOKEN_SCOPE_INSUFFICIENT", "insufficientScopes"]);
+
 export class OfflineError extends Error {
   name = "OfflineError";
   constructor() {
@@ -80,6 +92,8 @@ async function fetchSessionToken(): Promise<{ token: string; expires: number; sc
     throw new OfflineError();
   }
   if (!session?.accessToken || session.error) throw new SignedOutError();
+  // Google tells us which permissions were given; without Drive the app can't keep the book.
+  if (session.scope && !session.scope.split(" ").includes(DRIVE_SCOPE)) throw new NoDrivePermissionError();
   return {
     token: session.accessToken,
     expires: session.accessTokenExpires ?? Date.now() + 5 * 60_000,
@@ -139,6 +153,8 @@ export async function driveFetch(url: string, init: RequestInit = {}): Promise<R
         // not JSON
       }
       if (response.status === 401) throw new SignedOutError();
+      if (response.status === 403 && (MISSING_SCOPE.has(reason ?? "") || /insufficient (authentication )?scopes?/i.test(message)))
+        throw new NoDrivePermissionError();
       // Google sometimes reports "slow down" as a 403: wait and try again, like a 429.
       if (response.status === 403 && reason && RATE_LIMITED.has(reason) && attempt < 4) {
         await sleep(backoff(attempt));

@@ -1091,6 +1091,27 @@ try {
     await anon.close();
   }
 
+  // Signed in, but the Google Drive box was left unticked: the app asks for that permission again.
+  {
+    const noDrive = await encode({
+      token: { name: 'Test Dad', email: 'dad-nodrive@example.com', sub: '9', accessToken: 'fake-access-token', accessTokenExpires: Date.now() + 3600e3, refreshToken: 'r', scope: 'openid email profile' },
+      secret, salt: 'authjs.session-token',
+    });
+    const c = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    await c.addCookies([{ name: 'authjs.session-token', value: noDrive, url: B }]);
+    await c.route('https://www.googleapis.com/**', handleDrive);
+    const p = await c.newPage();
+    await p.goto(`${B}/book`);
+    await p.waitForSelector('text=One more permission, please', { timeout: 20000 });
+    check(await p.locator('button:has-text("Give permission")').count() === 1 && await p.locator('text=/specific Google Drive files/').count() === 1,
+      'no Drive permission: explains it and offers to ask Google again');
+    await p.screenshot({ path: `${OUT}/23b-needs-permission.png` });
+    await p.click('button:has-text("Give permission")');
+    await p.waitForURL((u) => !u.pathname.startsWith('/book'), { timeout: 15000 }).catch(() => undefined);
+    check(!new URL(p.url()).pathname.startsWith('/book'), 'no Drive permission: "Give permission" goes back to Google sign-in');
+    await c.close();
+  }
+
   // D22: download everything
   {
     await page.goto(`${B}/book/settings`);

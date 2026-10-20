@@ -3328,3 +3328,21 @@ body:has(.home)::before {
 .back-button svg {
   stroke-width: 2.2;
 }
+
+/* Steps for Google's permission screen. */
+.permission-hint {
+  margin-top: 1.1rem;
+  padding: 1rem 1.15rem;
+  border-radius: 1.25rem;
+  text-align: left;
+  font-size: 1rem;
+  background: var(--ui-sky);
+}
+.permission-hint ol {
+  margin-top: 0.4rem;
+  padding-left: 1.25rem;
+  list-style: decimal;
+}
+.permission-hint li + li {
+  margin-top: 0.3rem;
+}

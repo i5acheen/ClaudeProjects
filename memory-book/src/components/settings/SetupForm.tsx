@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useJournal } from "@/components/journal/JournalProvider";
-import { LoadingBook } from "@/components/journal/BookGate";
+import { DrivePermissionNotice, LoadingBook } from "@/components/journal/BookGate";
 import {
   DEFAULT_COVER,
   DEFAULT_HANDWRITING,
@@ -44,6 +44,7 @@ export function SetupForm() {
   }, [status, router, another, working]);
 
   if (status === "loading" || (status === "ready" && !another)) return <LoadingBook />;
+  if (status === "needs-permission") return <DrivePermissionNotice />;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

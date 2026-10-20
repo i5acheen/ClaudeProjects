@@ -43,6 +43,8 @@ export function BookGate({ children }: { children: (journal: Journal) => React.R
     );
   }
 
+  if (status === "needs-permission") return <DrivePermissionNotice />;
+
   if (status === "error") {
     return (
       <Notice title="We couldn’t open your book">
@@ -55,6 +57,50 @@ export function BookGate({ children }: { children: (journal: Journal) => React.R
   }
 
   return <LoadingBook />;
+}
+
+/**
+ * Signed in, but Google Drive permission wasn't given (the box was unticked,
+ * or Google's screen was closed). Explain why it's needed and ask again.
+ */
+export function DrivePermissionNotice() {
+  const [asking, setAsking] = useState(false);
+  return (
+    <Notice title="One more permission, please">
+      <p>
+        Memory Book keeps your book in a folder in <b className="text-ink">your own Google Drive</b>, so it needs Google&rsquo;s
+        permission to do that. It looks like that permission wasn&rsquo;t given.
+      </p>
+      <div className="permission-hint">
+        <p className="font-semibold text-ink">On Google&rsquo;s screen:</p>
+        <ol>
+          <li>Choose your Google account.</li>
+          <li>
+            Make sure the box next to <b className="text-ink">&ldquo;See, edit, create and delete only the specific Google Drive files
+            you use with this app&rdquo;</b> is ticked.
+          </li>
+          <li>Tap Continue.</li>
+        </ol>
+        <p className="mt-2 text-sm">The app can only see the files it makes for your book, and photos you choose. Nothing else in your Drive.</p>
+      </div>
+      <div className="mt-6 flex flex-col items-center gap-3">
+        <button
+          type="button"
+          className="chrome-button chrome-button--primary !h-12 !px-7"
+          disabled={asking}
+          onClick={() => {
+            setAsking(true);
+            void signIn("google", { redirectTo: window.location.pathname });
+          }}
+        >
+          {asking ? "Opening Google…" : "Give permission"}
+        </button>
+        <button type="button" className="chrome-button" onClick={() => signOut({ redirectTo: "/" })}>
+          Use a different account
+        </button>
+      </div>
+    </Notice>
+  );
 }
 
 export function LoadingBook({ message = "Opening your book…" }: { message?: string }) {
@@ -71,8 +117,9 @@ export function LoadingBook({ message = "Opening your book…" }: { message?: st
 
 export function Notice({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-[70dvh] items-center justify-center px-4">
-      <div className="sheet max-w-md text-center">
+    // Centred, but scrolls (never cut off) when it's taller than a small phone screen.
+    <div className="flex min-h-[70dvh] flex-1 flex-col overflow-y-auto px-4 py-6">
+      <div className="sheet m-auto max-w-md text-center">
         <h1 className="ui-h1">{title}</h1>
         <div className="mt-3 text-lg text-ink-soft">{children}</div>
       </div>

@@ -4,28 +4,24 @@ import { Caveat, Cormorant_Garamond, Courier_Prime, Indie_Flower, Kalam, Lora, P
 import "./globals.css";
 import { ServiceWorker } from "@/components/app/ServiceWorker";
 
-const caveat = Caveat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-caveat",
-});
+// Variable fonts (no fixed weights): one file each covers every weight, so pages load fewer files.
+const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat" });
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
 });
 
 // The app around the book: a clean, modern sans.
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-jakarta" });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
 
-// Alternative handwriting fonts, chosen in Settings.
-const kalam = Kalam({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-kalam" });
-const patrick = Patrick_Hand({ subsets: ["latin"], weight: "400", variable: "--font-patrick" });
-const indie = Indie_Flower({ subsets: ["latin"], weight: "400", variable: "--font-indie" });
-const courier = Courier_Prime({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-courier" });
-const lora = Lora({ subsets: ["latin"], weight: ["400", "600"], style: ["normal", "italic"], variable: "--font-lora" });
+// Alternative handwriting fonts, chosen in Settings: not preloaded, fetched only when used.
+const kalam = Kalam({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-kalam", preload: false });
+const patrick = Patrick_Hand({ subsets: ["latin"], weight: "400", variable: "--font-patrick", preload: false });
+const indie = Indie_Flower({ subsets: ["latin"], weight: "400", variable: "--font-indie", preload: false });
+const courier = Courier_Prime({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-courier", preload: false });
+const lora = Lora({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-lora", preload: false });
 
 export const metadata: Metadata = {
   title: "Memory Book",

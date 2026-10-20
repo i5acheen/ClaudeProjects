@@ -51,7 +51,8 @@ function Squiggle({ color = "var(--ink-rose)" }: { color?: string }) {
 /* Covers                                                              */
 /* ------------------------------------------------------------------ */
 
-export function CoverPage({ settings }: { settings: BookSettings }) {
+/** `priority`: the cover is the first thing people see (e.g. on the home page), so its photo loads first. */
+export function CoverPage({ settings, priority = false }: { settings: BookSettings; priority?: boolean }) {
   const coverSrc = usePhotoSrc(settings.coverPhoto?.fileId);
   const theme = coverTheme(settings);
   const subtitle = settings.coverSubtitle?.trim() || `for ${settings.childName} · ${shortDate(settings.dateOfBirth)}`;
@@ -100,7 +101,7 @@ export function CoverPage({ settings }: { settings: BookSettings }) {
         <h1 className="cover__title">{settings.bookTitle}</h1>
         <div className="cover__window">
           {coverSrc ? (
-            <img src={coverSrc} alt="" draggable={false} style={imgStyle} />
+            <img src={coverSrc} alt="" draggable={false} style={imgStyle} fetchPriority={priority ? "high" : undefined} />
           ) : (
             <Doodle kind="heart" color="var(--cover-ink)" size="20cqw" />
           )}

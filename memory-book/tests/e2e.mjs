@@ -959,11 +959,13 @@ try {
     check(!!bookFiles().index && journal().memories.map(m => m.id).sort().join() === before, 'M-3: a deleted book.json is taken back out of the bin');
 
     // book.json gone for good: rebuilt from the backup, memories all still there; no second book made.
+    const settingsBefore = journal().settings;
     files.delete(bookFiles().index.id);
     await page.goto(`${B}/book`);
     await page.waitForSelector('text=/rebuilt from the backup/', { timeout: 20000 });
     const roots = [...files.values()].filter(f => live(f) && f.owner === 'mum@example.com' && f.appProperties?.memoryBook === 'root');
     check(roots.length === 1 && journal().settings.childName === 'Asha Rose' && journal().memories.map(m => m.id).sort().join() === before, 'M-3: a lost book.json is rebuilt from the backup, nothing lost');
+    check(!!journal().settings.coverPhoto && journal().settings.bookTitle === settingsBefore.bookTitle && journal().settings.coverTheme === settingsBefore.coverTheme, 'M-3: the rebuilt book keeps its latest details (cover, title, style)');
 
     // A memory deleted by someone: brought back from the backup in Settings.
     snapshots().forEach(f => { f.createdTime = new Date(Date.now() - 8 * 86400e3).toISOString(); });

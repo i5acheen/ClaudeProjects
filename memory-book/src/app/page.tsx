@@ -30,12 +30,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <section className="mx-auto flex max-w-5xl flex-col items-center gap-10 md:flex-row md:gap-16">
         <Link
           href="/demo"
-          aria-label="Open the demo book"
+          title="Look inside a book"
           className="block w-[min(68vw,300px)] shrink-0 -rotate-2 drop-shadow-[0_18px_22px_rgba(90,60,30,0.28)] transition-transform duration-500 hover:rotate-0"
         >
           <div className="aspect-[3/4] w-full [container-type:size]">
-            <CoverPage settings={demoJournal.settings} />
+            <CoverPage settings={demoJournal.settings} priority />
           </div>
+          <span className="sr-only">Look inside a demo book</span>
         </Link>
 
         <div className="max-w-md text-center md:text-left">

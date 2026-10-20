@@ -13,7 +13,7 @@
   --color-paper: #fffbf4;
   --color-ink: #3a2c25;
   --color-ink-soft: #6f5a4c;
-  --color-ink-faint: #a8968a;
+  --color-ink-faint: #7f6e63;
   --color-rose: #d0705c;
   --color-accent: #d0705c;
 }
@@ -24,11 +24,12 @@
   --paper-warm: #f6eddf;
   --ink: #3a2c25;
   --ink-soft: #6f5a4c;
-  --ink-faint: #a8968a;
+  --ink-faint: #7f6e63;
 
   /* App accent (buttons, links) — warm coral. */
   --accent: #d0705c;
   --accent-dark: #b85a47;
+  --accent-strong: #b5533f;
   --accent-soft: #fbe5de;
 
   --ink-rose: #c97f78;
@@ -1571,12 +1572,13 @@ body {
   box-shadow: 0 1px 3px rgba(90, 60, 30, 0.12);
 }
 .chrome-button--primary {
-  background: var(--accent);
+  /* A deeper coral, so white text is easy to read (WCAG AA). */
+  background: var(--accent-strong);
   color: #fff;
   box-shadow: 0 1px 2px rgba(150, 60, 40, 0.2), 0 8px 20px -8px rgba(208, 112, 92, 0.7);
 }
 .chrome-button--primary:hover {
-  background: var(--accent-dark);
+  background: #9c4534;
   color: #fff;
 }
 .chrome-button:active {

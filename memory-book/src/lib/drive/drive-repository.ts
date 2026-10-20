@@ -232,7 +232,11 @@ export class DriveRepository implements JournalRepository {
         if (result.theirs) {
           state.index = { ...state.index, revision: result.written, data: parseIndex(await readJson(state.index.fileId, result.theirs)) };
           conflicts++;
-        } else state.index = { ...state.index, revision: result.written, data: plan.index };
+        } else {
+          state.index = { ...state.index, revision: result.written, data: plan.index };
+          // An always-current spare copy of the book's details, used if book.json is ever lost.
+          await this.saveDetailsCopy(location, plan.index).catch(() => undefined);
+        }
       }
 
       for (const year of new Set([...state.years.keys(), ...plan.years.keys()])) {
@@ -599,6 +603,13 @@ export class DriveRepository implements JournalRepository {
     return file.id;
   }
 
+  private async saveDetailsCopy(location: Location, index: IndexContent) {
+    const folder = await this.backupsFolder(location);
+    const existing = (await listFolderFiles(folder)).find((f) => f.appProperties?.[KEY] === "details");
+    if (existing) await updateFileContent(existing.id, jsonBlob(index));
+    else await createFile("book-details.json", folder, jsonBlob(index), { [KEY]: "details" });
+  }
+
   /**
    * book.json is gone and isn't in the bin: make a new one from the latest backup
    * (or, failing that, from the folder's name), keeping every memory file there is.
@@ -608,12 +619,17 @@ export class DriveRepository implements JournalRepository {
     const snapshots = backups ? (await listFolderFiles(backups.id)).filter((f) => f.appProperties?.[KEY] === "snapshot") : [];
     const latest = snapshots.at(-1);
     const backup = latest ? normaliseJournal(await readJson(latest.id).catch(() => ({}))) : null;
+    // The spare copy of the book's details is newer than the weekly backup, so prefer it.
+    const detailsFile = backups ? (await listFolderFiles(backups.id)).find((f) => f.appProperties?.[KEY] === "details") : undefined;
+    const details = detailsFile ? parseIndex(await readJson(detailsFile.id).catch(() => ({}))) : null;
     const hasYears = children.some((f) => f.appProperties?.[KEY] === "year");
 
     // The folder's name always carries the child's current name.
     const childName = folder.name.replace(/^Memory Book – /, "");
-    const settings = backup ? { ...backup.settings, childName } : { ...normaliseJournal({}).settings, childName, bookTitle: "Memory Book" };
-    const journal: Journal = { version: 1, settings, growth: backup?.growth, memories: hasYears ? [] : (backup?.memories ?? []) };
+    const known = details?.settings ?? backup?.settings;
+    const settings = known ? { ...known, childName } : { ...normaliseJournal({}).settings, childName, bookTitle: "Memory Book" };
+    const growth = details?.growth ?? backup?.growth;
+    const journal: Journal = { version: 1, settings, growth, memories: hasYears ? [] : (backup?.memories ?? []) };
     const { index, years } = split(journal);
     for (const [year, memories] of years) {
       await createFile(yearFileName(year), folder.id, jsonBlob({ version: FORMAT, year, memories }), { [KEY]: "year", [YEAR_KEY]: year });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Journal } from "@/lib/types";
 import { paginate, type BookPage } from "@/lib/pagination";
 import { PRINT_FORMATS, SCREEN_FORMAT, type PageFormat } from "@/lib/page-format";
@@ -66,7 +66,10 @@ export function ExportBook({ journal }: { journal: Journal }) {
   const [formatId, setFormatId] = useState<PageFormat["id"]>("a4");
   const [includeCovers, setIncludeCovers] = useState(true);
   const [preparing, setPreparing] = useState(false);
-  const [loaded, setLoaded] = useState({ done: 0, total: 0 });
+  const [loaded, setLoaded] = useState({ done: 0, total: 0, failed: 0 });
+  /** A photo has been loading for a long time: offer to save without waiting. */
+  const [stalled, setStalled] = useState(false);
+  const saveAnyway = useRef<() => void>(() => undefined);
 
   const format = PRINT_FORMATS.find((f) => f.id === formatId)!;
   // A square page is too short for the 3:4 layout, so inner pages keep their
@@ -94,18 +97,30 @@ export function ExportBook({ journal }: { journal: Journal }) {
   useEffect(() => {
     if (!preparing) return;
     let cancelled = false;
+    let skip = false;
+    saveAnyway.current = () => (skip = true);
+    setStalled(false);
     const poll = async () => {
       await document.fonts.ready;
-      while (!cancelled) {
+      let lastDone = -1;
+      let lastProgress = Date.now();
+      while (!cancelled && !skip) {
         const images = Array.from(document.querySelectorAll<HTMLImageElement>(".print-pages img"));
-        const done = images.filter((img) => img.complete && img.naturalWidth > 0).length;
-        setLoaded({ done, total: expectedPhotos });
+        // A photo that couldn't load counts as done (it's left out), so a big book never waits forever.
+        const failed = images.filter((img) => img.complete && img.naturalWidth === 0).length;
+        const done = images.filter((img) => img.complete).length;
+        setLoaded({ done: Math.min(done, expectedPhotos), total: expectedPhotos, failed });
         if (done >= expectedPhotos) break;
+        if (done !== lastDone) {
+          lastDone = done;
+          lastProgress = Date.now();
+        } else if (Date.now() - lastProgress > 20_000) setStalled(true);
         await new Promise((r) => setTimeout(r, 300));
       }
       if (cancelled) return;
       await new Promise((r) => setTimeout(r, 300));
       setPreparing(false);
+      setStalled(false);
       window.print();
     };
     void poll();
@@ -198,6 +213,39 @@ export function ExportBook({ journal }: { journal: Journal }) {
               {memoryCount} {memoryCount === 1 ? "memory" : "memories"} · {pages.length} pages
             </span>
           </div>
+          {preparing && loaded.total > 0 && (
+            <div className="mt-3">
+              <div
+                className="h-2 overflow-hidden rounded-full bg-ink/10"
+                role="progressbar"
+                aria-label="Preparing photos for the PDF"
+                aria-valuemin={0}
+                aria-valuemax={loaded.total}
+                aria-valuenow={loaded.done}
+              >
+                <div className="h-full rounded-full bg-[var(--accent)] transition-[width]" style={{ width: `${(loaded.done / loaded.total) * 100}%` }} />
+              </div>
+              {stalled && (
+                <p className="mt-2 text-sm text-ink-soft">
+                  A few photos are slow to load.{" "}
+                  <button type="button" className="text-ink underline decoration-dotted underline-offset-4" onClick={() => saveAnyway.current()}>
+                    Save without waiting
+                  </button>
+                </p>
+              )}
+            </div>
+          )}
+          {!preparing && loaded.failed > 0 && (
+            <p className="mt-2 text-sm text-[var(--ink-terracotta)]">
+              {loaded.failed} photo{loaded.failed === 1 ? "" : "s"} couldn&rsquo;t be loaded and {loaded.failed === 1 ? "was" : "were"} left
+              out. Check your connection and try again.
+            </p>
+          )}
+          {pages.length > 160 && (
+            <p className="mt-2 text-sm text-ink-soft">
+              That&rsquo;s a big book — saving it can take a few minutes. Saving one year at a time is quicker.
+            </p>
+          )}
 
           <details className="mt-6 text-base text-ink-soft">
             <summary className="cursor-pointer text-ink">How to save the PDF</summary>

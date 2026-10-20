@@ -83,6 +83,10 @@ interface Location {
   /** Older photos have had "editors can share" switched off. */
   sharingLocked?: boolean;
   backupsFolderId?: string;
+  /** One of several books for the same child: its folder's name carries the book's title too. */
+  titled?: boolean;
+  /** Your own book from before folders recorded the child's name and the title. */
+  needsLabels?: boolean;
 }
 
 /** How often a safety copy of the whole book is kept, and how many. */
@@ -106,7 +110,24 @@ interface BookState {
 /** Marks a book whose older files have been locked against re-sharing. */
 const SHARING_LOCKED = "memoryBookSharingLocked";
 
-export const folderName = (childName: string) => `Memory Book – ${childName.trim() || "my child"}`;
+/** Folder properties naming the child and the book (folder names alone can't tell two books for one child apart). */
+const CHILD_KEY = "memoryBookChild";
+const TITLE_KEY = "memoryBookTitle";
+/** Set on a second (third…) book for the same child. */
+const TITLED_KEY = "memoryBookTitled";
+
+export const folderName = (childName: string, bookTitle?: string) =>
+  `Memory Book – ${childName.trim() || "my child"}${bookTitle?.trim() ? ` – ${bookTitle.trim()}` : ""}`;
+
+/** What a book folder says about itself (Drive limits a property to about 100 characters). */
+const folderLabels = (settings: { childName: string; bookTitle: string }) => ({
+  [CHILD_KEY]: settings.childName.slice(0, 60),
+  [TITLE_KEY]: settings.bookTitle.slice(0, 60),
+});
+
+/** The child's name: from the folder's properties, or (older books) its name. */
+const folderChild = (f: { name: string; appProperties?: Record<string, string> }) =>
+  f.appProperties?.[CHILD_KEY] || f.name.replace(/^Memory Book – /, "");
 
 const jsonBlob = (value: unknown) => new Blob([toJson(value)], { type: "application/json" });
 
@@ -166,9 +187,10 @@ export class DriveRepository implements JournalRepository {
   async listBooks(): Promise<BookSummary[]> {
     const own = await findFiles(`${appPropertyQuery(KEY, "root")} and 'me' in owners`);
     const shared = await findFiles(`${appPropertyQuery(KEY, "root")} and sharedWithMe`).catch(() => []);
-    const summary = (f: { id: string; name: string }, isShared: boolean) => ({
+    const summary = (f: { id: string; name: string; appProperties?: Record<string, string> }, isShared: boolean) => ({
       id: f.id,
-      childName: f.name.replace(/^Memory Book – /, ""),
+      childName: folderChild(f),
+      title: f.appProperties?.[TITLE_KEY] || undefined,
       shared: isShared,
     });
     return [...own.map((f) => summary(f, false)), ...shared.map((f) => summary(f, true))];
@@ -189,21 +211,31 @@ export class DriveRepository implements JournalRepository {
     const state = await this.readState(location);
     let journal = assemble(state.index.data, [...state.years.values()].map((p) => p.data));
     if (location.legacyFileId) journal = await this.catchUpLegacy(location, journal, state.index.data.legacyRevision);
+    if (location.needsLabels) {
+      // So the book switcher can show this book's title.
+      location.needsLabels = false;
+      await updateMetadata(location.folderId, { appProperties: folderLabels(journal.settings) }).catch(() => undefined);
+    }
     return journal;
   }
 
-  async create(settings: BookSettings, options: { another?: boolean } = {}): Promise<Journal> {
-    // If a book already exists (e.g. set up on another device), use it — unless this is a book for another child.
-    if (!options.another) {
+  async create(settings: BookSettings, options: { another?: boolean; sameChild?: boolean } = {}): Promise<Journal> {
+    // If a book already exists (e.g. set up on another device), use it — unless this is an extra book.
+    if (!options.another && !options.sameChild) {
       const existing = await this.load();
       if (existing) return existing;
     }
 
-    const folder = await createFolder(folderName(settings.childName), null, { [KEY]: "root" });
+    const titled = !!options.sameChild;
+    const folder = await createFolder(folderName(settings.childName, titled ? settings.bookTitle : undefined), null, {
+      [KEY]: "root",
+      ...folderLabels(settings),
+      ...(titled ? { [TITLED_KEY]: "1" } : {}),
+    });
     const photos = await createFolder("photos", folder.id, { [KEY]: "photos" });
     const journal = emptyJournal(settings);
     const index = await createFile("book.json", folder.id, jsonBlob(split(journal).index), { [KEY]: "index" });
-    this.location = { folderId: folder.id, photosFolderId: photos.id, journalFileId: index.id, format: "split" };
+    this.location = { folderId: folder.id, photosFolderId: photos.id, journalFileId: index.id, format: "split", titled };
     this.preferredBook = folder.id;
     return journal;
   }
@@ -264,8 +296,12 @@ export class DriveRepository implements JournalRepository {
       if (conflicts === 0) break;
     }
 
-    if (next.settings.childName !== before.settings.childName) {
-      await updateMetadata(location.folderId, { name: folderName(next.settings.childName) }).catch(() => undefined);
+    const { childName, bookTitle } = next.settings;
+    if (childName !== before.settings.childName || bookTitle !== before.settings.bookTitle) {
+      await updateMetadata(location.folderId, {
+        name: folderName(childName, location.titled ? bookTitle : undefined),
+        appProperties: folderLabels(next.settings),
+      }).catch(() => undefined);
     }
     return next;
   }
@@ -614,7 +650,7 @@ export class DriveRepository implements JournalRepository {
    * book.json is gone and isn't in the bin: make a new one from the latest backup
    * (or, failing that, from the folder's name), keeping every memory file there is.
    */
-  private async rebuildIndex(folder: { id: string; name: string }, children: DriveChild[]): Promise<DriveChild> {
+  private async rebuildIndex(folder: { id: string; name: string; appProperties?: Record<string, string> }, children: DriveChild[]): Promise<DriveChild> {
     const backups = children.find((f) => f.appProperties?.[KEY] === "backups");
     const snapshots = backups ? (await listFolderFiles(backups.id)).filter((f) => f.appProperties?.[KEY] === "snapshot") : [];
     const latest = snapshots.at(-1);
@@ -624,8 +660,8 @@ export class DriveRepository implements JournalRepository {
     const details = detailsFile ? parseIndex(await readJson(detailsFile.id).catch(() => ({}))) : null;
     const hasYears = children.some((f) => f.appProperties?.[KEY] === "year");
 
-    // The folder's name always carries the child's current name.
-    const childName = folder.name.replace(/^Memory Book – /, "");
+    // The folder always carries the child's current name.
+    const childName = folderChild(folder);
     const known = details?.settings ?? backup?.settings;
     const settings = known ? { ...known, childName } : { ...normaliseJournal({}).settings, childName, bookTitle: "Memory Book" };
     const growth = details?.growth ?? backup?.growth;
@@ -694,6 +730,8 @@ export class DriveRepository implements JournalRepository {
       legacyFileId: index ? legacyFile?.id : undefined,
       backupsFolderId: children.find((f) => f.appProperties?.[KEY] === "backups")?.id,
       sharingLocked: folder.appProperties?.[SHARING_LOCKED] === "1",
+      titled: folder.appProperties?.[TITLED_KEY] === "1",
+      needsLabels: !!own && !folder.appProperties?.[TITLE_KEY],
     };
     return this.location;
   }

@@ -245,11 +245,19 @@ export function SettingsForm({ journal }: { journal: Journal }) {
             .
           </p>
         )}
+        {access.isOwner && (
+          <p>
+            <Link href="/book/setup?another=1&same=1" className="text-ink underline decoration-dotted underline-offset-4">
+              + Start a new book for {settings.childName || "your child"}
+            </Link>{" "}
+            — a fresh book for a new year, chapter or trip. This one stays as it is.
+          </p>
+        )}
         <p>
           <Link href="/book/setup?another=1" className="text-ink underline decoration-dotted underline-offset-4">
             + Start a book for another child
           </Link>{" "}
-          — each child gets their own book; switch between them from the top bar.
+          — each child gets their own book; switch between books from the top bar.
         </p>
         {access.canEdit && <DuplicateCleaner />}
         <button type="button" className="chrome-button field-button" onClick={handleSignOut}>

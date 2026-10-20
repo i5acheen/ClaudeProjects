@@ -64,8 +64,8 @@ interface JournalContextValue {
   pendingCount: number;
   syncing: boolean;
   folderUrl: string | null;
-  /** Creates the book in Drive (`another`: an extra book, e.g. for a second child). */
-  setupBook(settings: BookSettings, options?: { another?: boolean }): Promise<void>;
+  /** Creates the book in Drive (`another`: a book for a second child; `sameChild`: another book for this child). */
+  setupBook(settings: BookSettings, options?: { another?: boolean; sameChild?: boolean }): Promise<void>;
   /** Saves locally first, then uploads. Resolves with "saved" or "queued" (kept on this device). */
   saveMemory(input: MemoryInput, onProgress?: (message: string) => void): Promise<"saved" | "queued">;
   deleteMemory(id: string): Promise<void>;
@@ -417,7 +417,7 @@ export function JournalProvider({
   );
 
   const setupBook = useCallback(
-    async (settings: BookSettings, options?: { another?: boolean }) => {
+    async (settings: BookSettings, options?: { another?: boolean; sameChild?: boolean }) => {
       const created = await repository.create(settings, options);
       rememberBook(repository.currentBookId());
       setFolderUrl(repository.folderUrl());

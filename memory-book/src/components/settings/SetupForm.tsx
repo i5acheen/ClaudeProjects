@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useJournal } from "@/components/journal/JournalProvider";
 import { DrivePermissionNotice, LoadingBook } from "@/components/journal/BookGate";
 import {
@@ -21,7 +21,9 @@ import { ConsentNotice, consentNow, recordConsent } from "@/components/app/Conse
 /** First sign-in: name the child, and the book's folder is created in Google Drive. */
 export function SetupForm() {
   const router = useRouter();
-  const { status, setupBook, openSharedBook } = useJournal();
+  // (Read from the router: after an in-app link, the address bar may not show the new address yet.)
+  const params = useSearchParams();
+  const { status, journal, setupBook, openSharedBook } = useJournal();
   const [childName, setChildName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [bookTitle, setBookTitle] = useState("");
@@ -36,14 +38,34 @@ export function SetupForm() {
   const [agreed, setAgreed] = useState(false);
 
   // "Add another child": a new book even though one already exists.
-  const [another] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("another"));
+  const another = params.has("another");
+  // "New book for <child>": another book for the child whose book is open (a new volume, say).
+  const wantsSame = params.has("same");
+  // (With no book yet, there's no child to make another book for: an ordinary first book.)
+  const sameChild = wantsSame && status !== "setup";
+  const extra = another || sameChild;
+
+  // A new book for the same child starts with their details and the current book's look.
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (!sameChild || !journal || prefilled.current) return;
+    prefilled.current = true;
+    const s = journal.settings;
+    setChildName(s.childName);
+    setDateOfBirth(s.dateOfBirth);
+    if (s.coverTheme) setTheme(s.coverTheme);
+    setColor(s.coverColor);
+    if (s.paper) setPaper(s.paper);
+    if (s.handwriting) setHand(s.handwriting);
+  }, [sameChild, journal]);
+  const sameChildName = sameChild ? (journal?.settings.childName ?? "") : "";
 
   // Already have a book (e.g. set up on another device)? Go straight to it.
   useEffect(() => {
-    if (status === "ready" && !another && !working) router.replace("/book/write");
-  }, [status, router, another, working]);
+    if (status === "ready" && !extra && !working) router.replace("/book/write");
+  }, [status, router, extra, working]);
 
-  if (status === "loading" || (status === "ready" && !another)) return <LoadingBook />;
+  if (status === "loading" || (status === "ready" && !extra) || (sameChild && !journal)) return <LoadingBook />;
   if (status === "needs-permission") return <DrivePermissionNotice />;
 
   async function submit(e: React.FormEvent) {
@@ -59,14 +81,14 @@ export function SetupForm() {
       await setupBook({
         childName: childName.trim(),
         dateOfBirth,
-        bookTitle: bookTitle.trim() || `Little Moments`,
+        bookTitle: bookTitle.trim() || "Little Moments",
         dedication: dedication.trim() || undefined,
         coverTheme: theme,
         coverColor: color,
         paper,
         handwriting: hand,
         consent: consentNow(),
-      }, { another });
+      }, { another: another && !sameChild, sameChild });
       void recordConsent();
       router.replace("/book/write?welcome=1");
     } catch (err) {
@@ -86,15 +108,28 @@ export function SetupForm() {
             <ChevronLeft />
           </button>
         ) : (
-          another && <BackButton fallback="/book/write" className="mb-3" />
+          extra && <BackButton fallback="/book/write" className="mb-3" />
         )}
 {step === "details" ? (
           <>
-        <h1 className="ui-h1">{another ? "A book for another child" : "Let’s start your book"}</h1>
-        <p className="mt-2 text-lg text-ink-soft">
-          We&rsquo;ll make a folder called <em>Memory Book – {childName.trim() || "…"}</em> in your Google Drive. Your
-          photos and words are kept there, and nowhere else.
-        </p>
+        <h1 className="ui-h1">
+          {sameChild ? `A new book for ${sameChildName}` : another ? "A book for another child" : "Let’s start your book"}
+        </h1>
+        {sameChild ? (
+          <p className="mt-2 text-lg text-ink-soft">
+            A fresh, empty book — for a new year, a new chapter, or a special trip. {sameChildName}&rsquo;s other book stays
+            just as it is, and you can switch between them from the top bar. It gets its own folder in your Google Drive:{" "}
+            <em>Memory Book – {sameChildName} – {bookTitle.trim() || "…"}</em>.
+          </p>
+        ) : (
+          <p className="mt-2 text-lg text-ink-soft">
+            We&rsquo;ll make a folder called <em>Memory Book – {childName.trim() || "…"}</em> in your Google Drive. Your
+            photos and words are kept there, and nowhere else.
+          </p>
+        )}
+
+        {!sameChild && (
+          <>
 
         <label className="field-label mt-7" htmlFor="child-name">
           Your child&rsquo;s name
@@ -120,18 +155,26 @@ export function SetupForm() {
           onChange={(e) => setDateOfBirth(e.target.value)}
           required
         />
+          </>
+        )}
 
         <label className="field-label mt-6" htmlFor="book-title">
-          Book title <span className="font-normal normal-case italic tracking-normal text-ink-faint">(optional)</span>
+          Book title{" "}
+          {!sameChild && <span className="font-normal normal-case italic tracking-normal text-ink-faint">(optional)</span>}
         </label>
         <input
           id="book-title"
           className="text-field"
-          placeholder="Little Moments"
+          placeholder={sameChild ? `${sameChildName}’s Toddler Years` : "Little Moments"}
           value={bookTitle}
           onChange={(e) => setBookTitle(e.target.value)}
           maxLength={40}
+          required={sameChild}
+          autoFocus={sameChild}
         />
+        {sameChild && (
+          <p className="mt-1.5 text-sm text-ink-faint">The title tells this book apart from {sameChildName}&rsquo;s other books.</p>
+        )}
 
         <label className="field-label mt-6" htmlFor="dedication">
           A note for the first page <span className="font-normal normal-case italic tracking-normal text-ink-faint">(optional)</span>
@@ -173,7 +216,7 @@ export function SetupForm() {
           </>
         )}
 
-        {step === "details" && !another && (
+        {step === "details" && !extra && (
           <div className="mt-8 rounded-xl border border-dashed border-[rgba(120,90,70,0.25)] bg-white/60 p-4 text-ink-soft">
             <p className="text-lg text-ink">Has someone shared their Memory Book with you?</p>
             <p className="mt-1 text-sm">

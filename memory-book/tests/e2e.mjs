@@ -1185,10 +1185,36 @@ try {
     check(roots.length === 2 && roots.includes('Memory Book – Kabir'), 'C19: a separate book for the second child');
     await page.click('.book-switcher');
     await shot('24-book-switcher');
-    await page.click('.write-menu__item:has-text("Asha Rose")');
+    await page.click('button.write-menu__item:has-text("Asha Rose")');
     await page.waitForSelector('text=Write a new memory');
     await page.goto(`${B}/book/settings`);
     check((await page.inputValue('#child-name')) === 'Asha Rose', 'C19: switching back opens the first child’s book');
+  }
+
+  // A second book for the same child, told apart by its title
+  {
+    const firstTitle = await page.inputValue('#book-title');
+    await page.click('text=+ Start a new book for Asha Rose');
+    await page.waitForSelector('h1:has-text("A new book for Asha Rose")');
+    check((await page.locator('#child-name').count()) === 0, 'same child: name and birthday are not asked again');
+    await page.fill('#book-title', 'Toddler Years');
+    await page.check('input[name=consent]');
+    await page.click('button[type=submit]');
+    await page.waitForSelector('text=Choose a style');
+    await page.click('button[type=submit]');
+    await page.waitForURL(`${B}/book/write**`);
+    const roots = [...files.values()].filter(f => live(f) && f.owner === 'mum@example.com' && f.appProperties?.memoryBook === 'root');
+    const toddler = roots.find(f => f.name === 'Memory Book – Asha Rose – Toddler Years');
+    check(roots.length === 3 && toddler?.appProperties?.memoryBookChild === 'Asha Rose', 'same child: a third book, its folder named with the title');
+    await page.goto(`${B}/book/settings`);
+    check((await page.inputValue('#child-name')) === 'Asha Rose' && (await page.inputValue('#dob')) !== '', 'same child: the new book has the child’s details');
+    await page.click('.book-switcher');
+    await page.waitForSelector(`button.write-menu__item:has-text("${firstTitle}")`);
+    await shot('24b-book-switcher-same-child');
+    check(await page.locator('button.write-menu__item:has-text("Toddler Years")').count() === 1, 'same child: the switcher names each book by its title');
+    await page.click(`button.write-menu__item:has-text("${firstTitle}")`);
+    await page.waitForFunction((t) => document.querySelector('#book-title')?.value === t, firstTitle, { timeout: 15000 }).catch(() => undefined);
+    check((await page.inputValue('#book-title')) === firstTitle, 'same child: switching back opens the first book');
   }
 
   // 9. Desktop book view with cover

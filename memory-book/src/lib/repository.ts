@@ -8,8 +8,11 @@ import type { BookSettings, Journal, Memory } from "./types";
 export interface JournalRepository {
   /** Loads the book, or returns null when this account has no book yet. */
   load(): Promise<Journal | null>;
-  /** Creates a new, empty book (`another`: an extra book, e.g. for a second child). */
-  create(settings: BookSettings, options?: { another?: boolean }): Promise<Journal>;
+  /**
+   * Creates a new, empty book (`another`: an extra book for a second child;
+   * `sameChild`: another book for the same child, told apart by its title).
+   */
+  create(settings: BookSettings, options?: { another?: boolean; sameChild?: boolean }): Promise<Journal>;
   /** Every book this account can open: its own (one per child) and ones shared with it. */
   listBooks(): Promise<BookSummary[]>;
   /** Which book to open (null: the first of your own). */
@@ -55,8 +58,10 @@ export type FamilyRole = "reader" | "writer";
 
 export interface BookSummary {
   id: string;
-  /** The child's name, from the folder's name. */
+  /** The child's name. */
   childName: string;
+  /** The book's title (books made before titles were recorded don't have one here). */
+  title?: string;
   shared: boolean;
 }
 

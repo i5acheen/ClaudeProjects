@@ -947,6 +947,27 @@ try {
     check(journal().memories.some(m => m.id === gone.id), 'A4: a deleted memory is brought back from a backup');
   }
 
+  // B13/B14: health check for uptime monitoring; error reports keep nothing personal
+  {
+    const health = await fetch(`${B}/api/health`);
+    const body = await health.json();
+    check(health.ok && body.ok === true && health.headers.get('cache-control')?.includes('no-store') && !JSON.stringify(body).includes('@'), 'B14: /api/health answers, with nothing private');
+    const log = `${APP}/tests/output/server.log`;
+    const marker = `probe-${Date.now()}`;
+    const res = await fetch(`${B}/api/client-error`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-forwarded-for': marker }, body: JSON.stringify({
+      kind: 'TypeError', message: `Couldn't save "Asha's first giggle" for mum@example.com file 1AbCdEfGhIjKlMnOpQrStUvWx ${marker}`,
+      path: `${B}/book/edit/drive-1AbCdEfGhIjKlMnOpQrStUvWx?memory=secret`, frames: 'at x (http://localhost:3100/_next/static/chunks/app.js:1:234)\nat y (chrome-extension://abc/evil.js:1:1)',
+    }) });
+    check(res.status === 204, 'B13: browser error report accepted');
+    let burst = 0;
+    for (let i = 0; i < 25; i++) burst += (await fetch(`${B}/api/client-error`, { method: 'POST', headers: { 'x-forwarded-for': 'flood' }, body: '{}' })).status === 429 ? 1 : 0;
+    check(burst > 0, 'B13: error reports are rate limited');
+    if (fs.existsSync(log)) {
+      const line = fs.readFileSync(log, 'utf8').split('\n').find(l => l.includes('client-error') && l.includes('[email]'));
+      check(!!line && !/Asha|mum@example|1AbCdEfGhIj|secret|evil/.test(line) && line.includes('/book/edit/[id]'), 'B13: error report scrubbed of names, emails, IDs and links');
+    }
+  }
+
   // H-2: a public link added outside the app is switched off when the owner opens the book
   const leaked = photosLive()[0];
   leaked.permissions = [...(leaked.permissions || []), { id: 'p-public', type: 'anyone', role: 'reader' }];

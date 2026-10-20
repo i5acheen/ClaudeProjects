@@ -7,18 +7,21 @@ const API = "https://www.googleapis.com/drive/v3";
 const UPLOAD = "https://www.googleapis.com/upload/drive/v3";
 
 export class SignedOutError extends Error {
+  name = "SignedOutError";
   constructor() {
     super("Your Google sign-in has expired. Please sign in again.");
   }
 }
 
 export class OfflineError extends Error {
+  name = "OfflineError";
   constructor() {
     super("You seem to be offline. Your memory is saved on this device and will upload when you're back online.");
   }
 }
 
 export class DriveError extends Error {
+  name = "DriveError";
   constructor(
     public status: number,
     message: string,

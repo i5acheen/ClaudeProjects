@@ -2514,3 +2514,66 @@ body.is-reading {
   color: var(--accent-hover);
   background: var(--sq-blush);
 }
+
+/* ------------------------------------------------------------------ */
+/* Home page: one soft-coloured panel up top, clean cream below        */
+/* ------------------------------------------------------------------ */
+
+.home {
+  /* The hero colour. Alternatives: data-hero="blush" / "sky" on <main>. */
+  --hero-bg: #d6eadc;
+  --hero-glow: #f3d9cf;
+}
+.home[data-hero="blush"] {
+  --hero-bg: #f6dcd3;
+  --hero-glow: #fbeee6;
+}
+.home[data-hero="sky"] {
+  --hero-bg: #dbe4f3;
+  --hero-glow: #f6dce4;
+}
+/* The squares ribbon is for the app; the home page stays simple. */
+body:has(.home)::before {
+  display: none;
+}
+.hero-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 3rem 1.5rem 2.5rem;
+  border-radius: 2rem;
+  background: var(--hero-bg);
+}
+/* One soft circle of a second colour behind the book. */
+.hero-panel::before {
+  content: "";
+  position: absolute;
+  width: 34rem;
+  height: 34rem;
+  right: -8rem;
+  top: -6rem;
+  border-radius: 999px;
+  background: var(--hero-glow);
+  opacity: 0.85;
+}
+@media (max-width: 767px) {
+  .hero-panel::before {
+    width: 24rem;
+    height: 24rem;
+    right: 50%;
+    top: auto;
+    bottom: -7rem;
+    transform: translateX(50%);
+  }
+}
+@media (min-width: 768px) {
+  .hero-panel {
+    padding: 4.5rem 4rem;
+    border-radius: 2.5rem;
+  }
+}
+.home .eyebrow-pill {
+  background: rgba(255, 251, 242, 0.75);
+}
+.home .privacy-panel::before {
+  display: none;
+}

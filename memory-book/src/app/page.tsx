@@ -25,13 +25,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   }
 
   return (
-    <main className="px-5 py-10 sm:py-14">
+    <main className="home px-3 py-3 sm:px-5 sm:py-5">
       <InkFilters />
-      <section className="mx-auto flex max-w-5xl flex-col items-center gap-10 md:flex-row md:gap-16">
+      <section className="hero-panel mx-auto flex max-w-6xl flex-col items-center gap-10 md:flex-row md:gap-14">
         <Link
           href="/demo"
           title="Look inside a book"
-          className="block w-[min(68vw,300px)] shrink-0 -rotate-2 drop-shadow-[0_18px_22px_rgba(90,60,30,0.28)] transition-transform duration-500 hover:rotate-0"
+          className="relative z-[1] order-last block w-[min(62vw,300px)] shrink-0 rotate-3 drop-shadow-[0_18px_22px_rgba(90,60,30,0.28)] transition-transform duration-500 hover:rotate-0"
         >
           <div className="aspect-[3/4] w-full [container-type:size]">
             <CoverPage settings={demoJournal.settings} priority />
@@ -39,12 +39,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <span className="sr-only">Look inside a demo book</span>
         </Link>
 
-        <div className="max-w-xl text-center md:text-left">
+        <div className="relative z-[1] max-w-xl flex-1 text-center md:text-left">
           <p className="eyebrow-pill">
             <span aria-hidden className="eyebrow-pill__dot" /> Baby journal · private by design
           </p>
-          <h1 className="ui-h1 mt-4 !text-[2.6rem] !leading-[1.05] sm:!text-6xl">
-            A keepsake journal of your <span className="accent-text">baby&rsquo;s first years</span>
+          <h1 className="ui-h1 mt-5 !text-[2.6rem] !leading-[1.04] sm:!text-6xl">
+            A keepsake journal of your baby&rsquo;s first years
           </h1>
           <p className="mt-4 text-lg text-ink-soft">
             Add photos and a few lines from your phone. Memory Book lays them out like a hand-made book you can flip through,
@@ -79,7 +79,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>
       </section>
 
-      <section className="mx-auto mt-20 grid max-w-5xl gap-4 sm:grid-cols-3" aria-label="How it works">
+      <section className="mx-auto mt-16 grid max-w-5xl gap-4 px-2 sm:mt-20 sm:grid-cols-3" aria-label="How it works">
         {FEATURES.map(({ icon, title, text, tile }, i) => (
           <div key={title} className="feature-card">
             <span className="feature-card__icon" style={{ "--tile": `var(--sq-${tile})` } as React.CSSProperties} aria-hidden>

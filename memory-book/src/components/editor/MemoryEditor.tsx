@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { BackButton } from "@/components/ui/BackButton";
+import { CakeIcon, CameraIcon, CloseIcon, ImagesIcon, StarIcon } from "@/components/ui/Icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { TAGS, type Journal, type Memory, type Tag } from "@/lib/types";
@@ -63,6 +64,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
   const [text, setText] = useState(memory?.text ?? "");
   const [tags, setTags] = useState<Tag[]>(memory?.tags ?? []);
   const [processing, setProcessing] = useState(0);
+  const [dragging, setDragging] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -268,7 +270,39 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
           </h1>
 
           {/* Photos */}
-          <section className="mt-5" aria-label="Photos">
+          <section
+            className={`mt-5 ${dragging ? "photos--dragging" : ""}`}
+            aria-label="Photos"
+            onDragOver={(e) => {
+              if (!e.dataTransfer.types.includes("Files")) return;
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              void addFiles(e.dataTransfer.files);
+            }}
+          >
+            {photos.length + processing === 0 ? (
+              // No photos yet: one friendly place to add them (or drop them, on a computer).
+              <div className="photo-drop">
+                <span className="photo-drop__icon" aria-hidden>
+                  <ImagesIcon />
+                </span>
+                <p className="photo-drop__title">Add photos</p>
+                <p className="photo-drop__hint">Up to {MAX_PHOTOS} · the date is read from the photo</p>
+                <div className="photo-drop__actions">
+                  <button type="button" className="chrome-button field-button" onClick={() => cameraInput.current?.click()}>
+                    <CameraIcon /> Take a photo
+                  </button>
+                  <button type="button" className="chrome-button field-button" onClick={() => galleryInput.current?.click()}>
+                    <ImagesIcon /> Choose photos
+                  </button>
+                </div>
+              </div>
+            ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {photos.map((photo, i) => (
                 <PhotoTile
@@ -280,21 +314,23 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
                 />
               ))}
               {Array.from({ length: processing }, (_, i) => (
-                <div key={`processing-${i}`} className="editor-photo grid place-items-center font-hand text-lg text-ink-soft">
-                  preparing…
+                <div key={`processing-${i}`} className="photo-add-tile photo-add-tile--busy" role="status">
+                  <span className="photo-spinner" aria-hidden />
+                  <span className="text-sm">Preparing…</span>
                 </div>
               ))}
+              {/* Room for more: camera or gallery. */}
+              {photos.length + processing < MAX_PHOTOS && (
+                <div className="photo-add-tile">
+                  <button type="button" onClick={() => cameraInput.current?.click()}>
+                    <CameraIcon /> Camera
+                  </button>
+                  <button type="button" onClick={() => galleryInput.current?.click()}>
+                    <ImagesIcon /> Gallery
+                  </button>
+                </div>
+              )}
             </div>
-            {photos.length + processing < MAX_PHOTOS && (
-              <div className="mt-4 flex flex-wrap gap-3">
-                <button type="button" className="chrome-button field-button" onClick={() => cameraInput.current?.click()}>
-                  <span aria-hidden>📷</span> Take a photo
-                </button>
-                <button type="button" className="chrome-button field-button" onClick={() => galleryInput.current?.click()}>
-                  <span aria-hidden>🖼</span> Choose photos
-                </button>
-                <span className="self-center text-sm text-ink-faint italic">up to {MAX_PHOTOS}</span>
-              </div>
             )}
             <input
               ref={cameraInput}
@@ -339,9 +375,11 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
               required
             />
             {date && (
-              <p className="mt-2 text-lg text-[var(--ink-terracotta)] italic">
-                {ageStamp(journal.settings.dateOfBirth, date)}
-                {dateFromPhoto && <span className="ml-2 text-sm text-ink-faint not-italic">· taken from the photo</span>}
+              <p className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="age-chip">
+                  <CakeIcon className="size-4" /> {ageStamp(journal.settings.dateOfBirth, date)}
+                </span>
+                {dateFromPhoto && <span className="text-sm text-ink-faint">Date taken from the photo</span>}
               </p>
             )}
           </section>
@@ -474,11 +512,11 @@ function PhotoTile({
         {src && <img src={src} alt="" className="h-full w-full object-cover" />}
       </div>
       <button type="button" className="editor-photo__remove" onClick={onRemove} aria-label="Remove photo">
-        ×
+        <CloseIcon className="size-4" />
       </button>
       {onMoveFirst && (
         <button type="button" className="editor-photo__first" onClick={onMoveFirst} title="Make this the main photo">
-          ★ main
+          <StarIcon className="size-3.5" /> Main
         </button>
       )}
     </div>

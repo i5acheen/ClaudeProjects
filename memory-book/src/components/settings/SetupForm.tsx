@@ -15,7 +15,7 @@ import {
 } from "@/lib/book-style";
 import { StylePickers } from "./StylePickers";
 import { BackButton } from "@/components/ui/BackButton";
-import { ChevronLeft } from "@/components/ui/Icons";
+import { ChevronLeft, LockIcon } from "@/components/ui/Icons";
 import { ConsentNotice, consentNow, recordConsent } from "@/components/app/ConsentNotice";
 
 /** First sign-in: name the child, and the book's folder is created in Google Drive. */
@@ -199,7 +199,7 @@ export function SetupForm() {
         )}
 
         <p className="mt-6 text-sm text-ink-faint italic">
-          🔒 These details are saved only in your Google Drive (in <code>journal.json</code>), never on our side.
+          <LockIcon className="mr-1 inline size-4 align-[-3px]" />These details are saved only in your Google Drive (in <code>journal.json</code>), never on our side.
         </p>
 
         {error && <p className="mt-4 text-[var(--ink-terracotta)]">{error}</p>}

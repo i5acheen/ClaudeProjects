@@ -753,10 +753,10 @@ try {
   await page.goto(`${B}/book`);
   await page.waitForSelector('.stf__block');
   await page.waitForTimeout(1200);
-  for (let i = 0; i < 12 && !(await page.locator('button:has-text("✎ month page")').count()); i++) {
+  for (let i = 0; i < 12 && !(await page.locator('button:has-text("month page")').count()); i++) {
     await page.keyboard.press('ArrowRight'); await page.waitForTimeout(1100);
   }
-  await page.click('button:has-text("✎ month page")');
+  await page.click('button:has-text("month page")');
   await page.waitForSelector('[aria-label="Edit the month page"]');
   await page.fill('#month-title', 'Sunshine month');
   await page.fill('#month-note', 'You smiled at everyone');
@@ -770,7 +770,7 @@ try {
   await page.waitForTimeout(1200);
   check(await page.locator('.month-page__title:has-text("Sunshine month")').count() > 0, 'new heading shown in the book');
   await shot('22-month-renamed');
-  await page.click('button:has-text("✎ month page")');
+  await page.click('button:has-text("month page")');
   await page.click('text=Remove all month pages');
   await page.waitForSelector('[aria-label="Edit the month page"]', { state: 'detached' });
   for (let i = 0; i < 40 && journal().settings.monthPages !== false; i++) await page.waitForTimeout(250);

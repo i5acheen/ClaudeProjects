@@ -12,6 +12,7 @@ import { DriveFolderCard, DriveRefreshButton } from "./DriveFolderCard";
 import { WaitingCard } from "./WaitingCard";
 import { DuplicateCleaner } from "./DuplicateCleaner";
 import { GrowthCard } from "./GrowthCard";
+import { ArrowRightIcon, SparklesIcon } from "@/components/ui/Icons";
 import { GuidedChooser, GuidedSheet } from "@/components/book/GuidedSheet";
 import type { GuidedTemplate } from "@/lib/guided";
 
@@ -62,9 +63,9 @@ export function WriteScreen({ journal }: { journal: Journal }) {
       <div className="mx-auto max-w-xl space-y-8 px-3 pt-2 sm:px-4">
         {welcome && (
           <div className="sheet !py-5 text-center" role="status">
-            <p className="text-3xl" aria-hidden>
-              🎉
-            </p>
+            <span className="welcome-badge" aria-hidden>
+              <SparklesIcon />
+            </span>
             <h1 className="ui-h2 mt-1">{settings.childName ? `${settings.childName}’s book is ready` : "Your book is ready"}</h1>
             <p className="mt-1 text-ink-soft">
               Add your first memory below — a photo and a few lines is perfect. It&rsquo;s saved in your Google Drive.
@@ -118,7 +119,7 @@ export function WriteScreen({ journal }: { journal: Journal }) {
 
         <p className="text-center text-lg text-ink-soft">
           <Link href="/book" className="underline decoration-dotted underline-offset-4 hover:text-ink">
-            Open the journal →
+            Open the journal <ArrowRightIcon className="inline size-4 align-[-2px]" />
           </Link>
         </p>
       </div>

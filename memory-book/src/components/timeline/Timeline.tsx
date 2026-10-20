@@ -8,6 +8,7 @@ import { sortMemories } from "@/lib/pagination";
 import { seededRandom } from "@/lib/random";
 import { usePhotoSrc } from "@/components/book/PhotoSource";
 import { GUIDED_TEMPLATES, isGuidedTemplate } from "@/lib/guided";
+import { MailIcon, PenIcon } from "@/components/ui/Icons";
 
 type Filter = "all" | "photos" | "letters" | Tag;
 
@@ -113,12 +114,14 @@ function TimelineCard({ memory, href }: { memory: Memory; href: string }) {
           </div>
         ) : sealed || (memory.kind === "letter" && !thumb) ? (
           <div className="grid h-full place-items-center text-5xl" aria-label={sealed ? "Sealed letter" : "Letter"}>
-            {sealed ? "💌" : "✉️"}
+            <MailIcon className="size-12 text-ink-faint" />
           </div>
         ) : thumb ? (
           <img src={thumb} alt="" className="h-full w-full object-cover saturate-[.92] sepia-[.07]" loading="lazy" />
         ) : (
-          <div className="grid h-full place-items-center font-hand text-4xl text-ink-faint">✎</div>
+          <div className="grid h-full place-items-center text-ink-faint">
+            <PenIcon className="size-10" />
+          </div>
         )}
         {!sealed && memory.photos.length > 1 && (
           <span className="absolute right-1.5 bottom-1.5 rounded-full bg-black/35 px-2 py-0.5 text-xs text-white">

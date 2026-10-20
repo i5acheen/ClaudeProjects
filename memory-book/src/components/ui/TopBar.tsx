@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { BookSwitcher } from "./BookSwitcher";
 import { BackButton } from "./BackButton";
-import { BookIcon, GearIcon, GridIcon, PenIcon, PlusIcon } from "./Icons";
+import { BookIcon, GearIcon, GridIcon, LogoMark, PenIcon, PlusIcon } from "./Icons";
 import { useOptionalJournal } from "@/components/journal/JournalProvider";
 
 interface TopBarProps {
@@ -39,7 +39,7 @@ export function TopBar({ title, basePath, active, demo, canWrite: canWriteProp }
             href={demo ? "/" : canWrite ? `${basePath}/write` : basePath}
             className="flex min-w-0 items-center gap-2.5 text-[0.95rem] font-semibold tracking-tight text-ink hover:opacity-80"
           >
-            <img src="/icons/icon-192.png" alt="" className="size-8 shrink-0 rounded-[0.6rem] shadow-sm" />
+            <LogoMark className="size-8 shrink-0 drop-shadow-sm" />
             <span className="truncate">{title}</span>
             {demo && (
               <span className="rounded-full bg-ink/5 px-2 py-0.5 text-[0.7rem] font-semibold tracking-wide text-ink-soft uppercase">

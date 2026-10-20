@@ -8,7 +8,7 @@ const base = {
   viewBox: "0 0 24 24",
   fill: "none",
   stroke: "currentColor",
-  strokeWidth: 1.6,
+  strokeWidth: 1.9,
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
   "aria-hidden": true,
@@ -92,3 +92,109 @@ export const MoonIcon = ({ className }: IconProps) => (
     <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />
   </svg>
 );
+
+export const CameraIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.4-2h5l1.4 2h1.6A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z" />
+    <circle cx="12" cy="12.5" r="3.5" />
+  </svg>
+);
+
+export const ImagesIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <rect x="3.5" y="5" width="14" height="13" rx="2.5" />
+    <path d="M7 5V4.5A1.5 1.5 0 0 1 8.5 3h10A2 2 0 0 1 20.5 5v10a1.5 1.5 0 0 1-1.5 1.5H17.5" />
+    <circle cx="8.5" cy="9.5" r="1.4" />
+    <path d="M3.5 15.5l4-3.5 3.5 3 2.5-2 4 3.5" />
+  </svg>
+);
+
+export const RefreshIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M20 11.5A8 8 0 0 0 6 6.5L4 8.5" />
+    <path d="M4 4v4.5h4.5" />
+    <path d="M4 12.5a8 8 0 0 0 14 5l2-2" />
+    <path d="M20 20v-4.5h-4.5" />
+  </svg>
+);
+
+export const CloudUpIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M7 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9a4.75 4.75 0 0 1-.5 9.5" />
+    <path d="M12 12.5v7M9 15l3-3 3 3" />
+  </svg>
+);
+
+export const MailIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" />
+    <path d="M4.5 7.5l7.5 5.5 7.5-5.5" />
+  </svg>
+);
+
+export const PaletteIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 2-1 1.6-2.1-.5-1.3.3-2.4 1.7-2.4H17a3.5 3.5 0 0 0 3.5-3.5c0-5-3.8-9-8.5-9z" />
+    <circle cx="7.8" cy="11" r="1.2" />
+    <circle cx="10.5" cy="7.5" r="1.2" />
+    <circle cx="15" cy="8" r="1.2" />
+  </svg>
+);
+
+export const SparklesIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z" />
+    <path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" />
+  </svg>
+);
+
+export const StarIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M12 4l2.4 5 5.4.6-4 3.7 1.1 5.4L12 16l-4.9 2.7 1.1-5.4-4-3.7 5.4-.6z" />
+  </svg>
+);
+
+export const LockIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <rect x="5" y="10.5" width="14" height="9.5" rx="2.5" />
+    <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+  </svg>
+);
+
+export const CheckIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M5 12.5l4.5 4.5L19 7.5" />
+  </svg>
+);
+
+export const ArrowRightIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </svg>
+);
+
+export const CakeIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M4.5 20.5h15M5.5 20.5v-6a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6" />
+    <path d="M5.5 16c1.2 1 2.3 1 3.3 0s2.1-1 3.2 0 2.1 1 3.2 0 2.1-1 3.3 0" />
+    <path d="M12 12.5V9M12 6.5c-.8-.8-.8-1.7 0-3 .8 1.3.8 2.2 0 3z" />
+  </svg>
+);
+
+/** Memory Book's mark: an open book with a little heart, on a sky-to-sunshine tile. */
+export function LogoMark({ className = "size-8" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <defs>
+        <linearGradient id="logo-tile" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#8fd0f5" />
+          <stop offset="1" stopColor="#b9a8f0" />
+        </linearGradient>
+      </defs>
+      <rect width="48" height="48" rx="14" fill="url(#logo-tile)" />
+      <path d="M24 15c-3.6-2.4-8.2-3-13-2.2v20.4c4.8-.8 9.4-.2 13 2.3 3.6-2.5 8.2-3.1 13-2.3V12.8c-4.8-.8-9.4-.2-13 2.2z" fill="#fff" />
+      <path d="M24 15v20.5" stroke="#b9a8f0" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M30.6 18.4a2.1 2.1 0 0 0-3.1.4 2.1 2.1 0 0 0-3.1-.4c-.9.8-.8 2.2.1 3.1l3 2.8 3-2.8c.9-.9 1-2.3.1-3.1z" fill="#ffcd3c" transform="translate(-0.5 1)" />
+    </svg>
+  );
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LogoMark } from "@/components/ui/Icons";
 
 interface InstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -60,7 +61,7 @@ export function InstallApp({ className = "" }: { className?: string }) {
 
   return (
     <div className={`install-app ${className}`}>
-      <img src="/icons/icon-192.png" alt="" className="size-12 shrink-0 rounded-xl shadow-sm" />
+      <LogoMark className="size-12 shrink-0" />
       <div className="min-w-0 flex-1 text-ink-soft">
         <p className="ui-h3">Keep it on your home screen</p>
         <p className="text-sm">Opens like an app, full screen, with its own icon. Free, no app store needed.</p>

@@ -6,7 +6,7 @@ import { memoryPageIndex, pageNumber, paginate } from "@/lib/pagination";
 import { BookPageView } from "./BookPages";
 import { InkFilters } from "./Doodles";
 import { FlipBook, type FlipBookHandle } from "./FlipBook";
-import { ChevronLeft, ChevronRight, CloseIcon, ExpandIcon, MoonIcon, PenIcon, SunIcon } from "@/components/ui/Icons";
+import { ChevronLeft, ChevronRight, CloseIcon, ExpandIcon, MailIcon, MoonIcon, PaletteIcon, PenIcon, PlusIcon, SparklesIcon, SunIcon } from "@/components/ui/Icons";
 
 interface BookReaderProps {
   journal: Journal;
@@ -175,13 +175,13 @@ export function BookReader({
         <span className="min-w-36 text-center text-base italic" aria-live="polite">
           {current === 0 && onEditCover && !immersive.on ? (
             <button type="button" className="cover-edit-link underline decoration-dotted underline-offset-4 hover:text-ink" onClick={onEditCover}>
-              ✎ edit the cover
+              <PenIcon className="inline size-4 align-[-2px]" /> edit the cover
             </button>
           ) : visibleMonths.length > 0 && !immersive.on ? (
             <>
               <span className="hidden sm:inline">{position} · </span>
               <button type="button" className="underline decoration-dotted underline-offset-4 hover:text-ink" onClick={() => onEditMonth?.(visibleMonths[0])}>
-                ✎ month page
+                <PenIcon className="inline size-4 align-[-2px]" /> month page
               </button>
             </>
           ) : (
@@ -338,7 +338,7 @@ function WriteMenu({
           {onNewPage && (
             <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onNewPage)}>
               <span className="write-menu__icon write-menu__icon--new" aria-hidden>
-                +
+                <PlusIcon />
               </span>
               <span className="min-w-0">
                 <span className="block text-ink">New page</span>
@@ -349,7 +349,7 @@ function WriteMenu({
           {onNewGuided && (
             <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onNewGuided)}>
               <span className="write-menu__icon write-menu__icon--guided" aria-hidden>
-                ⭐
+                <SparklesIcon />
               </span>
               <span className="min-w-0">
                 <span className="block text-ink">Guided page</span>
@@ -360,7 +360,7 @@ function WriteMenu({
           {memories.map((m) => (
             <button key={m.id} type="button" role="menuitem" className="write-menu__item" onClick={() => choose(() => onEdit?.(m))}>
               <span className="write-menu__icon" aria-hidden>
-                ✎
+                <PenIcon />
               </span>
               <span className="min-w-0">
                 <span className="block text-xs tracking-wide text-ink-faint uppercase">Write on this page</span>
@@ -371,7 +371,7 @@ function WriteMenu({
           {months.map((m) => (
             <button key={`month-${m}`} type="button" role="menuitem" className="write-menu__item" onClick={() => choose(() => onEditMonth?.(m))}>
               <span className="write-menu__icon" aria-hidden>
-                ✎
+                <PenIcon />
               </span>
               <span className="min-w-0">
                 <span className="block text-xs tracking-wide text-ink-faint uppercase">Month page</span>
@@ -382,7 +382,7 @@ function WriteMenu({
           {onPageStyle && (
             <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(() => onPageStyle(memories))}>
               <span className="write-menu__icon write-menu__icon--style" aria-hidden>
-                🎨
+                <PaletteIcon />
               </span>
               <span className="min-w-0">
                 <span className="block text-ink">Page style</span>
@@ -393,15 +393,15 @@ function WriteMenu({
           {onEditCover && (
             <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onEditCover)}>
               <span className="write-menu__icon" aria-hidden>
-                ✎
+                <PenIcon />
               </span>
               <span className="text-ink">Edit the cover &amp; title</span>
             </button>
           )}
           {onNewNote && (
             <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onNewNote)}>
-              <span className="write-menu__icon" aria-hidden>
-                ✉
+              <span className="write-menu__icon write-menu__icon--letter" aria-hidden>
+                <MailIcon />
               </span>
               <span className="text-ink">Write a letter to {childName || "your little one"}</span>
             </button>

@@ -1,22 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FolderIcon } from "@/components/ui/Icons";
+import { CloudUpIcon, FolderIcon, LockIcon, RefreshIcon } from "@/components/ui/Icons";
 import { useJournal } from "@/components/journal/JournalProvider";
 
-/** "↻ Check for new photos": opens Google's picker in the Drive folder you used last. */
+/** "Check for new photos": opens Google's picker in the Drive folder you used last. */
 export function DriveRefreshButton({ className = "" }: { className?: string }) {
   const { driveImport, addFromDrive } = useJournal();
   const { importing, progress, hasFolder } = driveImport;
   return (
     <button
       type="button"
-      className={`chrome-button chrome-button--primary ${className}`}
+      className={`chrome-button field-button ${className}`}
       onClick={() => void addFromDrive(hasFolder ? "last-folder" : "anywhere")}
       disabled={importing}
     >
-      <span aria-hidden className={importing ? "inline-block animate-spin" : ""}>
-        ↻
+      <span aria-hidden className={`inline-flex ${importing ? "animate-spin" : ""}`}>
+        {hasFolder ? <RefreshIcon /> : <CloudUpIcon />}
       </span>
       {importing
         ? progress && progress.total > 0
@@ -78,7 +78,7 @@ export function DriveFolderCard() {
             <b className="text-ink">Share → Memory Book</b>. They go straight into the book.
           </div>
           <p className="mt-3 text-xs text-ink-faint">
-            🔒 Memory Book can only open the photos you choose or share. It never sees the rest of your Drive, so it can&rsquo;t
+            <LockIcon className="mr-1 inline size-4 align-[-3px]" />Memory Book can only open the photos you choose or share. It never sees the rest of your Drive, so it can&rsquo;t
             watch a folder by itself.
           </p>
         </div>

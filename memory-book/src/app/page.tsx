@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { InstallApp } from "@/components/app/InstallApp";
+import { LogoMark } from "@/components/ui/Icons";
 import { SignInButton } from "@/components/app/SignInButton";
 import { SiteFooter } from "@/components/legal/SiteFooter";
 import { redirect } from "next/navigation";
@@ -43,7 +44,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <SkyDecor />
       <header className="home-nav">
         <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight text-[var(--home-ink)]">
-          <img src="/icons/icon-192.png" alt="" className="size-8 rounded-[0.6rem]" />
+          <LogoMark className="size-9" />
           Memory Book
         </Link>
         <nav aria-label="On this page" className="hidden items-center gap-7 text-[0.95rem] text-[var(--home-soft)] md:flex">

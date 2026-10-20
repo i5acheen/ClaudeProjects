@@ -3874,3 +3874,183 @@ body:has(.home)::before {
   .loading-cloud--b { left: 60%; }
   .loading-cloud--c { left: 70%; }
 }
+
+/* ================================================================== */
+/* Forms and buttons, refreshed                                        */
+/* ================================================================== */
+
+/* Labels: clear and friendly, not shouty. */
+.field-label {
+  margin-bottom: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ui-ink);
+}
+/* Icons inside buttons line up with the words. */
+.chrome-button svg,
+.field-button svg {
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* Photos: one friendly place to add them. */
+.photo-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.75rem 1rem 1.4rem;
+  text-align: center;
+  border-radius: 1.5rem;
+  border: 2px dashed #c9dff2;
+  background: linear-gradient(180deg, #f2f8fe, #fbfdff);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.photos--dragging .photo-drop,
+.photos--dragging .photo-add-tile {
+  border-color: var(--ui-sun);
+  background: var(--accent-soft);
+}
+.photo-drop__icon {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1.1rem;
+  color: #2f6f9f;
+  background: #d6ecfb;
+}
+.photo-drop__icon svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+.photo-drop__title {
+  margin-top: 0.75rem;
+  font-family: var(--font-fredoka), var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ui-ink);
+}
+.photo-drop__hint {
+  margin-top: 0.15rem;
+  font-size: 0.88rem;
+  color: var(--ui-ink-faint);
+}
+.photo-drop__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+/* After the first photo: a tile to add more, from the camera or the gallery. */
+.photo-add-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  aspect-ratio: 0.86;
+  padding: 0.6rem;
+  border-radius: 1.1rem;
+  border: 2px dashed #c9dff2;
+  background: #f5faff;
+  color: var(--ui-ink-soft);
+}
+.photo-add-tile button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ui-ink);
+  background: #fff;
+  box-shadow: 0 2px 0 rgba(43, 45, 66, 0.12);
+}
+.photo-add-tile button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.photo-add-tile--busy {
+  align-items: center;
+}
+.photo-spinner {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  border: 3px solid #d6ecfb;
+  border-top-color: #2f6f9f;
+  animation: photo-spin 0.8s linear infinite;
+}
+@keyframes photo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Photo tiles: a round remove button and a small "main" pill. */
+.editor-photo__remove {
+  display: grid;
+  place-items: center;
+  border: 2px solid #fff;
+}
+.editor-photo__first {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  left: 50%;
+  bottom: 0.15rem;
+  transform: translateX(-50%);
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ui-ink);
+  background: var(--accent-soft);
+}
+
+/* How old they were that day, as a little badge. */
+.age-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #7a3a52;
+  background: #fde4e8;
+}
+
+/* The welcome note's badge. */
+.welcome-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1rem;
+  color: #7d5800;
+  background: var(--accent-soft);
+}
+.welcome-badge svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+/* Write menu icons: soft coloured circles with line icons. */
+.write-menu__icon svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+.write-menu__icon {
+  color: var(--ui-ink);
+}
+.write-menu__icon--new {
+  background: var(--ui-sun);
+}
+.write-menu__icon--letter {
+  background: #fde4e8;
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { LockIcon } from "@/components/ui/Icons";
 import { useJournal } from "./JournalProvider";
 
 /** A small note when memories are waiting to upload (e.g. you were offline). */
@@ -8,7 +9,7 @@ export function SyncBanner() {
   if (notice)
     return (
       <div role="status" className="mx-auto mb-2 flex max-w-xl items-start gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-ink shadow-sm">
-        <span aria-hidden>🔒</span>
+        <LockIcon className="inline size-4 align-[-3px]" />
         <span className="flex-1">{notice}</span>
         <button type="button" className="text-ink-soft underline decoration-dotted underline-offset-4" onClick={dismissNotice}>
           OK

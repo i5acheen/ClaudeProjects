@@ -6,7 +6,7 @@
 // It also receives photos shared into the installed app from the phone's gallery
 // ("Share → Memory Book" on Android). They're held in this browser only until the
 // app copies them into your Google Drive — they're never sent to our server.
-const VERSION = "v2";
+const VERSION = "v3";
 const SHARE_INBOX = "share-inbox";
 const STATIC = `static-${VERSION}`;
 const PAGES = `pages-${VERSION}`;

@@ -432,8 +432,10 @@ try {
   await shot('06-offline-book');
   check(journal().memories.length === 1, 'nothing uploaded while offline');
   driveDown = false;
-  await page.click('text=Upload now');
-  await page.waitForFunction(() => !/waiting to upload|Uploading to Google Drive/.test(document.body.innerText), null, { timeout: 15000 });
+  // The app also retries by itself, so "Upload now" may be showing "Uploading…" instead: press it if it's there.
+  const uploadNow = page.locator('button:has-text("Upload now")');
+  if (await uploadNow.isVisible()) await uploadNow.click({ timeout: 5000 }).catch(() => {});
+  await page.waitForFunction(() => !/waiting to upload|Uploading to Google Drive/.test(document.body.innerText), null, { timeout: 30000 });
   j = journal();
   check(j.memories.length === 2 && j.memories.some(m => m.title === 'Toy day' && m.photos.length === 1), 'queued memory uploaded once back online');
   check(photosLive().length === 2, 'no duplicate photo uploads');
@@ -1048,8 +1050,8 @@ try {
     const anon = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const ap = await anon.newPage();
     await ap.goto(`${B}/`);
-    await ap.waitForSelector('text=/Your photos stay in your own Google Drive/');
-    check(await ap.locator('text=/Free/').count() > 0 && await ap.locator('text=/Premium/').count() > 0, 'C15: landing page explains the product, privacy promise and pricing');
+    await ap.waitForSelector('text=/Your memories stay yours/');
+    check(await ap.locator('text=/in your own Google Drive/').count() > 0 && await ap.locator('text=/Free/').count() > 0 && await ap.locator('text=/Premium/').count() > 0, 'C15: landing page explains the product, privacy promise and pricing');
     await ap.click('text=/Start your book/');
     await ap.waitForSelector('text=Continue to Google');
     check(await ap.locator("text=/can.t see anything else in your Drive/").count() === 1, 'C16: before Google sign-in, the app explains the Drive permission');

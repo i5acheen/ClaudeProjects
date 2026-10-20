@@ -2516,64 +2516,252 @@ body.is-reading {
 }
 
 /* ------------------------------------------------------------------ */
-/* Home page: one soft-coloured panel up top, clean cream below        */
+/* Home page: white and violet, clean and simple                       */
 /* ------------------------------------------------------------------ */
 
 .home {
-  /* The hero colour. Alternatives: data-hero="blush" / "sky" on <main>. */
-  --hero-bg: #d6eadc;
-  --hero-glow: #f3d9cf;
+  --home-ink: #111827;
+  --home-soft: #4b5563;
+  /* Violet: for big words and icons; the deeper one for small text. */
+  --home-violet: #7b72e8;
+  --home-violet-text: #5b52d6;
+  --home-lavender: #958dff;
+  --home-tint: #f7f7fc;
+  --home-card: #f5f5ff;
+  --home-line: #e6e5fb;
+  --home-navy: #0b1220;
+  background: #fff;
+  color: var(--home-ink);
 }
-.home[data-hero="blush"] {
-  --hero-bg: #f6dcd3;
-  --hero-glow: #fbeee6;
-}
-.home[data-hero="sky"] {
-  --hero-bg: #dbe4f3;
-  --hero-glow: #f6dce4;
+body:has(.home) {
+  background: #fff;
 }
 /* The squares ribbon is for the app; the home page stays simple. */
 body:has(.home)::before {
   display: none;
 }
-.hero-panel {
-  position: relative;
-  overflow: hidden;
-  padding: 3rem 1.5rem 2.5rem;
-  border-radius: 2rem;
-  background: var(--hero-bg);
+.home-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.1rem 1.25rem;
 }
-/* One soft circle of a second colour behind the book. */
-.hero-panel::before {
-  content: "";
-  position: absolute;
-  width: 34rem;
-  height: 34rem;
-  right: -8rem;
-  top: -6rem;
-  border-radius: 999px;
-  background: var(--hero-glow);
-  opacity: 0.85;
-}
-@media (max-width: 767px) {
-  .hero-panel::before {
-    width: 24rem;
-    height: 24rem;
-    right: 50%;
-    top: auto;
-    bottom: -7rem;
-    transform: translateX(50%);
-  }
+.home-hero {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 3.5rem 1.25rem 0;
+  text-align: center;
 }
 @media (min-width: 768px) {
-  .hero-panel {
-    padding: 4.5rem 4rem;
-    border-radius: 2.5rem;
+  .home-hero {
+    padding-top: 5.5rem;
   }
 }
-.home .eyebrow-pill {
-  background: rgba(255, 251, 242, 0.75);
+.home-h1 {
+  font-size: clamp(2.5rem, 7vw, 4.1rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--home-ink);
 }
-.home .privacy-panel::before {
-  display: none;
+.home-h2 {
+  font-size: clamp(1.9rem, 4.5vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--home-ink);
+}
+.home-accent {
+  color: var(--home-violet);
+}
+.home-lead {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--home-soft);
+}
+.home-eyebrow {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--home-violet-text);
+}
+.home-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  height: 3rem;
+  padding: 0 1.75rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.home-btn:active {
+  transform: scale(0.98);
+}
+.home-btn--dark {
+  background: #000;
+  color: #fff;
+}
+.home-btn--dark:hover {
+  background: #1f2937;
+}
+.home-btn--violet {
+  background: #6b62e0;
+  color: #fff;
+}
+.home-btn--violet:hover {
+  background: #5b52d6;
+}
+.home-btn--lavender {
+  background: var(--home-lavender);
+  color: var(--home-ink);
+}
+.home-btn--lavender:hover {
+  background: #a9a2ff;
+}
+.home-btn--ghost {
+  height: 2.5rem;
+  padding: 0 1.1rem;
+  font-size: 0.9rem;
+  color: var(--home-ink);
+  background: var(--home-card);
+}
+.home-note {
+  max-width: 32rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  background: var(--home-card);
+  color: var(--home-soft);
+}
+.home-book {
+  display: block;
+  width: min(64vw, 280px);
+  margin: 4rem auto 0;
+  transform: rotate(-2deg);
+  filter: drop-shadow(0 24px 30px rgba(17, 24, 39, 0.18)) drop-shadow(0 4px 6px rgba(17, 24, 39, 0.1));
+  transition: transform 0.4s;
+}
+.home-book:hover {
+  transform: rotate(0deg) translateY(-4px);
+}
+.home-band {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin-top: 5rem;
+  padding: 1.5rem 1.25rem;
+  font-size: 0.85rem;
+  color: var(--home-ink);
+  background: var(--home-tint);
+}
+@media (min-width: 768px) {
+  .home-band {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+  }
+}
+.home-section {
+  padding: 5.5rem 1.25rem;
+}
+.home-section--tint {
+  background: var(--home-tint);
+}
+.home-wrap {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+.home-step {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-radius: 1.5rem;
+  background: #fff;
+  border: 1px solid var(--home-line);
+}
+.home-step__n {
+  font-size: 3.25rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--home-violet);
+}
+.home-card {
+  padding: 1.75rem 1.5rem;
+  border-radius: 1.5rem;
+  background: var(--home-card);
+}
+.home-card__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.85rem;
+  color: var(--home-violet-text);
+  background: #e9e8ff;
+}
+.home-price {
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: #fff;
+  border: 1px solid var(--home-line);
+}
+.home-price--soon {
+  background: linear-gradient(160deg, #f1f0ff, #fff 60%);
+}
+.home-badge {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--home-violet-text);
+  background: #e9e8ff;
+}
+.home-checks {
+  display: grid;
+  gap: 0.6rem;
+  color: var(--home-soft);
+}
+.home-checks li {
+  position: relative;
+  padding-left: 1.75rem;
+}
+.home-checks li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.2rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  background: #e9e8ff
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4.5 8.2l2.3 2.3 4.7-4.8' fill='none' stroke='%235b52d6' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>")
+    center / 100% no-repeat;
+}
+.home .install-app {
+  background: #fff;
+  border: 1px solid var(--home-line);
+  box-shadow: none;
+}
+.home-cta {
+  padding: 5rem 1.25rem;
+  text-align: center;
+  background: var(--home-navy);
+}
+.home-cta__mark {
+  font-size: clamp(3rem, 12vw, 7rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #fff;
+}
+.home-footer {
+  padding: 2rem 1.25rem 2.5rem;
 }

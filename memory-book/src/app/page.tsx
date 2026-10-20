@@ -24,127 +24,195 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     await signIn("google", { redirectTo: "/book/write" });
   }
 
+  const startButton = (label: string, className: string) =>
+    signInConfigured ? (
+      <SignInButton action={signInWithGoogle} className={className}>
+        <GoogleMark /> {label}
+      </SignInButton>
+    ) : (
+      <a href="#setup-needed" className={`${className} opacity-60`}>
+        <GoogleMark /> Sign in with Google
+      </a>
+    );
+
   return (
-    <main className="home px-3 py-3 sm:px-5 sm:py-5">
+    <main className="home">
       <InkFilters />
-      <section className="hero-panel mx-auto flex max-w-6xl flex-col items-center gap-10 md:flex-row md:gap-14">
-        <Link
-          href="/demo"
-          title="Look inside a book"
-          className="relative z-[1] order-last block w-[min(62vw,300px)] shrink-0 rotate-3 drop-shadow-[0_18px_22px_rgba(90,60,30,0.28)] transition-transform duration-500 hover:rotate-0"
-        >
+
+      <header className="home-nav">
+        <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight text-[var(--home-ink)]">
+          <img src="/icons/icon-192.png" alt="" className="size-8 rounded-[0.6rem]" />
+          Memory Book
+        </Link>
+        <nav aria-label="On this page" className="hidden items-center gap-7 text-[0.95rem] text-[var(--home-soft)] md:flex">
+          <a href="#how" className="hover:text-[var(--home-ink)]">How it works</a>
+          <a href="#privacy" className="hover:text-[var(--home-ink)]">Privacy</a>
+          <a href="#pricing" className="hover:text-[var(--home-ink)]">Pricing</a>
+          <Link href="/demo" className="hover:text-[var(--home-ink)]">Look inside</Link>
+        </nav>
+        <span className="md:hidden">
+          <Link href="/demo" className="home-btn home-btn--ghost">
+            Look inside
+          </Link>
+        </span>
+      </header>
+
+      <section className="home-hero">
+        <h1 className="home-h1">
+          A keepsake journal of your baby&rsquo;s <span className="home-accent">first years</span>.
+        </h1>
+        <p className="home-lead mx-auto mt-6 max-w-2xl">
+          Add photos and a few lines from your phone. Memory Book lays them out like a hand-made book you can flip through, share
+          with family, and print. Kept safe in your own Google Drive.
+        </p>
+        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          {startButton("Start your book — free", "home-btn home-btn--dark")}
+          <Link href="/demo" className="home-btn home-btn--violet">
+            Look inside a book
+          </Link>
+        </div>
+        <p className="mt-4 text-sm text-[var(--home-soft)]">Sign in with Google. Already have a book? The same button opens it.</p>
+
+        {deleted && <p className="home-note mx-auto mt-6">Your account has been deleted. Thank you for using Memory Book.</p>}
+        {error && (
+          <p className="mx-auto mt-6 max-w-md text-[#b42318]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>
+        )}
+        {!signInConfigured && (
+          <div id="setup-needed" className="home-note mx-auto mt-6 text-left">
+            <b className="text-[var(--home-ink)]">Sign-in is almost ready.</b> It switches on once this app&rsquo;s Google keys are added
+            (a one-time, 15-minute setup — see <i>README → steps 1 and 2</i>). Until then, the demo book works without signing in.
+          </div>
+        )}
+
+        <Link href="/demo" title="Look inside a book" className="home-book">
           <div className="aspect-[3/4] w-full [container-type:size]">
             <CoverPage settings={demoJournal.settings} priority />
           </div>
           <span className="sr-only">Look inside a demo book</span>
         </Link>
-
-        <div className="relative z-[1] max-w-xl flex-1 text-center md:text-left">
-          <p className="eyebrow-pill">
-            <span aria-hidden className="eyebrow-pill__dot" /> Baby journal · private by design
-          </p>
-          <h1 className="ui-h1 mt-5 !text-[2.6rem] !leading-[1.04] sm:!text-6xl">
-            A keepsake journal of your baby&rsquo;s first years
-          </h1>
-          <p className="mt-4 text-lg text-ink-soft">
-            Add photos and a few lines from your phone. Memory Book lays them out like a hand-made book you can flip through,
-            share with family, and print.
-          </p>
-
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row md:flex-col lg:flex-row">
-            {signInConfigured ? (
-              <SignInButton action={signInWithGoogle} className="chrome-button chrome-button--primary !h-12 w-full justify-center !px-6 !text-lg whitespace-nowrap">
-                <GoogleMark /> Start your book — free
-              </SignInButton>
-            ) : (
-              <a href="#setup-needed" className="chrome-button chrome-button--primary !h-12 justify-center !px-6 !text-lg whitespace-nowrap opacity-60">
-                <GoogleMark /> Sign in with Google
-              </a>
-            )}
-            <Link href="/demo" className="chrome-button field-button !h-12 justify-center !px-6 !text-lg whitespace-nowrap">
-              Look inside a book
-            </Link>
-          </div>
-          <p className="mt-3 text-sm text-ink-faint">Sign in with Google. Already have a book? The same button opens it.</p>
-
-          {deleted && <p className="mt-4 rounded-2xl bg-white p-3 text-ink">Your account has been deleted. Thank you for using Memory Book.</p>}
-          {error && <p className="mt-4 text-[var(--ink-terracotta)]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>}
-          {!signInConfigured && (
-            <div id="setup-needed" className="mt-5 rounded-lg border border-dashed border-ink-faint/60 bg-white/40 p-4 text-base text-ink-soft">
-              <b className="text-ink">Sign-in is almost ready.</b> It switches on once this app&rsquo;s Google keys are added
-              (a one-time, 15-minute setup — see <i>README → steps 1 and 2</i>). Until then, the demo book works without
-              signing in.
-            </div>
-          )}
-        </div>
       </section>
 
-      <section className="mx-auto mt-16 grid max-w-5xl gap-4 px-2 sm:mt-20 sm:grid-cols-3" aria-label="How it works">
-        {FEATURES.map(({ icon, title, text, tile }, i) => (
-          <div key={title} className="feature-card">
-            <span className="feature-card__icon" style={{ "--tile": `var(--sq-${tile})` } as React.CSSProperties} aria-hidden>
+      <section className="home-band" aria-label="In short">
+        {HIGHLIGHTS.map(({ icon, strong, rest }) => (
+          <p key={strong} className="flex items-center gap-2.5">
+            <span className="text-[var(--home-violet)]" aria-hidden>
               {icon}
             </span>
-            <p className="mt-4 text-xs font-bold tracking-[0.14em] text-ink-faint uppercase">Step {i + 1}</p>
-            <h2 className="ui-h3 mt-1">{title}</h2>
-            <p className="mt-1.5 text-[0.95rem] text-ink-soft">{text}</p>
-          </div>
+            <span>
+              <b className="font-bold text-[var(--home-ink)] uppercase">{strong}</b> {rest}
+            </span>
+          </p>
         ))}
       </section>
 
-      <section className="privacy-panel mx-auto mt-6 max-w-5xl" aria-labelledby="privacy-heading">
-        <div className="max-w-xl">
-          <span className="feature-card__icon feature-card__icon--dark" aria-hidden>
-            <LockIcon />
-          </span>
-          <h2 id="privacy-heading" className="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">
-            Your photos stay in your own Google Drive
+      <section id="how" className="home-section home-section--tint">
+        <div className="home-wrap text-center">
+          <p className="home-eyebrow">How it works</p>
+          <h2 className="home-h2 mt-3">
+            From a photo to a <span className="home-accent">real book</span>.
           </h2>
+          <p className="home-lead mx-auto mt-4 max-w-xl">A minute a day is plenty. Three steps, no design skills needed.</p>
+          <div className="mt-12 grid gap-5 sm:grid-cols-3">
+            {STEPS.map(({ title, text, time }, i) => (
+              <div key={title} className="home-step">
+                <p className="home-step__n">{String(i + 1).padStart(2, "0")}</p>
+                <h3 className="mt-3 text-xl font-bold text-[var(--home-ink)]">{title}</h3>
+                <p className="mt-2 text-[var(--home-soft)]">{text}</p>
+                <p className="mt-5 text-sm font-semibold text-[var(--home-ink)]">{time}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <ul className="mt-6 grid gap-x-8 gap-y-3 text-[0.95rem] text-white/75 sm:grid-cols-2">
-          <li>Your child&rsquo;s photos, name and stories are saved in a folder in your Drive — never on our servers.</li>
-          <li>The app can only see the files it creates and the photos you choose. Nothing else in your Drive.</li>
-          <li>No ads, no tracking, nothing sold or shared. Built for India&rsquo;s data protection law.</li>
-          <li>Download everything or delete your account at any time.</li>
-        </ul>
-        <p className="mt-6 text-sm">
-          <Link href="/privacy" className="font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
-            Read exactly how your privacy is protected →
-          </Link>
-        </p>
       </section>
 
-      <section className="mx-auto mt-6 grid max-w-5xl gap-4 sm:grid-cols-2" aria-labelledby="pricing-heading">
-        <h2 id="pricing-heading" className="sr-only">
-          Pricing
-        </h2>
-        <div className="sheet !p-6">
-          <p className="ui-h3">Free</p>
-          <p className="mt-2 text-4xl font-extrabold tracking-tight text-ink">₹0</p>
-          <ul className="check-list mt-4">
-            <li>Unlimited memories and photos (in your Drive)</li>
-            <li>Family sharing, letters, month pages</li>
-            <li>Cover colours, paper styles and PDF download</li>
-          </ul>
-        </div>
-        <div className="sheet premium-card !p-6">
-          <div className="flex items-center justify-between gap-3">
-            <p className="ui-h3">Premium</p>
-            <span className="soon-badge">Coming soon</span>
+      <section id="privacy" className="home-section">
+        <div className="home-wrap">
+          <p className="home-eyebrow">Why Memory Book</p>
+          <h2 className="home-h2 mt-3">
+            <span className="home-accent">Your memories</span> stay yours.
+          </h2>
+          <p className="home-lead mt-4 max-w-2xl">
+            Your child&rsquo;s photos, name and stories are saved in a folder in your own Google Drive — never on our servers.
+          </p>
+          <div className="mt-12 grid gap-5 sm:grid-cols-3">
+            {FEATURES.map(({ icon, title, text }) => (
+              <div key={title} className="home-card">
+                <span className="home-card__icon" aria-hidden>
+                  {icon}
+                </span>
+                <h3 className="mt-5 text-lg font-bold text-[var(--home-ink)]">{title}</h3>
+                <p className="mt-2 text-[0.95rem] text-[var(--home-soft)]">{text}</p>
+              </div>
+            ))}
           </div>
-          <p className="mt-3 text-[0.95rem] text-ink-soft">
-            Extra book designs, printed-book ready exports and reminders — paid securely by UPI. Everything free stays free.
+          <p className="mt-8">
+            <Link href="/privacy" className="home-btn home-btn--violet">
+              How your privacy is protected
+            </Link>
           </p>
         </div>
       </section>
 
-      <div className="mx-auto mt-6 max-w-md">
-        <InstallApp className="text-left" />
+      <section id="pricing" className="home-section home-section--tint" aria-labelledby="pricing-heading">
+        <div className="home-wrap text-center">
+          <p className="home-eyebrow">Pricing</p>
+          <h2 id="pricing-heading" className="home-h2 mt-3">
+            Free to start. <span className="home-accent">Free to keep.</span>
+          </h2>
+          <div className="mx-auto mt-12 grid max-w-4xl gap-5 text-left sm:grid-cols-2">
+            <div className="home-price">
+              <p className="text-lg font-bold text-[var(--home-ink)]">Free</p>
+              <p className="mt-2 text-5xl font-bold tracking-tight text-[var(--home-ink)]">₹0</p>
+              <ul className="home-checks mt-6">
+                <li>Unlimited memories and photos (in your Drive)</li>
+                <li>Family sharing, letters, month pages</li>
+                <li>Cover colours, paper styles and PDF download</li>
+              </ul>
+            </div>
+            <div className="home-price home-price--soon">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-lg font-bold text-[var(--home-ink)]">Premium</p>
+                <span className="home-badge">Coming soon</span>
+              </div>
+              <p className="mt-4 text-[var(--home-soft)]">
+                Extra book designs, printed-book ready exports and reminders — paid securely by UPI. Everything free stays free.
+              </p>
+            </div>
+          </div>
+          <div className="mx-auto mt-10 max-w-md">
+            <InstallApp className="text-left" />
+          </div>
+        </div>
+      </section>
+
+      <section className="home-cta">
+        <p className="home-cta__mark" aria-hidden>
+          Memory Book
+        </p>
+        <h2 className="mt-8 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          Start the book they&rsquo;ll <em className="text-[#958dff]">treasure</em>.
+        </h2>
+        <p className="mx-auto mt-4 max-w-md text-[#cbd5e1]">The first page takes a minute. The rest is a lifetime of little moments.</p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          {startButton("Start your book", "home-btn home-btn--lavender")}
+          <Link href="/demo" className="home-btn home-btn--lavender">
+            Look inside a book
+          </Link>
+        </div>
+      </section>
+
+      <div className="home-footer">
+        <SiteFooter className="!mt-0" />
       </div>
-      <SiteFooter />
     </main>
   );
 }
+
+const STEPS = [
+  { title: "Add a moment", text: "A photo or four, the date (read from the photo), and a few lines.", time: "About a minute" },
+  { title: "It becomes a book", text: "Polaroids, tape, your handwriting, cover colours, paper styles and month pages.", time: "Automatic" },
+  { title: "Share and print", text: "Invite grandparents to view or add memories. Download a print-ready PDF.", time: "Whenever you like" },
+];
 
 const iconProps = {
   width: 22,
@@ -157,37 +225,25 @@ const iconProps = {
   strokeLinejoin: "round" as const,
 };
 
-function LockIcon() {
-  return (
-    <svg {...iconProps}>
-      <rect x="4.5" y="10.5" width="15" height="10" rx="2.5" />
-      <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
-    </svg>
-  );
-}
-
 const FEATURES = [
   {
     icon: (
       <svg {...iconProps}>
-        <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z" />
-        <circle cx="12" cy="12.5" r="3.5" />
+        <path d="M3.5 7.5A2 2 0 0 1 5.5 5.5h4l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
       </svg>
     ),
-    tile: "blush",
-    title: "Add a moment",
-    text: "A photo or four, the date (read from the photo), and a few lines. A minute a day is plenty.",
+    title: "In your own Google Drive",
+    text: "The app can only see the files it creates and the photos you choose. Nothing else in your Drive.",
   },
   {
     icon: (
       <svg {...iconProps}>
-        <path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z" />
-        <path d="M12 6.5v13" />
+        <path d="M12 3.5l7 3v5c0 4.4-3 7.8-7 9-4-1.2-7-4.6-7-9v-5z" />
+        <path d="M9 12l2 2 4-4" />
       </svg>
     ),
-    tile: "mint",
-    title: "It becomes a book",
-    text: "Pages that look hand-made: polaroids, tape, your handwriting, cover colours, paper styles, month pages and letters.",
+    title: "No ads, no tracking",
+    text: "Nothing sold or shared, ever. Built for India’s data protection law (DPDP Act).",
   },
   {
     icon: (
@@ -197,9 +253,51 @@ const FEATURES = [
         <path d="M15.5 6a3 3 0 0 1 0 5.5M17.5 14.5c1.6.6 2.7 2.2 3 4.5" />
       </svg>
     ),
-    tile: "blue",
-    title: "Share and print",
-    text: "Invite grandparents to view or add memories. Download a print-ready PDF whenever you like.",
+    title: "Shared only with family",
+    text: "You choose who can view or add memories. Download everything or delete your account at any time.",
+  },
+];
+
+const smallIcon = { ...iconProps, width: 20, height: 20 };
+
+const HIGHLIGHTS = [
+  {
+    icon: (
+      <svg {...smallIcon}>
+        <rect x="4.5" y="10.5" width="15" height="10" rx="2.5" />
+        <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+      </svg>
+    ),
+    strong: "Your Drive",
+    rest: "not our servers",
+  },
+  {
+    icon: (
+      <svg {...smallIcon}>
+        <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+      </svg>
+    ),
+    strong: "Free",
+    rest: "to start and keep",
+  },
+  {
+    icon: (
+      <svg {...smallIcon}>
+        <circle cx="12" cy="12" r="8" />
+        <path d="M5 5l14 14" />
+      </svg>
+    ),
+    strong: "Zero",
+    rest: "ads or tracking",
+  },
+  {
+    icon: (
+      <svg {...smallIcon}>
+        <path d="M6 9V3h12v6M6 17H4v-6h16v6h-2M7 14h10v7H7z" />
+      </svg>
+    ),
+    strong: "Print-ready",
+    rest: "PDF any time",
   },
 ];
 

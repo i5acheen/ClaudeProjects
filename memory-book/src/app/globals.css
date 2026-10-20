@@ -102,26 +102,10 @@ body {
   margin: 0;
   color: var(--ui-ink);
   font-family: var(--font-sans);
-  background-color: var(--ui-bg);
+  /* A soft sky at the top of every screen, fading into cream, as on the home page. */
+  background: linear-gradient(to bottom, #cfe8fb 0, #e3f2fc 14rem, var(--ui-bg) 34rem) no-repeat, var(--ui-bg);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
-}
-
-/* A thin rainbow along the top of every screen. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0 0 auto;
-  height: 6px;
-  z-index: 40;
-  pointer-events: none;
-  height: 5px;
-  background: linear-gradient(to right, #ff9eb5, #ffb38a, #ffe17a, #9fe0c4, #a8dcf7, #c9b8f5);
-}
-@media print {
-  body::before {
-    display: none;
-  }
 }
 
 :focus-visible {
@@ -1995,20 +1979,6 @@ body::before {
 }
 
 /* The checkerboard ribbon along the top of every screen. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0 0 auto;
-  height: 6px;
-  z-index: 40;
-  pointer-events: none;
-  background: var(--checker-row-a) 0 0 / 96px 3px repeat-x, var(--checker-row-b) 0 3px / 96px 3px repeat-x;
-}
-@media print {
-  body::before {
-    display: none;
-  }
-}
 
 :focus-visible {
   outline: 2px solid var(--accent);
@@ -3065,4 +3035,222 @@ body:has(.home)::before {
 }
 .home-footer a:hover {
   color: var(--home-ink);
+}
+
+/* ================================================================== */
+/* The signed-in app, in the home page's playful style                 */
+/* ================================================================== */
+
+:root {
+  /* Selections and highlights are sunshine yellow; focus shows a yellow ring. */
+  --accent: #ffcd3c;
+  --accent-soft: #fff0b8;
+  --ring: 0 0 0 3px rgba(255, 205, 60, 0.55);
+  --ui-lift: 0 6px 0 rgba(43, 45, 66, 0.07);
+}
+
+/* Little clouds drifting at the top of every screen (see AppSky). */
+.app-sky {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 24rem;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.app-sky__cloud {
+  position: absolute;
+  fill: #fff;
+  opacity: 0.95;
+  filter: drop-shadow(0 6px 10px rgba(80, 130, 170, 0.14));
+  animation: home-drift 20s ease-in-out infinite alternate;
+}
+.app-sky__cloud--a {
+  width: 6.5rem;
+  top: 4.5rem;
+  left: 3%;
+}
+.app-sky__cloud--b {
+  width: 5rem;
+  top: 2.2rem;
+  right: 12%;
+  animation-delay: -8s;
+}
+.app-sky__cloud--c {
+  width: 4.5rem;
+  top: 11rem;
+  right: 3%;
+  animation-delay: -14s;
+}
+@media (max-width: 767px) {
+  .app-sky__cloud--a {
+    width: 4.5rem;
+    top: 3.8rem;
+    left: -1rem;
+  }
+  .app-sky__cloud--b {
+    width: 3.5rem;
+    top: 0.6rem;
+    right: 30%;
+  }
+  .app-sky__cloud--c {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-sky__cloud {
+    animation: none;
+  }
+}
+@media print {
+  .app-sky {
+    display: none;
+  }
+}
+
+/* Cards: white, very round, gently raised. */
+.sheet,
+.install-app {
+  border: 0;
+  border-radius: 2rem;
+  box-shadow: var(--ui-lift);
+}
+.note-sheet {
+  border-radius: 2rem 2rem 0 0;
+}
+@media (min-width: 640px) {
+  .note-sheet {
+    border-radius: 2rem;
+  }
+}
+
+/* Second buttons: white, round and a little chunky, like the home page's. */
+.field-button {
+  height: 2.9rem;
+  border: 0;
+  background: #fff;
+  color: var(--ui-ink);
+  font-weight: 700;
+  box-shadow: 0 3px 0 rgba(43, 45, 66, 0.16), 0 0 0 1px rgba(43, 45, 66, 0.06);
+}
+.field-button:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+.field-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(43, 45, 66, 0.16), 0 0 0 1px rgba(43, 45, 66, 0.06);
+}
+.round-button {
+  border: 0;
+  box-shadow: 0 3px 0 rgba(43, 45, 66, 0.14), 0 0 0 1px rgba(43, 45, 66, 0.05);
+}
+.round-button:hover {
+  background: var(--accent-soft);
+}
+
+/* Fields: soft and round, with a sunny ring while you type. */
+.text-field {
+  border: 2px solid #ece4d4;
+  border-radius: 1.1rem;
+  box-shadow: none;
+}
+.text-field:hover {
+  border-color: #dfd3bc;
+}
+.text-field:focus {
+  border-color: var(--ui-sun);
+  box-shadow: var(--ring);
+}
+
+/* Choices (cover, writing style, paper): picked ones get a sunny outline. */
+.cover-option[aria-pressed="true"],
+.paper-option[aria-checked="true"],
+.font-option[aria-pressed="true"] {
+  border-color: var(--ui-sun);
+  background: var(--accent-soft);
+}
+.font-option {
+  border-radius: 1.25rem;
+  border-width: 2px;
+}
+.font-option:hover {
+  border-color: var(--ui-sun);
+}
+
+/* Header: the book switcher and the sections, as round white pills. */
+.book-switcher {
+  border: 0;
+  box-shadow: 0 3px 0 rgba(43, 45, 66, 0.12);
+}
+.book-switcher__initial {
+  color: var(--ui-ink);
+  background: var(--home-pink, #ffc8d6);
+}
+.section-tabs {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 3px 0 rgba(43, 45, 66, 0.08);
+}
+.section-tab[aria-current="page"] {
+  background: var(--ui-sun);
+  color: var(--ui-ink);
+  box-shadow: 0 3px 0 var(--ui-sun-deep);
+}
+.section-tab[aria-current="page"] svg {
+  color: var(--ui-ink);
+}
+.section-tab:hover {
+  background: #fff;
+}
+.icon-button {
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 3px 0 rgba(43, 45, 66, 0.1);
+}
+
+/* Bottom bar on phones: the current section in a sky-blue bubble. */
+.tabbar {
+  border: 0;
+  border-radius: 2rem;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 6px 0 rgba(43, 45, 66, 0.07), 0 16px 36px -18px rgba(43, 45, 66, 0.35);
+}
+.tabbar__item[aria-current="page"] .tabbar__icon {
+  background: var(--ui-sky);
+}
+
+/* Timeline: filters as round pills, the chosen one sunny. */
+.filter-chip {
+  border: 0;
+  background: #fff;
+  box-shadow: 0 3px 0 rgba(43, 45, 66, 0.1);
+}
+.filter-chip[aria-pressed="true"] {
+  background: var(--ui-sun);
+  color: var(--ui-ink);
+  box-shadow: 0 3px 0 var(--ui-sun-deep);
+}
+.timeline-month__label {
+  margin-inline: -0.25rem;
+  padding-inline: 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 3px 0 rgba(43, 45, 66, 0.06);
+}
+@media (min-width: 640px) {
+  .timeline-month__label {
+    background: none;
+  }
+}
+
+/* Menus and the write button in the book. */
+.write-menu {
+  border: 0;
+  border-radius: 1.5rem;
+  box-shadow: 0 6px 0 rgba(43, 45, 66, 0.07), 0 18px 40px -12px rgba(43, 45, 66, 0.35);
+}
+.write-menu__item:hover {
+  background: var(--accent-soft);
+}
+.save-bar {
+  background: rgba(255, 255, 255, 0.92);
 }

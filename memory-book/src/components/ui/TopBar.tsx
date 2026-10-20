@@ -27,6 +27,7 @@ export function TopBar({ title, basePath, active, demo, canWrite: canWriteProp }
 
   return (
     <>
+      <AppSky />
       <header className="app-header">
         <div className="flex min-w-0 items-center gap-2">
           {!demo && <BookSwitcher />}
@@ -95,5 +96,19 @@ export function TopBar({ title, basePath, active, demo, canWrite: canWriteProp }
         </Link>
       </nav>
     </>
+  );
+}
+
+/** A few clouds in the sky at the top of the screen, as on the home page. */
+function AppSky() {
+  const cloud = "M25 40a15 15 0 0 1 2-30 20 20 0 0 1 37-6 16 16 0 0 1 26 12 12 12 0 0 1 0 24z";
+  return (
+    <div className="app-sky" aria-hidden>
+      {["a", "b", "c"].map((k) => (
+        <svg key={k} className={`app-sky__cloud app-sky__cloud--${k}`} viewBox="0 0 100 44">
+          <path d={cloud} />
+        </svg>
+      ))}
+    </div>
   );
 }

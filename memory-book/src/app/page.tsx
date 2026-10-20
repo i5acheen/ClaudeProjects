@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { InstallApp } from "@/components/app/InstallApp";
-import { LogoMark } from "@/components/ui/Icons";
+import { BabyIcon, BookIcon, CalendarIcon, ChecklistIcon, LogoMark, MailIcon, PaletteIcon, PrinterIcon, StarIcon } from "@/components/ui/Icons";
 import { SignInButton } from "@/components/app/SignInButton";
 import { SiteFooter } from "@/components/legal/SiteFooter";
 import { redirect } from "next/navigation";
@@ -172,9 +172,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             })}
           </div>
           <ul className="home-inside-list">
-            {INSIDE_LIST.map(([emoji, text]) => (
-              <li key={text}>
-                <span aria-hidden>{emoji}</span> {text}
+            {INSIDE_LIST.map(({ Icon, title, text, tint }) => (
+              <li key={title}>
+                <span className={`home-inside-icon home-inside-icon--${tint}`} aria-hidden>
+                  <Icon />
+                </span>
+                <span>
+                  <b className="block font-bold text-[var(--home-ink)]">{title}</b>
+                  <span className="block text-[0.92rem]">{text}</span>
+                </span>
               </li>
             ))}
           </ul>
@@ -325,15 +331,15 @@ const INSIDE_PAGES = [
   { id: "demo-4", caption: "Festivals & family" },
 ];
 
-const INSIDE_LIST: [string, string][] = [
-  ["🎨", "A cover with your child's name — rainbow, space, under the sea or garden"],
-  ["👋", "Hello, world! — the day they were born"],
-  ["⭐", "All about me — favourites at any age"],
-  ["✅", "My firsts — a checklist with dates"],
-  ["📅", "Month pages with height and weight"],
-  ["💌", "Letters, and time-capsule letters to open later"],
-  ["🌈", "Paper colours, patterns and frames"],
-  ["🖨️", "A print-ready PDF, any time"],
+const INSIDE_LIST = [
+  { Icon: BookIcon, tint: "sky", title: "Their name on the cover", text: "Rainbow, space, under-the-sea or garden designs." },
+  { Icon: BabyIcon, tint: "pink", title: "Hello, world!", text: "Their birth story: the time, the weight, the first visitors." },
+  { Icon: StarIcon, tint: "sun", title: "All about me", text: "Favourite toys, songs and funny habits, at any age." },
+  { Icon: ChecklistIcon, tint: "mint", title: "My firsts", text: "First smile, first word, first steps, ticked off with dates." },
+  { Icon: CalendarIcon, tint: "lilac", title: "Month by month", text: "A page for every month, with height and weight." },
+  { Icon: MailIcon, tint: "pink", title: "Letters for later", text: "Write to them now, and seal a letter until a birthday." },
+  { Icon: PaletteIcon, tint: "sky", title: "Pages your way", text: "Paper colours, cute patterns and pretty frames." },
+  { Icon: PrinterIcon, tint: "sun", title: "Print and keep", text: "Download a print-ready PDF whenever you like." },
 ];
 
 const STEPS = [

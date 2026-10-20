@@ -222,3 +222,20 @@ export const RainbowIcon = ({ className }: IconProps) => (
     <path d="M10 18a2 2 0 0 1 4 0" />
   </svg>
 );
+
+export const CalendarIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <rect x="4" y="5.5" width="16" height="14.5" rx="2.5" />
+    <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />
+    <path d="M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01" strokeWidth="2.4" />
+  </svg>
+);
+
+export const PrinterIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M7 9V4h10v5" />
+    <rect x="3.5" y="9" width="17" height="8" rx="2.5" />
+    <path d="M7 14.5h10V20H7z" />
+    <path d="M17 12h.01" strokeWidth="2.6" />
+  </svg>
+);

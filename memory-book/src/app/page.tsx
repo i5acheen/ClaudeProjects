@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { InstallApp } from "@/components/app/InstallApp";
-import { Maze } from "@/components/app/Maze";
 import { SignInButton } from "@/components/app/SignInButton";
 import { SiteFooter } from "@/components/legal/SiteFooter";
 import { redirect } from "next/navigation";
@@ -26,16 +25,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   }
 
   return (
-    <main>
-      <Maze>
-      <div className="px-5 pt-14 pb-16 sm:pt-24">
+    <main className="px-5 py-10 sm:py-14">
       <InkFilters />
-      <section className="mx-auto flex max-w-5xl flex-col items-center gap-14 md:flex-row md:gap-16">
+      <section className="mx-auto flex max-w-5xl flex-col items-center gap-10 md:flex-row md:gap-16">
         <Link
           href="/demo"
           title="Look inside a book"
-          data-maze-hole
-          className="block w-[min(62vw,300px)] shrink-0 -rotate-2 drop-shadow-[0_18px_22px_rgba(90,60,30,0.28)] transition-transform duration-500 hover:rotate-0"
+          className="block w-[min(68vw,300px)] shrink-0 -rotate-2 drop-shadow-[0_18px_22px_rgba(90,60,30,0.28)] transition-transform duration-500 hover:rotate-0"
         >
           <div className="aspect-[3/4] w-full [container-type:size]">
             <CoverPage settings={demoJournal.settings} priority />
@@ -43,16 +39,14 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <span className="sr-only">Look inside a demo book</span>
         </Link>
 
-        <div data-maze-hole className="max-w-xl text-center md:text-left">
-          <h1>
-            <span className="maze-title">Keepsake journal</span>
-            <span className="maze-and">&amp; your baby&rsquo;s first years</span>
-          </h1>
-          <p className="maze-kicker mt-4">Baby journal · private by design</p>
-          <p className="maze-signature mt-2" aria-hidden>
-            Memory Book
+        <div className="max-w-xl text-center md:text-left">
+          <p className="eyebrow-pill">
+            <span aria-hidden className="eyebrow-pill__dot" /> Baby journal · private by design
           </p>
-          <p className="mt-5 text-lg text-ink-soft">
+          <h1 className="ui-h1 mt-4 !text-[2.6rem] !leading-[1.05] sm:!text-6xl">
+            A keepsake journal of your <span className="accent-text">baby&rsquo;s first years</span>
+          </h1>
+          <p className="mt-4 text-lg text-ink-soft">
             Add photos and a few lines from your phone. Memory Book lays them out like a hand-made book you can flip through,
             share with family, and print.
           </p>
@@ -85,9 +79,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>
       </section>
 
-      <section className="mx-auto mt-28 grid max-w-5xl gap-24 sm:mt-32 sm:grid-cols-3 sm:gap-10" aria-label="How it works">
+      <section className="mx-auto mt-20 grid max-w-5xl gap-4 sm:grid-cols-3" aria-label="How it works">
         {FEATURES.map(({ icon, title, text, tile }, i) => (
-          <div key={title} data-maze-hole className="feature-card">
+          <div key={title} className="feature-card">
             <span className="feature-card__icon" style={{ "--tile": `var(--sq-${tile})` } as React.CSSProperties} aria-hidden>
               {icon}
             </span>
@@ -98,7 +92,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         ))}
       </section>
 
-      <section data-maze-hole className="privacy-panel mx-auto mt-28 max-w-5xl sm:mt-32" aria-labelledby="privacy-heading">
+      <section className="privacy-panel mx-auto mt-6 max-w-5xl" aria-labelledby="privacy-heading">
         <div className="max-w-xl">
           <span className="feature-card__icon feature-card__icon--dark" aria-hidden>
             <LockIcon />
@@ -120,11 +114,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </p>
       </section>
 
-      <section className="mx-auto mt-28 grid max-w-5xl gap-24 sm:mt-32 sm:grid-cols-2 sm:gap-10" aria-labelledby="pricing-heading">
+      <section className="mx-auto mt-6 grid max-w-5xl gap-4 sm:grid-cols-2" aria-labelledby="pricing-heading">
         <h2 id="pricing-heading" className="sr-only">
           Pricing
         </h2>
-        <div data-maze-hole className="sheet !p-6">
+        <div className="sheet !p-6">
           <p className="ui-h3">Free</p>
           <p className="mt-2 text-4xl font-extrabold tracking-tight text-ink">₹0</p>
           <ul className="check-list mt-4">
@@ -133,7 +127,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <li>Cover colours, paper styles and PDF download</li>
           </ul>
         </div>
-        <div data-maze-hole className="sheet premium-card !p-6">
+        <div className="sheet premium-card !p-6">
           <div className="flex items-center justify-between gap-3">
             <p className="ui-h3">Premium</p>
             <span className="soon-badge">Coming soon</span>
@@ -144,14 +138,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>
       </section>
 
-      <div data-maze-hole className="mx-auto mt-28 max-w-md sm:mt-32">
+      <div className="mx-auto mt-6 max-w-md">
         <InstallApp className="text-left" />
       </div>
-      <div data-maze-hole className="mx-auto mt-24 max-w-md">
-        <SiteFooter className="!mt-0" />
-      </div>
-      </div>
-      </Maze>
+      <SiteFooter />
     </main>
   );
 }

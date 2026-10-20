@@ -28,7 +28,8 @@ function parseQuery(qs) {
   const parent = parentIds.length ? [null, parentIds[0]] : null;
   const isFolder = /mimeType = 'application\/vnd.google-apps.folder'/.test(qs);
   const isImage = /mimeType contains 'image\/'/.test(qs);
-  return [...files.values()].filter(f => !f.trashed
+  const wantTrashed = /trashed = true/.test(qs);
+  return [...files.values()].filter(f => !!f.trashed === wantTrashed
     && (!ap || f.appProperties?.[ap[1]] === ap[2])
     && (!parent || (parent[1] === 'root' ? !f.parents?.length || f.parents.includes('root') : parentIds.some(id => f.parents?.includes(id))))
     && (!isFolder || f.mimeType === 'application/vnd.google-apps.folder')
@@ -75,7 +76,7 @@ const canRead = (u, f) => !!f && hasAccess(u, f) && appMay(u, f);
 const canWrite = (u, f) => canRead(u, f) && (f.owner === u.email || sharedRole(f, u.email) === 'writer');
 const permissionLog = [];
 // Version history, like Drive's: every content write is a new revision.
-const addRevision = (f) => { f.revisions ||= []; const id = `r${nextId++}`; f.revisions.push({ id, content: f.content }); return id; };
+const addRevision = (f) => { f.revisions ||= []; const id = `r${nextId++}`; f.revisions.push({ id, content: f.content, modifiedTime: new Date().toISOString() }); return id; };
 // Tests sometimes change a file's content directly; treat that as a new version too.
 const syncHead = (f) => { if (f.content && (!f.revisions?.length || f.revisions.at(-1).content !== f.content)) addRevision(f); };
 let concurrentSave = null; // a memory "someone else" saves just before the app's next journal write
@@ -106,7 +107,7 @@ async function handleDrive(route) {
     const body = JSON.parse(req.postData());
     const parent = body.parents?.[0] && files.get(body.parents[0]);
     if (parent && !canWrite(user, parent)) return denied();
-    const f = { id: `f${nextId++}`, ...body, owner: user.email, content: Buffer.alloc(0), appCreated: true };
+    const f = { id: `f${nextId++}`, ...body, owner: user.email, content: Buffer.alloc(0), appCreated: true, createdTime: new Date().toISOString() };
     files.set(f.id, f);
     return json(200, meta(f));
   }
@@ -122,7 +123,7 @@ async function handleDrive(route) {
     const content = Buffer.from(contentPart.slice(idx, contentPart.length - 2), 'latin1');
     const parent = md.parents?.[0] && files.get(md.parents[0]);
     if (parent && !canWrite(user, parent)) return denied();
-    const f = { id: `f${nextId++}`, ...md, owner: user.email, content, appCreated: true };
+    const f = { id: `f${nextId++}`, ...md, owner: user.email, content, appCreated: true, createdTime: new Date().toISOString() };
     files.set(f.id, f);
     addRevision(f);
     return json(200, meta(f));
@@ -130,6 +131,7 @@ async function handleDrive(route) {
   if (method === 'PATCH' && (m = url.pathname.match(/^\/upload\/drive\/v3\/files\/(.+)$/))) {
     if (!canWrite(user, files.get(m[1]))) return json(403, { error: { message: 'The user does not have sufficient permissions for this file.' } });
     const target = files.get(m[1]);
+    if (!target) return denied();
     syncHead(target);
     if (concurrentSave && target.appProperties?.memoryBook === 'year' && target.appProperties?.memoryBookYear === concurrentSave.date.slice(0, 4)) {
       // Simulate a family member's save landing between the app's read and its write.
@@ -164,7 +166,7 @@ async function handleDrive(route) {
     const f = files.get(decodeURIComponent(m[1]));
     if (!f || !canRead(user, f)) return denied();
     syncHead(f);
-    if (!m[2]) return json(200, { revisions: (f.revisions || []).map(r => ({ id: r.id })) });
+    if (!m[2]) return json(200, { revisions: (f.revisions || []).map(r => ({ id: r.id, modifiedTime: r.modifiedTime })) });
     const r = (f.revisions || []).find(r => r.id === decodeURIComponent(m[2]));
     if (!r) return denied();
     return route.fulfill({ status: 200, headers: { ...cors, 'content-type': 'application/octet-stream' }, body: r.content });
@@ -198,6 +200,7 @@ async function handleDrive(route) {
   if (method === 'PATCH' && (m = url.pathname.match(/^\/drive\/v3\/files\/(.+)$/))) {
     const f = files.get(decodeURIComponent(m[1]));
     const { appProperties, ...rest } = JSON.parse(req.postData());
+    if (!f || !canRead(user, f)) return denied();
     if (f.owner !== user.email && ('writersCanShare' in rest)) return json(403, { error: { message: 'Only the owner can change this.' } });
     Object.assign(f, rest);
     // Like Drive, appProperties are merged key by key.
@@ -795,6 +798,51 @@ try {
     bf = bookFiles(owner);
     check([...files.values()].filter(f => live(f) && f.appProperties?.memoryBook === 'backup').length === 1 && bf.years.length === 3, 'A1: converted only once');
     await nc.close();
+  }
+
+  // A3/A4: weekly backups, and recovering from damaged or deleted files — nothing lost
+  {
+    const snapshots = () => [...files.values()].filter(f => live(f) && f.owner === 'mum@example.com' && f.appProperties?.memoryBook === 'snapshot');
+    check(snapshots().length === 1, 'A3: a backup of the book is kept in backups/');
+    await page.goto(`${B}/book`);
+    await page.waitForSelector('.stf__block');
+    await page.waitForTimeout(1500);
+    check(snapshots().length === 1, 'A3: only one backup per week');
+    const before = journal().memories.map(m => m.id).sort().join();
+
+    // A year's file is damaged (e.g. edited by hand): the last good version is put back, the damaged copy kept.
+    const year = bookFiles().years.find(y => y.appProperties.memoryBookYear === '2026');
+    year.content = Buffer.from('{ "memories": [ broken');
+    await page.goto(`${B}/book`);
+    await page.waitForSelector('text=/was damaged/', { timeout: 20000 });
+    check(journal().memories.map(m => m.id).sort().join() === before, 'A4: damaged file repaired from its last good version — no memory lost');
+    check([...files.values()].some(f => live(f) && f.appProperties?.memoryBook === 'damaged' && f.content.toString().includes('broken')), 'A4: the damaged copy is kept in backups/');
+
+    // book.json deleted by mistake (in the bin): put back.
+    bookFiles().index.trashed = true;
+    await page.goto(`${B}/book`);
+    await page.waitForSelector('text=/moved to the Drive bin/', { timeout: 20000 });
+    check(!!bookFiles().index && journal().memories.map(m => m.id).sort().join() === before, 'M-3: a deleted book.json is taken back out of the bin');
+
+    // book.json gone for good: rebuilt from the backup, memories all still there; no second book made.
+    files.delete(bookFiles().index.id);
+    await page.goto(`${B}/book`);
+    await page.waitForSelector('text=/rebuilt from the backup/', { timeout: 20000 });
+    const roots = [...files.values()].filter(f => live(f) && f.owner === 'mum@example.com' && f.appProperties?.memoryBook === 'root');
+    check(roots.length === 1 && journal().settings.childName === 'Asha Rose' && journal().memories.map(m => m.id).sort().join() === before, 'M-3: a lost book.json is rebuilt from the backup, nothing lost');
+
+    // A memory deleted by someone: brought back from the backup in Settings.
+    snapshots().forEach(f => { f.createdTime = new Date(Date.now() - 8 * 86400e3).toISOString(); });
+    await page.goto(`${B}/book`);
+    for (let i = 0; i < 40 && snapshots().length < 2; i++) await page.waitForTimeout(250);
+    check(snapshots().length === 2, 'A3: a new backup is made after a week');
+    const book = journal();
+    const gone = book.memories.find(m => m.title === 'Up in the hills');
+    writeBook({ ...book, memories: book.memories.filter(m => m !== gone) });
+    await page.goto(`${B}/book/settings`);
+    await page.click('button:has-text("Bring back missing memories") >> nth=0');
+    await page.waitForSelector('text=/Brought back 1 memory/', { timeout: 20000 });
+    check(journal().memories.some(m => m.id === gone.id), 'A4: a deleted memory is brought back from a backup');
   }
 
   // H-2: a public link added outside the app is switched off when the owner opens the book

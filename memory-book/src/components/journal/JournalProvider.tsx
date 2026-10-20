@@ -77,6 +77,9 @@ interface JournalContextValue {
   /** For family: allow the app to open a book someone shared with you. */
   /** Family: open a book someone shared with you. */
   openSharedBook(): Promise<void>;
+  listBackups(): Promise<{ id: string; date: string }[]>;
+  /** Brings back memories from a backup that aren't in the book now; returns how many. */
+  restoreFromBackup(backupId: string): Promise<number>;
 }
 
 export interface DriveImportState {
@@ -189,6 +192,8 @@ export function JournalProvider({
     try {
       const loaded = await repository.load();
       setFolderUrl(repository.folderUrl());
+      const repaired = repository.takeNotices();
+      if (repaired.length) setNotice(repaired.join(" "));
       if (loaded) {
         commit(loaded);
         setStatus("ready");
@@ -198,6 +203,8 @@ export function JournalProvider({
             setAccess(found);
             // The owner's app keeps the book private every time it opens.
             if (!found.isOwner) return;
+            // A weekly safety copy of the book's text, in your Drive's backups folder.
+            await repository.ensureBackup(loaded).catch(() => undefined);
             const { removedPublicShares } = await repository.secureSharing();
             if (removedPublicShares > 0)
               setNotice(
@@ -693,6 +700,16 @@ export function JournalProvider({
     },
     [repository, journal],
   );
+  const listBackups = useCallback(() => repository.listBackups(), [repository]);
+  const restoreFromBackup = useCallback(
+    async (backupId: string) => {
+      const { journal: saved, restored } = await enqueue(() => repository.restoreFromBackup(backupId));
+      commit(saved);
+      return restored;
+    },
+    [repository, enqueue, commit],
+  );
+
   const openSharedBook = useCallback(async () => {
     // A book made with Memory Book usually opens as soon as it's shared with you;
     // if not, you choose it once in Google's own picker, which lets the app open just that book.
@@ -792,6 +809,8 @@ export function JournalProvider({
     inviteFamily,
     removeFamily,
     openSharedBook,
+    listBackups,
+    restoreFromBackup,
   };
 
   return (

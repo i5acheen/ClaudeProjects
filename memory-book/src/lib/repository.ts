@@ -30,6 +30,13 @@ export interface JournalRepository {
   removeFamily(memberId: string): Promise<void>;
   /** Owner only: stops onward sharing and removes public links; returns how many were removed. */
   secureSharing(): Promise<{ removedPublicShares: number }>;
+  /** Owner only: keeps a weekly copy of the book's text; true if one was made now. */
+  ensureBackup(journal: Journal): Promise<boolean>;
+  listBackups(): Promise<{ id: string; date: string }[]>;
+  /** Adds back memories from a backup that are missing now (never removes anything). */
+  restoreFromBackup(backupId: string): Promise<{ journal: Journal; restored: number }>;
+  /** Messages for the person (e.g. a damaged file was repaired), each returned once. */
+  takeNotices(): string[];
 }
 
 export type FamilyRole = "reader" | "writer";

@@ -35,6 +35,8 @@ import {
   findFiles,
   headRevision,
   listRevisionIds,
+  listRevisions,
+  listTrashedInFolder,
   inFolderQuery,
   isPublicPermission,
   listFolderFiles,
@@ -74,7 +76,12 @@ interface Location {
   legacyFileId?: string;
   /** Older photos have had "editors can share" switched off. */
   sharingLocked?: boolean;
+  backupsFolderId?: string;
 }
+
+/** How often a safety copy of the whole book is kept, and how many. */
+const BACKUP_EVERY_DAYS = 7;
+const BACKUPS_KEPT = 4;
 
 /** One stored file, with the exact version we last read or wrote. */
 interface Part<T> {
@@ -116,8 +123,19 @@ async function writeChecked(fileId: string, base: string | undefined, content: u
   return { written, theirs: history[at - 1] };
 }
 
+const today = () => new Date().toISOString().slice(0, 10);
+const isDamaged = (e: unknown) => e instanceof SyntaxError;
+
 export class DriveRepository implements JournalRepository {
   private location: Location | null = null;
+  /** Things the app should tell you about (e.g. a damaged file that was repaired). */
+  private notices: string[] = [];
+
+  takeNotices(): string[] {
+    const notices = this.notices;
+    this.notices = [];
+    return notices;
+  }
 
   async load(): Promise<Journal | null> {
     const location = await this.locate();
@@ -296,15 +314,20 @@ export class DriveRepository implements JournalRepository {
   /** Every file of a split book, each with the exact version read. */
   private async readState(location: Location): Promise<BookState> {
     const files = await listFolderFiles(location.folderId);
-    const read = async <T,>(fileId: string, parse: (raw: unknown) => T): Promise<Part<T>> => {
+    const read = async <T,>(fileId: string, parse: (raw: unknown) => T, name: string): Promise<Part<T>> => {
       const revision = await headRevision(fileId).catch(() => undefined);
-      return { fileId, revision, data: parse(await readJson(fileId, revision)) };
+      try {
+        return { fileId, revision, data: parse(await readJson(fileId, revision)) };
+      } catch (e) {
+        if (!isDamaged(e)) throw e;
+        return this.repair(location, fileId, revision, parse, name);
+      }
     };
-    const index = await read(location.journalFileId, parseIndex);
+    const index = await read(location.journalFileId, parseIndex, "book.json");
     const years = new Map<string, Part<YearContent>>();
     for (const file of files.filter((f) => f.appProperties?.[KEY] === "year")) {
       const year = file.appProperties?.[YEAR_KEY] ?? file.name.replace(/^memories-|\.json$/g, "");
-      const part = await read(file.id, (raw) => parseYear(raw, year));
+      const part = await read(file.id, (raw) => parseYear(raw, year), file.name);
       const existing = years.get(year);
       if (!existing) years.set(year, part);
       else
@@ -316,6 +339,88 @@ export class DriveRepository implements JournalRepository {
         });
     }
     return { index, years };
+  }
+
+  /**
+   * A file that can't be read (damaged, or edited by hand): put back its last
+   * good version from Drive's history, keeping the damaged copy in backups/.
+   * Nothing is thrown away.
+   */
+  private async repair<T>(location: Location, fileId: string, head: string | undefined, parse: (raw: unknown) => T, name: string): Promise<Part<T>> {
+    const damagedText = await (await downloadFile(fileId)).text().catch(() => "");
+    // Keep the damaged file exactly as it is, first.
+    const kept = await this.backupsFolder(location)
+      .then((backups) => copyFile(fileId, `damaged-${name.replace(/\.json$/, "")}-${today()}.json`, backups, { [KEY]: "damaged" }))
+      .then(() => true)
+      .catch(() => false);
+    const history = await listRevisions(fileId).catch(() => []);
+    for (const revision of history.filter((r) => r.id !== head).reverse()) {
+      let data: T;
+      try {
+        data = parse(await readJson(fileId, revision.id));
+      } catch {
+        continue;
+      }
+      try {
+        if (!kept) throw new Error("not allowed");
+        const written = await updateFileContent(fileId, jsonBlob(data));
+        const when = revision.modifiedTime ? new Date(revision.modifiedTime).toLocaleDateString() : "earlier";
+        this.notices.push(`${name} in your Drive was damaged. Its last good version (from ${when}) has been put back, and the damaged copy is kept in the backups folder.`);
+        return { fileId, revision: written, data };
+      } catch {
+        // Family who can only view: read the good version, but leave the file for the owner to repair.
+        return { fileId, revision: head, data };
+      }
+    }
+    // No good version left: keep the damaged contents inside the file, untouched, and carry on.
+    this.notices.push(`${name} in your Drive couldn't be read. Its contents are kept as they are; you can restore from a backup in Settings.`);
+    const data = parse({ unreadable: damagedText ? [{ damagedFileText: damagedText }] : [] });
+    return { fileId, revision: head, data };
+  }
+
+  private async backupsFolder(location: Location): Promise<string> {
+    if (!location.backupsFolderId) {
+      const existing = (await listFolderFiles(location.folderId)).find((f) => f.appProperties?.[KEY] === "backups");
+      location.backupsFolderId = existing?.id ?? (await createFolder("backups", location.folderId, { [KEY]: "backups" })).id;
+    }
+    return location.backupsFolderId;
+  }
+
+  /**
+   * Book owner: once a week, keep a copy of the whole book's text (not the photos,
+   * which stay in photos/) in backups/, keeping the last few.
+   */
+  async ensureBackup(journal: Journal): Promise<boolean> {
+    const location = await this.requireLocation();
+    const folder = await this.backupsFolder(location);
+    const snapshots = (await listFolderFiles(folder)).filter((f) => f.appProperties?.[KEY] === "snapshot");
+    const newest = snapshots.at(-1)?.createdTime;
+    if (newest && Date.now() - new Date(newest).getTime() < BACKUP_EVERY_DAYS * 86_400_000) return false;
+    await createFile(`book-backup-${today()}.json`, folder, jsonBlob({ ...journal, backedUpAt: new Date().toISOString() }), { [KEY]: "snapshot" });
+    for (const old of snapshots.slice(0, Math.max(0, snapshots.length + 1 - BACKUPS_KEPT))) await trashFile(old.id).catch(() => undefined);
+    return true;
+  }
+
+  async listBackups(): Promise<{ id: string; date: string }[]> {
+    const location = await this.requireLocation();
+    const folder = await this.backupsFolder(location);
+    return (await listFolderFiles(folder))
+      .filter((f) => f.appProperties?.[KEY] === "snapshot" || f.appProperties?.[KEY] === "backup")
+      .map((f) => ({ id: f.id, date: f.createdTime ?? "" }))
+      .reverse();
+  }
+
+  /** Brings back every memory in a backup that isn't in the book now. Never removes or overwrites anything. */
+  async restoreFromBackup(backupId: string): Promise<{ journal: Journal; restored: number }> {
+    const backup = normaliseJournal(await readJson(backupId));
+    let restored = 0;
+    const journal = await this.update((current) => {
+      const have = new Set(current.memories.map((m) => m.id));
+      const missing = backup.memories.filter((m) => !have.has(m.id));
+      restored = missing.length;
+      return missing.length ? { ...current, memories: [...current.memories, ...missing] } : current;
+    });
+    return { journal, restored };
   }
 
   /** An older book that hasn't been converted (e.g. opened by family who can only view it). */
@@ -390,6 +495,32 @@ export class DriveRepository implements JournalRepository {
     return file.id;
   }
 
+  /**
+   * book.json is gone and isn't in the bin: make a new one from the latest backup
+   * (or, failing that, from the folder's name), keeping every memory file there is.
+   */
+  private async rebuildIndex(folder: { id: string; name: string }, children: DriveChild[]): Promise<DriveChild> {
+    const backups = children.find((f) => f.appProperties?.[KEY] === "backups");
+    const snapshots = backups ? (await listFolderFiles(backups.id)).filter((f) => f.appProperties?.[KEY] === "snapshot") : [];
+    const latest = snapshots.at(-1);
+    const backup = latest ? normaliseJournal(await readJson(latest.id).catch(() => ({}))) : null;
+    const hasYears = children.some((f) => f.appProperties?.[KEY] === "year");
+
+    // The folder's name always carries the child's current name.
+    const childName = folder.name.replace(/^Memory Book – /, "");
+    const settings = backup ? { ...backup.settings, childName } : { ...normaliseJournal({}).settings, childName, bookTitle: "Memory Book" };
+    const journal: Journal = { version: 1, settings, growth: backup?.growth, memories: hasYears ? [] : (backup?.memories ?? []) };
+    const { index, years } = split(journal);
+    for (const [year, memories] of years) {
+      await createFile(yearFileName(year), folder.id, jsonBlob({ version: FORMAT, year, memories }), { [KEY]: "year", [YEAR_KEY]: year });
+    }
+    const file = await createFile("book.json", folder.id, jsonBlob(index), { [KEY]: "index" });
+    if (backup) this.notices.push(`The book's main file (book.json) was missing, so it was rebuilt from the backup of ${latest?.createdTime?.slice(0, 10)}.`);
+    else if (hasYears || children.some((f) => f.appProperties?.[KEY] === "photos"))
+      this.notices.push("The book's main file (book.json) was missing, so it was rebuilt. Please check your child's details in Settings.");
+    return { id: file.id, name: "book.json" };
+  }
+
   private async requireLocation(): Promise<Location> {
     const location = this.location ?? (await this.locate());
     if (!location) throw new Error("No memory book found in Google Drive.");
@@ -413,16 +544,32 @@ export class DriveRepository implements JournalRepository {
     if (!photos && own) photos = await createFolder("photos", folder.id, { [KEY]: "photos" });
     if (!photos) return null;
 
+    // The book's main file is missing (deleted by mistake?): rescue it rather than start a new book.
+    let legacyFile = legacy;
+    if (!index && !legacy && own) {
+      const binned = await listTrashedInFolder(folder.id).catch((): DriveChild[] => []);
+      const rescued = binned.find((f) => f.appProperties?.[KEY] === "index") ?? binned.find((f) => f.appProperties?.[KEY] === "journal");
+      if (rescued) {
+        await updateMetadata(rescued.id, { trashed: false });
+        this.notices.push(`${rescued.name} had been moved to the Drive bin. It has been put back.`);
+        if (rescued.appProperties?.[KEY] === "index") index = rescued;
+        else legacyFile = rescued;
+      } else {
+        index = await this.rebuildIndex(folder, children);
+      }
+    }
+
     // An older single-file book: its owner converts it once; anyone else keeps reading it as it is.
-    if (!index && legacy && own) index = { id: await this.convert(folder.id, legacy.id, children), name: "book.json" };
-    if (!index && !legacy) return null;
+    if (!index && legacyFile && own) index = { id: await this.convert(folder.id, legacyFile.id, children), name: "book.json" };
+    if (!index && !legacyFile) return null;
 
     this.location = {
       folderId: folder.id,
       photosFolderId: photos.id,
-      journalFileId: index?.id ?? legacy!.id,
+      journalFileId: index?.id ?? legacyFile!.id,
       format: index ? "split" : "single",
-      legacyFileId: index ? legacy?.id : undefined,
+      legacyFileId: index ? legacyFile?.id : undefined,
+      backupsFolderId: children.find((f) => f.appProperties?.[KEY] === "backups")?.id,
       sharingLocked: folder.appProperties?.[SHARING_LOCKED] === "1",
     };
     return this.location;

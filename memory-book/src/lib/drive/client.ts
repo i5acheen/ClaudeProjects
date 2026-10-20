@@ -404,3 +404,22 @@ export async function copyFile(fileId: string, name: string, parentId: string, a
   });
   return (await response.json()) as DriveFile;
 }
+
+/** Files in a folder that are in the Drive bin (to rescue a book file deleted by mistake). */
+export async function listTrashedInFolder(folderId: string): Promise<DriveChild[]> {
+  const params = new URLSearchParams({
+    q: `${inFolderQuery(folderId)} and trashed = true`,
+    fields: "files(id,name,createdTime,appProperties)",
+    pageSize: "100",
+    spaces: "drive",
+  });
+  const response = await driveFetch(`${API}/files?${params}`);
+  return ((await response.json()) as { files: DriveChild[] }).files;
+}
+
+/** Kept versions of a file, oldest first, with when each was saved. */
+export async function listRevisions(fileId: string): Promise<{ id: string; modifiedTime?: string }[]> {
+  const params = new URLSearchParams({ fields: "revisions(id,modifiedTime)", pageSize: "1000" });
+  const response = await driveFetch(`${API}/files/${encodeURIComponent(fileId)}/revisions?${params}`);
+  return ((await response.json()) as { revisions?: { id: string; modifiedTime?: string }[] }).revisions ?? [];
+}

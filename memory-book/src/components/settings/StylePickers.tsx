@@ -6,6 +6,7 @@ import {
   COVER_THEMES,
   HANDWRITING,
   PAPER_COLORS,
+  PAPER_FRAMES,
   PAPER_PATTERNS,
   paperVars,
   type CoverColor,
@@ -13,6 +14,7 @@ import {
   type Handwriting,
   type Paper,
   type PaperColor,
+  type PaperFrame,
   type PaperPattern,
 } from "@/lib/book-style";
 import { CoverPage } from "@/components/book/BookPages";
@@ -182,6 +184,26 @@ export function PaperPicker({
           {PAPER_COLORS[shown.color].label}
         </span>
       </div>
+      <p className="paper-picker__label">Frame</p>
+      <div className="swatches" role="radiogroup" aria-label="Page frame">
+        {(Object.keys(PAPER_FRAMES) as PaperFrame[]).map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="radio"
+            aria-checked={!!value && (value.frame ?? "none") === id}
+            className={`swatch ${id === "none" ? "swatch--frame-none" : ""}`}
+            style={id === "none" ? undefined : { background: PAPER_FRAMES[id].color }}
+            onClick={() => onChange({ ...shown, frame: id === "none" ? undefined : id })}
+            title={PAPER_FRAMES[id].label}
+          >
+            <span className="sr-only">{PAPER_FRAMES[id].label}</span>
+          </button>
+        ))}
+        <span className="swatches__name" aria-hidden>
+          {PAPER_FRAMES[shown.frame ?? "none"].label}
+        </span>
+      </div>
       <p className="paper-picker__label">Pattern</p>
       <div className="paper-options" role="radiogroup" aria-label="Paper pattern">
         {(Object.keys(PAPER_PATTERNS) as PaperPattern[]).map((id) => (
@@ -193,7 +215,7 @@ export function PaperPicker({
             className="paper-option"
             onClick={() => onChange({ ...shown, pattern: id })}
           >
-            <span className="paper-option__sheet" style={paperVars({ color: shown.color, pattern: id }) as React.CSSProperties} />
+            <span className="paper-option__sheet" style={paperVars({ ...shown, pattern: id }) as React.CSSProperties} />
             <span className="paper-option__label">{PAPER_PATTERNS[id].label}</span>
           </button>
         ))}

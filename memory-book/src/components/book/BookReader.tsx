@@ -22,6 +22,8 @@ interface BookReaderProps {
   onEditCover?: () => void;
   /** Edit a month divider page (the book's owner only). */
   onEditMonth?: (months: number) => void;
+  /** Add a guided page ("Hello, world!", "All about me"…). */
+  onNewGuided?: () => void;
   /** Change the paper of the pages on screen, or of the whole book. */
   onPageStyle?: (memories: Memory[]) => void;
   /** Turn to this memory whenever it changes (e.g. right after saving it). */
@@ -40,6 +42,7 @@ export function BookReader({
   onEditCover,
   onEditMonth,
   onPageStyle,
+  onNewGuided,
   focusMemoryId,
 }: BookReaderProps) {
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
@@ -192,6 +195,7 @@ export function BookReader({
           <WriteMenu
             memories={writable}
             onPageStyle={onPageStyle}
+            onNewGuided={onNewGuided}
             onEdit={onEdit}
             onNewNote={onNewNote}
             onNewPage={onNewPage}
@@ -285,6 +289,7 @@ function useImmersive() {
 function WriteMenu({
   memories,
   onPageStyle,
+  onNewGuided,
   onEdit,
   onNewNote,
   onNewPage,
@@ -297,6 +302,7 @@ function WriteMenu({
   onEditMonth?: (months: number) => void;
   memories: Memory[];
   onPageStyle?: (memories: Memory[]) => void;
+  onNewGuided?: () => void;
   childName: string;
   onEditCover?: () => void;
   onEdit?: (memory: Memory) => void;
@@ -337,6 +343,17 @@ function WriteMenu({
               <span className="min-w-0">
                 <span className="block text-ink">New page</span>
                 <span className="block text-xs text-ink-faint">Photos and a few lines</span>
+              </span>
+            </button>
+          )}
+          {onNewGuided && (
+            <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onNewGuided)}>
+              <span className="write-menu__icon write-menu__icon--guided" aria-hidden>
+                ⭐
+              </span>
+              <span className="min-w-0">
+                <span className="block text-ink">Guided page</span>
+                <span className="block text-xs text-ink-faint">Hello world, All about me, My firsts…</span>
               </span>
             </button>
           )}

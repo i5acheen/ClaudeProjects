@@ -172,6 +172,8 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
           tags,
           photos: photos.map(({ key: _key, ...photo }) => photo as DraftPhoto),
           kind: memory?.kind,
+          template: memory?.template,
+          fields: memory?.fields,
           sealedUntil: memory?.sealedUntil,
           paper: memory?.paper,
           pageStyle: memory?.pageStyle,

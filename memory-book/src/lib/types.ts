@@ -1,4 +1,5 @@
 import type { CoverColor, CoverTheme, Handwriting, PageStyle, Paper } from "./book-style";
+import type { GuidedTemplate } from "./guided";
 
 /**
  * The shape of everything stored in `journal.json`.
@@ -44,8 +45,12 @@ export interface Memory {
   source?: "drive-folder";
   /** The date couldn't be read from the photo, so it's only a guess — worth checking. */
   dateGuessed?: boolean;
-  /** A letter to the child (words only, its own page style). */
-  kind?: "letter";
+  /** A letter to the child (words only, its own page style), or a guided fill-in page. */
+  kind?: "letter" | "guided";
+  /** For guided pages: which one ("Hello, world!", "All about me"…), see lib/guided.ts. */
+  template?: GuidedTemplate;
+  /** For guided pages: the answers, by field id. */
+  fields?: Record<string, string>;
   /** Time capsule: the letter stays sealed in the book until this date (`YYYY-MM-DD`). */
   sealedUntil?: string;
   /** This page's own paper (colour and pattern), instead of the book's. */

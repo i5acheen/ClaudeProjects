@@ -13,6 +13,7 @@ import { uploadBookPhoto } from "@/lib/upload";
 import { clearDeviceData } from "@/lib/device-data";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
 import { bookPaper, handwritingStyle, paperVars, type Paper, type PageStyle } from "@/lib/book-style";
+import type { GuidedTemplate } from "@/lib/guided";
 import { photoHash, samePhoto } from "@/lib/photo-hash";
 
 /* ------------------------------------------------------------------ */
@@ -30,7 +31,9 @@ export interface MemoryInput {
   text: string;
   tags: Tag[];
   photos: DraftPhoto[];
-  kind?: "letter";
+  kind?: "letter" | "guided";
+  template?: GuidedTemplate;
+  fields?: Record<string, string>;
   sealedUntil?: string;
   paper?: Paper;
   pageStyle?: PageStyle;
@@ -336,6 +339,8 @@ export function JournalProvider({
         tags: draft.input.tags,
         photos,
         kind: draft.input.kind,
+        template: draft.input.template,
+        fields: draft.input.fields,
         sealedUntil: draft.input.sealedUntil || undefined,
         paper: draft.input.paper,
         pageStyle: draft.input.paper ? undefined : draft.input.pageStyle,
@@ -452,6 +457,8 @@ export function JournalProvider({
           tags: input.tags,
           photos: input.photos,
           kind: input.kind,
+          template: input.template,
+          fields: input.fields,
           sealedUntil: input.sealedUntil,
           paper: input.paper,
           pageStyle: input.pageStyle,
@@ -871,6 +878,8 @@ export function JournalProvider({
         tags: draft.input.tags,
         photos,
         kind: draft.input.kind,
+        template: draft.input.template,
+        fields: draft.input.fields,
         sealedUntil: draft.input.sealedUntil || undefined,
         paper: draft.input.paper,
         pageStyle: draft.input.paper ? undefined : draft.input.pageStyle,

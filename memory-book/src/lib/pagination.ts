@@ -85,6 +85,12 @@ export function paginate(
       continue;
     }
 
+    // A guided page ("Hello, world!", "All about me"…) is always exactly one page.
+    if (memory.kind === "guided") {
+      pages.push({ kind: "memory", memory, text: memory.text, continued: false, hasMore: false });
+      continue;
+    }
+
     const chunks: string[] = [];
     const capacity = Math.round(CAPACITY_BY_PHOTOS[Math.min(memory.photos.length, 4)] * fit);
     let [first, rest] = splitText(memory.text, capacity);

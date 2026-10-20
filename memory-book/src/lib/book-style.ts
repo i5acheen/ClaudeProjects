@@ -14,6 +14,9 @@ export const COVER_THEMES = {
   cream: { label: "Cream & gold" },
   classic: { label: "Classic rose" },
   rainbow: { label: "Rainbow sky" },
+  space: { label: "Space adventure" },
+  ocean: { label: "Under the sea" },
+  garden: { label: "Garden friends" },
 } as const;
 export type CoverTheme = keyof typeof COVER_THEMES;
 export const DEFAULT_COVER: CoverTheme = "blush";
@@ -144,9 +147,22 @@ export const PAPER_PATTERNS = {
 } as const;
 export type PaperPattern = keyof typeof PAPER_PATTERNS;
 
+/** A coloured border around the page, with the writing area inside it. */
+export const PAPER_FRAMES = {
+  none: { label: "No frame", color: "transparent" },
+  sun: { label: "Sunny", color: "#ffd86b" },
+  sky: { label: "Sky", color: "#a8d4f5" },
+  blush: { label: "Blush", color: "#f7b8c4" },
+  mint: { label: "Mint", color: "#a8dcc0" },
+  lilac: { label: "Lilac", color: "#cbbcf2" },
+} as const;
+export type PaperFrame = keyof typeof PAPER_FRAMES;
+
 export interface Paper {
   color: PaperColor;
   pattern: PaperPattern;
+  /** Leave out (or "none") for no frame. */
+  frame?: PaperFrame;
 }
 export const DEFAULT_PAPER: Paper = { color: "cream", pattern: "plain" };
 
@@ -170,11 +186,23 @@ export const isPageStyle = (value: unknown): value is PageStyle => typeof value 
 
 export function isPaper(value: unknown): value is Paper {
   const p = value as Partial<Paper> | null;
-  return !!p && typeof p === "object" && typeof p.color === "string" && p.color in PAPER_COLORS && typeof p.pattern === "string" && p.pattern in PAPER_PATTERNS;
+  return (
+    !!p &&
+    typeof p === "object" &&
+    typeof p.color === "string" &&
+    p.color in PAPER_COLORS &&
+    typeof p.pattern === "string" &&
+    p.pattern in PAPER_PATTERNS &&
+    (p.frame === undefined || (typeof p.frame === "string" && p.frame in PAPER_FRAMES))
+  );
 }
 
 const fromSaved = (paper: unknown, legacy: unknown): Paper | undefined =>
-  isPaper(paper) ? { color: paper.color, pattern: paper.pattern } : isPageStyle(legacy) ? { ...PAGE_STYLES[legacy] } : undefined;
+  isPaper(paper)
+    ? { color: paper.color, pattern: paper.pattern, ...(paper.frame && paper.frame !== "none" ? { frame: paper.frame } : {}) }
+    : isPageStyle(legacy)
+      ? { ...PAGE_STYLES[legacy] }
+      : undefined;
 
 /** The whole book's paper. */
 export function bookPaper(settings: Pick<BookSettings, "paper" | "pageStyle">): Paper {
@@ -186,7 +214,8 @@ export function memoryPaper(memory: { paper?: unknown; pageStyle?: unknown }): P
   return fromSaved(memory.paper, memory.pageStyle);
 }
 
-export const samePaper = (a?: Paper, b?: Paper) => !!a && !!b && a.color === b.color && a.pattern === b.pattern;
+export const samePaper = (a?: Paper, b?: Paper) =>
+  !!a && !!b && a.color === b.color && a.pattern === b.pattern && (a.frame ?? "none") === (b.frame ?? "none");
 
 // Lines and dots never thinner than a pixel, so they show on the little sample sheets too.
 const LINE = "max(1px, 0.18cqw)";
@@ -254,6 +283,9 @@ export function paperVars(paper: Paper): Record<string, string> {
     "--paper": PAPER_COLORS[paper.color].paper,
     "--page-pattern": pattern?.image ?? "none",
     "--page-pattern-size": pattern?.size ?? "auto",
+    // The frame: the pattern sits on a rounded panel inset from the edges, the frame colour all around it.
+    "--page-frame": PAPER_FRAMES[paper.frame ?? "none"].color,
+    "--page-frame-inset": paper.frame && paper.frame !== "none" ? "3.4cqw" : "0px",
     // Ruled, dotted, squared or checked paper already has lines, so the words don't draw their own.
     "--text-rule": ["lined", "grid", "dots", "gingham"].includes(paper.pattern) ? "transparent" : "rgba(111, 147, 174, 0.22)",
   };

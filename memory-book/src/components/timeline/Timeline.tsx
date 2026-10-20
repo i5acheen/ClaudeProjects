@@ -7,6 +7,7 @@ import { ageStamp, isSealed, longDate, monthLabel, shortDate } from "@/lib/dates
 import { sortMemories } from "@/lib/pagination";
 import { seededRandom } from "@/lib/random";
 import { usePhotoSrc } from "@/components/book/PhotoSource";
+import { GUIDED_TEMPLATES, isGuidedTemplate } from "@/lib/guided";
 
 type Filter = "all" | "photos" | "letters" | Tag;
 
@@ -106,7 +107,11 @@ function TimelineCard({ memory, href }: { memory: Memory; href: string }) {
       style={{ transform: `rotate(${tilt}deg)` }}
     >
       <div className="relative aspect-square overflow-hidden bg-[#e8dfd0]">
-        {sealed || (memory.kind === "letter" && !thumb) ? (
+        {memory.kind === "guided" && isGuidedTemplate(memory.template) && !thumb ? (
+          <div className={`grid h-full place-items-center text-5xl guided-thumb guided-thumb--${GUIDED_TEMPLATES[memory.template].accent}`} aria-hidden>
+            {GUIDED_TEMPLATES[memory.template].emoji}
+          </div>
+        ) : sealed || (memory.kind === "letter" && !thumb) ? (
           <div className="grid h-full place-items-center text-5xl" aria-label={sealed ? "Sealed letter" : "Letter"}>
             {sealed ? "💌" : "✉️"}
           </div>

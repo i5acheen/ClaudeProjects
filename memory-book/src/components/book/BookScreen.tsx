@@ -12,6 +12,7 @@ import { NoteSheet } from "./NoteSheet";
 import { CoverSheet } from "./CoverSheet";
 import { MonthSheet } from "./MonthSheet";
 import { PageStyleSheet } from "./PageStyleSheet";
+import { GuidedSheet } from "./GuidedSheet";
 import { WritingHintsContext } from "./BookPages";
 
 /** The signed-in book: the same reader as the demo, with your own memories — and you can write straight into it. */
@@ -21,6 +22,7 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
   const [editingCover, setEditingCover] = useState(false);
   const [editingMonth, setEditingMonth] = useState<number | null>(null);
   const [styling, setStyling] = useState<Memory[] | null>(null);
+  const [guided, setGuided] = useState<{ memory?: Memory } | null>(null);
   const { access } = useJournal();
 
   return (
@@ -47,15 +49,27 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
               journal={journal}
               startMemoryId={startMemoryId}
               focusMemoryId={focusId}
-              onEdit={access.canEdit ? (memory) => setWriting({ memory }) : undefined}
+              onEdit={access.canEdit ? (memory) => (memory.kind === "guided" ? setGuided({ memory }) : setWriting({ memory })) : undefined}
               onNewNote={access.canEdit ? () => setWriting({ letter: true }) : undefined}
               onNewPage={access.canEdit ? () => setWriting({}) : undefined}
               onEditCover={access.isOwner ? () => setEditingCover(true) : undefined}
               onEditMonth={access.canEdit ? setEditingMonth : undefined}
               onPageStyle={access.canEdit ? setStyling : undefined}
+              onNewGuided={access.canEdit ? () => setGuided({}) : undefined}
             />
             </WritingHintsContext.Provider>
             {editingMonth !== null && <MonthSheet journal={journal} months={editingMonth} onClose={() => setEditingMonth(null)} />}
+            {guided && (
+              <GuidedSheet
+                journal={journal}
+                memory={guided.memory}
+                onClose={() => setGuided(null)}
+                onSaved={(id) => {
+                  setGuided(null);
+                  setFocusId(id);
+                }}
+              />
+            )}
             {styling && (
               <PageStyleSheet journal={journal} memories={styling} canStyleBook={access.isOwner} onClose={() => setStyling(null)} />
             )}

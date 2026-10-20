@@ -673,6 +673,44 @@ try {
   const restyled = journal().memories.find(m => m.title === 'Tiny toes');
   check(restyled?.paper?.color === 'sky' && restyled.paper.pattern === 'stars' && restyled.text === 'Your feet fit in my palm today.', 'page style: changed from the journal, words and photos untouched');
   check(await page.locator('.memory-page[style*="--paper: #e9f3fc"]').count() > 0, 'page style: the new colour shows in the book');
+
+  // A frame for the same page, from the journal.
+  await page.click('.write-fab');
+  await page.click('.write-menu >> text=Page style');
+  await page.click('[aria-label="Page style"] .swatch[title="Sunny"]');
+  await page.click('text=Use on this page');
+  await page.waitForSelector('[aria-label="Page style"]', { state: 'detached' });
+  for (let i = 0; i < 40 && journal().memories.find(m => m.title === 'Tiny toes')?.paper?.frame !== 'sun'; i++) await page.waitForTimeout(250);
+  const framed = journal().memories.find(m => m.title === 'Tiny toes')?.paper;
+  check(framed?.frame === 'sun' && framed.color === 'sky' && framed.pattern === 'stars', 'page style: a frame can be added, keeping the colour and pattern');
+
+  // A guided page ("All about me"), straight from the journal.
+  await page.click('.write-fab');
+  await page.click('.write-menu >> text=Guided page');
+  await page.waitForSelector('[aria-label="Add a guided page"]');
+  await shot('14a4-guided-choose');
+  await page.click('.guided-choice:has-text("All about me")');
+  await page.fill('#guided-toy', 'the crinkly giraffe');
+  await page.fill('#guided-laugh', 'peekaboo');
+  await page.fill('#guided-note', 'You chatter to the ceiling fan every morning.');
+  await page.click('text=Add page to journal');
+  await page.waitForSelector('[aria-label="All about me"]', { state: 'detached' });
+  for (let i = 0; i < 40 && !journal().memories.some(m => m.kind === 'guided'); i++) await page.waitForTimeout(250);
+  const about = journal().memories.find(m => m.kind === 'guided');
+  check(about?.template === 'about' && about.fields?.toy === 'the crinkly giraffe' && about.fields?.laugh === 'peekaboo' && about.text.startsWith('You chatter'), 'guided page: "All about me" saved with its answers');
+  await page.waitForTimeout(1500);
+  check(await page.locator('.guided-page .guided-row__answer:has-text("the crinkly giraffe")').count() > 0, 'guided page: answers shown on the page in the book');
+  await shot('14a5-guided-in-book');
+  // Fill in more later: the pencil opens the same questions.
+  await page.click('.write-fab');
+  await page.click('.write-menu__item:has-text("Write on this page")');
+  await page.waitForSelector('[aria-label="All about me"]');
+  check(await page.inputValue('#guided-toy') === 'the crinkly giraffe', 'guided page: opens again with its answers to add more');
+  await page.fill('#guided-food', 'mango');
+  await page.click('text=Save page');
+  await page.waitForSelector('[aria-label="All about me"]', { state: 'detached' });
+  for (let i = 0; i < 40 && journal().memories.find(m => m.kind === 'guided')?.fields?.food !== 'mango'; i++) await page.waitForTimeout(250);
+  check(journal().memories.find(m => m.kind === 'guided')?.fields?.food === 'mango' && journal().memories.filter(m => m.kind === 'guided').length === 1, 'guided page: edited in place, not duplicated');
   await shot('14a2-new-page-in-book');
 
   // 8d-2. A time-capsule letter, sealed until her 18th birthday

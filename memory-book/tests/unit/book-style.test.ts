@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { COVER_COLORS, bookPaper, coverColor, coverColorStyle, isPaper, memoryPaper, paperVars } from "@/lib/book-style";
+import { guidedAnswers, isGuidedTemplate } from "@/lib/guided";
 
 describe("cover colours", () => {
   it("letters dark cloths in cream and light cloths in a dark tone", () => {
@@ -35,5 +36,30 @@ describe("paper", () => {
     expect(paperVars({ color: "mint", pattern: "gingham" })["--text-rule"]).toBe("transparent");
     expect(paperVars({ color: "cream", pattern: "stars" })["--text-rule"]).not.toBe("transparent");
     expect(paperVars({ color: "sky", pattern: "plain" })).toMatchObject({ "--paper": "#e9f3fc", "--page-pattern": "none" });
+  });
+});
+
+describe("page frames", () => {
+  it("keeps a valid frame, drops 'none' and rejects unknown ones", () => {
+    expect(memoryPaper({ paper: { color: "cream", pattern: "plain", frame: "sun" } })).toEqual({ color: "cream", pattern: "plain", frame: "sun" });
+    expect(memoryPaper({ paper: { color: "cream", pattern: "plain", frame: "none" } })).toEqual({ color: "cream", pattern: "plain" });
+    expect(isPaper({ color: "cream", pattern: "plain", frame: "tartan" })).toBe(false);
+  });
+
+  it("insets the pattern only when there is a frame", () => {
+    expect(paperVars({ color: "cream", pattern: "plain", frame: "sky" })["--page-frame-inset"]).not.toBe("0px");
+    expect(paperVars({ color: "cream", pattern: "plain" })["--page-frame-inset"]).toBe("0px");
+  });
+});
+
+describe("guided pages", () => {
+  it("keeps only the template's own answers, trimmed and short", () => {
+    const answers = guidedAnswers("about", { toy: "  giraffe  ", food: "", hacked: "x", song: "a".repeat(500), height: 64 });
+    expect(answers).toEqual({ toy: "giraffe", song: "a".repeat(120) });
+  });
+
+  it("knows its templates", () => {
+    expect(isGuidedTemplate("firsts")).toBe(true);
+    expect(isGuidedTemplate("rocket")).toBe(false);
   });
 });

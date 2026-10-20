@@ -10,6 +10,7 @@ import { PhotoFrame, WashiTape } from "./PhotoFrame";
 import { usePhotoSrc } from "./PhotoSource";
 import { useFitText } from "./useFitText";
 import { coverColor, coverColorStyle, coverTheme, memoryPaper, paperVars } from "@/lib/book-style";
+import { GUIDED_TEMPLATES, guidedAnswers, isGuidedTemplate } from "@/lib/guided";
 import { TAG_META, tagSlug } from "@/lib/tags";
 import { usePageFormat } from "./PageFormatContext";
 
@@ -274,6 +275,71 @@ export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, chil
 }
 
 /* ------------------------------------------------------------------ */
+/* Guided pages ("Hello, world!", "All about me", "My firsts"…)        */
+/* ------------------------------------------------------------------ */
+
+const GUIDED_DOODLES = { sky: "star", blush: "heart", sun: "sun", lilac: "sparkle" } as const;
+
+export function GuidedPage({ memory, dateOfBirth, pageNumber }: { memory: Memory; dateOfBirth: string; pageNumber: number }) {
+  const template = GUIDED_TEMPLATES[memory.template!];
+  const answers = guidedAnswers(template.id, memory.fields);
+  const showHints = useContext(WritingHintsContext);
+  const empty = Object.keys(answers).length === 0 && !memory.text.trim();
+
+  return (
+    <article className={`paper guided-page guided-page--${template.accent}`} style={pagePaperStyle(memory)}>
+      <header className="guided-page__head">
+        <p className="memory-date">{template.id === "hello" ? longDate(dateOfBirth) : longDate(memory.date)}</p>
+        {template.id !== "hello" && <p className="memory-age">{ageStamp(dateOfBirth, memory.date)}</p>}
+        <h3 className="guided-page__title">{template.title}</h3>
+      </header>
+
+      <Doodle
+        kind={GUIDED_DOODLES[template.accent]}
+        color="var(--guided-ink)"
+        size="7cqw"
+        rotate={-10}
+        style={{ position: "absolute", top: "8cqw", right: "9cqw" }}
+      />
+
+      {template.id === "firsts" ? (
+        <ul className="guided-checklist">
+          {template.fields.map((f) => (
+            <li key={f.id} className={answers[f.id] ? "is-done" : undefined}>
+              <span className="guided-check" aria-hidden>
+                {answers[f.id] ? "✓" : ""}
+              </span>
+              <span className="guided-checklist__label">{f.label}</span>
+              <span className="guided-checklist__date">{answers[f.id] && /^\d{4}-\d{2}-\d{2}$/.test(answers[f.id]) ? shortDate(answers[f.id]) : answers[f.id]}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="guided-box">
+          {template.fields.map((f) => (
+            <p key={f.id} className="guided-row">
+              <span className="guided-row__label">{f.label}</span>
+              <span className="guided-row__answer">{answers[f.id] ?? ""}</span>
+            </p>
+          ))}
+        </div>
+      )}
+
+      {memory.text.trim() && <p className="guided-note">{memory.text}</p>}
+      {showHints && empty && <p className="memory-hint">✎ tap the pencil to fill this page in…</p>}
+
+      <footer className="memory-page__footer">
+        <div />
+        <PageNumber n={pageNumber} />
+        <div className="memory-footer-doodle">
+          <Doodle kind="sparkle" color="var(--guided-ink)" size="5cqw" rotate={8} />
+        </div>
+      </footer>
+    </article>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Notes & end                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -414,6 +480,9 @@ export function BookPageView({
     case "memory":
       if (page.sealed) {
         return <SealedLetterPage memory={page.memory} childName={settings.childName} pageNumber={pageNumber(index)} />;
+      }
+      if (page.memory.kind === "guided" && isGuidedTemplate(page.memory.template)) {
+        return <GuidedPage memory={page.memory} dateOfBirth={settings.dateOfBirth} pageNumber={pageNumber(index)} />;
       }
       return (
         <MemoryPage

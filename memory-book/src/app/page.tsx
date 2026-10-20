@@ -4,7 +4,7 @@ import { SignInButton } from "@/components/app/SignInButton";
 import { SiteFooter } from "@/components/legal/SiteFooter";
 import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
-import { CoverPage } from "@/components/book/BookPages";
+import { CoverPage, GuidedPage, MemoryPage } from "@/components/book/BookPages";
 import { InkFilters } from "@/components/book/Doodles";
 import { demoJournal } from "@/lib/demo-data";
 
@@ -134,7 +134,53 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       <Wave className="home-wave--mint" />
-      <section id="privacy" className="home-section">
+      <section id="inside" className="home-section" aria-labelledby="inside-heading">
+        <div className="home-wrap text-center">
+          <p className="home-eyebrow">What&rsquo;s inside</p>
+          <h2 id="inside-heading" className="home-h2 mt-3">
+            Pages you&rsquo;ll <span className="home-accent">love to fill</span>.
+          </h2>
+          <p className="home-lead mx-auto mt-4 max-w-xl">
+            Your photos and words become real book pages, and ready-made pages guide you through the big little moments.
+          </p>
+          <div className="home-pages">
+            {INSIDE_PAGES.map(({ id, caption }, i) => {
+              const memory = demoJournal.memories.find((m) => m.id === id)!;
+              return (
+                <figure key={id} className="home-page" style={{ "--tilt": `${[-3, 2, -1.5, 3][i]}deg` } as React.CSSProperties}>
+                  <div className="home-page__sheet">
+                    <div className="page-surface">
+                      {memory.kind === "guided" ? (
+                        <GuidedPage memory={memory} dateOfBirth={demoJournal.settings.dateOfBirth} pageNumber={i + 2} />
+                      ) : (
+                        <MemoryPage
+                          memory={memory}
+                          text={memory.text}
+                          continued={false}
+                          hasMore={false}
+                          dateOfBirth={demoJournal.settings.dateOfBirth}
+                          childName={demoJournal.settings.childName}
+                          pageNumber={i + 2}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <figcaption className="home-page__caption">{caption}</figcaption>
+                </figure>
+              );
+            })}
+          </div>
+          <ul className="home-inside-list">
+            {INSIDE_LIST.map(([emoji, text]) => (
+              <li key={text}>
+                <span aria-hidden>{emoji}</span> {text}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section id="privacy" className="home-section !pt-0">
         <div className="home-wrap">
           <p className="home-eyebrow">Why Memory Book</p>
           <h2 className="home-h2 mt-3">
@@ -270,6 +316,24 @@ function SkyDecor() {
     </div>
   );
 }
+
+const INSIDE_PAGES = [
+  { id: "demo-hello", caption: "Hello, world!" },
+  { id: "demo-2", caption: "Your photos & words" },
+  { id: "demo-firsts", caption: "My firsts" },
+  { id: "demo-4", caption: "Festivals & family" },
+];
+
+const INSIDE_LIST: [string, string][] = [
+  ["🎨", "A cover with your child's name — rainbow, space, under the sea or garden"],
+  ["👋", "Hello, world! — the day they were born"],
+  ["⭐", "All about me — favourites at any age"],
+  ["✅", "My firsts — a checklist with dates"],
+  ["📅", "Month pages with height and weight"],
+  ["💌", "Letters, and time-capsule letters to open later"],
+  ["🌈", "Paper colours, patterns and frames"],
+  ["🖨️", "A print-ready PDF, any time"],
+];
 
 const STEPS = [
   { title: "Add a moment", text: "A photo or four, the date (read from the photo), and a few lines.", time: "About a minute" },

@@ -12,6 +12,8 @@ import { DriveFolderCard, DriveRefreshButton } from "./DriveFolderCard";
 import { WaitingCard } from "./WaitingCard";
 import { DuplicateCleaner } from "./DuplicateCleaner";
 import { GrowthCard } from "./GrowthCard";
+import { GuidedChooser, GuidedSheet } from "@/components/book/GuidedSheet";
+import type { GuidedTemplate } from "@/lib/guided";
 
 /**
  * The writing desk: add photos and words for a new memory, and give words
@@ -28,6 +30,7 @@ export function WriteScreen({ journal }: { journal: Journal }) {
   // Photos shared from the phone's gallery arrive here (Android "Share → Memory Book").
   const [sharedNote, setSharedNote] = useState<string | null>(null);
   const [welcome, setWelcome] = useState(false);
+  const [guided, setGuided] = useState<GuidedTemplate | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has("welcome")) {
@@ -90,6 +93,24 @@ export function WriteScreen({ journal }: { journal: Journal }) {
         )}
 
         <MemoryEditor journal={journal} variant="inline" />
+
+        <section className="sheet" aria-labelledby="guided-heading">
+          <h2 id="guided-heading" className="ui-h2">
+            Guided pages
+          </h2>
+          <p className="mt-1 text-ink-soft">Ready-made pages to fill in, like a printed baby book.</p>
+          <div className="mt-4">
+            <GuidedChooser onChoose={setGuided} />
+          </div>
+        </section>
+        {guided && (
+          <GuidedSheet
+            journal={journal}
+            template={guided}
+            onClose={() => setGuided(null)}
+            onSaved={(id) => router.push(`/book?memory=${encodeURIComponent(id)}`)}
+          />
+        )}
 
         <GrowthCard journal={journal} />
 

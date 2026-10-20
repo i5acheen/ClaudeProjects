@@ -6,7 +6,7 @@ import type { BookAccess, FamilyMember, FamilyRole, JournalRepository } from "@/
 import { DriveRepository } from "@/lib/drive/drive-repository";
 import { DriveError, OfflineError, SignedOutError, getAccessToken, getImageInfo } from "@/lib/drive/client";
 import { pickFromDrive, type PickedFile } from "@/lib/drive/picker";
-import { importDriveFiles } from "@/lib/folder-import";
+import { fromDrive, importPhotos, type IncomingPhoto } from "@/lib/folder-import";
 import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
 import { createCachedPhotoResolver, primePhotoCache } from "@/lib/photo-cache";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
@@ -63,8 +63,8 @@ interface JournalContextValue {
   syncNow(): Promise<void>;
   reload(): Promise<void>;
   driveImport: DriveImportState;
-  /** Opens Google's picker; the photos you choose become memories waiting for words. */
-  addFromDrive(): Promise<void>;
+  /** Opens Google's picker (in the folder used last, or anywhere); the photos you tick become memories waiting for words. */
+  addFromDrive(where?: "last-folder" | "anywhere"): Promise<void>;
   /** Whose book this is; family who can only view get `canEdit: false`. */
   access: BookAccess;
   listFamily(): Promise<FamilyMember[]>;
@@ -81,6 +81,8 @@ interface JournalContextValue {
 
 export interface DriveImportState {
   importing: boolean;
+  /** Photos were picked from a Drive folder on this device before ("Check for new photos" opens it). */
+  hasFolder?: boolean;
   progress?: { done: number; total: number };
   lastAdded?: number;
   message?: string;
@@ -88,6 +90,8 @@ export interface DriveImportState {
 
 /** The Drive folder you last picked photos from, to open the picker there next time (this device only). */
 const LAST_FOLDER_KEY = "memory-book:last-photo-folder";
+/** Where the service worker leaves photos shared into the app (see public/sw.js). */
+const SHARE_INBOX = "share-inbox";
 
 const JournalContext = createContext<JournalContextValue | null>(null);
 
@@ -421,64 +425,129 @@ export function JournalProvider({
 
   const [importState, setImportState] = useState<DriveImportState>({ importing: false });
 
-  const addFromDrive = useCallback(async () => {
-    setImportState({ importing: false });
-    let picked: PickedFile[];
-    try {
-      let folderId: string | undefined;
-      try {
-        folderId = localStorage.getItem(LAST_FOLDER_KEY) ?? undefined;
-      } catch {
-        // no saved folder
-      }
-      picked = (await pickFromDrive(await getAccessToken(), { kind: "photos", folderId })).filter(
-        (f) => !f.mimeType || f.mimeType.startsWith("image/"),
-      );
-    } catch (e) {
-      setImportState({ importing: false, message: e instanceof Error ? e.message : "Couldn't open Google Drive." });
-      return;
-    }
-    if (picked.length === 0) return;
-    try {
-      if (picked[0].parentId) localStorage.setItem(LAST_FOLDER_KEY, picked[0].parentId);
-    } catch {
-      // fine
-    }
-
-    await enqueue(async () => {
-      setImportState({ importing: true, progress: { done: 0, total: picked.length } });
-      try {
-        let rest = await Promise.all(picked.map((f) => getImageInfo(f.id)));
-        let latest = journalRef.current!;
-        let added = 0;
-        let skipped = 0;
-        let alreadyInBook = 0;
-        let done = 0;
-        while (rest.length) {
-          const outcome = await importDriveFiles(repository, latest, rest, (n) =>
-            setImportState((s) => ({ ...s, progress: { done: done + n, total: picked.length } })),
-          );
-          done += rest.length - outcome.rest.length;
-          commit(outcome.journal);
-          latest = outcome.journal;
-          added += outcome.added;
-          skipped += outcome.skipped;
-          alreadyInBook += outcome.alreadyInBook;
-          rest = outcome.rest;
+  /** Copies photos into the book as memories waiting for words, a small batch at a time. */
+  const runImport = useCallback(
+    (getPhotos: () => Promise<IncomingPhoto[]>, total: number) =>
+      enqueue(async () => {
+        setImportState((s) => ({ ...s, importing: true, progress: { done: 0, total }, message: undefined }));
+        try {
+          let rest = await getPhotos();
+          let latest = journalRef.current!;
+          let added = 0;
+          let skipped = 0;
+          let alreadyInBook = 0;
+          let done = 0;
+          while (rest.length) {
+            const outcome = await importPhotos(repository, latest, rest, (n) =>
+              setImportState((s) => ({ ...s, progress: { done: done + n, total } })),
+            );
+            done += rest.length - outcome.rest.length;
+            commit(outcome.journal);
+            latest = outcome.journal;
+            added += outcome.added;
+            skipped += outcome.skipped;
+            alreadyInBook += outcome.alreadyInBook;
+            rest = outcome.rest;
+          }
+          const notes = [
+            alreadyInBook ? `${alreadyInBook} ${alreadyInBook === 1 ? "was" : "were"} already in the book` : "",
+            skipped ? `${skipped} couldn't be opened (iPhone HEIC photos need "Most Compatible" in Camera settings)` : "",
+          ].filter(Boolean);
+          setImportState((s) => ({
+            ...s,
+            importing: false,
+            lastAdded: added,
+            message: notes.length ? `${notes.join("; ")}.` : undefined,
+          }));
+        } catch (e) {
+          setImportState((s) => ({
+            ...s,
+            importing: false,
+            message:
+              e instanceof OfflineError
+                ? "You're offline — try again when you're back online."
+                : e instanceof Error
+                  ? e.message
+                  : "Couldn't bring in the photos.",
+          }));
         }
-        const notes = [
-          alreadyInBook ? `${alreadyInBook} ${alreadyInBook === 1 ? "was" : "were"} already in the book` : "",
-          skipped ? `${skipped} couldn't be opened (iPhone HEIC photos need "Most Compatible" in Camera settings)` : "",
-        ].filter(Boolean);
-        setImportState({ importing: false, lastAdded: added, message: notes.length ? `${notes.join("; ")}.` : undefined });
+      }),
+    [enqueue, repository, commit],
+  );
+
+  // Remember (on this device) the folder you pick photos from, so "Check for new photos" opens there.
+  useEffect(() => {
+    try {
+      const folder = localStorage.getItem(LAST_FOLDER_KEY);
+      if (folder) setImportState((s) => ({ ...s, hasFolder: true }));
+    } catch {
+      // no saved folder
+    }
+  }, []);
+
+  const addFromDrive = useCallback(
+    async (where: "last-folder" | "anywhere" = "last-folder") => {
+      setImportState((s) => ({ ...s, message: undefined, lastAdded: undefined }));
+      let picked: PickedFile[];
+      try {
+        let folderId: string | undefined;
+        try {
+          if (where === "last-folder") folderId = localStorage.getItem(LAST_FOLDER_KEY) ?? undefined;
+        } catch {
+          // no saved folder
+        }
+        picked = (
+          await pickFromDrive(await getAccessToken(), {
+            kind: "photos",
+            folderId,
+            title: folderId ? "Tick the new photos for the book" : undefined,
+          })
+        ).filter((f) => !f.mimeType || f.mimeType.startsWith("image/"));
       } catch (e) {
-        setImportState({
-          importing: false,
-          message: e instanceof OfflineError ? "You're offline — try again when you're back online." : e instanceof Error ? e.message : "Couldn't bring in the photos.",
-        });
+        setImportState((s) => ({ ...s, message: e instanceof Error ? e.message : "Couldn't open Google Drive." }));
+        return;
       }
-    });
-  }, [enqueue, repository, commit]);
+      if (picked.length === 0) return;
+      try {
+        if (picked[0].parentId) {
+          localStorage.setItem(LAST_FOLDER_KEY, picked[0].parentId);
+          setImportState((s) => ({ ...s, hasFolder: true }));
+        }
+      } catch {
+        // fine
+      }
+      await runImport(async () => (await Promise.all(picked.map((f) => getImageInfo(f.id)))).map(fromDrive), picked.length);
+    },
+    [runImport],
+  );
+
+  /** Photos shared into the app from the phone's gallery (Android "Share → Memory Book"). */
+  const importShared = useCallback(async () => {
+    if (!("caches" in window)) return;
+    const inbox = await caches.open(SHARE_INBOX);
+    const requests = await inbox.keys();
+    if (requests.length === 0) return;
+    const now = new Date().toISOString();
+    const photos: IncomingPhoto[] = await Promise.all(
+      requests.map(async (request) => {
+        const response = await inbox.match(request);
+        const blob = (await response?.blob()) ?? new Blob();
+        return {
+          id: `share-${request.url.split("/").pop()}`,
+          name: decodeURIComponent(response?.headers.get("x-file-name") ?? "photo"),
+          createdTime: response?.headers.get("x-last-modified") ?? now,
+          load: async () => blob,
+        };
+      }),
+    );
+    // Take them out of the inbox first, so they're never brought in twice.
+    await Promise.all(requests.map((r) => inbox.delete(r)));
+    await runImport(async () => photos, photos.length);
+  }, [runImport]);
+
+  useEffect(() => {
+    if (status === "ready" && access.canEdit) void importShared().catch(() => undefined);
+  }, [status, access.canEdit, importShared]);
 
   const journalRef = useRef(journal);
   journalRef.current = journal;
@@ -498,7 +567,14 @@ export function JournalProvider({
       let removed = 0;
       const saved = await enqueue(() =>
         repository.update((latest) => {
-          const duplicates = latest.memories.filter((m) => m.source === "drive-folder" && !m.text.trim());
+          // Empty pages made from the folder whose photos are copies (or old copies without a fingerprint).
+          const isCopy = (m: Memory) =>
+            m.photos.every(
+              (p) =>
+                !p.hash ||
+                latest.memories.some((other) => other.id !== m.id && other.photos.some((o) => o.fileId !== p.fileId && samePhoto(o.hash, p.hash))),
+            );
+          const duplicates = latest.memories.filter((m) => m.source === "drive-folder" && !m.text.trim() && isCopy(m));
           removed = duplicates.length;
           removedPhotos = duplicates.flatMap((m) => m.photos.map((p) => p.fileId));
           return {

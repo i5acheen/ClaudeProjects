@@ -14,6 +14,13 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#fbf7f2",
     theme_color: "#fbf7f2",
     categories: ["lifestyle", "photo"],
+    // Android: "Share → Memory Book" from the gallery (handled on the phone by public/sw.js).
+    share_target: {
+      action: "/share-target",
+      method: "POST",
+      enctype: "multipart/form-data",
+      params: { files: [{ name: "photos", accept: ["image/*", ".jpg", ".jpeg", ".png", ".webp", ".heic"] }] },
+    },
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },

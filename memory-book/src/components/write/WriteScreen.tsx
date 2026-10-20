@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useJournal } from "@/components/journal/JournalProvider";
 import type { Journal } from "@/lib/types";
 import { MemoryEditor } from "@/components/editor/MemoryEditor";
 import { SyncBanner } from "@/components/journal/SyncBanner";
 import { TopBar } from "@/components/ui/TopBar";
-import { DriveFolderCard } from "./DriveFolderCard";
+import { DriveFolderCard, DriveRefreshButton } from "./DriveFolderCard";
 import { WaitingCard } from "./WaitingCard";
 import { DuplicateCleaner } from "./DuplicateCleaner";
 import { GrowthCard } from "./GrowthCard";
@@ -25,6 +25,21 @@ export function WriteScreen({ journal }: { journal: Journal }) {
   const { access } = useJournal();
   const router = useRouter();
 
+  // Photos shared from the phone's gallery arrive here (Android "Share → Memory Book").
+  const [sharedNote, setSharedNote] = useState<string | null>(null);
+  useEffect(() => {
+    const shared = new URLSearchParams(window.location.search).get("shared");
+    if (!shared) return;
+    setSharedNote(
+      shared === "failed"
+        ? "The shared photos didn't come through. Open Memory Book once, then share them again."
+        : shared === "0"
+          ? "Only photos can be shared into Memory Book."
+          : null,
+    );
+    window.history.replaceState(null, "", "/book/write");
+  }, []);
+
   // Family who can only view the book have nothing to write here.
   useEffect(() => {
     if (!access.canEdit) router.replace("/book");
@@ -36,6 +51,10 @@ export function WriteScreen({ journal }: { journal: Journal }) {
       <SyncBanner />
 
       <div className="mx-auto max-w-xl space-y-8 px-3 pt-2 sm:px-4">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {sharedNote && <p className="mr-auto text-sm text-[var(--ink-terracotta)]">{sharedNote}</p>}
+          <DriveRefreshButton className="!h-10 !text-sm" />
+        </div>
         {waiting.length > 0 && (
           <section aria-labelledby="waiting-heading">
             <h2 id="waiting-heading" className="mb-1 ui-h2">

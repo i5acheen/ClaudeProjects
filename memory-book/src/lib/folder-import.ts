@@ -28,12 +28,35 @@ export interface ImportOutcome {
   skipped: number;
   remaining: number;
   /** The photos not imported yet (pass these to the next call). */
-  rest: DriveImage[];
+  rest: IncomingPhoto[];
 }
 
+/** A photo coming into the book: picked in Google Drive, or shared from the phone's gallery. */
+export interface IncomingPhoto {
+  /** Unique per source (Drive file ID, or a share ID). */
+  id: string;
+  name?: string;
+  /** When it was added (used only if no date is found in the photo itself). */
+  createdTime?: string;
+  /** Camera time as Drive reports it, e.g. "2026:06:15 10:30:00". */
+  cameraTime?: string;
+  /** One of the book's own copies (never copy those again). */
+  ownCopy?: boolean;
+  load(): Promise<Blob>;
+}
+
+export const fromDrive = (file: DriveImage): IncomingPhoto => ({
+  id: file.id,
+  name: file.name,
+  createdTime: file.createdTime,
+  cameraTime: file.imageMediaMetadata?.time,
+  ownCopy: !!file.appProperties?.memoryBook,
+  load: () => downloadFile(file.id),
+});
+
 /** "2026:06:15 10:30:00" (camera time) → "2026-06-15" */
-function cameraDate(file: DriveImage): string | undefined {
-  const match = file.imageMediaMetadata?.time?.match(/^(\d{4})[:-](\d{2})[:-](\d{2})/);
+function cameraDate(file: IncomingPhoto): string | undefined {
+  const match = file.cameraTime?.match(/^(\d{4})[:-](\d{2})[:-](\d{2})/);
   return match ? `${match[1]}-${match[2]}-${match[3]}` : undefined;
 }
 
@@ -59,14 +82,14 @@ const hashesIn = (journal: Journal) =>
   journal.memories.flatMap((m) => m.photos.map((p) => p.hash)).filter((h): h is string => !!h);
 
 /** Imports the next batch of `files`; call again with `remaining` until it reaches 0. */
-export async function importDriveFiles(
+export async function importPhotos(
   repository: JournalRepository,
   journal: Journal,
-  files: DriveImage[],
+  files: IncomingPhoto[],
   onProgress?: (done: number, total: number) => void,
 ): Promise<ImportOutcome> {
   // Never bring in the book's own photo copies (that would copy them again and again).
-  const fresh = files.filter((f) => !f.appProperties?.memoryBook);
+  const fresh = files.filter((f) => !f.ownCopy);
   if (fresh.length === 0) return { journal, added: 0, alreadyInBook: files.length, skipped: 0, remaining: 0, rest: [] };
 
   const batch = fresh.slice(0, BATCH);
@@ -79,7 +102,7 @@ export async function importDriveFiles(
   for (const [i, file] of batch.entries()) {
     onProgress?.(i, batch.length);
     try {
-      const original = await downloadFile(file.id);
+      const original = await file.load();
       const resized = await resizePhoto(original);
       if (resized.hash && knownHashes.some((h) => samePhoto(h, resized.hash))) {
         alreadyInBook.push(file.id);
@@ -87,7 +110,7 @@ export async function importDriveFiles(
       }
       if (resized.hash) knownHashes.push(resized.hash);
       const taken = cameraDate(file) ?? (await photoTakenDate(original, file.name));
-      const date = taken ?? localDay(file.createdTime);
+      const date = taken ?? localDay(file.createdTime ?? new Date().toISOString());
       const baseName = (file.name ?? "photo").replace(/\.[^.]+$/, "");
       const fileId = await repository.uploadPhoto(resized.blob, `${date}-${baseName}.jpg`);
       await primePhotoCache(fileId, resized.blob);

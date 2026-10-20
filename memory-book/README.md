@@ -202,9 +202,15 @@ Memory Book – <child's name>/
   **"Open a book shared with me"** and choose it once in Google's picker. Family never give the app
   access to the rest of their Drive, and people who can add memories can't share the book onwards.
   While your Google project is in *Testing* mode, also add their email as a test user (step 1c).
-- **Photos from Google Drive.** On the Write page, tap **Choose photos from Google Drive** and pick
-  photos in Google's window (it remembers the folder you used last). They're copied into the book,
-  resized and without location data, ready for your words. Photos already in the book are skipped.
+- **Photos from Google Drive.** On the Write page, tap **Choose photos from Google Drive** and tick
+  photos in Google's window. They're copied into the book, resized and without location data,
+  ready for your words. Photos already in the book are skipped. After that, the **↻ Check for new
+  photos** button (top of the Write page) opens the same folder again so you can tick the new ones.
+  The app can't watch a folder by itself: that would need permission to read your whole Drive.
+- **Share from your phone (Android).** Install Memory Book (see below), then in Google Photos or
+  your Gallery select photos and tap **Share → Memory Book**. They go straight into the book. The
+  photos travel from your phone to your Google Drive — never through our server. (iPhones don't
+  offer this for web apps; use **Choose photos** on the Write page instead.)
 - **Install it like an app (free, no app store).** On Android (Chrome): open the site, tap
   **Install Memory Book** in Settings or on the first page, or the browser menu **⋮ → Install app**.
   On iPhone (Safari): **Share → Add to Home Screen**. On a computer (Chrome/Edge): the install

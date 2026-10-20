@@ -206,7 +206,7 @@ const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, de
 await ctx.addCookies([{ name: 'authjs.session-token', value: token, url: B }]);
 await ctx.route('https://www.googleapis.com/**', handleDrive);
 // Google's picker window is replaced by a test hook: the test decides what gets "picked".
-const PICKER_HOOK = () => { window.__memoryBookPicker = async () => { const r = window.__nextPick || []; window.__nextPick = []; return r; }; };
+const PICKER_HOOK = () => { window.__memoryBookPicker = async (options) => { window.__lastPickOptions = options; const r = window.__nextPick || []; window.__nextPick = []; return r; }; };
 await ctx.addInitScript(PICKER_HOOK);
 const page = await ctx.newPage();
 async function pickInGoogle(p, email, list) {
@@ -376,7 +376,7 @@ try {
   const seenBefore = await page.evaluate(async (id) => (await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`, { headers: { Authorization: 'Bearer fake-access-token' } })).status, ups[0].id);
   check(seenBefore === 404, 'H-1: the app cannot open Drive photos you have not picked');
   await pickInGoogle(page, 'mum@example.com', ups);
-  await page.click('text=Choose photos from Google Drive');
+  await page.click('#drive-heading ~ div >> text=Choose photos from Google Drive');
   await page.waitForSelector('text=Waiting for your words', { timeout: 30000 });
   await page.waitForFunction(() => !document.body.innerText.includes('Bringing in photos'), null, { timeout: 30000 });
   await page.waitForTimeout(800);
@@ -408,9 +408,36 @@ try {
   const before2 = photosLive().length;
   const memoriesBefore2 = journal().memories.length;
   await pickInGoogle(page, 'mum@example.com', [ups[0], ups[1], photosLive()[0]]);
-  await page.click('text=Choose photos from Google Drive');
+  // The refresh button at the top of the Write page opens the folder used last time.
+  await page.click('button:has-text("Check for new photos") >> nth=0');
   await page.waitForSelector('text=/already in the book/', { timeout: 20000 });
+  check((await page.evaluate(() => window.__lastPickOptions?.folderId)) === holiday.id, 'refresh: "Check for new photos" opens the folder used last time');
   check(photosLive().length === before2 && journal().memories.length === memoriesBefore2, 'photos already in the book are not copied again');
+
+  // 8c-2. Android "Share → Memory Book": photos shared from the gallery go through the
+  // service worker (on the phone) straight into the book — never through our server.
+  {
+    await page.goto(`${B}/book/write`);
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.reload();
+    await page.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 15000 });
+    const before3 = photosLive().length;
+    await page.evaluate(() => {
+      const f = Object.assign(document.createElement('form'), { method: 'POST', action: '/share-target', enctype: 'multipart/form-data', id: 'share-form' });
+      const i = Object.assign(document.createElement('input'), { type: 'file', name: 'photos', multiple: true, id: 'share-input' });
+      f.appendChild(i); document.body.appendChild(f);
+    });
+    await page.setInputFiles('#share-input', [`${APP}/public/demo/nappies.jpg`, `${APP}/public/demo/family-sofa.jpg`]);
+    await page.evaluate(() => document.getElementById('share-form').submit());
+    await page.waitForURL('**/book/write**', { timeout: 15000 });
+    for (let i = 0; i < 80 && photosLive().length < before3 + 2; i++) await page.waitForTimeout(250);
+    check(photosLive().length === before3 + 2, 'share: photos shared from the gallery are added to the book');
+    await page.waitForTimeout(500);
+    const inboxLeft = await page.evaluate(async () => (await (await caches.open('share-inbox')).keys()).length);
+    check(inboxLeft === 0, 'share: nothing left waiting on the phone after import');
+    const res = await fetch(`${B}/share-target`, { method: 'POST', body: new FormData(), redirect: 'manual' });
+    check(res.status === 303 && (res.headers.get('location') || '').includes('shared=failed'), 'share: without the service worker, the server keeps nothing and asks to try again');
+  }
 
   // 8c-3. Repair a book that was already watching its photos folder (as an older version allowed)
   {

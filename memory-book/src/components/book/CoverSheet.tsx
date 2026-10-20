@@ -9,6 +9,7 @@ import { shortDate } from "@/lib/dates";
 import { useJournal } from "@/components/journal/JournalProvider";
 import { CoverPage } from "./BookPages";
 import { usePhotoSrc } from "./PhotoSource";
+import { APP_NAME } from "@/content/marketing";
 
 /**
  * Edit the cover in place: its title and the line under it, its colour, which part of
@@ -38,7 +39,7 @@ export function CoverSheet({
 
   const draft: BookSettings = {
     ...settings,
-    bookTitle: title.trim() || "Memory Book",
+    bookTitle: title.trim() || APP_NAME,
     coverSubtitle: subtitle.trim() || undefined,
     coverFocus: focus,
     coverLabel: label,

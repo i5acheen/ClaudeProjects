@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CONSENT_POINTS, CONSENT_VERSION } from "@/lib/consent";
+import { APP_NAME } from "@/content/marketing";
 
 /** The privacy notice, short and plain, with the parent-or-guardian confirmation. */
 export function ConsentNotice({ childName, agreed, onAgree }: { childName: string; agreed: boolean; onAgree: (agreed: boolean) => void }) {
@@ -33,7 +34,7 @@ export function ConsentNotice({ childName, agreed, onAgree }: { childName: strin
           required
         />
         <span>
-          I&rsquo;m {childName.trim() ? `${childName.trim()}’s` : "this child’s"} parent or legal guardian, and I agree to Memory Book
+          I&rsquo;m {childName.trim() ? `${childName.trim()}’s` : "this child’s"} parent or legal guardian, and I agree to {APP_NAME}
           keeping our memories as described above.
         </span>
       </label>

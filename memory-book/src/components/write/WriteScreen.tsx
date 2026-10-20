@@ -15,6 +15,8 @@ import { GrowthCard } from "./GrowthCard";
 import { ArrowRightIcon, SparklesIcon } from "@/components/ui/Icons";
 import { GuidedChooser, GuidedSheet } from "@/components/book/GuidedSheet";
 import type { GuidedTemplate } from "@/lib/guided";
+import { APP_NAME } from "@/content/marketing";
+import { FirstMemoryCard } from "./FirstMemoryCard";
 
 /**
  * The writing desk: add photos and words for a new memory, and give words
@@ -42,9 +44,9 @@ export function WriteScreen({ journal }: { journal: Journal }) {
     if (!shared) return;
     setSharedNote(
       shared === "failed"
-        ? "The shared photos didn't come through. Open Memory Book once, then share them again."
+        ? `The shared photos didn't come through. Open ${APP_NAME} once, then share them again.`
         : shared === "0"
-          ? "Only photos can be shared into Memory Book."
+          ? `Only photos can be shared into ${APP_NAME}.`
           : null,
     );
     window.history.replaceState(null, "", "/book/write");
@@ -61,16 +63,27 @@ export function WriteScreen({ journal }: { journal: Journal }) {
       <SyncBanner />
 
       <div className="mx-auto max-w-xl space-y-8 px-3 pt-2 sm:px-4">
-        {welcome && (
-          <div className="sheet !py-5 text-center" role="status">
-            <span className="welcome-badge" aria-hidden>
-              <SparklesIcon />
-            </span>
-            <h1 className="ui-h2 mt-1">{settings.childName ? `${settings.childName}’s book is ready` : "Your book is ready"}</h1>
-            <p className="mt-1 text-ink-soft">
-              Add your first memory below — a photo and a few lines is perfect. It&rsquo;s saved in your Google Drive.
-            </p>
-          </div>
+        {journal.memories.length === 0 && access.canEdit ? (
+          <FirstMemoryCard
+            note={
+              welcome
+                ? `${settings.childName ? `${settings.childName}’s book` : "Your book"} is ready. A photo and a few lines is perfect — it’s saved in your Google Drive.`
+                : "A photo and a few lines is perfect — it’s saved in your Google Drive."
+            }
+            onAdd={() => document.getElementById("new-memory")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          />
+        ) : (
+          welcome && (
+            <div className="sheet !py-5 text-center" role="status">
+              <span className="welcome-badge" aria-hidden>
+                <SparklesIcon />
+              </span>
+              <h1 className="ui-h2 mt-1">{settings.childName ? `${settings.childName}’s book is ready` : "Your book is ready"}</h1>
+              <p className="mt-1 text-ink-soft">
+                Add your first memory below — a photo and a few lines is perfect. It&rsquo;s saved in your Google Drive.
+              </p>
+            </div>
+          )
         )}
         <div className="flex flex-wrap items-center justify-end gap-2">
           {sharedNote && <p className="mr-auto text-sm text-[var(--ink-terracotta)]">{sharedNote}</p>}
@@ -93,7 +106,9 @@ export function WriteScreen({ journal }: { journal: Journal }) {
           </section>
         )}
 
-        <MemoryEditor journal={journal} variant="inline" />
+        <div id="new-memory" className="scroll-mt-24">
+          <MemoryEditor journal={journal} variant="inline" />
+        </div>
 
         <section className="sheet" aria-labelledby="guided-heading">
           <h2 id="guided-heading" className="ui-h2">

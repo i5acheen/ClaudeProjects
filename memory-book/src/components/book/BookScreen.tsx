@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import type { Memory } from "@/lib/types";
 import { BookGate } from "@/components/journal/BookGate";
@@ -12,6 +11,7 @@ import { NoteSheet } from "./NoteSheet";
 import { CoverSheet } from "./CoverSheet";
 import { MonthSheet } from "./MonthSheet";
 import { PageStyleSheet } from "./PageStyleSheet";
+import { FirstMemoryCard } from "@/components/write/FirstMemoryCard";
 import { GuidedSheet } from "./GuidedSheet";
 import { WritingHintsContext } from "./BookPages";
 
@@ -33,16 +33,9 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
             <TopBar title={journal.settings.bookTitle} basePath="/book" active="book" />
             <SyncBanner />
             {journal.memories.length === 0 && access.canEdit && (
-              <p className="text-center font-hand text-2xl text-ink-soft">
-                Your book is ready.{" "}
-                <button type="button" onClick={() => setWriting({})} className="underline decoration-dotted underline-offset-4 hover:text-ink">
-                  Write the first page
-                </button>{" "}
-                or{" "}
-                <Link href="/book/write" className="underline decoration-dotted underline-offset-4 hover:text-ink">
-                  add photos
-                </Link>
-              </p>
+              <div className="mx-auto w-full max-w-md px-3 pt-1">
+                <FirstMemoryCard compact onAdd={() => setWriting({})} />
+              </div>
             )}
             <WritingHintsContext.Provider value={access.canEdit}>
             <BookReader

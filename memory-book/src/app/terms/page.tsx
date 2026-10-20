@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { LegalPage } from "@/components/legal/LegalPage";
 import { GRIEVANCE_EMAIL, OPERATOR_NAME } from "@/lib/legal";
+import { APP_NAME } from "@/content/marketing";
 
-export const metadata = { title: "Terms — Memory Book" };
+export const metadata = { title: `Terms — ${APP_NAME}` };
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of use" intro={<p>The simple rules for using Memory Book. By creating a book, you agree to them.</p>}>
+    <LegalPage title="Terms of use" intro={<p>The simple rules for using {APP_NAME}. By creating a book, you agree to them.</p>}>
       <h2>The service</h2>
       <p>
-        Memory Book ({OPERATOR_NAME}) lets you write a journal of your child&rsquo;s memories, keep it in your own Google Drive,
+        {APP_NAME} ({OPERATOR_NAME}) lets you write a journal of your child&rsquo;s memories, keep it in your own Google Drive,
         share it with family you choose, and download it as a PDF.
       </p>
 
@@ -19,13 +20,13 @@ export default function TermsPage() {
       <h2>Your book is yours</h2>
       <ul>
         <li>You own everything you put in your book. It&rsquo;s stored in your Google Drive, under your control.</li>
-        <li>You let Memory Book open and change those files only to provide the service to you and the family you invite.</li>
+        <li>You let {APP_NAME} open and change those files only to provide the service to you and the family you invite.</li>
         <li>Only add photos and words you have the right to use, and only share with people you trust.</li>
       </ul>
 
       <h2>Fair use</h2>
       <ul>
-        <li>Don&rsquo;t use Memory Book for anything illegal, harmful or abusive, or to store other people&rsquo;s content without permission.</li>
+        <li>Don&rsquo;t use {APP_NAME} for anything illegal, harmful or abusive, or to store other people&rsquo;s content without permission.</li>
         <li>Don&rsquo;t try to break, overload or get around the app&rsquo;s security.</li>
       </ul>
 
@@ -37,7 +38,7 @@ export default function TermsPage() {
 
       <h2>Plans and payment</h2>
       <p>
-        Memory Book is free to start. Paid plans, when offered, are described in the app before you pay, are processed by
+        {APP_NAME} is free to start. Paid plans, when offered, are described in the app before you pay, are processed by
         Razorpay, and can be cancelled at any time. See the <Link href="/refunds">refund policy</Link>.
       </p>
 

@@ -2702,9 +2702,9 @@ body:has(.home)::before {
     right: -1rem;
   }
   .home-cloud--a {
-    width: 6rem;
-    top: 10rem;
-    left: -1.5rem;
+    width: 5rem;
+    top: 4.6rem;
+    left: -1.75rem;
   }
   .home-cloud--b {
     display: none;
@@ -2744,6 +2744,77 @@ body:has(.home)::before {
 @media (min-width: 768px) {
   .home-hero {
     padding-top: 4.5rem;
+  }
+}
+
+/* The tagline, its Hinglish echo and the overview. */
+.home-tagline {
+  font-size: clamp(2.35rem, 8.6vw, 4.1rem);
+  text-wrap: balance;
+}
+.home-hinglish {
+  margin-top: 0.85rem;
+  font-family: var(--font-hand);
+  font-size: clamp(1.45rem, 4.8vw, 1.85rem);
+  line-height: 1.2;
+  color: var(--home-soft);
+}
+.home-overview {
+  max-width: 37.5rem;
+  margin: 1.25rem auto 0;
+  font-size: 1.05rem;
+  text-wrap: pretty;
+}
+.home-hero__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+.home-hero__note {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--home-soft);
+}
+@media (min-width: 640px) {
+  .home-hero__actions {
+    flex-direction: row;
+  }
+}
+/* Big screens: the words on the left, the book beside them (and the clouds clear of both). */
+@media (min-width: 1024px) {
+  .home-cloud--a {
+    width: 7rem;
+    top: 5rem;
+    left: -1rem;
+  }
+  .home-cloud--c {
+    width: 6rem;
+    top: 11rem;
+    left: 56%;
+  }
+  .home-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    align-items: center;
+    gap: 3rem;
+    max-width: 74rem;
+    text-align: left;
+  }
+  .home-overview {
+    margin-left: 0;
+  }
+  .home-hero__actions {
+    justify-content: flex-start;
+  }
+  .home-hero .home-book-stage {
+    margin: 0;
+    width: 100%;
+  }
+  .home-hero .home-note {
+    margin-left: 0;
   }
 }
 
@@ -4112,3 +4183,20 @@ body:has(.home)::before {
 .home-inside-icon--sun { color: #7d5800; background: #fff0b8; }
 .home-inside-icon--mint { color: #2f6f4c; background: #d4f2e4; }
 .home-inside-icon--lilac { color: #5f4aa8; background: #ebe4ff; }
+
+/* A new, empty book: the tagline and a button to the first memory. */
+.first-memory__tagline {
+  margin: 0;
+  font-family: var(--font-fredoka), var(--font-sans);
+  font-size: clamp(1.55rem, 6vw, 2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--ui-ink);
+  text-wrap: balance;
+}
+.first-memory__accent {
+  background: linear-gradient(to top, var(--ui-sun) 0 34%, transparent 34%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 0.08em;
+}

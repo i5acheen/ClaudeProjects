@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { GRIEVANCE_EMAIL } from "@/lib/legal";
+import { APP_NAME, FOOTER_LINE } from "@/content/marketing";
 
 /** Links every page should offer: policies and a way to reach a person. */
 export function SiteFooter({ className = "" }: { className?: string }) {
   return (
     <footer className={`mt-8 text-center text-sm text-ink-faint ${className}`}>
-      <nav aria-label="About Memory Book" className="flex flex-wrap justify-center gap-x-4 gap-y-1">
+      <p className="mb-2 font-semibold text-ink-soft">{FOOTER_LINE}</p>
+      <nav aria-label={`About ${APP_NAME}`} className="flex flex-wrap justify-center gap-x-4 gap-y-1">
         <Link href="/privacy" className="hover:text-ink">Privacy</Link>
         <Link href="/terms" className="hover:text-ink">Terms</Link>
         <Link href="/refunds" className="hover:text-ink">Refunds</Link>

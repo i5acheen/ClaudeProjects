@@ -1,12 +1,13 @@
 import type { MetadataRoute } from "next";
+import { APP_NAME, SHORT_DESCRIPTION } from "@/content/marketing";
 
 /** Lets people add Memory Book to their home screen, where it opens like an app. */
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Memory Book",
-    short_name: "Memory Book",
-    description: "A hand-made feeling baby journal, kept safe in your own Google Drive.",
+    name: APP_NAME,
+    short_name: APP_NAME,
+    description: SHORT_DESCRIPTION,
     start_url: "/book",
     scope: "/",
     display: "standalone",

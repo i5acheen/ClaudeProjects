@@ -3,6 +3,8 @@
  * signed-in user's access token (so photos never pass through our server).
  */
 
+import { APP_NAME } from "@/content/marketing";
+
 const API = "https://www.googleapis.com/drive/v3";
 const UPLOAD = "https://www.googleapis.com/upload/drive/v3";
 
@@ -17,7 +19,7 @@ export class SignedOutError extends Error {
 export class NoDrivePermissionError extends Error {
   name = "NoDrivePermissionError";
   constructor() {
-    super("Memory Book needs your permission to keep the book in your Google Drive.");
+    super(`${APP_NAME} needs your permission to keep the book in your Google Drive.`);
   }
 }
 

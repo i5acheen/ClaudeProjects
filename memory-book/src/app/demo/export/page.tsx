@@ -1,8 +1,9 @@
 import { ExportBook } from "@/components/export/ExportBook";
 import { TopBar } from "@/components/ui/TopBar";
 import { demoJournal } from "@/lib/demo-data";
+import { APP_NAME } from "@/content/marketing";
 
-export const metadata = { title: "Memory Book — demo PDF" };
+export const metadata = { title: `${APP_NAME} — demo PDF` };
 
 export default function DemoExportPage() {
   return (

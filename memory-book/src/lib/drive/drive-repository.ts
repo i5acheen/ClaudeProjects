@@ -51,6 +51,7 @@ import {
   updateFileContent,
   updateMetadata,
 } from "./client";
+import { BOOK_FOLDER_PREFIX } from "./folder";
 
 /**
  * The book in Google Drive:
@@ -117,7 +118,7 @@ const TITLE_KEY = "memoryBookTitle";
 const TITLED_KEY = "memoryBookTitled";
 
 export const folderName = (childName: string, bookTitle?: string) =>
-  `Memory Book – ${childName.trim() || "my child"}${bookTitle?.trim() ? ` – ${bookTitle.trim()}` : ""}`;
+  `${BOOK_FOLDER_PREFIX} – ${childName.trim() || "my child"}${bookTitle?.trim() ? ` – ${bookTitle.trim()}` : ""}`;
 
 /** What a book folder says about itself (Drive limits a property to about 100 characters). */
 const folderLabels = (settings: { childName: string; bookTitle: string }) => ({
@@ -127,7 +128,7 @@ const folderLabels = (settings: { childName: string; bookTitle: string }) => ({
 
 /** The child's name: from the folder's properties, or (older books) its name. */
 const folderChild = (f: { name: string; appProperties?: Record<string, string> }) =>
-  f.appProperties?.[CHILD_KEY] || f.name.replace(/^Memory Book – /, "");
+  f.appProperties?.[CHILD_KEY] || f.name.replace(`${BOOK_FOLDER_PREFIX} – `, "");
 
 const jsonBlob = (value: unknown) => new Blob([toJson(value)], { type: "application/json" });
 

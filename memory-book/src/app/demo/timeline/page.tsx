@@ -1,8 +1,9 @@
 import { Timeline } from "@/components/timeline/Timeline";
 import { TopBar } from "@/components/ui/TopBar";
 import { demoJournal } from "@/lib/demo-data";
+import { APP_NAME } from "@/content/marketing";
 
-export const metadata = { title: "Memory Book — demo timeline" };
+export const metadata = { title: `${APP_NAME} — demo timeline` };
 
 export default function DemoTimelinePage() {
   return (

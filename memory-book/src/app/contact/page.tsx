@@ -1,7 +1,8 @@
 import { LegalPage } from "@/components/legal/LegalPage";
 import { GRIEVANCE_EMAIL, OPERATOR_ADDRESS, OPERATOR_NAME } from "@/lib/legal";
+import { APP_NAME } from "@/content/marketing";
 
-export const metadata = { title: "Contact — Memory Book" };
+export const metadata = { title: `Contact — ${APP_NAME}` };
 
 export default function ContactPage() {
   return (
@@ -18,7 +19,7 @@ export default function ContactPage() {
         <a href={`mailto:${GRIEVANCE_EMAIL}`}>{GRIEVANCE_EMAIL}</a>. We aim to resolve them within 30 days.
       </p>
 
-      <h2>Who runs Memory Book</h2>
+      <h2>Who runs {APP_NAME}</h2>
       <p>
         {OPERATOR_NAME}
         {OPERATOR_ADDRESS ? <><br />{OPERATOR_ADDRESS}</> : null}

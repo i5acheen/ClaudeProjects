@@ -28,6 +28,7 @@ import {
   type Handwriting,
   type Paper,
 } from "@/lib/book-style";
+import { APP_NAME } from "@/content/marketing";
 
 type CoverChoice = { kind: "keep" } | { kind: "none" } | { kind: "existing"; ref: PhotoRef } | { kind: "new"; photo: ProcessedPhoto };
 
@@ -69,7 +70,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           coverFocus: cover.kind === "keep" ? settings.coverFocus : undefined,
           childName: childName.trim(),
           dateOfBirth,
-          bookTitle: bookTitle.trim() || "Memory Book",
+          bookTitle: bookTitle.trim() || APP_NAME,
           dedication: dedication.trim() || undefined,
           coverPhoto,
           coverTheme: theme,

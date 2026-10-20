@@ -4,6 +4,7 @@ import { Caveat, Cormorant_Garamond, Courier_Prime, Fredoka, Indie_Flower, Kalam
 import "./globals.css";
 import { ServiceWorker } from "@/components/app/ServiceWorker";
 import { NavigationTracker } from "@/components/ui/BackButton";
+import { APP_NAME, SHORT_DESCRIPTION, SITE_TITLE } from "@/content/marketing";
 
 // Variable fonts (no fixed weights): one file each covers every weight, so pages load fewer files.
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat" });
@@ -29,12 +30,21 @@ const lora = Lora({ subsets: ["latin"], style: ["normal", "italic"], variable: "
 // Vercel preview deployments are the test version (staging): marked as such and kept out of search engines.
 const isPreview = process.env.VERCEL_ENV === "preview";
 
+// The site's own address, so link previews point at full image URLs.
+const siteUrl =
+  process.env.AUTH_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
-  title: "Memory Book",
+  metadataBase: new URL(siteUrl),
+  title: SITE_TITLE,
   ...(isPreview ? { robots: { index: false, follow: false } } : {}),
-  description: "A hand-made feeling baby journal, kept safe in your own Google Drive.",
-  applicationName: "Memory Book",
-  appleWebApp: { capable: true, title: "Memory Book", statusBarStyle: "default" },
+  description: SHORT_DESCRIPTION,
+  applicationName: APP_NAME,
+  appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "default" },
+  // How a shared link looks (WhatsApp, Instagram, Messages…); the picture is app/opengraph-image.tsx.
+  openGraph: { type: "website", siteName: APP_NAME, title: SITE_TITLE, description: SHORT_DESCRIPTION, url: "/" },
+  twitter: { card: "summary_large_image", title: SITE_TITLE, description: SHORT_DESCRIPTION },
   icons: {
     icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
     apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],

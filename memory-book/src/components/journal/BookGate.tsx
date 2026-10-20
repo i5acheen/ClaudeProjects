@@ -7,6 +7,7 @@ import type { Journal } from "@/lib/types";
 import { CONSENT_VERSION } from "@/lib/consent";
 import { ConsentNotice, consentNow, recordConsent } from "@/components/app/ConsentNotice";
 import { useJournal } from "./JournalProvider";
+import { APP_NAME } from "@/content/marketing";
 
 /**
  * Shows the right thing while the book loads from Drive: a quiet loading
@@ -68,7 +69,7 @@ export function DrivePermissionNotice() {
   return (
     <Notice title="One more permission, please">
       <p>
-        Memory Book keeps your book in a folder in <b className="text-ink">your own Google Drive</b>, so it needs Google&rsquo;s
+        {APP_NAME} keeps your book in a folder in <b className="text-ink">your own Google Drive</b>, so it needs Google&rsquo;s
         permission to do that. It looks like that permission wasn&rsquo;t given.
       </p>
       <div className="permission-hint">
@@ -226,7 +227,7 @@ function ConsentGate({ journal }: { journal: Journal }) {
     <div className="note-backdrop" role="dialog" aria-modal aria-label="Your child's privacy">
       <div className="note-sheet">
         <h2 className="ui-h2">A quick word about privacy</h2>
-        <p className="mt-1 text-ink-soft">We&rsquo;ve written down exactly how {journal.settings.childName || "your child"}&rsquo;s memories are kept. Please read and agree to keep using Memory Book.</p>
+        <p className="mt-1 text-ink-soft">We&rsquo;ve written down exactly how {journal.settings.childName || "your child"}&rsquo;s memories are kept. Please read and agree to keep using {APP_NAME}.</p>
         <div className="mt-4">
           <ConsentNotice childName={journal.settings.childName} agreed={agreed} onAgree={setAgreed} />
         </div>

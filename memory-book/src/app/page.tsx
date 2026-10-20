@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { InstallApp } from "@/components/app/InstallApp";
-import { BabyIcon, BookIcon, CalendarIcon, ChecklistIcon, LogoMark, MailIcon, PaletteIcon, PrinterIcon, StarIcon } from "@/components/ui/Icons";
+import { BabyIcon, BookIcon, CalendarIcon, ChecklistIcon, LockIcon, LogoMark, MailIcon, PaletteIcon, PrinterIcon, StarIcon } from "@/components/ui/Icons";
 import { SignInButton } from "@/components/app/SignInButton";
 import { SiteFooter } from "@/components/legal/SiteFooter";
 import { redirect } from "next/navigation";
@@ -8,6 +8,7 @@ import { auth, signIn } from "@/auth";
 import { CoverPage, GuidedPage, MemoryPage } from "@/components/book/BookPages";
 import { InkFilters } from "@/components/book/Doodles";
 import { demoJournal } from "@/lib/demo-data";
+import { APP_NAME, OVERVIEW, SIGN_IN_NOTE, TAGLINE, TAGLINE_HIGHLIGHT, TAGLINE_HINGLISH } from "@/content/marketing";
 
 const ERRORS: Record<string, string> = {
   AccessDenied: "That Google account isn’t on the list of people allowed to open this book.",
@@ -45,7 +46,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <header className="home-nav">
         <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight text-[var(--home-ink)]">
           <LogoMark className="size-9" />
-          Memory Book
+          {APP_NAME}
         </Link>
         <nav aria-label="On this page" className="hidden items-center gap-7 text-[0.95rem] text-[var(--home-soft)] md:flex">
           <a href="#how" className="hover:text-[var(--home-ink)]">How it works</a>
@@ -61,22 +62,26 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </header>
 
       <section className="home-hero">
-        <h1 className="home-h1">
-          A keepsake journal of your baby&rsquo;s <span className="home-accent">first years</span>.
+        <div className="home-hero__text">
+        <h1 className="home-h1 home-tagline">
+          <Highlighted text={TAGLINE} highlight={TAGLINE_HIGHLIGHT} />
         </h1>
-        <p className="home-lead mx-auto mt-6 max-w-2xl">
-          Add photos and a few lines from your phone. Memory Book lays them out like a hand-made book you can flip through, share
-          with family, and print. Kept safe in your own Google Drive.
+        <p className="home-hinglish" lang="hi-Latn">
+          {TAGLINE_HINGLISH}
         </p>
-        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <p className="home-lead home-overview">{OVERVIEW}</p>
+        <div className="home-hero__actions">
           {startButton("Start your book — free", "home-btn home-btn--sun")}
           <Link href="/demo" className="home-btn home-btn--white">
             Look inside a book
           </Link>
         </div>
-        <p className="mt-4 text-sm text-[var(--home-soft)]">Sign in with Google. Already have a book? The same button opens it.</p>
+        <p className="home-hero__note">
+          <LockIcon className="mr-1 inline size-4 align-[-3px]" />
+          {SIGN_IN_NOTE}
+        </p>
 
-        {deleted && <p className="home-note mx-auto mt-6">Your account has been deleted. Thank you for using Memory Book.</p>}
+        {deleted && <p className="home-note mx-auto mt-6">Your account has been deleted. Thank you for using {APP_NAME}.</p>}
         {error && (
           <p className="mx-auto mt-6 max-w-md font-semibold text-[#a3261b]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>
         )}
@@ -86,6 +91,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             (a one-time, 15-minute setup — see <i>README → steps 1 and 2</i>). Until then, the demo book works without signing in.
           </div>
         )}
+
+        </div>
 
         <div className="home-book-stage">
           <span className="home-rainbow" aria-hidden />
@@ -189,7 +196,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
       <section id="privacy" className="home-section !pt-0">
         <div className="home-wrap">
-          <p className="home-eyebrow">Why Memory Book</p>
+          <p className="home-eyebrow">Why {APP_NAME}</p>
           <h2 className="home-h2 mt-3">
             <span className="home-accent">Your memories</span> stay yours.
           </h2>
@@ -252,7 +259,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <section className="home-cta">
         <Stars className="home-cta__stars" />
         <p className="home-cta__mark" aria-hidden>
-          Memory Book
+          {APP_NAME}
         </p>
         <h2 className="mt-8 text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Start the book they&rsquo;ll <em>treasure</em>.
@@ -270,6 +277,19 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <SiteFooter className="!mt-0" />
       </div>
     </main>
+  );
+}
+
+/** The text, with its key words on a sunny marker stroke. */
+function Highlighted({ text, highlight }: { text: string; highlight: string }) {
+  const at = highlight ? text.indexOf(highlight) : -1;
+  if (at < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, at)}
+      <span className="home-accent">{highlight}</span>
+      {text.slice(at + highlight.length)}
+    </>
   );
 }
 

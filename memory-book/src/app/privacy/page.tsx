@@ -1,7 +1,9 @@
 import { LegalPage } from "@/components/legal/LegalPage";
 import { GRIEVANCE_EMAIL, OPERATOR_ADDRESS, OPERATOR_NAME } from "@/lib/legal";
+import { APP_NAME } from "@/content/marketing";
+import { BOOK_FOLDER_PREFIX } from "@/lib/drive/folder";
 
-export const metadata = { title: "Privacy policy — Memory Book" };
+export const metadata = { title: `Privacy policy — ${APP_NAME}` };
 
 /** The privacy policy (also the link on Google's sign-in screen). Written in plain language on purpose. */
 export default function PrivacyPage() {
@@ -10,7 +12,7 @@ export default function PrivacyPage() {
       title="Your memories stay yours"
       intro={
         <p>
-          Memory Book is a baby journal for parents. Your child&rsquo;s photos and stories are kept in{" "}
+          {APP_NAME} is a baby journal for parents. Your child&rsquo;s photos and stories are kept in{" "}
           <b>your own Google Drive</b> — not on our servers. This page explains exactly what is kept, where, and what you can do
           about it. It&rsquo;s written to meet India&rsquo;s Digital Personal Data Protection Act, 2023 and its Rules.
         </p>
@@ -18,7 +20,7 @@ export default function PrivacyPage() {
     >
       <h2>Who we are</h2>
       <p>
-        Memory Book is run by {OPERATOR_NAME}
+        {APP_NAME} is run by {OPERATOR_NAME}
         {OPERATOR_ADDRESS ? `, ${OPERATOR_ADDRESS}` : ""}. For anything about your data, write to{" "}
         <a href={`mailto:${GRIEVANCE_EMAIL}`}>{GRIEVANCE_EMAIL}</a> (our grievance contact).
       </p>
@@ -26,7 +28,7 @@ export default function PrivacyPage() {
       <h2>What is kept, and where</h2>
       <ul>
         <li>
-          <b>In your Google Drive</b>, in a folder called <i>Memory Book – (your child&rsquo;s name)</i>: your child&rsquo;s name and
+          <b>In your Google Drive</b>, in a folder called <i>{BOOK_FOLDER_PREFIX} – (your child&rsquo;s name)</i>: your child&rsquo;s name and
           date of birth, the book&rsquo;s title and style, every memory&rsquo;s words, dates and tags, height and weight notes, the
           photos, and weekly backups. You can open, download, move or delete this folder at any time. Family you invite can see
           it through Google Drive&rsquo;s own sharing.
@@ -60,7 +62,7 @@ export default function PrivacyPage() {
 
       <h2>Children&rsquo;s data and your consent</h2>
       <p>
-        Memory Book is used by parents and guardians, not by children. When you start a book, you confirm you are the
+        {APP_NAME} is used by parents and guardians, not by children. When you start a book, you confirm you are the
         child&rsquo;s parent or legal guardian and agree to this notice. You can withdraw your consent at any time by deleting
         your account (Settings → <i>Delete my account</i>): we then stop using your data, delete our record and cancel the
         app&rsquo;s access to your Google account. Your book stays in your Drive unless you choose to delete it too.
@@ -70,7 +72,7 @@ export default function PrivacyPage() {
       <p>
         Only <code>drive.file</code>: the app can see and change only the files it creates, and photos or books you pick yourself
         in Google&rsquo;s own window. It can&rsquo;t see anything else in your Drive. You can remove the app&rsquo;s access at any
-        time at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. Memory Book&rsquo;s use
+        time at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>. {APP_NAME}&rsquo;s use
         of information received from Google APIs adheres to the{" "}
         <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>,
         including the Limited Use requirements.

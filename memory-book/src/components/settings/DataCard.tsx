@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react";
 import { useJournal } from "@/components/journal/JournalProvider";
 import { clearDeviceData } from "@/lib/device-data";
 import { GRIEVANCE_EMAIL } from "@/lib/legal";
+import { APP_NAME } from "@/content/marketing";
 
 /** Your data: download all of it, or delete your account. */
 export function DataCard() {
@@ -18,7 +19,7 @@ export function DataCard() {
   function download() {
     if (!journal) return;
     const data = {
-      about: "Everything in your Memory Book except the photos, which are in the photos folder of your book in Google Drive.",
+      about: `Everything in your ${APP_NAME} except the photos, which are in the photos folder of your book in Google Drive.`,
       exportedAt: new Date().toISOString(),
       ...journal,
     };
@@ -74,7 +75,7 @@ export function DataCard() {
           </button>
         ) : (
           <div className="rounded-2xl bg-[var(--accent-soft)]/50 p-4 text-sm text-ink" role="group" aria-label="Delete my account">
-            <p className="ui-h3">Delete your Memory Book account?</p>
+            <p className="ui-h3">Delete your {APP_NAME} account?</p>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-ink-soft">
               <li>We delete our record of your account and cancel the app&rsquo;s access to your Google account.</li>
               <li>This device forgets the book.</li>

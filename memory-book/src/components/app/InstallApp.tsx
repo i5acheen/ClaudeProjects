@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LogoMark } from "@/components/ui/Icons";
+import { APP_NAME } from "@/content/marketing";
 
 interface InstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -67,7 +68,7 @@ export function InstallApp({ className = "" }: { className?: string }) {
         <p className="text-sm">Opens like an app, full screen, with its own icon. Free, no app store needed.</p>
         {mode === "prompt" && (
           <button type="button" className="chrome-button chrome-button--primary mt-2 !h-10 !px-5" onClick={install}>
-            Install Memory Book
+            Install {APP_NAME}
           </button>
         )}
         {mode !== "prompt" && (

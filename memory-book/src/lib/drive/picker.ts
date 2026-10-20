@@ -10,6 +10,8 @@
  * Picker API) and NEXT_PUBLIC_GOOGLE_CLOUD_PROJECT_NUMBER.
  */
 
+import { APP_NAME } from "@/content/marketing";
+
 export interface PickedFile {
   id: string;
   name: string;
@@ -81,7 +83,7 @@ export async function pickFromDrive(accessToken: string, options: PickOptions): 
       .setDeveloperKey(API_KEY)
       .setAppId(PROJECT_NUMBER)
       .setOrigin(window.location.origin)
-      .setTitle(options.title ?? (options.kind === "photos" ? "Choose photos for the book" : "Choose the shared Memory Book"))
+      .setTitle(options.title ?? (options.kind === "photos" ? "Choose photos for the book" : `Choose the shared ${APP_NAME}`))
       .setCallback((data: any) => {
         if (data.action === picker.Action.PICKED)
           resolve(

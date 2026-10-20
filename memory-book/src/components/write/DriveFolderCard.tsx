@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CloudUpIcon, FolderIcon, LockIcon, RefreshIcon } from "@/components/ui/Icons";
 import { useJournal } from "@/components/journal/JournalProvider";
+import { APP_NAME } from "@/content/marketing";
 
 /** "Check for new photos": opens Google's picker in the Drive folder you used last. */
 export function DriveRefreshButton({ className = "" }: { className?: string }) {
@@ -73,12 +74,12 @@ export function DriveFolderCard() {
           {message && <p className="mt-2 text-sm text-[var(--ink-terracotta)]">{message}</p>}
 
           <div className="mt-4 rounded-2xl bg-[var(--accent-soft)]/60 p-3 text-sm text-ink-soft">
-            <b className="text-ink">{android ? "Quickest on your phone:" : "On an Android phone:"}</b> install Memory Book (Settings →
+            <b className="text-ink">{android ? "Quickest on your phone:" : "On an Android phone:"}</b> install {APP_NAME} (Settings →
             &ldquo;Keep it on your home screen&rdquo;), then in Google Photos or your Gallery select photos and tap{" "}
-            <b className="text-ink">Share → Memory Book</b>. They go straight into the book.
+            <b className="text-ink">Share → {APP_NAME}</b>. They go straight into the book.
           </div>
           <p className="mt-3 text-xs text-ink-faint">
-            <LockIcon className="mr-1 inline size-4 align-[-3px]" />Memory Book can only open the photos you choose or share. It never sees the rest of your Drive, so it can&rsquo;t
+            <LockIcon className="mr-1 inline size-4 align-[-3px]" />{APP_NAME} can only open the photos you choose or share. It never sees the rest of your Drive, so it can&rsquo;t
             watch a folder by itself.
           </p>
         </div>

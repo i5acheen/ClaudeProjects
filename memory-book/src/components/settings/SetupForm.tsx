@@ -17,6 +17,8 @@ import { StylePickers } from "./StylePickers";
 import { BackButton } from "@/components/ui/BackButton";
 import { ChevronLeft, LockIcon } from "@/components/ui/Icons";
 import { ConsentNotice, consentNow, recordConsent } from "@/components/app/ConsentNotice";
+import { APP_NAME } from "@/content/marketing";
+import { BOOK_FOLDER_PREFIX } from "@/lib/drive/folder";
 
 /** First sign-in: name the child, and the book's folder is created in Google Drive. */
 export function SetupForm() {
@@ -119,11 +121,11 @@ export function SetupForm() {
           <p className="mt-2 text-lg text-ink-soft">
             A fresh, empty book — for a new year, a new chapter, or a special trip. {sameChildName}&rsquo;s other book stays
             just as it is, and you can switch between them from the top bar. It gets its own folder in your Google Drive:{" "}
-            <em>Memory Book – {sameChildName} – {bookTitle.trim() || "…"}</em>.
+            <em>{BOOK_FOLDER_PREFIX} – {sameChildName} – {bookTitle.trim() || "…"}</em>.
           </p>
         ) : (
           <p className="mt-2 text-lg text-ink-soft">
-            We&rsquo;ll make a folder called <em>Memory Book – {childName.trim() || "…"}</em> in your Google Drive. Your
+            We&rsquo;ll make a folder called <em>{BOOK_FOLDER_PREFIX} – {childName.trim() || "…"}</em> in your Google Drive. Your
             photos and words are kept there, and nowhere else.
           </p>
         )}
@@ -218,7 +220,7 @@ export function SetupForm() {
 
         {step === "details" && !extra && (
           <div className="mt-8 rounded-xl border border-dashed border-[rgba(120,90,70,0.25)] bg-white/60 p-4 text-ink-soft">
-            <p className="text-lg text-ink">Has someone shared their Memory Book with you?</p>
+            <p className="text-lg text-ink">Has someone shared their {APP_NAME} with you?</p>
             <p className="mt-1 text-sm">
               If it doesn&rsquo;t open straight away, Google will show you the books shared with you — choose it once.
             </p>

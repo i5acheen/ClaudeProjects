@@ -15,6 +15,7 @@ import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/Photo
 import { bookPaper, handwritingStyle, paperVars, type Paper, type PageStyle } from "@/lib/book-style";
 import type { GuidedTemplate } from "@/lib/guided";
 import { photoHash, samePhoto } from "@/lib/photo-hash";
+import { APP_NAME } from "@/content/marketing";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -810,7 +811,7 @@ export function JournalProvider({
     async (email: string, role: FamilyRole) => {
       const child = journal?.settings.childName || "our little one";
       const message =
-        `You're invited to ${child}'s Memory Book${role === "writer" ? " — you can add memories too" : ""}. ` +
+        `You're invited to ${child}'s ${APP_NAME}${role === "writer" ? " — you can add memories too" : ""}. ` +
         `Open ${window.location.origin} and sign in with Google using this email address, then choose "Open a book shared with me".`;
       await repository.inviteFamily(email, role, message);
     },
@@ -837,7 +838,7 @@ export function JournalProvider({
       found = await repository.load();
       if (!found)
         throw new Error(
-          "That isn't a Memory Book shared with you. Ask the person who invited you to check they shared it with this Google account.",
+          `That isn't a ${APP_NAME} shared with you. Ask the person who invited you to check they shared it with this Google account.`,
         );
     }
     await reload();

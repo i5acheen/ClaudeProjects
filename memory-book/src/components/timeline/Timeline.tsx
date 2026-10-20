@@ -10,6 +10,7 @@ import { usePhotoSrc } from "@/components/book/PhotoSource";
 import { GUIDED_TEMPLATES, isGuidedTemplate } from "@/lib/guided";
 import { MailIcon, PenIcon } from "@/components/ui/Icons";
 import { GuidedIcon } from "@/components/book/GuidedSheet";
+import { FirstMemoryCard } from "@/components/write/FirstMemoryCard";
 
 type Filter = "all" | "photos" | "letters" | Tag;
 
@@ -67,7 +68,9 @@ export function Timeline({ journal, basePath }: { journal: Journal; basePath: st
       )}
 
       {all.length === 0 && (
-        <p className="mt-24 text-center font-hand text-3xl text-ink-soft">No memories yet — the first page is waiting.</p>
+        <div className="mx-auto mt-16 max-w-md px-3">
+          <FirstMemoryCard note="No memories yet — the first page is waiting." href={`${basePath}/write`} />
+        </div>
       )}
       {all.length > 0 && groups.length === 0 && <p className="mt-12 text-center text-ink-soft">Nothing here yet.</p>}
       {groups.map(({ label, memories }) => (

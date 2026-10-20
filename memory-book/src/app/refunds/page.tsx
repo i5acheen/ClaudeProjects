@@ -1,7 +1,8 @@
 import { LegalPage } from "@/components/legal/LegalPage";
 import { GRIEVANCE_EMAIL } from "@/lib/legal";
+import { APP_NAME } from "@/content/marketing";
 
-export const metadata = { title: "Refund and cancellation policy — Memory Book" };
+export const metadata = { title: `Refund and cancellation policy — ${APP_NAME}` };
 
 export default function RefundsPage() {
   return (

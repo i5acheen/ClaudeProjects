@@ -54,7 +54,7 @@ function parseQuery(qs) {
     && (!isFolder || f.mimeType === 'application/vnd.google-apps.folder')
     && (!isImage || (f.mimeType || '').startsWith('image/')));
 }
-const meta = f => ({ id: f.id, name: f.name, appProperties: f.appProperties, mimeType: f.mimeType, createdTime: f.createdTime || new Date().toISOString(), imageMediaMetadata: f.imageMediaMetadata });
+const meta = f => { if (f.content?.length && f.appCreated !== undefined) syncHead(f); return { id: f.id, name: f.name, appProperties: f.appProperties, mimeType: f.mimeType, createdTime: f.createdTime || new Date().toISOString(), imageMediaMetadata: f.imageMediaMetadata, headRevisionId: f.revisions?.at(-1)?.id }; };
 // A photo the user puts into a Drive folder themselves (not via the app).
 function userUploads(folderId, name, path, cameraTime, mimeType = 'image/jpeg') {
   const f = { id: `u${nextId++}`, owner: 'mum@example.com', name, parents: [folderId], mimeType, content: fs.readFileSync(path), createdTime: new Date().toISOString(), imageMediaMetadata: cameraTime ? { time: cameraTime } : undefined };
@@ -1006,6 +1006,19 @@ try {
   await page.goto(`${B}/book`);
   await page.waitForSelector('text=/public link/', { timeout: 20000 });
   check(!(leaked.permissions || []).some(p => p.type === 'anyone'), 'H-2: public link removed and the owner told');
+
+  // G36: opening the book again downloads only files that changed
+  {
+    await page.goto(`${B}/book`);
+    await page.waitForSelector('.stf__block');
+    await page.waitForTimeout(2000);
+    const before = calls.length;
+    await page.reload();
+    await page.waitForSelector('.stf__block');
+    await page.waitForTimeout(2500);
+    const revisionDownloads = calls.slice(before).filter(c => c.startsWith('GET') && /\/revisions\/r\d+$/.test(c));
+    check(revisionDownloads.length === 0, `G36: unchanged book files aren't downloaded again (${revisionDownloads.length})`);
+  }
 
   // D25 / C15 / C16: legal pages, landing page and the explanation before Google sign-in
   {

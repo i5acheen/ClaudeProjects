@@ -4,8 +4,9 @@
  */
 
 const DB_NAME = "memory-book";
-const DB_VERSION = 1;
-export type StoreName = "photos" | "drafts";
+const DB_VERSION = 2;
+/** photos: photo copies · drafts: memories waiting to upload · journal: the book, to open instantly · files: book files by version. */
+export type StoreName = "photos" | "drafts" | "journal" | "files";
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -17,6 +18,8 @@ function openDb(): Promise<IDBDatabase> {
         const db = request.result;
         if (!db.objectStoreNames.contains("photos")) db.createObjectStore("photos");
         if (!db.objectStoreNames.contains("drafts")) db.createObjectStore("drafts");
+        if (!db.objectStoreNames.contains("journal")) db.createObjectStore("journal");
+        if (!db.objectStoreNames.contains("files")) db.createObjectStore("files");
       };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => {

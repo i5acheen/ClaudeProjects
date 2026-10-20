@@ -196,6 +196,8 @@ export function JournalProvider({
   }, [providedRepository, owner]);
   const [books, setBooks] = useState<BookSummary[]>([]);
   const [status, setStatus] = useState<Status>("loading");
+  const statusRef = useRef(status);
+  statusRef.current = status;
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [journal, setJournal] = useState<Journal | null>(null);
@@ -206,11 +208,8 @@ export function JournalProvider({
   const commit = useCallback(
     (next: Journal) => {
       setJournal(next);
-      try {
-        localStorage.setItem(cacheKey(owner, repository.currentBookId()), JSON.stringify(next));
-      } catch {
-        // storage full or blocked — the offline copy is only a convenience
-      }
+      // A copy on this device, so the book opens instantly next time (and offline).
+      idbPut("journal", cacheKey(owner, repository.currentBookId()), next).catch(() => undefined);
     },
     [owner, repository],
   );
@@ -268,15 +267,15 @@ export function JournalProvider({
   }, [repository, commit, handleError]);
 
   useEffect(() => {
-    try {
-      const cached = localStorage.getItem(cacheKey(owner, storedBook(owner)));
-      if (cached) {
-        setJournal(JSON.parse(cached) as Journal);
-        setStatus("ready");
-      }
-    } catch {
-      // ignore a damaged offline copy
-    }
+    idbGet<Journal>("journal", cacheKey(owner, storedBook(owner)))
+      .then((cached) => {
+        // Show the copy on this device straight away, unless Drive has already answered.
+        if (cached?.settings && Array.isArray(cached.memories) && statusRef.current === "loading") {
+          setJournal(cached);
+          setStatus("ready");
+        }
+      })
+      .catch(() => undefined);
     idbGetAll<PendingSave>("drafts")
       .then((drafts) => setPending(drafts.filter((d) => !d.owner || d.owner === owner).sort((a, b) => a.savedAt.localeCompare(b.savedAt))))
       .catch(() => undefined);

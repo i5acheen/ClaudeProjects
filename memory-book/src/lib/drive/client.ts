@@ -409,11 +409,13 @@ export interface DriveChild {
   name: string;
   createdTime?: string;
   appProperties?: Record<string, string>;
+  /** The current version, so unchanged files needn't be downloaded again. */
+  headRevisionId?: string;
 }
 
 /** Every file directly inside a folder that the app can see, oldest first. */
 export function listFolderFiles(folderId: string): Promise<DriveChild[]> {
-  return listAll<DriveChild>(inFolderQuery(folderId), "id,name,createdTime,appProperties");
+  return listAll<DriveChild>(inFolderQuery(folderId), "id,name,createdTime,appProperties,headRevisionId");
 }
 
 /** Copies a file (e.g. into the backups folder). The copy belongs to you. */

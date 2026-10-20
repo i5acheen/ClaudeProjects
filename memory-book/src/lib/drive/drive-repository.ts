@@ -1,4 +1,5 @@
 import type { BookSettings, Journal, PhotoRef } from "../types";
+import { idbGet, idbPut } from "../idb";
 import {
   FORMAT,
   assemble,
@@ -109,10 +110,25 @@ export const folderName = (childName: string) => `Memory Book – ${childName.tr
 
 const jsonBlob = (value: unknown) => new Blob([toJson(value)], { type: "application/json" });
 
+/**
+ * Reads a book file. A version this device has read before comes from its own
+ * store instead of being downloaded again — so opening the book only downloads
+ * what changed since last time.
+ */
 async function readJson(fileId: string, revision?: string): Promise<unknown> {
-  const blob = revision ? await downloadRevision(fileId, revision) : await downloadFile(fileId);
-  return JSON.parse(await blob.text());
+  if (revision) {
+    const cached = await idbGet<{ revision: string; text: string }>("files", fileId).catch(() => undefined);
+    if (cached?.revision === revision) return JSON.parse(cached.text);
+  }
+  const text = await (revision ? await downloadRevision(fileId, revision) : await downloadFile(fileId)).text();
+  const value = JSON.parse(text);
+  if (revision) await idbPut("files", fileId, { revision, text }).catch(() => undefined);
+  return value;
 }
+
+/** Remembers what was just written, so it isn't downloaded again. */
+const remember = (fileId: string, revision: string | undefined, content: unknown) =>
+  revision ? idbPut("files", fileId, { revision, text: toJson(content) }).catch(() => undefined) : Promise.resolve();
 
 /**
  * Writes a file, then checks Drive's version history: if someone else's save
@@ -121,6 +137,7 @@ async function readJson(fileId: string, revision?: string): Promise<unknown> {
  */
 async function writeChecked(fileId: string, base: string | undefined, content: unknown): Promise<{ written?: string; theirs?: string }> {
   const written = await updateFileContent(fileId, jsonBlob(content));
+  await remember(fileId, written, content);
   if (!base || !written) return { written };
   const history = await listRevisionIds(fileId).catch(() => null);
   const at = history?.indexOf(written) ?? -1;
@@ -358,9 +375,11 @@ export class DriveRepository implements JournalRepository {
 
   /** Every file of a split book, each with the exact version read. */
   private async readState(location: Location): Promise<BookState> {
+    // One listing gives every file's current version; only changed ones are downloaded.
     const files = await listFolderFiles(location.folderId);
+    const versions = new Map(files.map((f) => [f.id, f.headRevisionId]));
     const read = async <T,>(fileId: string, parse: (raw: unknown) => T, name: string): Promise<Part<T>> => {
-      const revision = await headRevision(fileId).catch(() => undefined);
+      const revision = versions.get(fileId) ?? (await headRevision(fileId).catch(() => undefined));
       try {
         return { fileId, revision, data: parse(await readJson(fileId, revision)) };
       } catch (e) {

@@ -15,6 +15,8 @@ export async function clearDeviceData({ includingDrafts = false } = {}) {
       .filter((k) => k.startsWith("memory-book:"))
       .forEach((k) => localStorage.removeItem(k));
     await idbClear("photos");
+    await idbClear("journal");
+    await idbClear("files");
     if (includingDrafts) await idbClear("drafts");
     if ("caches" in window) for (const key of await caches.keys()) if (key.startsWith("pages-")) await caches.delete(key);
   } catch {

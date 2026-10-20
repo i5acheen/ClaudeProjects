@@ -7,11 +7,11 @@ import { LoadingBook } from "@/components/journal/BookGate";
 import {
   DEFAULT_COVER,
   DEFAULT_HANDWRITING,
-  DEFAULT_PAGE_STYLE,
+  DEFAULT_PAPER,
   type CoverColor,
   type CoverTheme,
   type Handwriting,
-  type PageStyle,
+  type Paper,
 } from "@/lib/book-style";
 import { StylePickers } from "./StylePickers";
 import { ConsentNotice, consentNow, recordConsent } from "@/components/app/ConsentNotice";
@@ -29,7 +29,7 @@ export function SetupForm() {
   const [theme, setTheme] = useState<CoverTheme>(DEFAULT_COVER);
   const [hand, setHand] = useState<Handwriting>(DEFAULT_HANDWRITING);
   const [color, setColor] = useState<CoverColor>();
-  const [paper, setPaper] = useState<PageStyle>(DEFAULT_PAGE_STYLE);
+  const [paper, setPaper] = useState<Paper>(DEFAULT_PAPER);
   const [error, setError] = useState<string | null>(null);
   const [agreed, setAgreed] = useState(false);
 
@@ -60,7 +60,7 @@ export function SetupForm() {
         dedication: dedication.trim() || undefined,
         coverTheme: theme,
         coverColor: color,
-        pageStyle: paper,
+        paper,
         handwriting: hand,
         consent: consentNow(),
       }, { another });

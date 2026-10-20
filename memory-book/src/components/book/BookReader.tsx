@@ -22,6 +22,8 @@ interface BookReaderProps {
   onEditCover?: () => void;
   /** Edit a month divider page (the book's owner only). */
   onEditMonth?: (months: number) => void;
+  /** Change the paper of the pages on screen, or of the whole book. */
+  onPageStyle?: (memories: Memory[]) => void;
   /** Turn to this memory whenever it changes (e.g. right after saving it). */
   focusMemoryId?: string;
 }
@@ -29,7 +31,17 @@ interface BookReaderProps {
 /** Pages further than this from the open spread are drawn blank until you get near them, so big books stay fast. */
 const RENDER_WINDOW = 4;
 
-export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onNewPage, onEditCover, onEditMonth, focusMemoryId }: BookReaderProps) {
+export function BookReader({
+  journal,
+  startMemoryId,
+  onEdit,
+  onNewNote,
+  onNewPage,
+  onEditCover,
+  onEditMonth,
+  onPageStyle,
+  focusMemoryId,
+}: BookReaderProps) {
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
   // One page at a time (phones) needs no filler pages to keep spreads together.
   const pages = useMemo(() => paginate(journal, undefined, orientation === "landscape"), [journal, orientation]);
@@ -89,6 +101,10 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onNewPag
     const page = pages[i];
     if (page?.kind === "memory" && !visibleMemories.some((m) => m.id === page.memory.id)) visibleMemories.push(page.memory);
   }
+  // Pages you can write on or restyle (sealed letters stay sealed).
+  const writable = onEdit
+    ? visibleMemories.filter((m) => !(m.sealedUntil && pages.some((p) => p.kind === "memory" && p.memory.id === m.id && p.sealed)))
+    : [];
 
   return (
     <div
@@ -174,7 +190,8 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onNewPag
         </button>
         {!immersive.on && (onEdit || onNewNote || onNewPage) && (
           <WriteMenu
-            memories={onEdit ? visibleMemories.filter((m) => !(m.sealedUntil && pages.some((p) => p.kind === "memory" && p.memory.id === m.id && p.sealed))) : []}
+            memories={writable}
+            onPageStyle={onPageStyle}
             onEdit={onEdit}
             onNewNote={onNewNote}
             onNewPage={onNewPage}
@@ -267,6 +284,7 @@ function useImmersive() {
 /** One quiet pen button; its menu offers the pages on screen and a new note. */
 function WriteMenu({
   memories,
+  onPageStyle,
   onEdit,
   onNewNote,
   onNewPage,
@@ -278,6 +296,7 @@ function WriteMenu({
   months?: number[];
   onEditMonth?: (months: number) => void;
   memories: Memory[];
+  onPageStyle?: (memories: Memory[]) => void;
   childName: string;
   onEditCover?: () => void;
   onEdit?: (memory: Memory) => void;
@@ -343,6 +362,17 @@ function WriteMenu({
               </span>
             </button>
           ))}
+          {onPageStyle && (
+            <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(() => onPageStyle(memories))}>
+              <span className="write-menu__icon write-menu__icon--style" aria-hidden>
+                🎨
+              </span>
+              <span className="min-w-0">
+                <span className="block text-ink">Page style</span>
+                <span className="block text-xs text-ink-faint">Colour and pattern of the paper</span>
+              </span>
+            </button>
+          )}
           {onEditCover && (
             <button type="button" role="menuitem" className="write-menu__item" onClick={() => choose(onEditCover)}>
               <span className="write-menu__icon" aria-hidden>

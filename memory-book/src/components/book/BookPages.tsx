@@ -9,7 +9,7 @@ import { Doodle } from "./Doodles";
 import { PhotoFrame, WashiTape } from "./PhotoFrame";
 import { usePhotoSrc } from "./PhotoSource";
 import { useFitText } from "./useFitText";
-import { coverColor, coverColorStyle, coverTheme, isPageStyle, pageStyleVars } from "@/lib/book-style";
+import { coverColor, coverColorStyle, coverTheme, memoryPaper, paperVars } from "@/lib/book-style";
 import { TAG_META, tagSlug } from "@/lib/tags";
 import { usePageFormat } from "./PageFormatContext";
 
@@ -190,6 +190,12 @@ interface MemoryPageProps {
   pageNumber: number;
 }
 
+/** A page's own paper, if it has one (otherwise it follows the book). */
+function pagePaperStyle(memory: Memory) {
+  const paper = memoryPaper(memory);
+  return paper ? (paperVars(paper) as React.CSSProperties) : undefined;
+}
+
 export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, childName, pageNumber }: MemoryPageProps) {
   const layout = layoutMemory(memory, pageNumber, usePageFormat());
   const textRef = useFitText<HTMLDivElement>(text);
@@ -200,7 +206,7 @@ export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, chil
   return (
     <article
       className={`paper memory-page${isLetter ? " memory-page--letter" : ""}`}
-      style={isPageStyle(memory.pageStyle) ? (pageStyleVars(memory.pageStyle) as React.CSSProperties) : undefined}
+      style={pagePaperStyle(memory)}
     >
       {continued ? (
         <header className="memory-page__header memory-page__header--continued">

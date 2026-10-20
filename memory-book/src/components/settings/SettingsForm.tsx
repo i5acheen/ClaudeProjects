@@ -22,11 +22,11 @@ import {
   coverColor as currentCoverColor,
   coverTheme as currentCoverTheme,
   handwriting as currentHandwriting,
-  pageStyle as currentPageStyle,
+  bookPaper as currentPaper,
   type CoverColor,
   type CoverTheme,
   type Handwriting,
-  type PageStyle,
+  type Paper,
 } from "@/lib/book-style";
 
 type CoverChoice = { kind: "keep" } | { kind: "none" } | { kind: "existing"; ref: PhotoRef } | { kind: "new"; photo: ProcessedPhoto };
@@ -45,7 +45,7 @@ export function SettingsForm({ journal }: { journal: Journal }) {
   const [theme, setTheme] = useState<CoverTheme>(currentCoverTheme(settings));
   const [hand, setHand] = useState<Handwriting>(currentHandwriting(settings));
   const [color, setColor] = useState<CoverColor | undefined>(currentCoverColor(settings));
-  const [paper, setPaper] = useState<PageStyle>(currentPageStyle(settings));
+  const [paper, setPaper] = useState<Paper>(currentPaper(settings));
   const [monthPages, setMonthPages] = useState(settings.monthPages !== false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +74,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           coverPhoto,
           coverTheme: theme,
           coverColor: color,
-          pageStyle: paper,
+          paper,
+          pageStyle: undefined,
           handwriting: hand,
           monthPages,
         },

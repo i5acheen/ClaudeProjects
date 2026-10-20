@@ -12,7 +12,7 @@ import { createCachedPhotoResolver } from "@/lib/photo-cache";
 import { uploadBookPhoto } from "@/lib/upload";
 import { clearDeviceData } from "@/lib/device-data";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
-import { handwritingStyle, pageStyleVars, pageStyle, type PageStyle } from "@/lib/book-style";
+import { bookPaper, handwritingStyle, paperVars, type Paper, type PageStyle } from "@/lib/book-style";
 import { photoHash, samePhoto } from "@/lib/photo-hash";
 
 /* ------------------------------------------------------------------ */
@@ -32,6 +32,7 @@ export interface MemoryInput {
   photos: DraftPhoto[];
   kind?: "letter";
   sealedUntil?: string;
+  paper?: Paper;
   pageStyle?: PageStyle;
 }
 
@@ -66,6 +67,8 @@ interface JournalContextValue {
   saveMemory(input: MemoryInput, onProgress?: (message: string) => void): Promise<"saved" | "queued">;
   deleteMemory(id: string): Promise<void>;
   updateSettings(settings: BookSettings, newCover?: { blob: Blob; width: number; height: number }): Promise<void>;
+  /** Gives one page its own paper (or, with undefined, lets it follow the book again). */
+  setPagePaper(memoryId: string, paper: Paper | undefined): Promise<void>;
   syncNow(): Promise<void>;
   reload(): Promise<void>;
   driveImport: DriveImportState;
@@ -325,7 +328,8 @@ export function JournalProvider({
         photos,
         kind: draft.input.kind,
         sealedUntil: draft.input.sealedUntil || undefined,
-        pageStyle: draft.input.pageStyle,
+        paper: draft.input.paper,
+        pageStyle: draft.input.paper ? undefined : draft.input.pageStyle,
         createdAt: draft.savedAt,
         updatedAt: new Date().toISOString(),
       };
@@ -440,6 +444,7 @@ export function JournalProvider({
           photos: input.photos,
           kind: input.kind,
           sealedUntil: input.sealedUntil,
+          paper: input.paper,
           pageStyle: input.pageStyle,
         },
         previousPhotoIds: previous?.photos.map((p) => p.fileId) ?? [],
@@ -505,6 +510,22 @@ export function JournalProvider({
       if (oldCover && !photoIdsInUse(saved).has(oldCover)) await repository.removePhoto(oldCover).catch(() => undefined);
     },
     [journal, repository, commit],
+  );
+
+  const setPagePaper = useCallback(
+    async (memoryId: string, paper: Paper | undefined) => {
+      if (pending.some((d) => d.memoryId === memoryId)) {
+        throw new Error("This page is still uploading. Try again in a moment.");
+      }
+      const saved = await repository.update((latest) => ({
+        ...latest,
+        memories: latest.memories.map((m) =>
+          m.id === memoryId ? { ...m, paper, pageStyle: undefined, updatedAt: new Date().toISOString() } : m,
+        ),
+      }));
+      commit(saved);
+    },
+    [pending, repository, commit],
   );
 
   /* ---------------- photos from Google Drive ---------------- */
@@ -808,15 +829,17 @@ export function JournalProvider({
 
   // The chosen handwriting font and paper apply everywhere: book, editor, PDF.
   const chosenHand = journal?.settings.handwriting;
-  const chosenPaper = journal?.settings.pageStyle;
+  const chosenPaper = bookPaper(journal?.settings ?? {});
+  // Only re-apply when the paper itself changes, not on every new copy of the settings.
+  const paperKey = `${chosenPaper.color}/${chosenPaper.pattern}`;
   useEffect(() => {
-    const vars = { ...handwritingStyle({ handwriting: chosenHand }), ...pageStyleVars(pageStyle({ pageStyle: chosenPaper })) };
+    const vars = { ...handwritingStyle({ handwriting: chosenHand }), ...paperVars(chosenPaper) };
     const root = document.documentElement;
     for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
     return () => {
       for (const name of Object.keys(vars)) root.style.removeProperty(name);
     };
-  }, [chosenHand, chosenPaper]);
+  }, [chosenHand, paperKey]);
 
   /* ---------------- what the book shows ---------------- */
 
@@ -840,7 +863,8 @@ export function JournalProvider({
         photos,
         kind: draft.input.kind,
         sealedUntil: draft.input.sealedUntil || undefined,
-        pageStyle: draft.input.pageStyle,
+        paper: draft.input.paper,
+        pageStyle: draft.input.paper ? undefined : draft.input.pageStyle,
         createdAt: draft.savedAt,
         updatedAt: draft.savedAt,
       });
@@ -890,6 +914,7 @@ export function JournalProvider({
     saveMemory,
     deleteMemory,
     updateSettings,
+    setPagePaper,
     syncNow,
     reload,
     driveImport: importState,

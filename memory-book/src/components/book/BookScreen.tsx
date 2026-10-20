@@ -11,6 +11,7 @@ import { BookReader } from "./BookReader";
 import { NoteSheet } from "./NoteSheet";
 import { CoverSheet } from "./CoverSheet";
 import { MonthSheet } from "./MonthSheet";
+import { PageStyleSheet } from "./PageStyleSheet";
 import { WritingHintsContext } from "./BookPages";
 
 /** The signed-in book: the same reader as the demo, with your own memories — and you can write straight into it. */
@@ -19,6 +20,7 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
   const [focusId, setFocusId] = useState<string>();
   const [editingCover, setEditingCover] = useState(false);
   const [editingMonth, setEditingMonth] = useState<number | null>(null);
+  const [styling, setStyling] = useState<Memory[] | null>(null);
   const { access } = useJournal();
 
   return (
@@ -50,9 +52,13 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
               onNewPage={access.canEdit ? () => setWriting({}) : undefined}
               onEditCover={access.isOwner ? () => setEditingCover(true) : undefined}
               onEditMonth={access.canEdit ? setEditingMonth : undefined}
+              onPageStyle={access.canEdit ? setStyling : undefined}
             />
             </WritingHintsContext.Provider>
             {editingMonth !== null && <MonthSheet journal={journal} months={editingMonth} onClose={() => setEditingMonth(null)} />}
+            {styling && (
+              <PageStyleSheet journal={journal} memories={styling} canStyleBook={access.isOwner} onClose={() => setStyling(null)} />
+            )}
             {editingCover && <CoverSheet settings={journal.settings} onClose={() => setEditingCover(false)} />}
             {writing && (
               <NoteSheet

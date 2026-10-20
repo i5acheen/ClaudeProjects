@@ -3254,3 +3254,68 @@ body:has(.home)::before {
 .save-bar {
   background: rgba(255, 255, 255, 0.92);
 }
+
+/* ---- Paper picker: colour swatches, then patterns on that colour ---- */
+.paper-picker__label {
+  margin: 0.9rem 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ui-ink-soft);
+}
+.paper-picker__label:first-child {
+  margin-top: 0;
+}
+.paper-follow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: fit-content;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ui-ink);
+  background: var(--ui-muted);
+}
+/* Paper swatches are pale, so they get a clear outline. */
+.swatch--paper {
+  box-shadow: inset 0 0 0 1.5px rgba(43, 45, 66, 0.22);
+}
+.swatch--paper[aria-checked="true"] {
+  box-shadow: inset 0 0 0 1.5px rgba(43, 45, 66, 0.22), 0 0 0 2px #fff, 0 0 0 4px var(--ui-ink);
+}
+.filter-chip[aria-checked="true"] {
+  background: var(--ui-sun);
+  color: var(--ui-ink);
+  box-shadow: 0 3px 0 var(--ui-sun-deep);
+}
+/* A little page showing the chosen paper, in the Page style panel. */
+.page-style-preview {
+  position: relative;
+  display: none;
+  flex-shrink: 0;
+  width: 7.5rem;
+  aspect-ratio: 3 / 4;
+  align-self: flex-start;
+  border-radius: 0.3rem;
+  container-type: size;
+  background-color: var(--paper);
+  background-image: var(--grain);
+  box-shadow: 0 2px 4px rgba(70, 45, 20, 0.15), 0 12px 24px -12px rgba(70, 45, 20, 0.4);
+}
+.page-style-preview::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--page-pattern);
+  background-size: var(--page-pattern-size);
+}
+@media (min-width: 560px) {
+  .page-style-preview {
+    display: block;
+  }
+}
+.write-menu__icon--style {
+  background: var(--ui-sky);
+}

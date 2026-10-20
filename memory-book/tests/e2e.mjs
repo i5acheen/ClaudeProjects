@@ -632,16 +632,32 @@ try {
   await page.fill('.note-sheet textarea', 'Your feet fit in my palm today.');
   await page.click('.note-sheet button.tag-toggle:has-text("First")');
   await page.click('.note-sheet .paper-toggle');
-  await page.click('.note-sheet .paper-option:has-text("Kraft")');
+  await page.click('.note-sheet .swatch--paper[title="Kraft"]');
   await shot('14a-new-page');
   await page.click('text=Add page to journal');
   await page.waitForSelector('.note-sheet', { state: 'detached' });
   for (let i = 0; i < 60 && !journal().memories.some(m => m.title === 'Tiny toes' && m.photos.length === 2); i++) await page.waitForTimeout(250);
   const toes = journal().memories.find(m => m.title === 'Tiny toes');
   check(toes?.photos.length === 2 && toes.tags.includes('First') && toes.kind !== 'letter', 'new page with photos made straight in the journal');
-  check(toes?.pageStyle === 'kraft', 'page style: a page can have its own paper');
+  check(toes?.paper?.color === 'kraft' && toes.paper.pattern === 'plain', 'page style: a page can have its own paper');
   await page.waitForTimeout(1500);
   check(await page.locator('.memory-page[style*="--paper: #e7d5b8"]').count() > 0, 'page style: the page shows its own paper in the book');
+  // Restyle that page straight from the journal: sky-blue with stars.
+  await page.goto(`${B}/book?memory=${encodeURIComponent(toes.id)}`);
+  await page.waitForSelector('.write-fab');
+  await page.waitForTimeout(1200);
+  await page.click('.write-fab');
+  await page.click('.write-menu >> text=Page style');
+  await page.waitForSelector('[aria-label="Page style"]');
+  await page.click('[aria-label="Page style"] .swatch--paper[title="Sky"]');
+  await page.click('[aria-label="Page style"] .paper-option:has-text("Stars")');
+  await shot('14a3-page-style');
+  await page.click('text=Use on this page');
+  await page.waitForSelector('[aria-label="Page style"]', { state: 'detached' });
+  for (let i = 0; i < 40 && journal().memories.find(m => m.title === 'Tiny toes')?.paper?.pattern !== 'stars'; i++) await page.waitForTimeout(250);
+  const restyled = journal().memories.find(m => m.title === 'Tiny toes');
+  check(restyled?.paper?.color === 'sky' && restyled.paper.pattern === 'stars' && restyled.text === 'Your feet fit in my palm today.', 'page style: changed from the journal, words and photos untouched');
+  check(await page.locator('.memory-page[style*="--paper: #e9f3fc"]').count() > 0, 'page style: the new colour shows in the book');
   await shot('14a2-new-page-in-book');
 
   // 8d-2. A time-capsule letter, sealed until her 18th birthday
@@ -721,15 +737,16 @@ try {
   await page.click('button[title="Midnight stars"]');
   await page.click('button.font-option:has-text("Kalam")');
   await page.click('.swatch[title="Forest"]');
+  await page.click('.paper-picker .swatch--paper[title="Mint"]');
   await page.click('.paper-options .paper-option:has-text("Dot grid")');
   await shot('15-style-settings');
   await page.click('text=Save settings');
   await page.waitForSelector('text=Saved ✓');
   j = journal();
   check(j.settings.coverTheme === 'midnight' && j.settings.handwriting === 'kalam', 'cover style and handwriting saved');
-  check(j.settings.coverColor === 'forest' && j.settings.pageStyle === 'dotted', 'cover colour and paper saved');
+  check(j.settings.coverColor === 'forest' && j.settings.paper?.color === 'mint' && j.settings.paper.pattern === 'dots', 'cover colour and paper (colour and pattern) saved');
   const paperNow = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--paper').trim());
-  check(paperNow === '#fffcf6', 'paper applied to the whole book');
+  check(paperNow === '#e9f6ed', 'paper applied to the whole book');
   check(await page.locator('.cover-option .cover[style*="--cloth: #0c5042"]').count() > 0, 'cover previews shown in the chosen colour');
   // Back to the style's own colour, so the cover screenshots below show each style as designed.
   await page.click('.swatch--auto');

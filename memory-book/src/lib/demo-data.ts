@@ -40,6 +40,7 @@ export const demoJournal: Journal = {
     },
     {
       id: "demo-2",
+      paper: { color: "sky", pattern: "clouds" },
       date: "2026-06-02",
       title: "Sleepyhead",
       text:
@@ -62,6 +63,7 @@ export const demoJournal: Journal = {
     },
     {
       id: "demo-4",
+      paper: { color: "butter", pattern: "stars" },
       date: "2026-08-28",
       title: "Your first Raksha Bandhan",
       text:

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { PAGE_STYLES, pageStyle, pageStyleVars, type PageStyle } from "@/lib/book-style";
+import { PAPER_COLORS, PAPER_PATTERNS, bookPaper as bookPaperOf, memoryPaper, paperVars, type Paper } from "@/lib/book-style";
 import { PaperPicker } from "@/components/settings/StylePickers";
 import { TAGS, type Journal, type Memory, type PhotoRef, type Tag } from "@/lib/types";
 import { ageStamp, isSealed, longDate, parseDay, toDayString } from "@/lib/dates";
@@ -54,7 +54,7 @@ export function NoteSheet({
   onSaved: (memoryId: string) => void;
 }) {
   const { saveMemory } = useJournal();
-  const bookPaper = pageStyle(journal.settings);
+  const bookPaper = bookPaperOf(journal.settings);
   const [photos, setPhotos] = useState<PagePhoto[]>(
     () => memory?.photos.map((ref) => ({ kind: "existing" as const, ref, key: ref.fileId })) ?? [],
   );
@@ -69,7 +69,7 @@ export function NoteSheet({
   const [error, setError] = useState<string | null>(null);
   const isLetter = memory ? memory.kind === "letter" : letter;
   const [sealedUntil, setSealedUntil] = useState(memory?.sealedUntil ?? "");
-  const [paper, setPaper] = useState<PageStyle | undefined>(memory?.pageStyle);
+  const [paper, setPaper] = useState<Paper | undefined>(memory ? memoryPaper(memory) : undefined);
   const [choosingPaper, setChoosingPaper] = useState(false);
   const [sealOn, setSealOn] = useState(!!memory?.sealedUntil);
   const [opened, setOpened] = useState(!isSealed(memory?.sealedUntil));
@@ -148,7 +148,7 @@ export function NoteSheet({
           photos: photos.map(({ key: _key, ...photo }) => photo as DraftPhoto),
           kind: isLetter ? "letter" : memory?.kind,
           sealedUntil: isLetter && sealOn && sealedUntil ? sealedUntil : undefined,
-          pageStyle: paper,
+          paper,
         },
         setStatus,
       );
@@ -163,7 +163,7 @@ export function NoteSheet({
     <div className="note-backdrop" role="dialog" aria-modal aria-label={memory ? "Edit this page" : isLetter ? `Write a letter to ${name}` : "New page"} onClick={onClose}>
       <div
         className="note-sheet note-sheet--page"
-        style={paper ? (pageStyleVars(paper) as React.CSSProperties) : undefined}
+        style={paper ? (paperVars(paper) as React.CSSProperties) : undefined}
         onClick={(e) => e.stopPropagation()}
       >
         {!opened ? (
@@ -288,8 +288,8 @@ export function NoteSheet({
             aria-expanded={choosingPaper}
             onClick={() => setChoosingPaper((open) => !open)}
           >
-            <span className="paper-toggle__chip" style={pageStyleVars(paper ?? bookPaper) as React.CSSProperties} />
-            Paper: {paper ? PAGE_STYLES[paper].label : "same as the book"}
+            <span className="paper-toggle__chip" style={paperVars(paper ?? bookPaper) as React.CSSProperties} />
+            Page style: {paper ? `${PAPER_COLORS[paper.color].label}, ${PAPER_PATTERNS[paper.pattern].label.toLowerCase()}` : "same as the book"}
           </button>
           {choosingPaper && (
             <div className="mt-2">

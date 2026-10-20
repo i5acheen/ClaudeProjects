@@ -112,35 +112,93 @@ export function coverColorStyle(color: CoverColor | undefined): Record<string, s
 }
 
 /**
- * Paper for the pages: the whole book has one, and any page can have its own.
- * `pattern` is drawn under the words and photos.
+ * Paper for the pages: a colour and a pattern, chosen separately. The whole
+ * book has one, and any page can have its own.
  */
-export const PAGE_STYLES = {
-  cream: { label: "Cotton cream", paper: "#fffbf4", pattern: null },
-  white: { label: "Bright white", paper: "#ffffff", pattern: null },
-  lined: { label: "Lined", paper: "#fffdf7", pattern: "lined" },
-  dotted: { label: "Dot grid", paper: "#fffcf6", pattern: "dots" },
-  grid: { label: "Graph", paper: "#fdfcf7", pattern: "grid" },
-  kraft: { label: "Kraft", paper: "#e7d5b8", pattern: null },
-  blush: { label: "Blush", paper: "#fcefed", pattern: null },
-  mint: { label: "Mint", paper: "#eef4ec", pattern: null },
-  sky: { label: "Sky", paper: "#edf3f8", pattern: null },
-  butter: { label: "Butter", paper: "#fdf6dc", pattern: null },
-  vintage: { label: "Vintage", paper: "#f4e8d0", pattern: "aged" },
+export const PAPER_COLORS = {
+  cream: { label: "Cream", paper: "#fffbf4" },
+  white: { label: "White", paper: "#ffffff" },
+  butter: { label: "Butter", paper: "#fff6d6" },
+  peach: { label: "Peach", paper: "#ffefe4" },
+  blush: { label: "Blush", paper: "#fdeced" },
+  lilac: { label: "Lilac", paper: "#f2edfc" },
+  sky: { label: "Sky", paper: "#e9f3fc" },
+  mint: { label: "Mint", paper: "#e9f6ed" },
+  sage: { label: "Sage", paper: "#e9efe0" },
+  kraft: { label: "Kraft", paper: "#e7d5b8" },
+  vintage: { label: "Vintage", paper: "#f4e8d0" },
 } as const;
+export type PaperColor = keyof typeof PAPER_COLORS;
+
+export const PAPER_PATTERNS = {
+  plain: { label: "Plain" },
+  lined: { label: "Lined" },
+  dots: { label: "Dot grid" },
+  grid: { label: "Graph" },
+  stars: { label: "Stars" },
+  clouds: { label: "Clouds" },
+  polka: { label: "Polka dots" },
+  hearts: { label: "Hearts" },
+  gingham: { label: "Gingham" },
+  aged: { label: "Old album" },
+} as const;
+export type PaperPattern = keyof typeof PAPER_PATTERNS;
+
+export interface Paper {
+  color: PaperColor;
+  pattern: PaperPattern;
+}
+export const DEFAULT_PAPER: Paper = { color: "cream", pattern: "plain" };
+
+/** The earlier single paper choices, for books saved before colour and pattern were separate. */
+export const PAGE_STYLES = {
+  cream: { color: "cream", pattern: "plain" },
+  white: { color: "white", pattern: "plain" },
+  lined: { color: "cream", pattern: "lined" },
+  dotted: { color: "cream", pattern: "dots" },
+  grid: { color: "cream", pattern: "grid" },
+  kraft: { color: "kraft", pattern: "plain" },
+  blush: { color: "blush", pattern: "plain" },
+  mint: { color: "mint", pattern: "plain" },
+  sky: { color: "sky", pattern: "plain" },
+  butter: { color: "butter", pattern: "plain" },
+  vintage: { color: "vintage", pattern: "aged" },
+} as const satisfies Record<string, Paper>;
 export type PageStyle = keyof typeof PAGE_STYLES;
-export const DEFAULT_PAGE_STYLE: PageStyle = "cream";
 
 export const isPageStyle = (value: unknown): value is PageStyle => typeof value === "string" && value in PAGE_STYLES;
 
-export function pageStyle(settings: Pick<BookSettings, "pageStyle">): PageStyle {
-  return isPageStyle(settings.pageStyle) ? settings.pageStyle : DEFAULT_PAGE_STYLE;
+export function isPaper(value: unknown): value is Paper {
+  const p = value as Partial<Paper> | null;
+  return !!p && typeof p === "object" && typeof p.color === "string" && p.color in PAPER_COLORS && typeof p.pattern === "string" && p.pattern in PAPER_PATTERNS;
 }
+
+const fromSaved = (paper: unknown, legacy: unknown): Paper | undefined =>
+  isPaper(paper) ? { color: paper.color, pattern: paper.pattern } : isPageStyle(legacy) ? { ...PAGE_STYLES[legacy] } : undefined;
+
+/** The whole book's paper. */
+export function bookPaper(settings: Pick<BookSettings, "paper" | "pageStyle">): Paper {
+  return fromSaved(settings.paper, settings.pageStyle) ?? DEFAULT_PAPER;
+}
+
+/** A page's own paper, if it has one. */
+export function memoryPaper(memory: { paper?: unknown; pageStyle?: unknown }): Paper | undefined {
+  return fromSaved(memory.paper, memory.pageStyle);
+}
+
+export const samePaper = (a?: Paper, b?: Paper) => !!a && !!b && a.color === b.color && a.pattern === b.pattern;
 
 // Lines and dots never thinner than a pixel, so they show on the little sample sheets too.
 const LINE = "max(1px, 0.18cqw)";
 const CELL = "max(7px, 5cqw)";
-const PATTERNS: Record<string, { image: string; size: string }> = {
+const TILE = "max(46px, 20cqw)";
+const svg = (body: string, w = 100, h = 100) =>
+  `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'>${body}</svg>")`;
+const star = (x: number, y: number, r: number) =>
+  `<path d='M${x} ${y - r}L${x + r * 0.3} ${y - r * 0.3}L${x + r} ${y}L${x + r * 0.3} ${y + r * 0.3}L${x} ${y + r}L${x - r * 0.3} ${y + r * 0.3}L${x - r} ${y}L${x - r * 0.3} ${y - r * 0.3}Z'/>`;
+
+const PATTERNS: Record<PaperPattern, { image: string; size: string } | null> = {
+  plain: null,
   // Ruled lines across the page, like an exercise book.
   lined: {
     image: `linear-gradient(to bottom, transparent calc(100% - ${LINE}), rgba(111, 147, 174, 0.3) calc(100% - ${LINE}))`,
@@ -154,6 +212,34 @@ const PATTERNS: Record<string, { image: string; size: string }> = {
     image: `linear-gradient(to right, rgba(111, 147, 174, 0.2) ${LINE}, transparent ${LINE}), linear-gradient(to bottom, rgba(111, 147, 174, 0.2) ${LINE}, transparent ${LINE})`,
     size: `${CELL} ${CELL}`,
   },
+  // Little twinkly stars.
+  stars: {
+    image: svg(`<g fill='%23f2b632' fill-opacity='.42'>${star(22, 24, 7)}${star(72, 64, 9)}${star(80, 18, 4)}${star(30, 80, 4)}</g>`),
+    size: `${TILE} ${TILE}`,
+  },
+  // Soft clouds.
+  clouds: {
+    image: svg(
+      "<g fill='%237ba7d1' fill-opacity='.16'><path d='M14 38a8 8 0 0 1 1-16 11 11 0 0 1 20-3 9 9 0 0 1 14 7 7 7 0 0 1 0 12z'/><path d='M58 86a7 7 0 0 1 1-14 9 9 0 0 1 17-3 7 7 0 0 1 12 6 6 6 0 0 1 0 11z'/></g>",
+    ),
+    size: `${TILE} ${TILE}`,
+  },
+  polka: {
+    image: "radial-gradient(circle, rgba(232, 120, 140, 0.16) max(2.5px, 1.1cqw), transparent max(3px, 1.2cqw))",
+    size: "max(14px, 7cqw) max(14px, 7cqw)",
+  },
+  hearts: {
+    image: svg(
+      "<g fill='%23e8788c' fill-opacity='.22'><path d='M25 34c-7-5-11-9-11-14a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 5-4 9-11 14z'/><path d='M74 82c-5-4-8-7-8-10a4.5 4.5 0 0 1 8-2 4.5 4.5 0 0 1 8 2c0 3-3 6-8 10z'/></g>",
+    ),
+    size: `${TILE} ${TILE}`,
+  },
+  // Picnic-blanket checks.
+  gingham: {
+    image:
+      "linear-gradient(to right, rgba(123, 167, 209, 0.13) 50%, transparent 50%), linear-gradient(to bottom, rgba(123, 167, 209, 0.13) 50%, transparent 50%)",
+    size: "max(12px, 6cqw) max(12px, 6cqw)",
+  },
   // Darker, foxed edges like an old album.
   aged: {
     image: "radial-gradient(ellipse at 50% 50%, transparent 52%, rgba(150, 105, 50, 0.22) 100%)",
@@ -161,18 +247,20 @@ const PATTERNS: Record<string, { image: string; size: string }> = {
   },
 };
 
-/** CSS variables for a paper style, set on the book (whole book) or on one page. */
-export function pageStyleVars(style: PageStyle): Record<string, string> {
-  const { paper, pattern } = PAGE_STYLES[style];
-  const p = pattern ? PATTERNS[pattern] : null;
+/** CSS variables for a paper, set on the book (whole book) or on one page. */
+export function paperVars(paper: Paper): Record<string, string> {
+  const pattern = PATTERNS[paper.pattern];
   return {
-    "--paper": paper,
-    "--page-pattern": p?.image ?? "none",
-    "--page-pattern-size": p?.size ?? "auto",
-    // Ruled or squared paper already has lines, so the words don't draw their own.
-    "--text-rule": pattern === "lined" || pattern === "grid" || pattern === "dots" ? "transparent" : "rgba(111, 147, 174, 0.22)",
+    "--paper": PAPER_COLORS[paper.color].paper,
+    "--page-pattern": pattern?.image ?? "none",
+    "--page-pattern-size": pattern?.size ?? "auto",
+    // Ruled, dotted, squared or checked paper already has lines, so the words don't draw their own.
+    "--text-rule": ["lined", "grid", "dots", "gingham"].includes(paper.pattern) ? "transparent" : "rgba(111, 147, 174, 0.22)",
   };
 }
+
+/** For the earlier single paper choices. */
+export const pageStyleVars = (style: PageStyle) => paperVars(PAGE_STYLES[style]);
 
 export function coverTheme(settings: Pick<BookSettings, "coverTheme">): CoverTheme {
   return settings.coverTheme && settings.coverTheme in COVER_THEMES ? settings.coverTheme : DEFAULT_COVER;

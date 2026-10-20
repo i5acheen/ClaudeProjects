@@ -5,12 +5,15 @@ import {
   COVER_COLORS,
   COVER_THEMES,
   HANDWRITING,
-  PAGE_STYLES,
-  pageStyleVars,
+  PAPER_COLORS,
+  PAPER_PATTERNS,
+  paperVars,
   type CoverColor,
   type CoverTheme,
   type Handwriting,
-  type PageStyle,
+  type Paper,
+  type PaperColor,
+  type PaperPattern,
 } from "@/lib/book-style";
 import { CoverPage } from "@/components/book/BookPages";
 
@@ -32,8 +35,8 @@ export function StylePickers({
   onTheme: (theme: CoverTheme) => void;
   color: CoverColor | undefined;
   onColor: (color: CoverColor | undefined) => void;
-  paper: PageStyle;
-  onPaper: (paper: PageStyle) => void;
+  paper: Paper;
+  onPaper: (paper: Paper) => void;
   hand: Handwriting;
   onHand: (hand: Handwriting) => void;
 }) {
@@ -65,8 +68,10 @@ export function StylePickers({
       <CoverColorSwatches value={color} onChange={onColor} />
 
       <p className="field-label mt-6">Paper</p>
-      <p className="mb-2 text-sm text-ink-soft">For every page. You can give any page its own paper when you write it.</p>
-      <PaperPicker value={paper} onChange={(p) => onPaper(p ?? "cream")} />
+      <p className="mb-3 text-sm text-ink-soft">
+        A colour and a pattern for every page. Any page can have its own: tap ✎ in the journal, then <i>Page style</i>.
+      </p>
+      <PaperPicker value={paper} onChange={(p) => p && onPaper(p)} />
 
       <p className="field-label mt-6">Writing style</p>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -130,35 +135,69 @@ export function CoverColorSwatches({
 }
 
 /**
- * Little sheets of each paper. With `bookPaper`, the first choice is "same as
- * the book" (for one page); otherwise every choice is a paper.
+ * Paper: a row of colours, then the patterns shown on that colour. With
+ * `bookPaper` (for one page), "Same as the book" comes first and leaves the
+ * page to follow the book.
  */
 export function PaperPicker({
   value,
   onChange,
   bookPaper,
 }: {
-  value: PageStyle | undefined;
-  onChange: (paper: PageStyle | undefined) => void;
-  bookPaper?: PageStyle;
+  value: Paper | undefined;
+  onChange: (paper: Paper | undefined) => void;
+  bookPaper?: Paper;
 }) {
-  const option = (id: PageStyle | undefined, label: string, shown: PageStyle) => (
-    <button
-      key={id ?? "book"}
-      type="button"
-      role="radio"
-      aria-checked={value === id}
-      className="paper-option"
-      onClick={() => onChange(id)}
-    >
-      <span className="paper-option__sheet" style={pageStyleVars(shown) as React.CSSProperties} />
-      <span className="paper-option__label">{label}</span>
-    </button>
-  );
+  const shown = value ?? bookPaper ?? { color: "cream" as PaperColor, pattern: "plain" as PaperPattern };
   return (
-    <div className="paper-options" role="radiogroup" aria-label="Paper">
-      {bookPaper && option(undefined, "Book’s paper", bookPaper)}
-      {(Object.keys(PAGE_STYLES) as PageStyle[]).map((id) => option(id, PAGE_STYLES[id].label, id))}
+    <div className="paper-picker">
+      {bookPaper && (
+        <label className="paper-follow">
+          <input
+            type="checkbox"
+            checked={!value}
+            onChange={(e) => onChange(e.target.checked ? undefined : { ...bookPaper })}
+            className="size-4 accent-[var(--accent)]"
+          />
+          Same as the rest of the book
+        </label>
+      )}
+      <p className="paper-picker__label">Colour</p>
+      <div className="swatches" role="radiogroup" aria-label="Paper colour">
+        {(Object.keys(PAPER_COLORS) as PaperColor[]).map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="radio"
+            aria-checked={!!value && value.color === id}
+            className="swatch swatch--paper"
+            style={{ background: PAPER_COLORS[id].paper }}
+            onClick={() => onChange({ ...shown, color: id })}
+            title={PAPER_COLORS[id].label}
+          >
+            <span className="sr-only">{PAPER_COLORS[id].label}</span>
+          </button>
+        ))}
+        <span className="swatches__name" aria-hidden>
+          {PAPER_COLORS[shown.color].label}
+        </span>
+      </div>
+      <p className="paper-picker__label">Pattern</p>
+      <div className="paper-options" role="radiogroup" aria-label="Paper pattern">
+        {(Object.keys(PAPER_PATTERNS) as PaperPattern[]).map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="radio"
+            aria-checked={!!value && value.pattern === id}
+            className="paper-option"
+            onClick={() => onChange({ ...shown, pattern: id })}
+          >
+            <span className="paper-option__sheet" style={paperVars({ color: shown.color, pattern: id }) as React.CSSProperties} />
+            <span className="paper-option__label">{PAPER_PATTERNS[id].label}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

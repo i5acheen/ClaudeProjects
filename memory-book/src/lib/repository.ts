@@ -107,6 +107,7 @@ export function normaliseJournal(raw: unknown): Journal {
       coverPhoto: settings.coverPhoto,
       coverTheme: settings.coverTheme,
       coverColor: settings.coverColor,
+      paper: settings.paper,
       pageStyle: settings.pageStyle,
       handwriting: settings.handwriting,
       dedication: settings.dedication,

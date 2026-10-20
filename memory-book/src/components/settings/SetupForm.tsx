@@ -4,7 +4,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useJournal } from "@/components/journal/JournalProvider";
 import { LoadingBook } from "@/components/journal/BookGate";
-import { DEFAULT_COVER, DEFAULT_HANDWRITING, type CoverTheme, type Handwriting } from "@/lib/book-style";
+import {
+  DEFAULT_COVER,
+  DEFAULT_HANDWRITING,
+  DEFAULT_PAGE_STYLE,
+  type CoverColor,
+  type CoverTheme,
+  type Handwriting,
+  type PageStyle,
+} from "@/lib/book-style";
 import { StylePickers } from "./StylePickers";
 import { ConsentNotice, consentNow, recordConsent } from "@/components/app/ConsentNotice";
 
@@ -20,6 +28,8 @@ export function SetupForm() {
   const [step, setStep] = useState<"details" | "style">("details");
   const [theme, setTheme] = useState<CoverTheme>(DEFAULT_COVER);
   const [hand, setHand] = useState<Handwriting>(DEFAULT_HANDWRITING);
+  const [color, setColor] = useState<CoverColor>();
+  const [paper, setPaper] = useState<PageStyle>(DEFAULT_PAGE_STYLE);
   const [error, setError] = useState<string | null>(null);
   const [agreed, setAgreed] = useState(false);
 
@@ -49,6 +59,8 @@ export function SetupForm() {
         bookTitle: bookTitle.trim() || `Little Moments`,
         dedication: dedication.trim() || undefined,
         coverTheme: theme,
+        coverColor: color,
+        pageStyle: paper,
         handwriting: hand,
         consent: consentNow(),
       }, { another });
@@ -139,6 +151,10 @@ export function SetupForm() {
           preview={{ childName: childName.trim(), dateOfBirth, bookTitle: bookTitle.trim() || "Little Moments" }}
           theme={theme}
           onTheme={setTheme}
+          color={color}
+          onColor={setColor}
+          paper={paper}
+          onPaper={setPaper}
           hand={hand}
           onHand={setHand}
         />

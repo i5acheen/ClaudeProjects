@@ -9,7 +9,7 @@ import { Doodle } from "./Doodles";
 import { PhotoFrame, WashiTape } from "./PhotoFrame";
 import { usePhotoSrc } from "./PhotoSource";
 import { useFitText } from "./useFitText";
-import { coverTheme } from "@/lib/book-style";
+import { coverColor, coverColorStyle, coverTheme, isPageStyle, pageStyleVars } from "@/lib/book-style";
 import { TAG_META, tagSlug } from "@/lib/tags";
 import { usePageFormat } from "./PageFormatContext";
 
@@ -58,11 +58,12 @@ export function CoverPage({ settings, priority = false }: { settings: BookSettin
   const subtitle = settings.coverSubtitle?.trim() || `for ${settings.childName} · ${shortDate(settings.dateOfBirth)}`;
   const focus = settings.coverFocus;
   const imgStyle = focus ? { objectPosition: `${focus.x}% ${focus.y}%` } : undefined;
+  const cloth = coverColorStyle(coverColor(settings)) as React.CSSProperties | undefined;
 
   // Full photo: the picture fills the cover, the title sits on a cream label.
   if (theme === "photo" && coverSrc) {
     return (
-      <div className="cover cover--photo">
+      <div className="cover cover--photo" style={cloth}>
         <img className="cover__bleed" src={coverSrc} alt="" draggable={false} style={imgStyle} />
         <div className="cover__shade" />
         <div className={`cover__label cover__label--${settings.coverLabel ?? "bottom"}`}>
@@ -77,7 +78,7 @@ export function CoverPage({ settings, priority = false }: { settings: BookSettin
   // Modern portrait: clean paper, title on top, a big photo below.
   if (theme === "portrait") {
     return (
-      <div className="cover cover--portrait">
+      <div className="cover cover--portrait" style={cloth}>
         <div className="portrait__head">
           <h1 className="cover__title">{settings.bookTitle}</h1>
           <span className="cover__rule" />
@@ -95,7 +96,7 @@ export function CoverPage({ settings, priority = false }: { settings: BookSettin
   }
 
   return (
-    <div className={`cover cover--${theme}`}>
+    <div className={`cover cover--${theme}`} style={cloth}>
       <div className="cover__frame">
         <p className="cover__eyebrow">a book of memories</p>
         <h1 className="cover__title">{settings.bookTitle}</h1>
@@ -126,7 +127,10 @@ export function CoverPage({ settings, priority = false }: { settings: BookSettin
 
 export function BackCoverPage({ settings }: { settings: BookSettings }) {
   return (
-    <div className={`cover cover--back cover--${coverTheme(settings)}`}>
+    <div
+      className={`cover cover--back cover--${coverTheme(settings)}`}
+      style={coverColorStyle(coverColor(settings)) as React.CSSProperties | undefined}
+    >
       <div className="back__emblem">
         <Doodle kind="heart" color="var(--cover-ink)" size="11cqw" />
         <p>made with love for {settings.childName}</p>
@@ -194,7 +198,10 @@ export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, chil
   const isLetter = memory.kind === "letter";
 
   return (
-    <article className={`paper memory-page${isLetter ? " memory-page--letter" : ""}`}>
+    <article
+      className={`paper memory-page${isLetter ? " memory-page--letter" : ""}`}
+      style={isPageStyle(memory.pageStyle) ? (pageStyleVars(memory.pageStyle) as React.CSSProperties) : undefined}
+    >
       {continued ? (
         <header className="memory-page__header memory-page__header--continued">
           <p className="memory-date">{longDate(memory.date)}</p>

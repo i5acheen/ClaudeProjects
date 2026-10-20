@@ -172,6 +172,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
           photos: photos.map(({ key: _key, ...photo }) => photo as DraftPhoto),
           kind: memory?.kind,
           sealedUntil: memory?.sealedUntil,
+          pageStyle: memory?.pageStyle,
         },
         setProgress,
       );

@@ -12,7 +12,7 @@ import { createCachedPhotoResolver } from "@/lib/photo-cache";
 import { uploadBookPhoto } from "@/lib/upload";
 import { clearDeviceData } from "@/lib/device-data";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
-import { handwritingStyle } from "@/lib/book-style";
+import { handwritingStyle, pageStyleVars, pageStyle, type PageStyle } from "@/lib/book-style";
 import { photoHash, samePhoto } from "@/lib/photo-hash";
 
 /* ------------------------------------------------------------------ */
@@ -32,6 +32,7 @@ export interface MemoryInput {
   photos: DraftPhoto[];
   kind?: "letter";
   sealedUntil?: string;
+  pageStyle?: PageStyle;
 }
 
 /** A memory saved on this device, waiting to be uploaded to Drive. */
@@ -324,6 +325,7 @@ export function JournalProvider({
         photos,
         kind: draft.input.kind,
         sealedUntil: draft.input.sealedUntil || undefined,
+        pageStyle: draft.input.pageStyle,
         createdAt: draft.savedAt,
         updatedAt: new Date().toISOString(),
       };
@@ -438,6 +440,7 @@ export function JournalProvider({
           photos: input.photos,
           kind: input.kind,
           sealedUntil: input.sealedUntil,
+          pageStyle: input.pageStyle,
         },
         previousPhotoIds: previous?.photos.map((p) => p.fileId) ?? [],
         savedAt: previous?.createdAt ?? new Date().toISOString(),
@@ -803,16 +806,17 @@ export function JournalProvider({
     await reload();
   }, [repository, reload]);
 
-  // The chosen handwriting font applies everywhere: book, editor, PDF.
+  // The chosen handwriting font and paper apply everywhere: book, editor, PDF.
   const chosenHand = journal?.settings.handwriting;
+  const chosenPaper = journal?.settings.pageStyle;
   useEffect(() => {
-    const vars = handwritingStyle({ handwriting: chosenHand });
+    const vars = { ...handwritingStyle({ handwriting: chosenHand }), ...pageStyleVars(pageStyle({ pageStyle: chosenPaper })) };
     const root = document.documentElement;
     for (const [name, value] of Object.entries(vars)) root.style.setProperty(name, value);
     return () => {
       for (const name of Object.keys(vars)) root.style.removeProperty(name);
     };
-  }, [chosenHand]);
+  }, [chosenHand, chosenPaper]);
 
   /* ---------------- what the book shows ---------------- */
 
@@ -836,6 +840,7 @@ export function JournalProvider({
         photos,
         kind: draft.input.kind,
         sealedUntil: draft.input.sealedUntil || undefined,
+        pageStyle: draft.input.pageStyle,
         createdAt: draft.savedAt,
         updatedAt: draft.savedAt,
       });

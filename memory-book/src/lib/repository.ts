@@ -106,6 +106,8 @@ export function normaliseJournal(raw: unknown): Journal {
       bookTitle: settings.bookTitle ?? "Memory Book",
       coverPhoto: settings.coverPhoto,
       coverTheme: settings.coverTheme,
+      coverColor: settings.coverColor,
+      pageStyle: settings.pageStyle,
       handwriting: settings.handwriting,
       dedication: settings.dedication,
       coverFocus: settings.coverFocus,

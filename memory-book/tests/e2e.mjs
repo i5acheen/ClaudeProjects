@@ -629,13 +629,17 @@ try {
   await page.fill('.note-sheet input[aria-label=Title]', 'Tiny toes');
   await page.fill('.note-sheet textarea', 'Your feet fit in my palm today.');
   await page.click('.note-sheet button.tag-toggle:has-text("First")');
+  await page.click('.note-sheet .paper-toggle');
+  await page.click('.note-sheet .paper-option:has-text("Kraft")');
   await shot('14a-new-page');
   await page.click('text=Add page to journal');
   await page.waitForSelector('.note-sheet', { state: 'detached' });
   for (let i = 0; i < 60 && !journal().memories.some(m => m.title === 'Tiny toes' && m.photos.length === 2); i++) await page.waitForTimeout(250);
   const toes = journal().memories.find(m => m.title === 'Tiny toes');
   check(toes?.photos.length === 2 && toes.tags.includes('First') && toes.kind !== 'letter', 'new page with photos made straight in the journal');
+  check(toes?.pageStyle === 'kraft', 'page style: a page can have its own paper');
   await page.waitForTimeout(1500);
+  check(await page.locator('.memory-page[style*="--paper: #e7d5b8"]').count() > 0, 'page style: the page shows its own paper in the book');
   await shot('14a2-new-page-in-book');
 
   // 8d-2. A time-capsule letter, sealed until her 18th birthday
@@ -714,11 +718,22 @@ try {
   await page.waitForSelector('text=Cover style');
   await page.click('button[title="Midnight stars"]');
   await page.click('button.font-option:has-text("Kalam")');
+  await page.click('.swatch[title="Forest"]');
+  await page.click('.paper-options .paper-option:has-text("Dot grid")');
   await shot('15-style-settings');
   await page.click('text=Save settings');
   await page.waitForSelector('text=Saved ✓');
   j = journal();
   check(j.settings.coverTheme === 'midnight' && j.settings.handwriting === 'kalam', 'cover style and handwriting saved');
+  check(j.settings.coverColor === 'forest' && j.settings.pageStyle === 'dotted', 'cover colour and paper saved');
+  const paperNow = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--paper').trim());
+  check(paperNow === '#fffcf6', 'paper applied to the whole book');
+  check(await page.locator('.cover-option .cover[style*="--cloth: #0c5042"]').count() > 0, 'cover previews shown in the chosen colour');
+  // Back to the style's own colour, so the cover screenshots below show each style as designed.
+  await page.click('.swatch--auto');
+  await page.click('text=Save settings');
+  for (let i = 0; i < 40 && journal().settings.coverColor; i++) await page.waitForTimeout(250);
+  check(journal().settings.coverColor === undefined, 'cover colour can go back to the style’s own');
   const fontNow = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--font-hand'));
   check(fontNow.toLowerCase().includes('kalam'), 'handwriting applied across the app');
 
@@ -749,6 +764,7 @@ try {
   await page.fill('#cover-title', "Asha's First Year");
   await page.fill('#cover-subtitle', 'our little sunshine');
   await page.click('button:has-text("At the top")');
+  await page.locator('.focus-picker').scrollIntoViewIfNeeded();
   const fp = await page.locator('.focus-picker').boundingBox();
   await page.mouse.click(fp.x + fp.width * 0.3, fp.y + fp.height * 0.7);
   await shot('19-cover-editor');

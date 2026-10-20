@@ -1,30 +1,79 @@
 "use client";
 
 import Link from "next/link";
-import type { Journal, Memory } from "@/lib/types";
+import { useState } from "react";
+import { TAGS, type Journal, type Memory, type Tag } from "@/lib/types";
 import { ageStamp, isSealed, longDate, monthLabel, shortDate } from "@/lib/dates";
 import { sortMemories } from "@/lib/pagination";
 import { seededRandom } from "@/lib/random";
 import { usePhotoSrc } from "@/components/book/PhotoSource";
 
-/** All memories as little polaroids, grouped by month. Tap one to open the book there. */
+type Filter = "all" | "photos" | "letters" | Tag;
+
+/** All memories as little polaroids, grouped by month, with quick filters. Tap one to open the book there. */
 export function Timeline({ journal, basePath }: { journal: Journal; basePath: string }) {
-  const groups = groupByMonth(sortMemories(journal.memories));
+  const [filter, setFilter] = useState<Filter>("all");
+  const all = sortMemories(journal.memories);
+  const shown = all.filter((m) =>
+    filter === "all"
+      ? true
+      : filter === "photos"
+        ? m.photos.length > 0
+        : filter === "letters"
+          ? m.kind === "letter"
+          : m.tags.includes(filter),
+  );
+  const groups = groupByMonth(shown);
+  const photoCount = all.reduce((n, m) => n + m.photos.length, 0);
+  const usedTags = TAGS.filter((tag) => all.some((m) => m.tags.includes(tag)));
+  const hasLetters = all.some((m) => m.kind === "letter");
+  const filters: { id: Filter; label: string }[] = [
+    { id: "all", label: "All" },
+    { id: "photos", label: "Photos" },
+    ...(hasLetters ? [{ id: "letters" as const, label: "Letters" }] : []),
+    ...usedTags.map((tag) => ({ id: tag, label: tag })),
+  ];
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 pt-6 pb-16">
-      {groups.length === 0 && (
-        <p className="mt-24 text-center font-hand text-3xl text-ink-soft">No memories yet — the first page is waiting.</p>
-      )}
-      {groups.map(({ label, memories }) => (
-        <section key={label} className="mb-10 sm:grid sm:grid-cols-[10rem_1fr] sm:gap-8">
-          <div className="mb-4 sm:sticky sm:top-4 sm:mb-0 sm:self-start sm:text-right">
-            <h2 className="text-2xl font-semibold text-ink">{label}</h2>
-            <p className="text-base italic text-ink-soft">
-              {ageStamp(journal.settings.dateOfBirth, memories[0].date)}
+    <div className="mx-auto w-full max-w-5xl px-4 pt-4 pb-16">
+      {all.length > 0 && (
+        <header className="timeline-head">
+          <div>
+            <h1 className="ui-h1">{journal.settings.childName ? `${journal.settings.childName}’s story` : "The story so far"}</h1>
+            <p className="mt-1 text-ink-soft">
+              {all.length} {all.length === 1 ? "memory" : "memories"} · {photoCount} {photoCount === 1 ? "photo" : "photos"} ·{" "}
+              {groups.length > 0 ? ageStamp(journal.settings.dateOfBirth, all.at(-1)!.date) : ""}
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-[repeat(auto-fill,minmax(150px,190px))] sm:border-l sm:border-dashed sm:border-ink-faint/60 sm:pl-8">
+          {filters.length > 2 && (
+            <div className="filter-chips" role="group" aria-label="Show">
+              {filters.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className="filter-chip"
+                  aria-pressed={filter === f.id}
+                  onClick={() => setFilter(f.id)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </header>
+      )}
+
+      {all.length === 0 && (
+        <p className="mt-24 text-center font-hand text-3xl text-ink-soft">No memories yet — the first page is waiting.</p>
+      )}
+      {all.length > 0 && groups.length === 0 && <p className="mt-12 text-center text-ink-soft">Nothing here yet.</p>}
+      {groups.map(({ label, memories }) => (
+        <section key={label} className="timeline-month">
+          <div className="timeline-month__label">
+            <h2>{label}</h2>
+            <p>{ageStamp(journal.settings.dateOfBirth, memories[0].date)}</p>
+          </div>
+          <div className="timeline-month__cards">
             {memories.map((m) => (
               <TimelineCard key={m.id} memory={m} href={`${basePath}?memory=${encodeURIComponent(m.id)}`} />
             ))}

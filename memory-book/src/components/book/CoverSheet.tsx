@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { BookSettings } from "@/lib/types";
-import { coverTheme } from "@/lib/book-style";
+import { coverColor, coverTheme, type CoverColor } from "@/lib/book-style";
+import { CoverColorSwatches } from "@/components/settings/StylePickers";
 import { shortDate } from "@/lib/dates";
 import { useJournal } from "@/components/journal/JournalProvider";
 import { CoverPage } from "./BookPages";
 import { usePhotoSrc } from "./PhotoSource";
 
 /**
- * Edit the cover in place: its title and the line under it, which part of
+ * Edit the cover in place: its title and the line under it, its colour, which part of
  * the photo stays in view, and where the title label sits.
  */
 export function CoverSheet({
@@ -26,6 +27,7 @@ export function CoverSheet({
   const [title, setTitle] = useState(settings.bookTitle);
   const [subtitle, setSubtitle] = useState(settings.coverSubtitle ?? "");
   const [focus, setFocus] = useState(settings.coverFocus ?? { x: 50, y: 50 });
+  const [color, setColor] = useState<CoverColor | undefined>(coverColor(settings));
   const [label, setLabel] = useState<"top" | "bottom">(settings.coverLabel ?? "bottom");
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +42,7 @@ export function CoverSheet({
     coverSubtitle: subtitle.trim() || undefined,
     coverFocus: focus,
     coverLabel: label,
+    coverColor: color,
   };
 
   useEffect(() => {
@@ -95,6 +98,9 @@ export function CoverSheet({
               placeholder={`for ${settings.childName} · ${shortDate(settings.dateOfBirth)}`}
               onChange={(e) => setSubtitle(e.target.value)}
             />
+
+            <p className="field-label mt-4">Colour</p>
+            <CoverColorSwatches value={color} onChange={setColor} />
 
             {theme === "photo" && settings.coverPhoto && (
               <>

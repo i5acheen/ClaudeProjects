@@ -1,4 +1,4 @@
-import type { CoverTheme, Handwriting } from "./book-style";
+import type { CoverColor, CoverTheme, Handwriting, PageStyle } from "./book-style";
 
 /**
  * The shape of everything stored in `journal.json`.
@@ -48,6 +48,8 @@ export interface Memory {
   kind?: "letter";
   /** Time capsule: the letter stays sealed in the book until this date (`YYYY-MM-DD`). */
   sealedUntil?: string;
+  /** This page's own paper, instead of the book's. */
+  pageStyle?: PageStyle;
   createdAt: string;
   updatedAt: string;
 }
@@ -62,6 +64,10 @@ export interface BookSettings {
   dedication?: string;
   /** Cover style, see lib/book-style.ts. */
   coverTheme?: CoverTheme;
+  /** Cover cloth colour (any style); unset keeps the style's own colour. */
+  coverColor?: CoverColor;
+  /** Paper for every page, unless a page has its own. */
+  pageStyle?: PageStyle;
   /** Handwriting font, see lib/book-style.ts. */
   handwriting?: Handwriting;
   /** The point of the cover photo to keep in view (percent from left/top), e.g. the face. */

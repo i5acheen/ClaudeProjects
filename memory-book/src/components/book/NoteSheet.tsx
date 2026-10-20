@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { PAGE_STYLES, pageStyle, pageStyleVars, type PageStyle } from "@/lib/book-style";
+import { PaperPicker } from "@/components/settings/StylePickers";
 import { TAGS, type Journal, type Memory, type PhotoRef, type Tag } from "@/lib/types";
 import { ageStamp, isSealed, longDate, parseDay, toDayString } from "@/lib/dates";
 import { photoTakenDate, resizePhoto } from "@/lib/images";
@@ -52,6 +54,7 @@ export function NoteSheet({
   onSaved: (memoryId: string) => void;
 }) {
   const { saveMemory } = useJournal();
+  const bookPaper = pageStyle(journal.settings);
   const [photos, setPhotos] = useState<PagePhoto[]>(
     () => memory?.photos.map((ref) => ({ kind: "existing" as const, ref, key: ref.fileId })) ?? [],
   );
@@ -66,6 +69,8 @@ export function NoteSheet({
   const [error, setError] = useState<string | null>(null);
   const isLetter = memory ? memory.kind === "letter" : letter;
   const [sealedUntil, setSealedUntil] = useState(memory?.sealedUntil ?? "");
+  const [paper, setPaper] = useState<PageStyle | undefined>(memory?.pageStyle);
+  const [choosingPaper, setChoosingPaper] = useState(false);
   const [sealOn, setSealOn] = useState(!!memory?.sealedUntil);
   const [opened, setOpened] = useState(!isSealed(memory?.sealedUntil));
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -143,6 +148,7 @@ export function NoteSheet({
           photos: photos.map(({ key: _key, ...photo }) => photo as DraftPhoto),
           kind: isLetter ? "letter" : memory?.kind,
           sealedUntil: isLetter && sealOn && sealedUntil ? sealedUntil : undefined,
+          pageStyle: paper,
         },
         setStatus,
       );
@@ -155,7 +161,11 @@ export function NoteSheet({
 
   return (
     <div className="note-backdrop" role="dialog" aria-modal aria-label={memory ? "Edit this page" : isLetter ? `Write a letter to ${name}` : "New page"} onClick={onClose}>
-      <div className="note-sheet note-sheet--page" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="note-sheet note-sheet--page"
+        style={paper ? (pageStyleVars(paper) as React.CSSProperties) : undefined}
+        onClick={(e) => e.stopPropagation()}
+      >
         {!opened ? (
           <div className="py-6 text-center text-lg text-ink-soft">
             <p className="ui-h2">This letter is sealed</p>
@@ -270,6 +280,23 @@ export function NoteSheet({
             )}
           </div>
         )}
+
+        <div className="mt-4">
+          <button
+            type="button"
+            className="paper-toggle"
+            aria-expanded={choosingPaper}
+            onClick={() => setChoosingPaper((open) => !open)}
+          >
+            <span className="paper-toggle__chip" style={pageStyleVars(paper ?? bookPaper) as React.CSSProperties} />
+            Paper: {paper ? PAGE_STYLES[paper].label : "same as the book"}
+          </button>
+          {choosingPaper && (
+            <div className="mt-2">
+              <PaperPicker value={paper} onChange={setPaper} bookPaper={bookPaper} />
+            </div>
+          )}
+        </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button type="button" className="chrome-button chrome-button--primary !h-11 !px-6" onClick={save} disabled={status !== null || processing > 0}>

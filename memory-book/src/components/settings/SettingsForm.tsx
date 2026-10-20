@@ -19,10 +19,14 @@ import { DataCard } from "./DataCard";
 import { SiteFooter } from "@/components/legal/SiteFooter";
 import { clearDeviceData, revokeGoogleAccess } from "@/lib/device-data";
 import {
+  coverColor as currentCoverColor,
   coverTheme as currentCoverTheme,
   handwriting as currentHandwriting,
+  pageStyle as currentPageStyle,
+  type CoverColor,
   type CoverTheme,
   type Handwriting,
+  type PageStyle,
 } from "@/lib/book-style";
 
 type CoverChoice = { kind: "keep" } | { kind: "none" } | { kind: "existing"; ref: PhotoRef } | { kind: "new"; photo: ProcessedPhoto };
@@ -40,6 +44,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
   const [editingCover, setEditingCover] = useState(false);
   const [theme, setTheme] = useState<CoverTheme>(currentCoverTheme(settings));
   const [hand, setHand] = useState<Handwriting>(currentHandwriting(settings));
+  const [color, setColor] = useState<CoverColor | undefined>(currentCoverColor(settings));
+  const [paper, setPaper] = useState<PageStyle>(currentPageStyle(settings));
   const [monthPages, setMonthPages] = useState(settings.monthPages !== false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +73,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           dedication: dedication.trim() || undefined,
           coverPhoto,
           coverTheme: theme,
+          coverColor: color,
+          pageStyle: paper,
           handwriting: hand,
           monthPages,
         },
@@ -142,6 +150,10 @@ export function SettingsForm({ journal }: { journal: Journal }) {
           preview={{ ...settings, childName, bookTitle }}
           theme={theme}
           onTheme={setTheme}
+          color={color}
+          onColor={setColor}
+          paper={paper}
+          onPaper={setPaper}
           hand={hand}
           onHand={setHand}
         />

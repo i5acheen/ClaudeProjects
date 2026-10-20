@@ -75,7 +75,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
         {deleted && <p className="home-note mx-auto mt-6">Your account has been deleted. Thank you for using Memory Book.</p>}
         {error && (
-          <p className="mx-auto mt-6 max-w-md text-[#b42318]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>
+          <p className="mx-auto mt-6 max-w-md text-[#ffe1dc]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>
         )}
         {!signInConfigured && (
           <div id="setup-needed" className="home-note mx-auto mt-6 text-left">
@@ -95,7 +95,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       <section className="home-band" aria-label="In short">
         {HIGHLIGHTS.map(({ icon, strong, rest }) => (
           <p key={strong} className="flex items-center gap-2.5">
-            <span className="text-[var(--home-violet)]" aria-hidden>
+            <span aria-hidden>
               {icon}
             </span>
             <span>
@@ -190,9 +190,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           Memory Book
         </p>
         <h2 className="mt-8 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Start the book they&rsquo;ll <em className="text-[#958dff]">treasure</em>.
+          Start the book they&rsquo;ll <em>treasure</em>.
         </h2>
-        <p className="mx-auto mt-4 max-w-md text-[#cbd5e1]">The first page takes a minute. The rest is a lifetime of little moments.</p>
+        <p className="mx-auto mt-4 max-w-md">The first page takes a minute. The rest is a lifetime of little moments.</p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           {startButton("Start your book", "home-btn home-btn--lavender")}
           <Link href="/demo" className="home-btn home-btn--lavender">

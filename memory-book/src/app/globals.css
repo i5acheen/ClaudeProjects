@@ -2516,25 +2516,31 @@ body.is-reading {
 }
 
 /* ------------------------------------------------------------------ */
-/* Home page: white and violet, clean and simple                       */
+/* Home page: violet, with white words                                 */
 /* ------------------------------------------------------------------ */
 
 .home {
-  --home-ink: #111827;
-  --home-soft: #4b5563;
-  /* Violet: for big words and icons; the deeper one for small text. */
-  --home-violet: #7b72e8;
-  --home-violet-text: #5b52d6;
-  --home-lavender: #958dff;
-  --home-tint: #f7f7fc;
-  --home-card: #f5f5ff;
-  --home-line: #e6e5fb;
-  --home-navy: #0b1220;
-  background: #fff;
+  /* On violet: white headings, pale lavender text (AA contrast throughout). */
+  --home-ink: #ffffff;
+  --home-soft: #e4e1ff;
+  --home-violet: #5249c9;
+  --home-violet-deep: #4a41bd;
+  --home-violet-deeper: #3f37a8;
+  --home-night: #2b2670;
+  --home-line: rgba(255, 255, 255, 0.18);
+  background: var(--home-violet);
   color: var(--home-ink);
 }
+/* White cards keep dark words. */
+.home-step,
+.home-price,
+.home .install-app,
+.home .note-sheet {
+  --home-ink: #111827;
+  --home-soft: #4b5563;
+}
 body:has(.home) {
-  background: #fff;
+  background: var(--home-night);
 }
 /* The squares ribbon is for the app; the home page stays simple. */
 body:has(.home)::before {
@@ -2549,6 +2555,7 @@ body:has(.home)::before {
   padding: 1.1rem 1.25rem;
 }
 .home-hero {
+  position: relative;
   max-width: 64rem;
   margin: 0 auto;
   padding: 3.5rem 1.25rem 0;
@@ -2558,6 +2565,19 @@ body:has(.home)::before {
   .home-hero {
     padding-top: 5.5rem;
   }
+}
+/* A soft glow of lighter violet behind the headline and book. */
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 -20% auto;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(closest-side at 50% 40%, rgba(255, 255, 255, 0.16), transparent);
+}
+.home-hero > * {
+  position: relative;
 }
 .home-h1 {
   font-size: clamp(2.5rem, 7vw, 4.1rem);
@@ -2573,8 +2593,13 @@ body:has(.home)::before {
   letter-spacing: -0.025em;
   color: var(--home-ink);
 }
+/* The key words: white, with a soft white marker stroke underneath. */
 .home-accent {
-  color: var(--home-violet);
+  color: #fff;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.24) 0 30%, transparent 30%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 0.06em;
 }
 .home-lead {
   font-size: 1.08rem;
@@ -2582,11 +2607,15 @@ body:has(.home)::before {
   color: var(--home-soft);
 }
 .home-eyebrow {
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--home-violet-text);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
 }
 .home-btn {
   display: inline-flex;
@@ -2599,44 +2628,43 @@ body:has(.home)::before {
   font-size: 1rem;
   font-weight: 600;
   white-space: nowrap;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
 }
 .home-btn:active {
   transform: scale(0.98);
 }
-.home-btn--dark {
-  background: #000;
-  color: #fff;
+/* Main button: white with violet words. */
+.home-btn--dark,
+.home-btn--lavender {
+  background: #fff;
+  color: var(--home-violet-deep);
+  box-shadow: 0 8px 24px -10px rgba(20, 16, 70, 0.55);
 }
-.home-btn--dark:hover {
-  background: #1f2937;
+.home-btn--dark:hover,
+.home-btn--lavender:hover {
+  background: #efedff;
 }
+/* Second button: outlined in white. */
 .home-btn--violet {
-  background: #6b62e0;
+  background: transparent;
   color: #fff;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85);
 }
 .home-btn--violet:hover {
-  background: #5b52d6;
-}
-.home-btn--lavender {
-  background: var(--home-lavender);
-  color: var(--home-ink);
-}
-.home-btn--lavender:hover {
-  background: #a9a2ff;
+  background: rgba(255, 255, 255, 0.12);
 }
 .home-btn--ghost {
   height: 2.5rem;
   padding: 0 1.1rem;
   font-size: 0.9rem;
-  color: var(--home-ink);
-  background: var(--home-card);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
 }
 .home-note {
   max-width: 32rem;
   padding: 1rem 1.25rem;
   border-radius: 1rem;
-  background: var(--home-card);
+  background: rgba(255, 255, 255, 0.12);
   color: var(--home-soft);
 }
 .home-book {
@@ -2644,7 +2672,7 @@ body:has(.home)::before {
   width: min(64vw, 280px);
   margin: 4rem auto 0;
   transform: rotate(-2deg);
-  filter: drop-shadow(0 24px 30px rgba(17, 24, 39, 0.18)) drop-shadow(0 4px 6px rgba(17, 24, 39, 0.1));
+  filter: drop-shadow(0 28px 34px rgba(20, 16, 70, 0.5)) drop-shadow(0 4px 8px rgba(20, 16, 70, 0.3));
   transition: transform 0.4s;
 }
 .home-book:hover {
@@ -2657,8 +2685,11 @@ body:has(.home)::before {
   margin-top: 5rem;
   padding: 1.5rem 1.25rem;
   font-size: 0.85rem;
-  color: var(--home-ink);
-  background: var(--home-tint);
+  color: var(--home-soft);
+  background: var(--home-violet-deeper);
+}
+.home-band span[aria-hidden] {
+  color: #fff !important;
 }
 @media (min-width: 768px) {
   .home-band {
@@ -2671,7 +2702,7 @@ body:has(.home)::before {
   padding: 5.5rem 1.25rem;
 }
 .home-section--tint {
-  background: var(--home-tint);
+  background: var(--home-violet-deep);
 }
 .home-wrap {
   max-width: 72rem;
@@ -2682,7 +2713,7 @@ body:has(.home)::before {
   text-align: center;
   border-radius: 1.5rem;
   background: #fff;
-  border: 1px solid var(--home-line);
+  box-shadow: 0 18px 40px -22px rgba(20, 16, 70, 0.6);
 }
 .home-step__n {
   font-size: 3.25rem;
@@ -2694,7 +2725,9 @@ body:has(.home)::before {
 .home-card {
   padding: 1.75rem 1.5rem;
   border-radius: 1.5rem;
-  background: var(--home-card);
+  /* A shade deeper than the page, so the pale text stays easy to read. */
+  background: rgba(30, 24, 100, 0.22);
+  border: 1px solid var(--home-line);
 }
 .home-card__icon {
   display: inline-grid;
@@ -2702,14 +2735,14 @@ body:has(.home)::before {
   width: 3rem;
   height: 3rem;
   border-radius: 0.85rem;
-  color: var(--home-violet-text);
-  background: #e9e8ff;
+  color: var(--home-violet-deep);
+  background: #fff;
 }
 .home-price {
   padding: 2rem;
   border-radius: 1.5rem;
   background: #fff;
-  border: 1px solid var(--home-line);
+  box-shadow: 0 18px 40px -22px rgba(20, 16, 70, 0.6);
 }
 .home-price--soon {
   background: linear-gradient(160deg, #f1f0ff, #fff 60%);
@@ -2721,7 +2754,7 @@ body:has(.home)::before {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--home-violet-text);
+  color: #4a41bd;
   background: #e9e8ff;
 }
 .home-checks {
@@ -2742,18 +2775,25 @@ body:has(.home)::before {
   height: 1.15rem;
   border-radius: 999px;
   background: #e9e8ff
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4.5 8.2l2.3 2.3 4.7-4.8' fill='none' stroke='%235b52d6' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>")
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4.5 8.2l2.3 2.3 4.7-4.8' fill='none' stroke='%234a41bd' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>")
     center / 100% no-repeat;
 }
 .home .install-app {
   background: #fff;
-  border: 1px solid var(--home-line);
-  box-shadow: none;
+  border: 0;
+  box-shadow: 0 18px 40px -22px rgba(20, 16, 70, 0.6);
 }
 .home-cta {
   padding: 5rem 1.25rem;
   text-align: center;
-  background: var(--home-navy);
+  background: var(--home-night);
+}
+.home-cta em {
+  color: #fff !important;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.24) 0 30%, transparent 30%);
+}
+.home-cta p:not(.home-cta__mark) {
+  color: var(--home-soft) !important;
 }
 .home-cta__mark {
   font-size: clamp(3rem, 12vw, 7rem);
@@ -2764,4 +2804,12 @@ body:has(.home)::before {
 }
 .home-footer {
   padding: 2rem 1.25rem 2.5rem;
+  background: var(--home-night);
+}
+.home-footer footer,
+.home-footer a {
+  color: var(--home-soft);
+}
+.home-footer a:hover {
+  color: #fff;
 }

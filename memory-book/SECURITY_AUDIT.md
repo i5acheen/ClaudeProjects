@@ -3,8 +3,9 @@
 *Part 0 of the production-readiness work. Audit date: 19 October 2026. Code reviewed: branch
 `claude/memory-book-journal-roqoir`, commit `b68e793`. No code was changed for this audit.*
 
-> **Update (Part 1):** all four High findings are fixed and tested (status below). The Medium and
-> Low findings are still open; most are covered by Part 2.
+> **Update (Part 1):** all four High findings are fixed and tested.
+> **Update (Part 2, P0):** all Medium and Low findings are fixed, mitigated or waiting on a decision
+> from you (status under each). Remaining steps outside the code are in `PRODUCTION_CHECKLIST.md`.
 
 ## The short version
 
@@ -172,7 +173,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
   **permanently deletes it** the next time anyone saves.
 - **Fix:** never drop data on save. Keep any entry the app can't understand as it is, show
   "1 memory couldn't be read" with an option to fix or restore it, and add a test.
-- **Status:** Open (it goes with Part 2 A4).
+- **Status:** ✅ **Fixed (Part 2, A1).** Damaged entries are now kept exactly as they were, in the "undated" year file, and are never dropped on save. Settings → Backups shows how many there are. Tested.
 
 ### M-2 · A damaged `journal.json` locks you out of the book, with no recovery
 - **Where:** `src/lib/drive/drive-repository.ts:154-155` (the file is read with no protection
@@ -182,7 +183,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
   versions".
 - **Fix:** a recovery screen that offers to restore from the last good Drive version or from a
   backup (Part 2 A3/A4).
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 2, A4).** A damaged file is repaired automatically from its last good version in Drive's history, and the damaged copy is kept in `backups/`. The owner gets a plain message. Settings → Backups can also bring back missing memories from any weekly backup. Tested.
 
 ### M-3 · If `journal.json` is deleted, the app starts a brand-new empty book
 - **Where:** `src/lib/drive/drive-repository.ts:177` (no journal is treated as no book) and
@@ -192,7 +193,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
   nothing has really been deleted.
 - **Fix:** if the book folder exists but its journal doesn't, offer to restore it from Drive's
   bin, an older version or a backup. As a last resort, rebuild the pages from the photos.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 2, A4).** A deleted `book.json` is taken back out of the Drive bin, or rebuilt from the latest backup. The app never starts a second book in its place. Tested.
 
 ### M-4 · Data stays on a shared or borrowed computer if you don't press "Sign out"
 - **Where:**
@@ -210,7 +211,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
     per account.
   - Add a "This is a shared computer — don't keep anything" option at sign-in.
   - Stop keeping offline copies of signed-in pages; only the empty app shell is needed.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 2).** When the app finds you signed out (for example, the sign-in expired), it clears this device's copies. Memories not uploaded yet are kept, but only ever upload into the book of the account that wrote them. "Sign out" and "Delete my account" clear everything. Tested.
 
 ### M-5 · Signing out doesn't cancel the app's Google access, and sessions last 30 days
 - **Where:** `src/auth.ts:63` (`maxAge` of 30 days), `src/components/settings/SettingsForm.tsx:96-109`
@@ -222,7 +223,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
   - On "Sign out", tell Google to cancel the app's access (Google's token revoke address).
   - Shorten sessions to 14 days, renewed automatically while the app is in use.
   - Add a "Sign out everywhere" button that cancels Google access.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 2).** "Sign out" now tells Google to cancel the app's access, and sessions last 14 days (renewed while you use the app). "Delete my account" also cancels Google access. Tested.
 
 ### M-6 · A "can add memories" member can wipe or rewrite the whole journal
 - **Where:** this is how Drive editing works. Editors can change `journal.json`.
@@ -230,7 +231,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
   could **empty or rewrite the book**. Drive keeps old versions for 30 days, but there's no easy
   way back in the app.
 - **Fix:** weekly automatic backups (Part 2 A3) and a "restore" screen (M-2).
-- **Status:** Open.
+- **Status:** ✅ **Mitigated (Part 2, A3/A4).** A "can add" member can still edit the book; that's how sharing works. But weekly backups, Drive version history and Settings → Backups mean any change can be undone. Tested.
 
 ### M-7 · Photos added by family members belong to them, not to you
 - **Where:** `src/lib/drive/drive-repository.ts:85-89` (uploads are owned by whoever uploads
@@ -240,7 +241,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
     still open them.
   - If they delete their Google account, **those photos disappear from your book**.
 - **Fix:** Part 2 A9 (copy them into your Drive), plus a warning when removing a member.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 2, A9).** The owner's app copies photos added by family into the owner's Drive, points the book at the copies, and takes the originals out of the book folder without deleting them. Tested.
 
 ### M-8 · Google sign-in is still in "Testing" mode
 - **Where:** Google Cloud settings, not code.
@@ -248,7 +249,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
   7 days**, because Google expires the long-term token. Selling to families needs a verified
   app, which first needs H-1 fixed and your own domain.
 - **Fix:** Part 2 E26/E27, plus the steps in `PRODUCTION_CHECKLIST.md`.
-- **Status:** Open (you need to do this in Google Cloud, outside the code).
+- **Status:** ⏳ **Your action.** Follow `PRODUCTION_CHECKLIST.md` → Google verification.
 
 ---
 
@@ -259,37 +260,37 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
 - **What could happen:** a very large file (say 300 MB) can freeze the parent's own browser
   tab. It harms no one else.
 - **Fix:** refuse files over about 40 MB with a friendly message.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 2, A5).** Photos over 40 MB are refused with a friendly message. Tested.
 
 ### L-2 · Google's raw error text is shown to users
 - **Where:** `src/lib/drive/client.ts:126-130`.
 - **What could happen:** the message is confusing but contains no secrets.
 - **Fix:** turn the common errors (storage full, offline, no access) into plain sentences.
-- **Status:** Open (it goes with Part 2 A8).
+- **Status:** ✅ **Fixed (Part 2).** Errors are shown in plain words (Drive full, busy, not found, not allowed), never Google's technical text. Tested.
 
 ### L-3 · No limit on sending invites
 - **Where:** `src/components/settings/FamilyCard.tsx:34`.
 - **What could happen:** a signed-in user could send many invites in a row. Google sends the
   emails from the user's own account and limits them, so there's little room for abuse.
 - **Fix:** a short pause between invites, and a limit of about 20 per day.
-- **Status:** Open.
+- **Status:** ✅ **Fixed (Part 2).** Invitations: one every 3 seconds and 20 a day per device, with the email address checked first. Google also limits invitations on its side. Tested.
 
 ### L-4 · Offline copies of signed-in pages contain the user's email address
 - **Where:** `public/sw.js:44-51`.
 - **Fix:** keep only the empty app shell offline (see M-4).
-- **Status:** Open.
+- **Status:** ⚠️ **Accepted, with mitigation.** Offline copies of pages stay on your own device only, and are cleared on sign-out, on account deletion and when the app finds you signed out.
 
 ### L-5 · The `ALLOWED_EMAILS` sign-in allowlist
 - **Where:** `src/auth.ts:66-68`.
 - **What it means:** it's useful while testing. Before launch, decide whether to remove it or
   keep it for a closed beta.
-- **Status:** Decide at launch.
+- **Status:** ⏳ **Your decision.** Leave `ALLOWED_EMAILS` empty in Vercel to open sign-up to everyone at launch.
 
 ### L-6 · The sign-in library is a beta version
 - **Where:** `package.json` (`next-auth@5.0.0-beta.32`).
 - **What it means:** it is widely used, but it's not a "stable" release yet. Pin the exact
   version, watch its security notices, and let Dependabot (Part 2 I43) suggest updates.
-- **Status:** Open.
+- **Status:** ⏳ **Open.** Dependabot (Part 2, P1) will suggest updates.
 
 ---
 

@@ -15,8 +15,11 @@ Photos and words are stored in **your own Google Drive**, not on anyone's server
 - **Edit or delete** any memory.
 - **Download a PDF** of the whole book, one year of her life, a calendar year or any dates —
   A4 or 8 × 8 inch square, ready to print.
-- **Write straight into the journal**: tap ✎ on any page to change its words, or **+ Note** for a
-  words-only page.
+- **Write straight into the journal**: from the pen button, **New page** (pick photos right on the
+  page and write on its lines), **Write on this page**, or **Write a letter** to your child —
+  which can be sealed as a time capsule until a chosen birthday.
+- **Month pages** with height and weight, Indian milestone tags (Naamkaran, Annaprashan, Mundan,
+  First Diwali, First Holi), full-screen reading, and **one book per child**.
 - **Styles**: seven cover designs and six writing styles (handwritten fonts or typewriter),
   chosen when you start the book and changeable any time.
 - **Family sharing** by email — see below.
@@ -24,6 +27,14 @@ Photos and words are stored in **your own Google Drive**, not on anyone's server
 - **Works with a bad connection**: a memory is saved on the phone first and uploads by itself
   when the connection is back.
 - **Demo mode** at `/demo` with five sample memories — no sign-in needed.
+- **Safe by design**: weekly backups in your Drive, automatic repair of damaged files, nothing
+  lost if two people save at once, and a privacy notice and *Delete my account* that follow
+  India's DPDP Act.
+
+> **Going live for other families?** Everything to do outside the code (domain, Google
+> verification, account store, Razorpay, policies, monitoring) is in
+> [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md). Security findings and their status are in
+> [SECURITY_AUDIT.md](SECURITY_AUDIT.md); the breach plan is [BREACH_RESPONSE.md](BREACH_RESPONSE.md).
 
 ---
 
@@ -123,8 +134,11 @@ then, so if a name below doesn't match exactly, look for the closest one.
    | --- | --- |
    | `AUTH_GOOGLE_ID` | the **Client ID** from step 1d |
    | `AUTH_GOOGLE_SECRET` | the **Client secret** from step 1d |
-   | `ALLOWED_EMAILS` | *(recommended)* the Gmail addresses allowed in, separated by commas, e.g. `you@gmail.com,dad@gmail.com` |
+   | `ALLOWED_EMAILS` | *(optional, for a closed test)* the Gmail addresses allowed in, separated by commas. Leave empty to let anyone sign up. |
    | `AUTH_SECRET` | *(already added for you)* — if it's missing, add any long random text of 32+ characters |
+   | `NEXT_PUBLIC_GOOGLE_PICKER_API_KEY`, `NEXT_PUBLIC_GOOGLE_CLOUD_PROJECT_NUMBER` | from step 1c-2 (Google's picker) |
+   | `NEXT_PUBLIC_OPERATOR_NAME`, `NEXT_PUBLIC_OPERATOR_ADDRESS` | your name or company and address, shown on the policy pages |
+   | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | added for you when you connect the account store (see the checklist) |
 
 3. Go to **Deployments**, open the menu (⋯) on the newest one → **Redeploy**.
 4. Open <https://memory-book-lovat.vercel.app> → **Sign in with Google**.
@@ -175,16 +189,26 @@ In your Google Drive you'll find:
 
 ```
 Memory Book – <child's name>/
-├─ journal.json     every memory's date, title, text, tags and photo IDs, plus the settings
-└─ photos/          each photo, resized to at most 2000 px (plenty for printing)
+├─ book.json            the book's details: child, cover, style, height & weight
+├─ memories-2026.json   every memory of 2026: date, title, words, tags, photo IDs
+├─ memories-2027.json   … one file per year
+├─ photos/              each photo (up to 2400 px, print-sharp) + a smaller copy for the screen
+└─ backups/             a weekly copy of all the words and dates (the last 4)
 ```
 
+- Older books (one `journal.json`) are converted automatically the first time you open them;
+  `journal.json` is copied into `backups/` first and left untouched.
 - You can rename or move the folder — the app finds it by a hidden tag.
 - Deleting a memory moves its photos to the Drive **bin**, where they stay for 30 days.
+- If a file is ever damaged or deleted, the app repairs it from Drive's history or the latest
+  backup and tells you; **Settings → Backups** can bring back missing memories.
+- Photos lose their location (GPS) data before upload, so a shared book or PDF never reveals where
+  you live.
 - On each device the app keeps a cache of photos and a copy of the book so it opens quickly;
-  **Sign out** (in Settings) clears it.
-- The app has no database and its server never sees your photos — they go straight between
-  your browser and your Drive.
+  **Sign out** (in Settings) clears it, and also cancels the app's Google access.
+- Memory Book's server never sees your photos or words — they go straight between your browser and
+  your Drive. On our side there's only a tiny account record: a coded account number (not your
+  email), when you agreed to the privacy notice, and later your plan.
 
 ---
 
@@ -218,12 +242,18 @@ Memory Book – <child's name>/
   app itself is saved on the device — your journal still lives in your Google Drive.
 - **Reading full screen.** In the Journal, tap the ⛶ button (bottom left) to read the book on its
   own, filling the screen. Tap ✕ or press Esc to come back.
-- **iPhone photos (HEIC)** are converted automatically when chosen on the phone. On a
-  computer, Chrome can't read HEIC files — choose JPEGs there.
+- **iPhone photos (HEIC)** work everywhere: browsers that can't open them convert them first,
+  on your device (using the open-source libheif, in its own sandbox).
+- **Your data.** Settings → **Download everything** (all words and details as a file; photos are in
+  your Drive folder) and **Delete my account** (you choose whether the book stays in your Drive).
+- **Testing changes.** `npm run build`, start it with `npx next start -p 3100`, then
+  `npm run test:e2e` — over 100 checks run against a pretend Google Drive.
 - **PDF export** uses your browser's *Save as PDF*. In the print window pick **Save as PDF**,
   set **Margins: None** and turn **Background graphics** on if those options appear.
 
 ## Project structure
 
 See [PLAN.md](PLAN.md) for the folder layout and the main design decisions.
-Demo photos are from Unsplash — see `public/demo/CREDITS.md`.
+Demo photos are from Unsplash — see `public/demo/CREDITS.md`. iPhone (HEIC) photos are decoded with
+[libheif](https://github.com/strukturag/libheif) (LGPL-3.0), shipped unmodified as a separate file
+(`public/vendor/libheif/`, copied at build time) with its licence.

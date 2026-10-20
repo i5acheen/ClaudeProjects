@@ -1078,6 +1078,25 @@ try {
   await page.waitForSelector('.write-menu');
   await shot('10b-desktop-write-menu');
 
+  // F34: every screen fits phones 360–430px wide — nothing sticks out sideways
+  {
+    const wide = [];
+    for (const width of [360, 390, 430]) {
+      await page.setViewportSize({ width, height: 800 });
+      for (const path of ['/', '/book', '/book/write', '/book/timeline', '/book/settings', '/book/export', '/privacy', '/demo']) {
+        await page.goto(`${B}${path}`);
+        await page.waitForTimeout(path === '/book' || path === '/demo' ? 1800 : 900);
+        const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        if (over > 1) wide.push(`${path} at ${width}px (+${over}px)`);
+      }
+    }
+    check(wide.length === 0, `F34: phone layouts fit 360–430px${wide.length ? ' — too wide: ' + wide.join(', ') : ''}`);
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(`${B}/book/write`);
+    await page.waitForTimeout(800);
+    await shot('25-phone-360-write');
+  }
+
   // D23: delete my account — our record removed, Google access cancelled, book moved to the Drive bin (chosen)
   {
     await page.setViewportSize({ width: 390, height: 844 });

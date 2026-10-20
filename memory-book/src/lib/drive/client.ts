@@ -378,3 +378,29 @@ export function listPublicFiles(folderIds: string[]): Promise<{ id: string }[]> 
 export function listOwnedFiles(folderId: string): Promise<{ id: string }[]> {
   return listAll<{ id: string }>(`${inFolderQuery(folderId)} and 'me' in owners`, "id");
 }
+
+/* ------------------------------------------------------------------ */
+/* The book's own files                                                */
+/* ------------------------------------------------------------------ */
+
+export interface DriveChild {
+  id: string;
+  name: string;
+  createdTime?: string;
+  appProperties?: Record<string, string>;
+}
+
+/** Every file directly inside a folder that the app can see, oldest first. */
+export function listFolderFiles(folderId: string): Promise<DriveChild[]> {
+  return listAll<DriveChild>(inFolderQuery(folderId), "id,name,createdTime,appProperties");
+}
+
+/** Copies a file (e.g. into the backups folder). The copy belongs to you. */
+export async function copyFile(fileId: string, name: string, parentId: string, appProperties: Record<string, string> = {}): Promise<DriveFile> {
+  const response = await driveFetch(`${API}/files/${encodeURIComponent(fileId)}/copy?fields=${FILE_FIELDS}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, parents: [parentId], appProperties, writersCanShare: false }),
+  });
+  return (await response.json()) as DriveFile;
+}

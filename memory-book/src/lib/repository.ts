@@ -1,4 +1,4 @@
-import type { BookSettings, Journal } from "./types";
+import type { BookSettings, Journal, Memory } from "./types";
 
 /**
  * Everything the app needs from storage. Today this is Google Drive
@@ -51,6 +51,20 @@ export function emptyJournal(settings: BookSettings): Journal {
   return { version: 1, settings, memories: [] };
 }
 
+/** A readable memory from a saved file, or null if the entry is damaged. */
+export function normaliseMemory(raw: unknown): Memory | null {
+  const m = raw as Partial<Memory> | null;
+  if (!m || typeof m !== "object" || typeof m.id !== "string" || typeof m.date !== "string") return null;
+  return {
+    ...(m as Memory),
+    text: typeof m.text === "string" ? m.text : "",
+    tags: Array.isArray(m.tags) ? m.tags : [],
+    photos: Array.isArray(m.photos) ? m.photos.filter((p) => p && typeof p.fileId === "string") : [],
+    createdAt: typeof m.createdAt === "string" ? m.createdAt : m.date,
+    updatedAt: typeof m.updatedAt === "string" ? m.updatedAt : m.date,
+  };
+}
+
 /** Defensive parse of a stored journal, so a hand-edited file can't crash the app. */
 export function normaliseJournal(raw: unknown): Journal {
   const data = (raw ?? {}) as Partial<Journal>;
@@ -72,14 +86,7 @@ export function normaliseJournal(raw: unknown): Journal {
       monthPages: settings.monthPages,
     },
     memories: Array.isArray(data.memories)
-      ? data.memories
-          .filter((m) => m && typeof m.id === "string" && typeof m.date === "string")
-          .map((m) => ({
-            ...m,
-            text: m.text ?? "",
-            tags: Array.isArray(m.tags) ? m.tags : [],
-            photos: Array.isArray(m.photos) ? m.photos : [],
-          }))
+      ? data.memories.map(normaliseMemory).filter((m): m is Memory => m !== null)
       : [],
     growth: data.growth && typeof data.growth === "object" ? data.growth : undefined,
     watchedFolder:

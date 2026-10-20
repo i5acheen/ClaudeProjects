@@ -101,4 +101,9 @@ export interface Journal {
   watchedFolder?: WatchedFolder;
   /** Keyed by completed months of age ("0" = the first month). */
   growth?: Record<string, GrowthEntry>;
+  /**
+   * Entries in the saved files that couldn't be read (e.g. edited by hand).
+   * They're kept untouched in Drive — never dropped — and counted here so the app can say so.
+   */
+  unreadable?: number;
 }

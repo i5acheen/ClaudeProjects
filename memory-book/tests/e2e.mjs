@@ -58,6 +58,7 @@ const USERS = {
   'grandma-token': { email: 'grandma@example.com' },
   'grandma-strict-token': { email: 'grandma@example.com', strict: true },
   'grandpa-token': { email: 'grandpa@example.com' },
+  'nani-token': { email: 'nani@example.com' },
 };
 const picked = new Set(); // "email|fileId"
 const pickedOrInPicked = (u, f) => { for (let cur = f; cur; cur = files.get(cur.parents?.[0])) if (picked.has(`${u.email}|${cur.id}`)) return true; return false; };
@@ -130,7 +131,7 @@ async function handleDrive(route) {
     if (!canWrite(user, files.get(m[1]))) return json(403, { error: { message: 'The user does not have sufficient permissions for this file.' } });
     const target = files.get(m[1]);
     syncHead(target);
-    if (concurrentSave && target.name === 'journal.json') {
+    if (concurrentSave && target.appProperties?.memoryBook === 'year' && target.appProperties?.memoryBookYear === concurrentSave.date.slice(0, 4)) {
       // Simulate a family member's save landing between the app's read and its write.
       const theirs = JSON.parse(target.content.toString('utf8'));
       theirs.memories.push(concurrentSave);
@@ -145,6 +146,18 @@ async function handleDrive(route) {
     const f = files.get(decodeURIComponent(m[1]));
     if (!f || !canRead(user, f)) return json(404, { error: { message: 'not found' } });
     return route.fulfill({ status: 200, headers: { ...cors, 'content-type': 'application/octet-stream' }, body: f.content });
+  }
+  // Copy (e.g. into backups/)
+  if (method === 'POST' && (m = url.pathname.match(/^\/drive\/v3\/files\/([^/]+)\/copy$/))) {
+    const src = files.get(decodeURIComponent(m[1]));
+    if (!canRead(user, src)) return denied();
+    const body = JSON.parse(req.postData());
+    const parent = body.parents?.[0] && files.get(body.parents[0]);
+    if (parent && !canWrite(user, parent)) return denied();
+    const f = { ...src, id: `f${nextId++}`, ...body, owner: user.email, appCreated: true, permissions: [], revisions: [] };
+    files.set(f.id, f);
+    addRevision(f);
+    return json(200, meta(f));
   }
   // Version history
   if (method === 'GET' && (m = url.pathname.match(/^\/drive\/v3\/files\/([^/]+)\/revisions(?:\/(.+))?$/))) {
@@ -193,7 +206,38 @@ async function handleDrive(route) {
   }
   return json(400, { error: { message: `unhandled ${method} ${url.pathname}` } });
 }
-const journal = () => JSON.parse([...files.values()].find(f => f.name === 'journal.json' && !f.trashed).content.toString('utf8'));
+// The book as the app stores it: book.json + one memories-<year>.json per year (or an old single journal.json).
+const live = (f) => !f.trashed && !(f.parents || []).some(p => files.get(p)?.trashed);
+const readFile = (f) => JSON.parse(f.content.toString('utf8'));
+function bookFiles(owner = 'mum@example.com') {
+  const root = [...files.values()].find(f => live(f) && f.owner === owner && f.appProperties?.memoryBook === 'root');
+  const inRoot = [...files.values()].filter(f => live(f) && f.parents?.includes(root?.id));
+  return {
+    root,
+    index: inRoot.find(f => f.appProperties?.memoryBook === 'index'),
+    years: inRoot.filter(f => f.appProperties?.memoryBook === 'year'),
+    legacy: inRoot.find(f => f.appProperties?.memoryBook === 'journal'),
+  };
+}
+const journal = (owner) => {
+  const { index, years, legacy } = bookFiles(owner);
+  if (!index) return readFile(legacy);
+  return { ...readFile(index), memories: years.flatMap(y => readFile(y).memories) };
+};
+/** Writes a whole book straight into the fake Drive (as if changed by hand or by another device). */
+function writeBook(book, owner = 'mum@example.com') {
+  const { root, index, years } = bookFiles(owner);
+  const { memories, ...rest } = book;
+  index.content = Buffer.from(JSON.stringify({ ...rest, version: 2 }));
+  const byYear = {};
+  for (const m of memories) (byYear[m.date.slice(0, 4)] ||= []).push(m);
+  for (const y of years) y.content = Buffer.from(JSON.stringify({ ...readFile(y), memories: byYear[y.appProperties.memoryBookYear] || [] }));
+  for (const [year, list] of Object.entries(byYear)) {
+    if (years.some(y => y.appProperties.memoryBookYear === year)) continue;
+    const f = { id: `f${nextId++}`, name: `memories-${year}.json`, parents: [root.id], owner, appCreated: true, appProperties: { memoryBook: 'year', memoryBookYear: year }, content: Buffer.from(JSON.stringify({ version: 2, year, memories: list })) };
+    files.set(f.id, f);
+  }
+}
 const photosLive = () => [...files.values()].filter(f => f.appProperties?.memoryBook === 'photo' && !f.trashed);
 
 /* ---------------- browser ---------------- */
@@ -237,7 +281,7 @@ try {
   await page.waitForURL(`${B}/book/write`);
   await page.waitForSelector('text=Write a new memory');
   check(parseQuery("appProperties has { key='memoryBook' and value='root' }")[0]?.name === 'Memory Book – Asha', 'folder created with child name');
-  check(journal().settings.childName === 'Asha' && journal().settings.coverTheme === 'sage', 'journal.json created with chosen style');
+  check(journal().settings.childName === 'Asha' && journal().settings.coverTheme === 'sage', 'book created in Drive with chosen style');
   await page.waitForTimeout(800);
   await shot('02-write-page-empty');
 
@@ -259,7 +303,7 @@ try {
   await page.waitForTimeout(2000);
   await shot('04-book-after-add');
   let j = journal();
-  check(j.memories.length === 1 && j.memories[0].title === 'First giggle' && j.memories[0].tags[0] === 'First', 'memory saved in journal.json');
+  check(j.memories.length === 1 && j.memories[0].title === 'First giggle' && j.memories[0].tags[0] === 'First', 'memory saved in Drive');
   check(j.memories[0].photos.length === 2 && photosLive().length === 2, 'two photos uploaded to /photos');
   check(j.memories[0].photos.every(p => p.width <= 2000 && p.height <= 2000), 'photos resized to ≤2000px');
   const imgs = await page.locator('.photo-frame__image img').count();
@@ -442,7 +486,6 @@ try {
   // 8c-3. Repair a book that was already watching its photos folder (as an older version allowed)
   {
     const photosFolder = parseQuery("appProperties has { key='memoryBook' and value='photos' }")[0];
-    const jf = [...files.values()].find(f => f.name === 'journal.json' && !f.trashed);
     const broken = journal();
     const copies = photosLive().slice(0, 2).map(p => p.id);
     broken.watchedFolder = { folderId: photosFolder.id, folderName: 'photos', importedFileIds: [], skippedFileIds: [] };
@@ -450,7 +493,7 @@ try {
       { id: 'drive-dup1', date: '2026-09-01', text: '', tags: [], photos: [{ fileId: copies[0], width: 10, height: 10 }], source: 'drive-folder', createdAt: 'x', updatedAt: 'x' },
       { id: 'drive-dup2', date: '2026-09-02', text: 'I wrote on this one', tags: [], photos: [{ fileId: copies[1], width: 10, height: 10 }], source: 'drive-folder', createdAt: 'x', updatedAt: 'x' },
     );
-    jf.content = Buffer.from(JSON.stringify(broken));
+    writeBook(broken);
     const before = photosLive().length;
     await page.goto(`${B}/book/write`);
     await page.waitForSelector('text=Removed 1 duplicate page', { timeout: 20000 });
@@ -544,7 +587,7 @@ try {
   await page.fill('input[placeholder="6.2 kg"]', '6.8 kg');
   await page.click('section:has(#growth-heading) button:has-text("Save")');
   await page.waitForSelector('text=/Saved — it/');
-  check(journal().growth?.['4']?.height === '64 cm' && journal().growth['4'].weight === '6.8 kg', 'growth saved to journal.json');
+  check(journal().growth?.['4']?.height === '64 cm' && journal().growth['4'].weight === '6.8 kg', 'growth saved in Drive');
 
   // 8d-4. Month page edited straight from the journal, then turned off
   await page.goto(`${B}/book`);
@@ -719,6 +762,39 @@ try {
     const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(`${d}/${e.name}`) : [`${d}/${e.name}`]);
     const src = walk(`${APP}/src`).map(f => fs.readFileSync(f, 'utf8')).join('\n');
     check(!/auth\/drive\.readonly|auth\/drive["'` ]|include_granted_scopes/.test(src), 'H-1: no wider Google Drive permission requested anywhere');
+  }
+
+  // A1: an older single-file book is converted once, safely (backup first, nothing lost)
+  {
+    const owner = 'nani@example.com';
+    const folder = (name, parent, key) => { const f = { id: `f${nextId++}`, name, parents: [parent], owner, appCreated: true, mimeType: 'application/vnd.google-apps.folder', appProperties: { memoryBook: key }, content: Buffer.alloc(0) }; files.set(f.id, f); return f; };
+    const root = folder('Memory Book – Old', 'root', 'root');
+    folder('photos', root.id, 'photos');
+    const mem = (id, date, text) => ({ id, date, text, tags: [], photos: [], createdAt: `${date}T09:00:00Z`, updatedAt: `${date}T09:00:00Z` });
+    const legacyBook = { version: 1, settings: { childName: 'Old', dateOfBirth: '2025-01-01', bookTitle: 'Old book' }, memories: [mem('a', '2025-03-01', 'one'), mem('b', '2026-02-01', 'two'), { broken: true, text: 'no id or date' }] };
+    const lj = { id: `f${nextId++}`, name: 'journal.json', parents: [root.id], owner, appCreated: true, appProperties: { memoryBook: 'journal' }, content: Buffer.from(JSON.stringify(legacyBook)) };
+    files.set(lj.id, lj);
+    const original = lj.content.toString();
+    const [nc, np] = await familyContext('nani-token', 'openid email profile https://www.googleapis.com/auth/drive.file');
+    await np.goto(`${B}/book`);
+    await np.waitForSelector('.stf__block', { timeout: 20000 });
+    let bf = bookFiles(owner);
+    const backups = [...files.values()].filter(f => live(f) && f.appProperties?.memoryBook === 'backup' && files.get(f.parents[0])?.parents?.includes(root.id));
+    check(backups.length === 1 && backups[0].content.toString() === original, 'A1: old journal.json backed up into backups/ before converting');
+    check(!!bf.index && bf.years.map(y => y.appProperties.memoryBookYear).sort().join() === '2025,2026,undated', 'A1: book split into book.json + one file per year');
+    check(journal(owner).memories.map(m => m.id).sort().join() === 'a,b' && lj.content.toString() === original, 'A1: every memory kept; the old file left exactly as it was');
+    check(readFile(bf.years.find(y => y.appProperties.memoryBookYear === 'undated')).unreadable?.length === 1, 'M-1: a damaged entry is kept untouched, not dropped');
+    // An app tab left open from before the update still writes to journal.json: its new memory is merged in.
+    lj.content = Buffer.from(JSON.stringify({ ...legacyBook, memories: [...legacyBook.memories, mem('c', '2026-03-01', 'written in an old tab')] }));
+    await np.reload();
+    await np.waitForSelector('.stf__block', { timeout: 20000 });
+    for (let i = 0; i < 40 && !journal(owner).memories.some(m => m.id === 'c'); i++) await np.waitForTimeout(250);
+    check(journal(owner).memories.some(m => m.id === 'c'), 'A1: memories written to the old file later are merged in');
+    await np.reload();
+    await np.waitForTimeout(2500);
+    bf = bookFiles(owner);
+    check([...files.values()].filter(f => live(f) && f.appProperties?.memoryBook === 'backup').length === 1 && bf.years.length === 3, 'A1: converted only once');
+    await nc.close();
   }
 
   // H-2: a public link added outside the app is switched off when the owner opens the book

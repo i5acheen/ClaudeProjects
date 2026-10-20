@@ -39,6 +39,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     <main className="home">
       <InkFilters />
 
+      <div className="home-sky">
+      <SkyDecor />
       <header className="home-nav">
         <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight text-[var(--home-ink)]">
           <img src="/icons/icon-192.png" alt="" className="size-8 rounded-[0.6rem]" />
@@ -66,8 +68,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           with family, and print. Kept safe in your own Google Drive.
         </p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          {startButton("Start your book — free", "home-btn home-btn--dark")}
-          <Link href="/demo" className="home-btn home-btn--violet">
+          {startButton("Start your book — free", "home-btn home-btn--sun")}
+          <Link href="/demo" className="home-btn home-btn--white">
             Look inside a book
           </Link>
         </div>
@@ -75,7 +77,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
         {deleted && <p className="home-note mx-auto mt-6">Your account has been deleted. Thank you for using Memory Book.</p>}
         {error && (
-          <p className="mx-auto mt-6 max-w-md text-[#ffe1dc]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>
+          <p className="mx-auto mt-6 max-w-md font-semibold text-[#a3261b]">{ERRORS[error] ?? "Sign-in didn’t work. Please try again."}</p>
         )}
         {!signInConfigured && (
           <div id="setup-needed" className="home-note mx-auto mt-6 text-left">
@@ -84,18 +86,23 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           </div>
         )}
 
-        <Link href="/demo" title="Look inside a book" className="home-book">
-          <div className="aspect-[3/4] w-full [container-type:size]">
-            <CoverPage settings={demoJournal.settings} priority />
-          </div>
-          <span className="sr-only">Look inside a demo book</span>
-        </Link>
+        <div className="home-book-stage">
+          <span className="home-rainbow" aria-hidden />
+          <Link href="/demo" title="Look inside a book" className="home-book">
+            <div className="aspect-[3/4] w-full [container-type:size]">
+              <CoverPage settings={demoJournal.settings} priority />
+            </div>
+            <span className="sr-only">Look inside a demo book</span>
+          </Link>
+        </div>
       </section>
+      <Wave className="home-wave--sky" />
+      </div>
 
       <section className="home-band" aria-label="In short">
-        {HIGHLIGHTS.map(({ icon, strong, rest }) => (
+        {HIGHLIGHTS.map(({ icon, strong, rest }, i) => (
           <p key={strong} className="flex items-center gap-2.5">
-            <span aria-hidden>
+            <span className={`home-bubble home-bubble--${i}`} aria-hidden>
               {icon}
             </span>
             <span>
@@ -105,7 +112,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         ))}
       </section>
 
-      <section id="how" className="home-section home-section--tint">
+      <Wave className="home-wave--mint" flip />
+      <section id="how" className="home-section home-section--mint">
         <div className="home-wrap text-center">
           <p className="home-eyebrow">How it works</p>
           <h2 className="home-h2 mt-3">
@@ -114,8 +122,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <p className="home-lead mx-auto mt-4 max-w-xl">A minute a day is plenty. Three steps, no design skills needed.</p>
           <div className="mt-12 grid gap-5 sm:grid-cols-3">
             {STEPS.map(({ title, text, time }, i) => (
-              <div key={title} className="home-step">
-                <p className="home-step__n">{String(i + 1).padStart(2, "0")}</p>
+              <div key={title} className={`home-step home-step--${i}`}>
+                <p className="home-step__n">{i + 1}</p>
                 <h3 className="mt-3 text-xl font-bold text-[var(--home-ink)]">{title}</h3>
                 <p className="mt-2 text-[var(--home-soft)]">{text}</p>
                 <p className="mt-5 text-sm font-semibold text-[var(--home-ink)]">{time}</p>
@@ -125,6 +133,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>
       </section>
 
+      <Wave className="home-wave--mint" />
       <section id="privacy" className="home-section">
         <div className="home-wrap">
           <p className="home-eyebrow">Why Memory Book</p>
@@ -135,9 +144,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             Your child&rsquo;s photos, name and stories are saved in a folder in your own Google Drive — never on our servers.
           </p>
           <div className="mt-12 grid gap-5 sm:grid-cols-3">
-            {FEATURES.map(({ icon, title, text }) => (
+            {FEATURES.map(({ icon, title, text }, i) => (
               <div key={title} className="home-card">
-                <span className="home-card__icon" aria-hidden>
+                <span className={`home-card__icon home-bubble--${i}`} aria-hidden>
                   {icon}
                 </span>
                 <h3 className="mt-5 text-lg font-bold text-[var(--home-ink)]">{title}</h3>
@@ -146,14 +155,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             ))}
           </div>
           <p className="mt-8">
-            <Link href="/privacy" className="home-btn home-btn--violet">
+            <Link href="/privacy" className="home-btn home-btn--white">
               How your privacy is protected
             </Link>
           </p>
         </div>
       </section>
 
-      <section id="pricing" className="home-section home-section--tint" aria-labelledby="pricing-heading">
+      <Wave className="home-wave--lilac" flip />
+      <section id="pricing" className="home-section home-section--lilac" aria-labelledby="pricing-heading">
         <div className="home-wrap text-center">
           <p className="home-eyebrow">Pricing</p>
           <h2 id="pricing-heading" className="home-h2 mt-3">
@@ -185,7 +195,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>
       </section>
 
+      <Wave className="home-wave--lilac" />
       <section className="home-cta">
+        <Stars className="home-cta__stars" />
         <p className="home-cta__mark" aria-hidden>
           Memory Book
         </p>
@@ -194,8 +206,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </h2>
         <p className="mx-auto mt-4 max-w-md">The first page takes a minute. The rest is a lifetime of little moments.</p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          {startButton("Start your book", "home-btn home-btn--lavender")}
-          <Link href="/demo" className="home-btn home-btn--lavender">
+          {startButton("Start your book", "home-btn home-btn--sun")}
+          <Link href="/demo" className="home-btn home-btn--sun">
             Look inside a book
           </Link>
         </div>
@@ -205,6 +217,57 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <SiteFooter className="!mt-0" />
       </div>
     </main>
+  );
+}
+
+/** A soft wave where one section's colour meets the next (flipped: the colour starts below it). */
+function Wave({ className, flip = false }: { className: string; flip?: boolean }) {
+  return (
+    <svg
+      className={`home-wave ${className}`}
+      viewBox="0 0 1440 80"
+      preserveAspectRatio="none"
+      aria-hidden
+      style={flip ? { transform: "scaleY(-1)" } : undefined}
+    >
+      <path d="M0 0h1440v26c-120 16-240 36-360 30s-240-46-360-50-240 6-360 20S120 66 0 40z" />
+    </svg>
+  );
+}
+
+/** Twinkly little stars. */
+function Stars({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 400 120" aria-hidden>
+      {[
+        [30, 30, 9],
+        [120, 80, 6],
+        [210, 20, 7],
+        [300, 70, 10],
+        [370, 25, 6],
+      ].map(([x, y, r]) => (
+        <path
+          key={`${x}-${y}`}
+          d={`M${x} ${y - r}L${x + r * 0.3} ${y - r * 0.3}L${x + r} ${y}L${x + r * 0.3} ${y + r * 0.3}L${x} ${y + r}L${x - r * 0.3} ${y + r * 0.3}L${x - r} ${y}L${x - r * 0.3} ${y - r * 0.3}Z`}
+        />
+      ))}
+    </svg>
+  );
+}
+
+/** The sky behind the top of the page: a sun, fluffy clouds and stars. */
+function SkyDecor() {
+  const cloud = "M25 40a15 15 0 0 1 2-30 20 20 0 0 1 37-6 16 16 0 0 1 26 12 12 12 0 0 1 0 24z";
+  return (
+    <div className="home-sky__decor" aria-hidden>
+      <span className="home-sun" />
+      {["a", "b", "c"].map((k) => (
+        <svg key={k} className={`home-cloud home-cloud--${k}`} viewBox="0 0 100 44">
+          <path d={cloud} />
+        </svg>
+      ))}
+      <Stars className="home-sky__stars" />
+    </div>
   );
 }
 

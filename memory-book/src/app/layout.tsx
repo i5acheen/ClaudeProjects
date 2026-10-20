@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import { Caveat, Cormorant_Garamond, Courier_Prime, Indie_Flower, Kalam, Lora, Patrick_Hand, Plus_Jakarta_Sans } from "next/font/google";
+import { Caveat, Cormorant_Garamond, Courier_Prime, Fredoka, Indie_Flower, Kalam, Lora, Patrick_Hand, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ServiceWorker } from "@/components/app/ServiceWorker";
 
@@ -15,6 +15,8 @@ const cormorant = Cormorant_Garamond({
 
 // The app around the book: a clean, modern sans.
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
+// Rounded, friendly headings.
+const fredoka = Fredoka({ subsets: ["latin"], variable: "--font-fredoka", preload: false });
 
 // Alternative handwriting fonts, chosen in Settings: not preloaded, fetched only when used.
 const kalam = Kalam({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-kalam", preload: false });
@@ -50,7 +52,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Every page is rendered per request, so its scripts carry that request's CSP nonce.
   await headers();
   return (
-    <html lang="en" className={`${jakarta.variable} ${caveat.variable} ${cormorant.variable} ${kalam.variable} ${patrick.variable} ${indie.variable} ${lora.variable} ${courier.variable}`}>
+    <html lang="en" className={`${jakarta.variable} ${fredoka.variable} ${caveat.variable} ${cormorant.variable} ${kalam.variable} ${patrick.variable} ${indie.variable} ${lora.variable} ${courier.variable}`}>
       <body>
         {children}
         {isPreview && (

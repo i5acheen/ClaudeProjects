@@ -198,3 +198,27 @@ export function LogoMark({ className = "size-8" }: { className?: string }) {
     </svg>
   );
 }
+
+export const BabyIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <circle cx="12" cy="13" r="7.5" />
+    <path d="M12 5.5c-1.6-.4-2.4-1.6-1.6-2.6.8-.9 2.6-.4 2.4 1" />
+    <path d="M9.3 12.2h.01M14.7 12.2h.01" strokeWidth="2.6" />
+    <path d="M9.8 15.6c1.3 1 3.1 1 4.4 0" />
+  </svg>
+);
+
+export const ChecklistIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M4 6.5l1.6 1.6L8.5 5M4 12.5l1.6 1.6 2.9-3.1M4 18.5l1.6 1.6 2.9-3.1" />
+    <path d="M11.5 7h8.5M11.5 13h8.5M11.5 19h8.5" />
+  </svg>
+);
+
+export const RainbowIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M3 18a9 9 0 0 1 18 0" />
+    <path d="M6.5 18a5.5 5.5 0 0 1 11 0" />
+    <path d="M10 18a2 2 0 0 1 4 0" />
+  </svg>
+);

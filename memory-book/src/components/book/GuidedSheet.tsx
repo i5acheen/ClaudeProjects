@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import type { Journal, Memory } from "@/lib/types";
 import { GUIDED_NOTE_LIMIT, GUIDED_TEMPLATES, guidedAnswers, type GuidedTemplate } from "@/lib/guided";
 import { useJournal } from "@/components/journal/JournalProvider";
+import { BabyIcon, ChecklistIcon, RainbowIcon, StarIcon } from "@/components/ui/Icons";
+
+/** Each guided page's icon, drawn in the same line style as the rest of the app. */
+export function GuidedIcon({ template, className }: { template: GuidedTemplate; className?: string }) {
+  const Icon = { hello: BabyIcon, about: StarIcon, firsts: ChecklistIcon, wishes: RainbowIcon }[template];
+  return <Icon className={className} />;
+}
 
 const newId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
@@ -16,7 +23,7 @@ export function GuidedChooser({ onChoose }: { onChoose: (template: GuidedTemplat
       {Object.values(GUIDED_TEMPLATES).map((t) => (
         <button key={t.id} type="button" className={`guided-choice guided-choice--${t.accent}`} onClick={() => onChoose(t.id)}>
           <span className="guided-choice__emoji" aria-hidden>
-            {t.emoji}
+            <GuidedIcon template={t.id} />
           </span>
           <span className="min-w-0">
             <span className="block font-bold text-ink">{t.title}</span>
@@ -126,7 +133,10 @@ export function GuidedSheet({
         ) : (
           <>
             <h2 className="ui-h2">
-              <span aria-hidden>{info.emoji}</span> {info.title}
+              <span className={`guided-title-icon guided-choice--${info.accent}`} aria-hidden>
+                <GuidedIcon template={info.id} />
+              </span>{" "}
+              {info.title}
             </h2>
             <p className="mt-1 text-ink-soft">Fill in what you know — you can come back and add more any time.</p>
 

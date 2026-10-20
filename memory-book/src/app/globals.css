@@ -4054,3 +4054,43 @@ body:has(.home)::before {
 .write-menu__icon--letter {
   background: #fde4e8;
 }
+
+/* Guided page icons: line icons in each page's own colour. */
+.guided-choice__emoji svg {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+.guided-choice--sky .guided-choice__emoji,
+.guided-thumb--sky,
+.guided-title-icon.guided-choice--sky {
+  color: #2f6f9f;
+}
+.guided-choice--blush .guided-choice__emoji,
+.guided-thumb--blush,
+.guided-title-icon.guided-choice--blush {
+  color: #a9435b;
+}
+.guided-choice--sun .guided-choice__emoji,
+.guided-thumb--sun,
+.guided-title-icon.guided-choice--sun {
+  color: #7d5800;
+}
+.guided-choice--lilac .guided-choice__emoji,
+.guided-thumb--lilac,
+.guided-title-icon.guided-choice--lilac {
+  color: #5f4aa8;
+}
+.guided-title-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  margin-right: 0.2rem;
+  vertical-align: -0.35rem;
+  border-radius: 999px;
+  background: var(--choice-wash, var(--ui-sky));
+}
+.guided-title-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}

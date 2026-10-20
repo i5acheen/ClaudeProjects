@@ -9,6 +9,7 @@ import { seededRandom } from "@/lib/random";
 import { usePhotoSrc } from "@/components/book/PhotoSource";
 import { GUIDED_TEMPLATES, isGuidedTemplate } from "@/lib/guided";
 import { MailIcon, PenIcon } from "@/components/ui/Icons";
+import { GuidedIcon } from "@/components/book/GuidedSheet";
 
 type Filter = "all" | "photos" | "letters" | Tag;
 
@@ -109,8 +110,8 @@ function TimelineCard({ memory, href }: { memory: Memory; href: string }) {
     >
       <div className="relative aspect-square overflow-hidden bg-[#e8dfd0]">
         {memory.kind === "guided" && isGuidedTemplate(memory.template) && !thumb ? (
-          <div className={`grid h-full place-items-center text-5xl guided-thumb guided-thumb--${GUIDED_TEMPLATES[memory.template].accent}`} aria-hidden>
-            {GUIDED_TEMPLATES[memory.template].emoji}
+          <div className={`grid h-full place-items-center guided-thumb guided-thumb--${GUIDED_TEMPLATES[memory.template].accent}`} aria-hidden>
+            <GuidedIcon template={memory.template} className="size-14" />
           </div>
         ) : sealed || (memory.kind === "letter" && !thumb) ? (
           <div className="grid h-full place-items-center text-5xl" aria-label={sealed ? "Sealed letter" : "Letter"}>

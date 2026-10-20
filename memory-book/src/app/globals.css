@@ -2523,10 +2523,13 @@ body.is-reading {
   /* On violet: white headings, pale lavender text (AA contrast throughout). */
   --home-ink: #ffffff;
   --home-soft: #e4e1ff;
+  /* The page colour in four depths, a light tint of it, and its shadow (as r, g, b). */
   --home-violet: #5249c9;
   --home-violet-deep: #4a41bd;
   --home-violet-deeper: #3f37a8;
   --home-night: #2b2670;
+  --home-tint: var(--home-tint);
+  --home-shade: 20, 16, 70;
   --home-line: rgba(255, 255, 255, 0.18);
   background: var(--home-violet);
   color: var(--home-ink);
@@ -2638,11 +2641,11 @@ body:has(.home)::before {
 .home-btn--lavender {
   background: #fff;
   color: var(--home-violet-deep);
-  box-shadow: 0 8px 24px -10px rgba(20, 16, 70, 0.55);
+  box-shadow: 0 8px 24px -10px rgba(var(--home-shade), 0.55);
 }
 .home-btn--dark:hover,
 .home-btn--lavender:hover {
-  background: #efedff;
+  background: var(--home-tint);
 }
 /* Second button: outlined in white. */
 .home-btn--violet {
@@ -2672,7 +2675,7 @@ body:has(.home)::before {
   width: min(64vw, 280px);
   margin: 4rem auto 0;
   transform: rotate(-2deg);
-  filter: drop-shadow(0 28px 34px rgba(20, 16, 70, 0.5)) drop-shadow(0 4px 8px rgba(20, 16, 70, 0.3));
+  filter: drop-shadow(0 28px 34px rgba(var(--home-shade), 0.5)) drop-shadow(0 4px 8px rgba(var(--home-shade), 0.3));
   transition: transform 0.4s;
 }
 .home-book:hover {
@@ -2713,7 +2716,7 @@ body:has(.home)::before {
   text-align: center;
   border-radius: 1.5rem;
   background: #fff;
-  box-shadow: 0 18px 40px -22px rgba(20, 16, 70, 0.6);
+  box-shadow: 0 18px 40px -22px rgba(var(--home-shade), 0.6);
 }
 .home-step__n {
   font-size: 3.25rem;
@@ -2726,7 +2729,7 @@ body:has(.home)::before {
   padding: 1.75rem 1.5rem;
   border-radius: 1.5rem;
   /* A shade deeper than the page, so the pale text stays easy to read. */
-  background: rgba(30, 24, 100, 0.22);
+  background: rgba(var(--home-shade), 0.2);
   border: 1px solid var(--home-line);
 }
 .home-card__icon {
@@ -2742,10 +2745,10 @@ body:has(.home)::before {
   padding: 2rem;
   border-radius: 1.5rem;
   background: #fff;
-  box-shadow: 0 18px 40px -22px rgba(20, 16, 70, 0.6);
+  box-shadow: 0 18px 40px -22px rgba(var(--home-shade), 0.6);
 }
 .home-price--soon {
-  background: linear-gradient(160deg, #f1f0ff, #fff 60%);
+  background: linear-gradient(160deg, var(--home-tint), #fff 60%);
 }
 .home-badge {
   padding: 0.25rem 0.7rem;
@@ -2754,8 +2757,8 @@ body:has(.home)::before {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #4a41bd;
-  background: #e9e8ff;
+  color: var(--home-violet-deep);
+  background: var(--home-tint);
 }
 .home-checks {
   display: grid;
@@ -2774,14 +2777,14 @@ body:has(.home)::before {
   width: 1.15rem;
   height: 1.15rem;
   border-radius: 999px;
-  background: #e9e8ff
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4.5 8.2l2.3 2.3 4.7-4.8' fill='none' stroke='%234a41bd' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>")
+  background: var(--home-tint)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M4.5 8.2l2.3 2.3 4.7-4.8' fill='none' stroke='%23333' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>")
     center / 100% no-repeat;
 }
 .home .install-app {
   background: #fff;
   border: 0;
-  box-shadow: 0 18px 40px -22px rgba(20, 16, 70, 0.6);
+  box-shadow: 0 18px 40px -22px rgba(var(--home-shade), 0.6);
 }
 .home-cta {
   padding: 5rem 1.25rem;
@@ -2812,4 +2815,51 @@ body:has(.home)::before {
 }
 .home-footer a:hover {
   color: #fff;
+}
+
+/* Other home page colours to choose from (data-theme on <main class="home">). */
+.home[data-theme="teal"] {
+  --home-soft: #f3efe9;
+  --home-violet: #12756b;
+  --home-violet-deep: #0f6a61;
+  --home-violet-deeper: #0c5b53;
+  --home-night: #08403b;
+  --home-tint: #dcf1ee;
+  --home-shade: 4, 40, 36;
+}
+.home[data-theme="terracotta"] {
+  --home-soft: #fffaf5;
+  --home-violet: #b4532f;
+  --home-violet-deep: #a64b2a;
+  --home-violet-deeper: #934124;
+  --home-night: #5c2817;
+  --home-tint: #fbe6dc;
+  --home-shade: 70, 25, 10;
+}
+.home[data-theme="navy"] {
+  --home-soft: #e9eef6;
+  --home-violet: #1f3a68;
+  --home-violet-deep: #1b335d;
+  --home-violet-deeper: #162b50;
+  --home-night: #0e1c36;
+  --home-tint: #dfe8f6;
+  --home-shade: 8, 16, 34;
+}
+.home[data-theme="forest"] {
+  --home-soft: #f1efe6;
+  --home-violet: #2f5d4b;
+  --home-violet-deep: #2a5443;
+  --home-violet-deeper: #234839;
+  --home-night: #172f26;
+  --home-tint: #e1efe7;
+  --home-shade: 10, 30, 22;
+}
+.home[data-theme="rose"] {
+  --home-soft: #fff5f7;
+  --home-violet: #b0455f;
+  --home-violet-deep: #a13e57;
+  --home-violet-deeper: #8c354b;
+  --home-night: #57202e;
+  --home-tint: #fbe3e9;
+  --home-shade: 70, 18, 30;
 }

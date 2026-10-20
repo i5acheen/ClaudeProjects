@@ -8,13 +8,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "test:e2e": "node tests/e2e.mjs"
+    "test:e2e": "node tests/e2e.mjs",
+    "prebuild": "node scripts/copy-vendor.mjs",
+    "predev": "node scripts/copy-vendor.mjs"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
     "exifr": "^7.1.3",
+    "libheif-js": "^1.19.8",
     "next": "^16.4.2",
     "next-auth": "^5.0.0-beta.32",
     "page-flip": "^2.0.7",

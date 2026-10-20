@@ -64,6 +64,8 @@ import {
 
 const KEY = "memoryBook";
 const YEAR_KEY = "memoryBookYear";
+/** On a photo's smaller copy: which photo it belongs to. */
+const PHOTO_KEY = "memoryBookPhoto";
 
 interface Location {
   folderId: string;
@@ -224,12 +226,20 @@ export class DriveRepository implements JournalRepository {
     return file.id;
   }
 
+  async uploadSmallCopy(copy: Blob, name: string, photoId: string): Promise<string> {
+    const location = await this.requireLocation();
+    const file = await createFile(name, location.photosFolderId, copy, { [KEY]: "small", [PHOTO_KEY]: photoId });
+    return file.id;
+  }
+
   downloadPhoto(fileId: string): Promise<Blob> {
     return downloadFile(fileId);
   }
 
-  removePhoto(fileId: string): Promise<void> {
-    return trashFile(fileId);
+  async removePhoto(fileId: string): Promise<void> {
+    await trashFile(fileId);
+    const copies = await findFiles(appPropertyQuery(PHOTO_KEY, fileId)).catch(() => []);
+    await Promise.all(copies.map((c) => trashFile(c.id).catch(() => undefined)));
   }
 
   async bookFolderIds(): Promise<string[]> {

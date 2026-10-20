@@ -8,7 +8,8 @@ import { createContext, useContext, useEffect, useState } from "react";
  * An async resolver must return the same cached Promise for the same
  * (fileId, size) pair, otherwise every render would start a new fetch.
  */
-export type PhotoSize = "thumb" | "full";
+/** "thumb": small previews · "page": the book on screen · "full": printing and zoom. */
+export type PhotoSize = "thumb" | "page" | "full";
 export type PhotoResolver = (fileId: string, size: PhotoSize) => string | Promise<string>;
 
 export const demoPhotoResolver: PhotoResolver = (fileId) => `/demo/${fileId.replace(/^demo:/, "")}`;

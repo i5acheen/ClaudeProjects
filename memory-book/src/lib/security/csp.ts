@@ -18,6 +18,7 @@ export function contentSecurityPolicy(nonce: string, dev = false): string {
     `connect-src 'self' ${google}`,
     // Google's own file picker opens in a frame.
     "frame-src https://docs.google.com https://drive.google.com https://accounts.google.com https://content.googleapis.com",
+    // The iPhone (HEIC) photo decoder runs in its own sandboxed worker (public/heic-worker.js).
     "worker-src 'self'",
     "manifest-src 'self'",
     "object-src 'none'",

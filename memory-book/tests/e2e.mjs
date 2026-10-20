@@ -308,9 +308,49 @@ try {
   let j = journal();
   check(j.memories.length === 1 && j.memories[0].title === 'First giggle' && j.memories[0].tags[0] === 'First', 'memory saved in Drive');
   check(j.memories[0].photos.length === 2 && photosLive().length === 2, 'two photos uploaded to /photos');
-  check(j.memories[0].photos.every(p => p.width <= 2000 && p.height <= 2000), 'photos resized to ≤2000px');
+  check(j.memories[0].photos.every(p => p.width <= 2400 && p.height <= 2400), 'photos resized to ≤2400px');
+  const small = (p) => files.get(p.thumbId);
+  check(j.memories[0].photos.every(p => small(p)?.appProperties?.memoryBook === 'small' && small(p)?.appProperties?.memoryBookPhoto === p.fileId), 'A6: each photo has a smaller copy saved in Drive');
   const imgs = await page.locator('.photo-frame__image img').count();
   check(imgs >= 2, `book shows uploaded photos (${imgs})`);
+
+  // A6: another device shows the book from the small copies (quick), not the full photos
+  {
+    const c3 = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    await c3.addCookies([{ name: 'authjs.session-token', value: token, url: B }]);
+    const fetched = [];
+    await c3.route('https://www.googleapis.com/**', (route) => { const u = new URL(route.request().url()); if (u.searchParams.get('alt') === 'media') fetched.push(u.pathname.split('/').pop()); return handleDrive(route); });
+    const p3 = await c3.newPage();
+    await p3.goto(`${B}/book`);
+    await p3.waitForSelector('.stf__block');
+    await p3.keyboard.press('ArrowRight'); await p3.waitForTimeout(1500);
+    await p3.keyboard.press('ArrowRight'); await p3.waitForTimeout(2500);
+    const ph = journal().memories[0].photos;
+    check(ph.every(p => fetched.includes(p.thumbId)) && !ph.some(p => fetched.includes(p.fileId)), 'A6: pages on screen load the small copies, not the full photos');
+    await c3.close();
+  }
+
+  // A5: an iPhone (HEIC) photo is converted in the browser and added
+  {
+    await page.goto(`${B}/book/write`);
+    const before = photosLive().length;
+    await page.locator('input[type=file][multiple]').setInputFiles([`${FIXTURES}/iphone-photo.heic`]);
+    await page.waitForSelector('.editor-photo img', { timeout: 30000 });
+    check(!(await page.locator("text=/couldn't be opened/").count()), 'A5: iPhone HEIC photo opens in a browser without HEIC support');
+    await page.fill('#memory-text', 'Taken on an iPhone');
+    await page.click('text=Save to book');
+    await page.waitForSelector('text=see it in the journal', { timeout: 30000 });
+    for (let i = 0; i < 40 && photosLive().length < before + 1; i++) await page.waitForTimeout(250);
+    const heicMemory = journal().memories.find(m => m.text === 'Taken on an iPhone');
+    check(photosLive().length === before + 1 && heicMemory?.photos.length === 1, 'A5: converted HEIC photo saved to the book');
+    // Let the save finish on the phone (its draft is cleared), then remove it so the rest of the test sees the book as before.
+    await page.waitForFunction(() => new Promise((ok) => { const r = indexedDB.open('memory-book'); r.onsuccess = () => { const q = r.result.transaction('drafts').objectStore('drafts').count(); q.onsuccess = () => ok(q.result === 0); }; }), null, { timeout: 15000 });
+    writeBook({ ...journal(), memories: journal().memories.filter(m => m.id !== heicMemory.id) });
+    files.get(heicMemory.photos[0].fileId).trashed = true;
+    await page.goto(`${B}/book?memory=${encodeURIComponent(journal().memories[0].id)}`);
+    await page.waitForSelector('.write-fab');
+    await page.waitForTimeout(2000);
+  }
 
   // 3. Edit: remove one photo, change text
   await page.click('.write-fab');

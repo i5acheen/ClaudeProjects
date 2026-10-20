@@ -1,5 +1,6 @@
 "use client";
 
+import { usePageFormat } from "./PageFormatContext";
 import type { CSSProperties } from "react";
 import type { PhotoRef } from "@/lib/types";
 import { FRAME_BORDERS, frameAspect, type FrameStyle, type TapeColor, type TapePattern } from "@/lib/frames";
@@ -32,8 +33,10 @@ interface PhotoFrameProps {
   alt?: string;
 }
 
-export function PhotoFrame({ photo, frame, width, rotate, tape, size = "full", style, alt = "" }: PhotoFrameProps) {
-  const src = usePhotoSrc(photo.fileId, size);
+export function PhotoFrame({ photo, frame, width, rotate, tape, size, style, alt = "" }: PhotoFrameProps) {
+  // On screen, the smaller copy is sharp enough and much quicker; printing uses the full photo.
+  const screen = usePageFormat().id === "screen";
+  const src = usePhotoSrc(photo.fileId, size ?? (screen ? "page" : "full"));
   const aspect = frameAspect(photo);
   const [side, top, bottom] = FRAME_BORDERS[frame];
   const tapeLen = Math.max(9, Math.min(17, width * 0.36));

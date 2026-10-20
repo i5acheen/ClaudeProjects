@@ -28,6 +28,8 @@ export interface PhotoRef {
   height: number;
   /** Visual fingerprint (see lib/photo-hash.ts), used to skip duplicates. */
   hash?: string;
+  /** A smaller copy (about 1000px) in Drive, for quick pages on any device. The full photo is used for printing. */
+  thumbId?: string;
 }
 
 export interface Memory {

@@ -16,8 +16,10 @@ export interface JournalRepository {
    */
   update(change: (journal: Journal) => Journal): Promise<Journal>;
   uploadPhoto(photo: Blob, name: string): Promise<string>;
+  /** Saves the smaller screen copy of a photo; returns its ID. */
+  uploadSmallCopy(copy: Blob, name: string, photoId: string): Promise<string>;
   downloadPhoto(fileId: string): Promise<Blob>;
-  /** Moves a photo to the bin. */
+  /** Moves a photo (and its smaller copy) to the bin. */
   removePhoto(fileId: string): Promise<void>;
   /** A link to the book's folder, if the storage has one. */
   folderUrl(): string | null;

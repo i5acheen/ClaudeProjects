@@ -27,7 +27,11 @@ async function limited<T>(task: () => Promise<T>): Promise<T> {
   }
 }
 
-export function createCachedPhotoResolver(download: (fileId: string) => Promise<Blob>): PhotoResolver {
+export function createCachedPhotoResolver(
+  download: (fileId: string) => Promise<Blob>,
+  /** The smaller copy of a photo in Drive, if it has one. */
+  smallCopyOf: (fileId: string) => string | undefined = () => undefined,
+): PhotoResolver {
   const urls = new Map<string, Promise<string>>();
   const fullBlobs = new Map<string, Promise<Blob>>();
 
@@ -47,10 +51,30 @@ export function createCachedPhotoResolver(download: (fileId: string) => Promise<
     return pending;
   };
 
+  /** The ~1000px copy for showing the book on screen (falls back to the full photo for older photos). */
+  const pageBlobs = new Map<string, Promise<Blob>>();
+  const getPage = (fileId: string): Promise<Blob> => {
+    const small = smallCopyOf(fileId);
+    if (!small) return getFull(fileId);
+    let pending = pageBlobs.get(fileId);
+    if (!pending) {
+      pending = (async () => {
+        const cached = await idbGet<Blob>("photos", `${fileId}:page`).catch(() => undefined);
+        if (cached) return cached;
+        const blob = await limited(() => download(small)).catch(() => getFull(fileId));
+        await idbPut("photos", `${fileId}:page`, blob).catch(() => undefined);
+        return blob;
+      })();
+      pending.catch(() => pageBlobs.delete(fileId));
+      pageBlobs.set(fileId, pending);
+    }
+    return pending;
+  };
+
   const getThumb = async (fileId: string): Promise<Blob> => {
     const cached = await idbGet<Blob>("photos", `${fileId}:thumb`).catch(() => undefined);
     if (cached) return cached;
-    const thumb = await makeThumbnail(await getFull(fileId));
+    const thumb = await makeThumbnail(await getPage(fileId));
     await idbPut("photos", `${fileId}:thumb`, thumb).catch(() => undefined);
     return thumb;
   };
@@ -60,7 +84,9 @@ export function createCachedPhotoResolver(download: (fileId: string) => Promise<
     const key = `${fileId}:${size}`;
     let url = urls.get(key);
     if (!url) {
-      url = (size === "thumb" ? getThumb(fileId) : getFull(fileId)).then((blob) => URL.createObjectURL(blob));
+      url = (size === "thumb" ? getThumb(fileId) : size === "page" ? getPage(fileId) : getFull(fileId)).then((blob) =>
+        URL.createObjectURL(blob),
+      );
       url.catch(() => urls.delete(key));
       urls.set(key, url);
     }
@@ -69,6 +95,7 @@ export function createCachedPhotoResolver(download: (fileId: string) => Promise<
 }
 
 /** Pre-fills the cache right after an upload, so a new photo shows instantly. */
-export async function primePhotoCache(fileId: string, blob: Blob) {
+export async function primePhotoCache(fileId: string, blob: Blob, page?: Blob) {
   await idbPut("photos", `${fileId}:full`, blob).catch(() => undefined);
+  if (page) await idbPut("photos", `${fileId}:page`, page).catch(() => undefined);
 }

@@ -12,17 +12,52 @@ export interface ProcessedPhoto {
   hash?: string;
 }
 
-export const MAX_PHOTO_SIZE = 2000;
-const JPEG_QUALITY = 0.86;
+/** Sharp enough to print a full A4 page well. */
+export const MAX_PHOTO_SIZE = 2400;
+const JPEG_QUALITY = 0.88;
+/** The smaller copy used to show the book on screen. */
+export const PAGE_PHOTO_SIZE = 1000;
+/** Bigger files are refused (the phone or browser could struggle to open them). */
+export const MAX_FILE_BYTES = 40 * 1024 * 1024;
+
+const isHeic = async (file: Blob) => {
+  if (/image\/hei[cf]/i.test(file.type) || (file instanceof File && /\.hei[cf]$/i.test(file.name))) return true;
+  // The file's own signature, in case the type is missing: "ftypheic", "ftypheix", "ftypmif1"…
+  const head = new TextDecoder().decode(await file.slice(4, 12).arrayBuffer());
+  return /^ftyp(hei|hev|mif1|msf1)/.test(head);
+};
+
+/** Decodes an iPhone (HEIC) photo in a separate, sandboxed worker (public/heic-worker.js). */
+async function decodeHeic(file: Blob): Promise<ImageBitmap> {
+  const worker = new Worker("/heic-worker.js");
+  try {
+    const result = await new Promise<{ ok: boolean; width: number; height: number; data: ArrayBuffer }>((resolve, reject) => {
+      worker.onmessage = (e) => resolve(e.data);
+      worker.onerror = () => reject(new Error("decoder failed"));
+      void file.arrayBuffer().then((buffer) => worker.postMessage(buffer, [buffer]));
+    });
+    if (!result.ok) throw new Error("decoder failed");
+    return await createImageBitmap(new ImageData(new Uint8ClampedArray(result.data), result.width, result.height));
+  } finally {
+    worker.terminate();
+  }
+}
 
 async function decode(file: Blob): Promise<ImageBitmap> {
+  if (file.size > MAX_FILE_BYTES) throw new Error("This photo is too large (over 40 MB). Please choose a smaller copy.");
   try {
     // Turns the photo upright according to the camera's orientation tag.
     return await createImageBitmap(file, { imageOrientation: "from-image" });
   } catch {
-    throw new Error(
-      "This photo couldn't be opened. If it's an iPhone HEIC photo, try choosing it from your phone, which converts it automatically.",
-    );
+    // iPhone photos (HEIC) open natively in Safari; other browsers need a converter, loaded only when needed.
+    if (await isHeic(file).catch(() => false)) {
+      try {
+        return await decodeHeic(file);
+      } catch {
+        // fall through to the message below
+      }
+    }
+    throw new Error("This photo couldn't be opened. It may be damaged, or a kind of file that isn't a photo.");
   }
 }
 
@@ -48,6 +83,16 @@ export async function resizePhoto(file: Blob, maxSize = MAX_PHOTO_SIZE): Promise
   try {
     const processed = await encode(bitmap, maxSize, JPEG_QUALITY);
     return { ...processed, hash: await photoHash(bitmap).catch(() => undefined) };
+  } finally {
+    bitmap.close();
+  }
+}
+
+/** The ~1000px copy saved next to each photo, for showing the book on screen. */
+export async function makePagePhoto(blob: Blob): Promise<Blob> {
+  const bitmap = await createImageBitmap(blob);
+  try {
+    return (await encode(bitmap, PAGE_PHOTO_SIZE, 0.82)).blob;
   } finally {
     bitmap.close();
   }

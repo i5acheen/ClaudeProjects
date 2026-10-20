@@ -8,7 +8,8 @@ import { DriveError, OfflineError, SignedOutError, getAccessToken, getImageInfo 
 import { pickFromDrive, type PickedFile } from "@/lib/drive/picker";
 import { fromDrive, importPhotos, type IncomingPhoto } from "@/lib/folder-import";
 import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
-import { createCachedPhotoResolver, primePhotoCache } from "@/lib/photo-cache";
+import { createCachedPhotoResolver } from "@/lib/photo-cache";
+import { uploadBookPhoto } from "@/lib/upload";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
 import { handwritingStyle } from "@/lib/book-style";
 import { photoHash, samePhoto } from "@/lib/photo-hash";
@@ -19,7 +20,7 @@ import { photoHash, samePhoto } from "@/lib/photo-hash";
 
 export type DraftPhoto =
   | { kind: "existing"; ref: PhotoRef }
-  | { kind: "new"; blob: Blob; width: number; height: number; hash?: string; uploadedId?: string };
+  | { kind: "new"; blob: Blob; width: number; height: number; hash?: string; uploadedId?: string; uploadedThumbId?: string };
 
 export interface MemoryInput {
   id?: string;
@@ -259,17 +260,17 @@ export function JournalProvider({
       for (const [i, photo] of draft.input.photos.entries()) {
         if (photo.kind !== "new" || photo.uploadedId) continue;
         onProgress?.(`Uploading photo ${++done} of ${toUpload}…`);
-        photo.uploadedId = await repository.uploadPhoto(
-          photo.blob,
-          `${draft.input.date}-${draft.memoryId.slice(0, 8)}-${i + 1}.jpg`,
-        );
-        await primePhotoCache(photo.uploadedId, photo.blob);
+        const uploaded = await uploadBookPhoto(repository, photo.blob, `${draft.input.date}-${draft.memoryId.slice(0, 8)}-${i + 1}.jpg`);
+        photo.uploadedId = uploaded.fileId;
+        photo.uploadedThumbId = uploaded.thumbId;
         await idbPut("drafts", draft.draftId, draft);
       }
 
       onProgress?.("Writing it into the book…");
       const photos: PhotoRef[] = draft.input.photos.map((p) =>
-        p.kind === "existing" ? p.ref : { fileId: p.uploadedId!, width: p.width, height: p.height, hash: p.hash },
+        p.kind === "existing"
+          ? p.ref
+          : { fileId: p.uploadedId!, width: p.width, height: p.height, hash: p.hash, thumbId: p.uploadedThumbId },
       );
       const memory: Memory = {
         id: draft.memoryId,
@@ -416,9 +417,8 @@ export function JournalProvider({
     async (settings: BookSettings, newCover?: { blob: Blob; width: number; height: number }) => {
       let next = settings;
       if (newCover) {
-        const fileId = await repository.uploadPhoto(newCover.blob, `cover-${Date.now()}.jpg`);
-        await primePhotoCache(fileId, newCover.blob);
-        next = { ...settings, coverPhoto: { fileId, width: newCover.width, height: newCover.height } };
+        const { fileId, thumbId } = await uploadBookPhoto(repository, newCover.blob, `cover-${Date.now()}.jpg`);
+        next = { ...settings, coverPhoto: { fileId, width: newCover.width, height: newCover.height, thumbId } };
       }
       const oldCover = journal?.settings.coverPhoto?.fileId;
       const saved = await repository.update((latest) => ({ ...latest, settings: next }));
@@ -766,7 +766,17 @@ export function JournalProvider({
     return shown;
   }, [journal, pending]);
 
-  const driveResolver = useMemo(() => createCachedPhotoResolver((id) => repository.downloadPhoto(id)), [repository]);
+  // Which photos have a smaller copy in Drive (kept in a ref so the resolver and its cache stay the same).
+  const smallCopies = useRef(new Map<string, string>());
+  useEffect(() => {
+    for (const m of journal?.memories ?? []) for (const p of m.photos) if (p.thumbId) smallCopies.current.set(p.fileId, p.thumbId);
+    const cover = journal?.settings.coverPhoto;
+    if (cover?.thumbId) smallCopies.current.set(cover.fileId, cover.thumbId);
+  }, [journal]);
+  const driveResolver = useMemo(
+    () => createCachedPhotoResolver((id) => repository.downloadPhoto(id), (id) => smallCopies.current.get(id)),
+    [repository],
+  );
   const resolver = useCallback<PhotoResolver>(
     (fileId, size) => {
       if (fileId.startsWith("local:")) {

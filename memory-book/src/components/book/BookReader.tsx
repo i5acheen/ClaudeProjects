@@ -63,7 +63,8 @@ export function BookReader({ journal, startMemoryId, onEdit, onNewNote, onNewPag
 
   const renderPage = useCallback(
     (i: number) =>
-      Math.abs(i - current) <= RENDER_WINDOW || i === 0 || i === last ? (
+      // A page can be gone for a moment while the book is rebuilt (e.g. a memory deleted on another device).
+      pages[i] && (Math.abs(i - current) <= RENDER_WINDOW || i === 0 || i === last) ? (
         <BookPageView page={pages[i]} index={i} settings={journal.settings} growth={journal.growth} />
       ) : (
         <div className="paper" />

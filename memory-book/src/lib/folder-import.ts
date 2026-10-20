@@ -4,7 +4,7 @@ import type { Journal, Memory, PhotoRef } from "./types";
 import type { JournalRepository } from "./repository";
 import { DriveError, OfflineError, SignedOutError, downloadFile, type DriveImage } from "./drive/client";
 import { photoTakenDate, resizePhoto } from "./images";
-import { primePhotoCache } from "./photo-cache";
+import { uploadBookPhoto } from "./upload";
 import { samePhoto } from "./photo-hash";
 
 /**
@@ -112,13 +112,12 @@ export async function importPhotos(
       const taken = cameraDate(file) ?? (await photoTakenDate(original, file.name));
       const date = taken ?? localDay(file.createdTime ?? new Date().toISOString());
       const baseName = (file.name ?? "photo").replace(/\.[^.]+$/, "");
-      const fileId = await repository.uploadPhoto(resized.blob, `${date}-${baseName}.jpg`);
-      await primePhotoCache(fileId, resized.blob);
+      const { fileId, thumbId } = await uploadBookPhoto(repository, resized.blob, `${date}-${baseName}.jpg`);
       imported.push({
         sourceId: file.id,
         date,
         dateGuessed: !taken,
-        photo: { fileId, width: resized.width, height: resized.height, hash: resized.hash },
+        photo: { fileId, width: resized.width, height: resized.height, hash: resized.hash, thumbId },
       });
     } catch (e) {
       if (isFatal(e)) {

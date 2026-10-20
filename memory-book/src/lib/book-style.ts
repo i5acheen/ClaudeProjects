@@ -13,6 +13,7 @@ export const COVER_THEMES = {
   photo: { label: "Full photo" },
   cream: { label: "Cream & gold" },
   classic: { label: "Classic rose" },
+  rainbow: { label: "Rainbow sky" },
 } as const;
 export type CoverTheme = keyof typeof COVER_THEMES;
 export const DEFAULT_COVER: CoverTheme = "blush";

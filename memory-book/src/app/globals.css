@@ -10,11 +10,11 @@
   --font-serif: var(--font-cormorant), "Iowan Old Style", Georgia, serif;
 
   /* The app's colours (Tailwind classes such as text-ink). The book itself keeps its own warm inks, below. */
-  --color-desk: #f5eedc;
+  --color-desk: #fffaf0;
   --color-paper: #fffbf4;
-  --color-ink: #222429;
-  --color-ink-soft: #4d5057;
-  --color-ink-faint: #5f6168;
+  --color-ink: #2b2d42;
+  --color-ink-soft: #4a4e69;
+  --color-ink-faint: #5c607a;
   --color-rose: #e58465;
   --color-accent: #e58465;
 }
@@ -32,18 +32,22 @@
    * notebook (Odd Giraffe's "Maze magic"): cream paper, charcoal ink, and
    * coral, mint, green, cornflower blue, pink and mustard squares.
    */
-  --ui-bg: #f5eedc;
-  --ui-surface: #fffbf2;
-  --ui-muted: #ece3cb;
-  --ui-ink: #222429;
-  --ui-ink-soft: #4d5057;
-  --ui-ink-faint: #5f6168;
-  --ui-line: rgba(34, 36, 41, 0.1);
-  --ui-line-strong: rgba(34, 36, 41, 0.18);
+  --ui-bg: #fffaf0;
+  --ui-surface: #ffffff;
+  --ui-muted: #f6efe0;
+  --ui-ink: #2b2d42;
+  --ui-ink-soft: #4a4e69;
+  --ui-ink-faint: #5c607a;
+  --ui-line: rgba(43, 45, 66, 0.1);
+  --ui-line-strong: rgba(43, 45, 66, 0.18);
+  /* Nursery pastels, as on the home page. */
+  --ui-sun: #ffcd3c;
+  --ui-sun-deep: #e3a800;
+  --ui-sky: #d6ecfb;
   --ui-shadow-sm: 0 1px 2px rgba(34, 36, 41, 0.06);
   --ui-shadow: 0 1px 2px rgba(34, 36, 41, 0.05), 0 8px 24px -12px rgba(60, 50, 30, 0.2);
   --ui-shadow-lg: 0 2px 6px rgba(34, 36, 41, 0.06), 0 24px 48px -20px rgba(60, 50, 30, 0.35);
-  --ui-radius: 1.25rem;
+  --ui-radius: 1.6rem;
 
   /* The checkerboard's squares. */
   --sq-cream: #efe5cc;
@@ -57,9 +61,9 @@
   --sq-navy: #456c9c;
   --sq-mustard: #c49243;
 
-  /* Main buttons are charcoal, like the notebook's lettering; coral is the bright accent. */
-  --primary: #222429;
-  --primary-hover: #3a3d44;
+  /* Main buttons are sunshine yellow with dark words; coral is the bright accent. */
+  --primary: #ffcd3c;
+  --primary-hover: #ffd65e;
   --accent: #e58465;
   /* Deep coral: for small coral text, and white text on coral (WCAG AA). */
   --accent-dark: #a8452a;
@@ -103,7 +107,7 @@ body {
   overscroll-behavior: none;
 }
 
-/* The checkerboard ribbon along the top of every screen. */
+/* A thin rainbow along the top of every screen. */
 body::before {
   content: "";
   position: fixed;
@@ -111,7 +115,8 @@ body::before {
   height: 6px;
   z-index: 40;
   pointer-events: none;
-  background: var(--checker-row-a) 0 0 / 96px 3px repeat-x, var(--checker-row-b) 0 3px / 96px 3px repeat-x;
+  height: 5px;
+  background: linear-gradient(to right, #ff9eb5, #ffb38a, #ffe17a, #9fe0c4, #a8dcf7, #c9b8f5);
 }
 @media print {
   body::before {
@@ -326,6 +331,64 @@ body::before {
   --cover-rule: rgba(243, 223, 188, 0.55);
   --cover-mat: #f6eee0;
   --spine-shade: rgba(0, 0, 0, 0.28);
+}
+/* Rainbow sky: a child's book. Sky-blue cloth with little clouds and stars, a rainbow over the photo. */
+.cover--rainbow {
+  --cloth: #cfe6f8;
+  --cover-ink: #2b2d42;
+  --cover-emboss: 0 0.15cqw 0 rgba(255, 255, 255, 0.7);
+  --cover-rule: rgba(255, 255, 255, 0.95);
+  --cover-mat: #ffffff;
+  --spine-shade: rgba(40, 80, 120, 0.2);
+  --cover-pattern: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><g fill='%23ffffff'><path d='M18 34a7 7 0 0 1 1-14 9 9 0 0 1 17-3 7 7 0 0 1 12 5 6 6 0 0 1 0 12z' opacity='.85'/><path d='M88 104a6 6 0 0 1 1-12 8 8 0 0 1 15-2 6 6 0 0 1 10 4 5 5 0 0 1 0 10z' opacity='.8'/></g><g fill='%23ffcd3c'><path d='M112 26l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z'/><path d='M40 92l1.2 2.8 2.8 1.2-2.8 1.2-1.2 2.8-1.2-2.8-2.8-1.2 2.8-1.2z'/></g></svg>");
+}
+.cover--rainbow .cover__frame {
+  /* Its own layer, so the rainbow sits on the cloth but behind the photo. */
+  isolation: isolate;
+  border: 0.5cqw dashed var(--cover-rule);
+  border-radius: 4cqw;
+  outline: none;
+}
+.cover--rainbow .cover__eyebrow,
+.cover--rainbow .cover__title {
+  font-family: var(--font-fredoka), var(--font-sans);
+  font-style: normal;
+}
+.cover--rainbow .cover__title {
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.cover--rainbow .cover__eyebrow {
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.cover--rainbow .cover__window {
+  position: relative;
+  border-radius: 4cqw;
+  box-shadow: 0 1cqw 2.4cqw rgba(40, 80, 120, 0.22);
+}
+.cover--rainbow .cover__window img {
+  border-radius: 2.6cqw;
+}
+.cover--rainbow .cover__window::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -18%;
+  right: -18%;
+  top: -30%;
+  aspect-ratio: 2 / 1;
+  border-radius: 999px 999px 0 0;
+  background: radial-gradient(
+    50% 100% at 50% 100%,
+    transparent 0 52%,
+    #c9b8f5 52% 60%,
+    #a8dcf7 60% 68%,
+    #9fe0c4 68% 76%,
+    #ffe17a 76% 84%,
+    #ffb38a 84% 92%,
+    #ff9eb5 92% 100%
+  );
 }
 .cover--photo {
   --cloth: #e9e0d4;
@@ -1194,13 +1257,18 @@ body::before {
   }
 }
 
-/* Modern headings for the app (the book keeps its handwriting). */
+/* Rounded, friendly headings for the app (the book keeps its handwriting). */
+.ui-h1,
+.ui-h2,
+.ui-h3 {
+  font-family: var(--font-fredoka), var(--font-sans);
+}
 .ui-h1 {
   margin: 0;
-  font-size: 1.75rem;
-  font-weight: 800;
+  font-size: 1.85rem;
+  font-weight: 600;
   line-height: 1.1;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.01em;
   color: var(--ui-ink);
 }
 @media (min-width: 640px) {
@@ -1627,12 +1695,12 @@ body::before {
   height: 3rem;
   border-radius: 999px;
   color: var(--ui-ink);
-  background: var(--accent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 4px rgba(150, 70, 40, 0.2), 0 10px 22px -8px rgba(229, 132, 101, 0.8);
+  background: var(--ui-sun);
+  box-shadow: 0 4px 0 var(--ui-sun-deep), 0 10px 22px -8px rgba(227, 168, 0, 0.7);
   transition: transform 0.15s, background-color 0.15s;
 }
 .write-fab:hover {
-  background: #ec9779;
+  background: var(--primary-hover);
   transform: translateY(-1px);
 }
 .write-fab[aria-expanded="true"] {
@@ -1820,10 +1888,10 @@ body::before {
   height: 3.4rem;
   margin-top: -1.6rem;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--ui-sun);
   color: var(--ui-ink);
   border: 4px solid var(--ui-bg);
-  box-shadow: 0 8px 18px -6px rgba(229, 132, 101, 0.8);
+  box-shadow: 0 4px 0 var(--ui-sun-deep), 0 10px 18px -8px rgba(227, 168, 0, 0.7);
   transition: transform 0.15s;
 }
 .tabbar__fab svg {
@@ -1880,14 +1948,19 @@ body::before {
   box-shadow: 0 1px 3px rgba(34, 36, 41, 0.12);
 }
 .chrome-button--primary {
-  /* Charcoal with cream lettering, like the notebook's cover type. */
+  /* Sunshine yellow, a little raised like a toy block. */
   background: var(--primary);
-  color: #fffbf2;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(34, 36, 41, 0.3), 0 8px 20px -10px rgba(34, 36, 41, 0.6);
+  color: var(--ui-ink);
+  font-weight: 700;
+  box-shadow: 0 3px 0 var(--ui-sun-deep);
 }
 .chrome-button--primary:hover {
   background: var(--primary-hover);
-  color: #fffbf2;
+  color: var(--ui-ink);
+}
+.chrome-button--primary:active {
+  box-shadow: 0 1px 0 var(--ui-sun-deep);
+  transform: translateY(2px);
 }
 .chrome-button:active {
   transform: scale(0.98);
@@ -2701,32 +2774,22 @@ body:has(.home)::before {
   }
 }
 
-/* A rainbow arching behind the book. */
+/* A soft glow behind the book (the book itself has the rainbow). */
 .home-book-stage {
   position: relative;
   width: min(86vw, 30rem);
   margin: 3.5rem auto 0;
-  padding-top: 3rem;
+  padding-top: 1.5rem;
 }
 .home-rainbow {
   position: absolute;
   left: 50%;
   top: 0;
   width: 100%;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: 1;
   transform: translateX(-50%);
-  border-radius: 999px 999px 0 0;
-  background: radial-gradient(
-    50% 100% at 50% 100%,
-    transparent 0 44%,
-    #c9b8f5 44% 52%,
-    #a8dcf7 52% 60%,
-    #9fe0c4 60% 68%,
-    #ffe17a 68% 76%,
-    #ffb38a 76% 84%,
-    #ff9eb5 84% 92%,
-    transparent 92%
-  );
+  border-radius: 999px;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.35) 55%, transparent);
 }
 .home-book {
   position: relative;

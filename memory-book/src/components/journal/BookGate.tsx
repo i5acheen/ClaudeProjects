@@ -103,15 +103,91 @@ export function DrivePermissionNotice() {
   );
 }
 
-export function LoadingBook({ message = "Opening your book…" }: { message?: string }) {
+/** Little things to read while the book opens; they change every couple of seconds. */
+const LOADING_LINES = [
+  "Opening your book…",
+  "Gathering little moments…",
+  "Fluffing the clouds…",
+  "Finding your photos…",
+  "Turning the pages…",
+];
+
+/**
+ * While the book opens: a rainbow hot-air balloon (with a teddy in the
+ * basket) floating past clouds and twinkling stars.
+ */
+export function LoadingBook({ message }: { message?: string }) {
+  const lines = message ? [message] : LOADING_LINES;
+  const [line, setLine] = useState(0);
+  useEffect(() => {
+    if (lines.length < 2) return;
+    const timer = window.setInterval(() => setLine((n) => (n + 1) % lines.length), 2200);
+    return () => window.clearInterval(timer);
+  }, [lines.length]);
+
   return (
-    <div className="flex min-h-[60dvh] flex-1 flex-col items-center justify-center gap-4 text-ink-soft" role="status">
-      <div className="loading-book" aria-hidden>
-        <span />
-        <span />
+    <div className="loading-scene" role="status">
+      <div className="loading-sky" aria-hidden>
+        <Cloud className="loading-cloud loading-cloud--a" />
+        <Cloud className="loading-cloud loading-cloud--b" />
+        <Cloud className="loading-cloud loading-cloud--c" />
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span key={i} className={`loading-star loading-star--${i}`}>
+            ✦
+          </span>
+        ))}
+        <Balloon />
       </div>
-      <p className="font-hand text-2xl">{message}</p>
+      <p key={line} className="loading-line">
+        {lines[line % lines.length]}
+      </p>
     </div>
+  );
+}
+
+function Cloud({ className }: { className: string }) {
+  return (
+    <svg className={className} viewBox="0 0 100 44">
+      <path d="M25 40a15 15 0 0 1 2-30 20 20 0 0 1 37-6 16 16 0 0 1 26 12 12 12 0 0 1 0 24z" />
+    </svg>
+  );
+}
+
+/** A rainbow-striped hot-air balloon, with a teddy waving from the basket. */
+function Balloon() {
+  const stripes = ["#ff9eb5", "#ffb38a", "#ffe17a", "#9fe0c4", "#a8dcf7", "#c9b8f5"];
+  return (
+    <svg className="loading-balloon" viewBox="0 0 120 170">
+      <defs>
+        <clipPath id="loading-envelope">
+          <path d="M60 6C30 6 10 28 10 54c0 26 22 44 38 58h24c16-14 38-32 38-58C110 28 90 6 60 6z" />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#loading-envelope)">
+        {stripes.map((color, i) => (
+          <rect key={color} x={10 + i * (100 / stripes.length)} y="0" width={100 / stripes.length + 0.5} height="120" fill={color} />
+        ))}
+        <ellipse cx="44" cy="36" rx="10" ry="16" fill="#fff" opacity=".35" />
+      </g>
+      <path d="M60 6C30 6 10 28 10 54c0 26 22 44 38 58h24c16-14 38-32 38-58C110 28 90 6 60 6z" fill="none" stroke="#2b2d42" strokeOpacity=".12" strokeWidth="2" />
+      {/* Ropes */}
+      <path d="M50 112l-4 26M70 112l4 26" stroke="#8a6a4a" strokeWidth="1.6" />
+      {/* Teddy peeking out of the basket */}
+      <g transform="translate(60 138)">
+        <circle cx="-8" cy="-11" r="3.6" fill="#c98a5b" />
+        <circle cx="8" cy="-11" r="3.6" fill="#c98a5b" />
+        <circle cx="0" cy="-5" r="9" fill="#d9a06e" />
+        <ellipse cx="0" cy="-2" rx="4" ry="3" fill="#f3d2b0" />
+        <circle cx="-3" cy="-7" r="1.1" fill="#2b2d42" />
+        <circle cx="3" cy="-7" r="1.1" fill="#2b2d42" />
+        <circle cx="0" cy="-3" r="1.1" fill="#2b2d42" />
+        <path className="loading-wave" d="M10 -6c3-4 5-7 7-6" stroke="#d9a06e" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+      </g>
+      {/* Basket */}
+      <path d="M44 136h32l-3 22H47z" fill="#c98a5b" />
+      <path d="M44 136h32" stroke="#a46b40" strokeWidth="3" strokeLinecap="round" />
+      <path d="M47 145h26M48 151h24" stroke="#a46b40" strokeWidth="1.2" opacity=".6" />
+    </svg>
   );
 }
 

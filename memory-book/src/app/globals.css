@@ -3740,3 +3740,137 @@ body:has(.home)::before {
   font-size: 1.25rem;
   line-height: 1.3;
 }
+
+/* ================================================================== */
+/* Loading: a rainbow balloon drifting past clouds                     */
+/* ================================================================== */
+
+.loading-scene {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-height: 70dvh;
+  padding: 2rem 1rem;
+}
+.loading-sky {
+  position: relative;
+  width: min(84vw, 23rem);
+  height: 17rem;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.85), rgba(214, 236, 251, 0.6) 70%, transparent);
+}
+.loading-balloon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9.5rem;
+  margin: -8rem 0 0 -4.75rem;
+  filter: drop-shadow(0 10px 14px rgba(43, 45, 66, 0.18));
+  transform-origin: 50% 85%;
+  animation: loading-float 3.2s ease-in-out infinite;
+}
+.loading-wave {
+  transform-origin: 10px -6px;
+  animation: loading-wave 1s ease-in-out infinite alternate;
+}
+.loading-cloud {
+  position: absolute;
+  fill: #fff;
+  filter: drop-shadow(0 4px 8px rgba(80, 130, 170, 0.18));
+  animation: loading-drift linear infinite;
+}
+.loading-cloud--a {
+  width: 5.5rem;
+  top: 1.5rem;
+  animation-duration: 9s;
+}
+.loading-cloud--b {
+  width: 4rem;
+  top: 9.5rem;
+  animation-duration: 12s;
+  animation-delay: -5s;
+}
+.loading-cloud--c {
+  width: 3.2rem;
+  top: 5rem;
+  animation-duration: 15s;
+  animation-delay: -10s;
+  opacity: 0.85;
+}
+.loading-star {
+  position: absolute;
+  font-size: 0.9rem;
+  color: #f2b632;
+  animation: loading-twinkle 1.8s ease-in-out infinite;
+}
+.loading-star--0 { top: 12%; left: 14%; }
+.loading-star--1 { top: 22%; right: 12%; animation-delay: -0.4s; font-size: 1.15rem; }
+.loading-star--2 { bottom: 18%; left: 22%; animation-delay: -0.9s; }
+.loading-star--3 { bottom: 26%; right: 20%; animation-delay: -1.3s; font-size: 0.75rem; }
+.loading-star--4 { top: 6%; left: 58%; animation-delay: -0.7s; font-size: 0.7rem; }
+.loading-line {
+  font-family: var(--font-fredoka), var(--font-sans);
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--ui-ink-soft);
+  animation: loading-line-in 0.45s ease-out both;
+}
+@keyframes loading-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(3deg);
+  }
+}
+@keyframes loading-wave {
+  from {
+    transform: rotate(-20deg);
+  }
+  to {
+    transform: rotate(25deg);
+  }
+}
+@keyframes loading-drift {
+  from {
+    transform: translateX(-30%);
+    left: -20%;
+  }
+  to {
+    transform: translateX(0);
+    left: 100%;
+  }
+}
+@keyframes loading-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+@keyframes loading-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-balloon,
+  .loading-wave,
+  .loading-cloud,
+  .loading-star,
+  .loading-line {
+    animation: none;
+  }
+  .loading-cloud--a { left: 6%; }
+  .loading-cloud--b { left: 60%; }
+  .loading-cloud--c { left: 70%; }
+}

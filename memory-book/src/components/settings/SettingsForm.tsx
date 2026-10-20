@@ -16,6 +16,7 @@ import { DuplicateCleaner } from "@/components/write/DuplicateCleaner";
 import { CoverSheet } from "@/components/book/CoverSheet";
 import { InstallApp } from "@/components/app/InstallApp";
 import { BackupsCard } from "./BackupsCard";
+import { StorageCard } from "./StorageCard";
 import {
   coverTheme as currentCoverTheme,
   handwriting as currentHandwriting,
@@ -217,6 +218,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
       {access.isOwner && <FamilyCard />}
 
       {access.isOwner && <BackupsCard />}
+
+      <StorageCard />
 
       <div className="sheet mt-6 space-y-4 text-lg text-ink-soft">
         <h2 className="ui-h2">Your book</h2>

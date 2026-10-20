@@ -1,4 +1,4 @@
-import type { BookSettings, Journal } from "../types";
+import type { BookSettings, Journal, PhotoRef } from "../types";
 import {
   FORMAT,
   assemble,
@@ -39,8 +39,10 @@ import {
   listTrashedInFolder,
   inFolderQuery,
   isPublicPermission,
+  listFilesOwnedByOthers,
   listFolderFiles,
   listOwnedFiles,
+  removeFromFolder,
   type DriveChild,
   listPublicFiles,
   trashFile,
@@ -431,6 +433,46 @@ export class DriveRepository implements JournalRepository {
       return missing.length ? { ...current, memories: [...current.memories, ...missing] } : current;
     });
     return { journal, restored };
+  }
+
+  /**
+   * Photos added by family belong to them: they use their Drive space, and would
+   * vanish from the book if they deleted them or their account. So the owner's app
+   * makes its own copy of each one the book uses, and points the book at it.
+   */
+  async adoptFamilyPhotos(): Promise<{ adopted: number; journal?: Journal }> {
+    const location = await this.requireLocation();
+    const theirs = await listFilesOwnedByOthers(location.photosFolderId);
+    if (theirs.length === 0) return { adopted: 0 };
+    const current = await this.load();
+    if (!current) return { adopted: 0 };
+    const used = new Set<string>();
+    for (const p of current.memories.flatMap((m) => m.photos)) {
+      used.add(p.fileId);
+      if (p.thumbId) used.add(p.thumbId);
+    }
+    if (current.settings.coverPhoto) used.add(current.settings.coverPhoto.fileId);
+
+    // Only photos the book uses (copies already made are no longer used, so nothing is copied twice).
+    const copies = new Map<string, string>();
+    for (const file of theirs.filter((f) => used.has(f.id) && f.appProperties?.[KEY] === "photo")) {
+      copies.set(file.id, (await copyFile(file.id, file.name, location.photosFolderId, { [KEY]: "photo" })).id);
+    }
+    for (const file of theirs.filter((f) => used.has(f.id) && f.appProperties?.[KEY] === "small")) {
+      const photo = file.appProperties?.[PHOTO_KEY];
+      copies.set(file.id, (await copyFile(file.id, file.name, location.photosFolderId, { [KEY]: "small", [PHOTO_KEY]: copies.get(photo ?? "") ?? photo ?? "" })).id);
+    }
+    if (copies.size === 0) return { adopted: 0 };
+
+    const swap = (p: PhotoRef): PhotoRef => ({ ...p, fileId: copies.get(p.fileId) ?? p.fileId, thumbId: p.thumbId && (copies.get(p.thumbId) ?? p.thumbId) });
+    const journal = await this.update((latest) => ({
+      ...latest,
+      memories: latest.memories.map((m) => (m.photos.some((p) => copies.has(p.fileId)) ? { ...m, photos: m.photos.map(swap) } : m)),
+      settings: latest.settings.coverPhoto ? { ...latest.settings, coverPhoto: swap(latest.settings.coverPhoto) } : latest.settings,
+    }));
+    // Tidy the originals out of the book's folder (they stay in their owner's Drive).
+    await Promise.all([...copies.keys()].map((id) => removeFromFolder(id, location.photosFolderId).catch(() => undefined)));
+    return { adopted: [...copies.keys()].filter((id) => theirs.find((f) => f.id === id)?.appProperties?.[KEY] === "photo").length, journal };
   }
 
   /** An older book that hasn't been converted (e.g. opened by family who can only view it). */

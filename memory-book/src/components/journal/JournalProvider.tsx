@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { BookSettings, GrowthEntry, Journal, Memory, PhotoRef, Tag } from "@/lib/types";
 import type { BookAccess, FamilyMember, FamilyRole, JournalRepository } from "@/lib/repository";
 import { DriveRepository } from "@/lib/drive/drive-repository";
-import { DriveError, OfflineError, SignedOutError, getAccessToken, getImageInfo } from "@/lib/drive/client";
+import { DriveError, OfflineError, SignedOutError, getAccessToken, getImageInfo, isStorageFull } from "@/lib/drive/client";
 import { pickFromDrive, type PickedFile } from "@/lib/drive/picker";
 import { fromDrive, importPhotos, type IncomingPhoto } from "@/lib/folder-import";
 import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
@@ -119,9 +119,21 @@ const newId = () =>
     ? crypto.randomUUID()
     : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
-function friendlyError(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return "Something went wrong. Please try again.";
+/** Plain words for what went wrong — never Google's technical messages. */
+export function friendlyError(error: unknown): string {
+  if (isStorageFull(error))
+    return "Your Google Drive is full. Your memory is kept safely on this device and will upload by itself once there's space — free some up in Google Drive, or get more at one.google.com.";
+  if (error instanceof SignedOutError || error instanceof OfflineError) return error.message;
+  if (error instanceof DriveError) {
+    if (error.status === 404) return "Something in this book can't be found in Google Drive any more — it may have been deleted or unshared.";
+    if (error.status === 403) return "Google Drive didn't allow this. If it's someone else's book, you may only be able to view it.";
+    if (error.status === 429 || error.status >= 500)
+      return "Google Drive is busy right now. Your memory is kept on this device and will upload by itself in a moment.";
+    return "Google Drive couldn't do that just now. Please try again.";
+  }
+  // Our own messages are plain Errors written for people; anything else (a bug) gets a calm, general message.
+  if (error instanceof Error && error.name === "Error" && error.message) return error.message;
+  return "Something went wrong. Your memories are safe — please try again.";
 }
 
 function upsertMemory(journal: Journal, memory: Memory): Journal {
@@ -206,6 +218,9 @@ export function JournalProvider({
             if (!found.isOwner) return;
             // A weekly safety copy of the book's text, in your Drive's backups folder.
             await repository.ensureBackup(loaded).catch(() => undefined);
+            // Photos family added belong to them: keep your own copies, so they can't disappear from the book.
+            const adopted = await repository.adoptFamilyPhotos().catch(() => null);
+            if (adopted?.journal) commit(adopted.journal);
             const { removedPublicShares } = await repository.secureSharing();
             if (removedPublicShares > 0)
               setNotice(
@@ -382,6 +397,11 @@ export function JournalProvider({
         return "saved";
       } catch (e) {
         if (e instanceof OfflineError || (typeof navigator !== "undefined" && !navigator.onLine)) return "queued";
+        // Drive full, or Google busy: the memory stays safe on this device and uploads by itself later.
+        if (isStorageFull(e) || (e instanceof DriveError && (e.status === 429 || e.status >= 500))) {
+          handleError(e);
+          return "queued";
+        }
         handleError(e);
         throw e;
       } finally {

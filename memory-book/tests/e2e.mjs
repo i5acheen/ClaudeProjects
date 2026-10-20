@@ -67,6 +67,8 @@ const sharedRole = (f, email) => {
   for (let cur = f; cur; cur = files.get(cur.parents?.[0])) {
     const p = (cur.permissions || []).find(p => p.emailAddress === email);
     if (p) return p.role;
+    // Like Drive: the owner of a folder can open and edit what others put in it.
+    if (cur !== f && cur.owner === email) return 'writer';
   }
   return null;
 };
@@ -79,7 +81,10 @@ const permissionLog = [];
 const addRevision = (f) => { f.revisions ||= []; const id = `r${nextId++}`; f.revisions.push({ id, content: f.content, modifiedTime: new Date().toISOString() }); return id; };
 // Tests sometimes change a file's content directly; treat that as a new version too.
 const syncHead = (f) => { if (f.content && (!f.revisions?.length || f.revisions.at(-1).content !== f.content)) addRevision(f); };
-let concurrentSave = null; // a memory "someone else" saves just before the app's next journal write
+let concurrentSave = null;
+let driveFull = false; // the user's Drive has no space left
+const quota = { limit: 15 * 1024 ** 3, usage: 2 * 1024 ** 3 };
+const quotaExceeded = () => ({ status: 403, body: { error: { message: "The user's Drive storage quota has been exceeded.", errors: [{ reason: 'storageQuotaExceeded' }] } } }); // a memory "someone else" saves just before the app's next journal write
 const isPublic = (f) => (f.permissions || []).some(p => p.type === 'anyone' || p.type === 'domain');
 async function handleDrive(route) {
   if (driveDown) return route.abort('internetdisconnected');
@@ -98,7 +103,8 @@ async function handleDrive(route) {
   if (method === 'GET' && url.pathname === '/drive/v3/files') {
     const q = url.searchParams.get('q');
     let list = parseQuery(q).filter(f => canRead(user, f));
-    if (q.includes("'me' in owners")) list = list.filter(f => f.owner === user.email);
+    if (q.includes("not 'me' in owners")) list = list.filter(f => f.owner !== user.email);
+    else if (q.includes("'me' in owners")) list = list.filter(f => f.owner === user.email);
     if (q.includes('sharedWithMe')) list = list.filter(f => f.owner !== user.email && sharedRole(f, user.email));
     if (q.includes('visibility =')) list = list.filter(isPublic);
     return json(200, { files: list.map(meta) });
@@ -111,6 +117,8 @@ async function handleDrive(route) {
     files.set(f.id, f);
     return json(200, meta(f));
   }
+  if (method === 'GET' && url.pathname === '/drive/v3/about') return json(200, { storageQuota: { limit: String(quota.limit), usage: String(quota.usage) } });
+  if (driveFull && url.pathname.startsWith('/upload/')) { const e = quotaExceeded(); return json(e.status, e.body); }
   if (method === 'POST' && url.pathname === '/upload/drive/v3/files') {
     const buf = req.postDataBuffer();
     const boundary = req.headers()['content-type'].match(/boundary=(.+)$/)[1];
@@ -201,6 +209,8 @@ async function handleDrive(route) {
     const f = files.get(decodeURIComponent(m[1]));
     const { appProperties, ...rest } = JSON.parse(req.postData());
     if (!f || !canRead(user, f)) return denied();
+    const removeParents = url.searchParams.get('removeParents');
+    if (removeParents) { f.parents = (f.parents || []).filter(p => p !== removeParents); return json(200, {}); }
     if (f.owner !== user.email && ('writersCanShare' in rest)) return json(403, { error: { message: 'Only the owner can change this.' } });
     Object.assign(f, rest);
     // Like Drive, appProperties are merged key by key.
@@ -777,6 +787,17 @@ try {
   await pp.waitForSelector('.note-sheet', { state: 'detached' });
   for (let i = 0; i < 40 && !journal().memories.some(m => m.text.startsWith('Grandpa here')); i++) await pp.waitForTimeout(250);
   check(journal().memories.some(m => m.text.startsWith('Grandpa here')), 'family with "can add" wrote into the shared book');
+  // Grandpa adds a page with a photo: the photo is his (in his Drive) until Mum's app copies it.
+  await pp.click('.write-fab');
+  await pp.click('.write-menu >> text=New page');
+  await pp.locator('.page-photos input[type=file]').setInputFiles([`${APP}/public/demo/blanket-peek.jpg`]);
+  await pp.waitForSelector('.page-photo__img img');
+  await pp.fill('.note-sheet textarea', 'Grandpa took this one');
+  await pp.click('text=Add page to journal');
+  await pp.waitForSelector('.note-sheet', { state: 'detached' });
+  for (let i = 0; i < 60 && !journal().memories.some(m => m.text === 'Grandpa took this one' && m.photos.length); i++) await pp.waitForTimeout(250);
+  const grandpaPhoto = journal().memories.find(m => m.text === 'Grandpa took this one')?.photos[0];
+  check(files.get(grandpaPhoto?.fileId)?.owner === 'grandpa@example.com', 'family photo starts out in their own Drive');
   // H-2: a "can add" member can't share the book onwards
   const bookFolderId = parseQuery("appProperties has { key='memoryBook' and value='root' }")[0].id;
   const reshare = await pp.evaluate(async (id) => (await fetch(`https://www.googleapis.com/drive/v3/files/${id}/permissions`, {
@@ -805,6 +826,47 @@ try {
     const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(`${d}/${e.name}`) : [`${d}/${e.name}`]);
     const src = walk(`${APP}/src`).map(f => fs.readFileSync(f, 'utf8')).join('\n');
     check(!/auth\/drive\.readonly|auth\/drive["'` ]|include_granted_scopes/.test(src), 'H-1: no wider Google Drive permission requested anywhere');
+  }
+
+  // A9 / M-7: when Mum opens the book, family photos are copied into her Drive and the book uses the copies
+  {
+    await page.goto(`${B}/book`);
+    await page.waitForSelector('.stf__block');
+    let adopted;
+    for (let i = 0; i < 60; i++) {
+      adopted = journal().memories.find(m => m.text === 'Grandpa took this one')?.photos[0];
+      if (files.get(adopted?.fileId)?.owner === 'mum@example.com') break;
+      await page.waitForTimeout(250);
+    }
+    check(files.get(adopted.fileId)?.owner === 'mum@example.com' && files.get(adopted.thumbId)?.owner === 'mum@example.com', 'A9: photos added by family are copied into the owner’s Drive');
+    const original = [...files.values()].find(f => f.owner === 'grandpa@example.com' && f.appProperties?.memoryBook === 'photo');
+    const photosFolderId = parseQuery("appProperties has { key='memoryBook' and value='photos' }")[0].id;
+    check(original && !original.parents.includes(photosFolderId) && !original.trashed, 'A9: the original is taken out of the book folder, not deleted');
+    await page.reload();
+    await page.waitForTimeout(2500);
+    check([...files.values()].filter(f => f.owner === 'mum@example.com' && f.appProperties?.memoryBook === 'photo' && f.name === files.get(adopted.fileId).name).length === 1, 'A9: copied only once');
+  }
+
+  // A8: Google Drive storage — a meter in Settings, and a full Drive never loses a memory
+  {
+    quota.usage = 0.95 * quota.limit;
+    await page.goto(`${B}/book/settings`);
+    await page.waitForSelector('text=/nearly full/');
+    check(await page.locator('[role=meter]').count() === 1, 'A8: storage meter warns when Drive is over 90% full');
+    driveFull = true;
+    await page.goto(`${B}/book`);
+    await page.waitForSelector('.write-fab');
+    await page.click('.write-fab');
+    await page.click('text=/Write a letter to/');
+    await page.fill('.note-sheet textarea', 'Written while Drive was full');
+    await page.click('text=Add letter to journal');
+    await page.waitForSelector('text=/Google Drive is full/', { timeout: 20000 });
+    check(!journal().memories.some(m => m.text === 'Written while Drive was full'), 'A8: Drive full — friendly message, nothing half-saved');
+    driveFull = false;
+    quota.usage = 2 * 1024 ** 3;
+    await page.click('button:has-text("Upload now")');
+    for (let i = 0; i < 60 && !journal().memories.some(m => m.text === 'Written while Drive was full'); i++) await page.waitForTimeout(250);
+    check(journal().memories.some(m => m.text === 'Written while Drive was full'), 'A8: the memory kept on the device uploads once there is space');
   }
 
   // A1: an older single-file book is converted once, safely (backup first, nothing lost)

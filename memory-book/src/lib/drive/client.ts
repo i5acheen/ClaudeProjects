@@ -22,10 +22,18 @@ export class DriveError extends Error {
   constructor(
     public status: number,
     message: string,
+    /** Google's short reason, e.g. "storageQuotaExceeded". */
+    public reason?: string,
   ) {
     super(message);
   }
 }
+
+/** The person's Google Drive has no space left. */
+export const isStorageFull = (e: unknown) =>
+  e instanceof DriveError && (e.reason === "storageQuotaExceeded" || (e.status === 403 && /storage quota|quota has been exceeded/i.test(e.message)));
+
+const RATE_LIMITED = new Set(["rateLimitExceeded", "userRateLimitExceeded"]);
 
 /* ------------------------------------------------------------------ */
 /* Access token                                                        */
@@ -84,6 +92,9 @@ export function forgetAccessToken() {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Waits longer after each try (about 1s, 2s, 4s, 8s), with a little randomness so devices don't retry in step. */
+const backoff = (attempt: number) => 1000 * 2 ** attempt * (0.75 + Math.random() * 0.5);
+
 /** fetch() with the auth header, one token refresh on 401, and retries on rate limits / server errors. */
 export async function driveFetch(url: string, init: RequestInit = {}): Promise<Response> {
   let token = await getAccessToken();
@@ -110,20 +121,27 @@ export async function driveFetch(url: string, init: RequestInit = {}): Promise<R
       token = await getAccessToken(true);
       continue;
     }
-    if ((response.status === 429 || response.status >= 500) && attempt < 3) {
-      await sleep(1000 * 2 ** attempt);
+    if ((response.status === 429 || response.status >= 500) && attempt < 4) {
+      await sleep(backoff(attempt));
       continue;
     }
     if (!response.ok) {
       let message = `Google Drive error (${response.status})`;
+      let reason: string | undefined;
       try {
-        const body = (await response.json()) as { error?: { message?: string } };
+        const body = (await response.json()) as { error?: { message?: string; errors?: { reason?: string }[] } };
         if (body.error?.message) message = body.error.message;
+        reason = body.error?.errors?.[0]?.reason;
       } catch {
         // not JSON
       }
       if (response.status === 401) throw new SignedOutError();
-      throw new DriveError(response.status, message);
+      // Google sometimes reports "slow down" as a 403: wait and try again, like a 429.
+      if (response.status === 403 && reason && RATE_LIMITED.has(reason) && attempt < 4) {
+        await sleep(backoff(attempt));
+        continue;
+      }
+      throw new DriveError(response.status, message, reason);
     }
     return response;
   }
@@ -422,4 +440,25 @@ export async function listRevisions(fileId: string): Promise<{ id: string; modif
   const params = new URLSearchParams({ fields: "revisions(id,modifiedTime)", pageSize: "1000" });
   const response = await driveFetch(`${API}/files/${encodeURIComponent(fileId)}/revisions?${params}`);
   return ((await response.json()) as { revisions?: { id: string; modifiedTime?: string }[] }).revisions ?? [];
+}
+
+/** How full the person's Google Drive is, in bytes (limit is missing for unlimited plans). */
+export async function getStorageQuota(): Promise<{ used: number; limit?: number }> {
+  const response = await driveFetch(`${API}/about?fields=storageQuota(limit,usage)`);
+  const { storageQuota } = (await response.json()) as { storageQuota?: { limit?: string; usage?: string } };
+  return { used: Number(storageQuota?.usage ?? 0), limit: storageQuota?.limit ? Number(storageQuota.limit) : undefined };
+}
+
+/** Files in a folder that belong to someone else (e.g. photos a family member added). */
+export function listFilesOwnedByOthers(folderId: string): Promise<DriveChild[]> {
+  return listAll<DriveChild>(`${inFolderQuery(folderId)} and not 'me' in owners`, "id,name,createdTime,appProperties");
+}
+
+/** Takes a file out of a folder without deleting it (best effort). */
+export async function removeFromFolder(fileId: string, folderId: string): Promise<void> {
+  await driveFetch(`${API}/files/${encodeURIComponent(fileId)}?removeParents=${encodeURIComponent(folderId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: "{}",
+  });
 }

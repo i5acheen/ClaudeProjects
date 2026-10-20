@@ -24,7 +24,9 @@ export function SyncBanner() {
           <span>
             {syncing
               ? "Uploading to Google Drive…"
-              : `${pendingCount === 1 ? "1 memory is" : `${pendingCount} memories are`} saved on this device, waiting to upload.`}
+              : error && /Drive is full/.test(error)
+                ? error
+                : `${pendingCount === 1 ? "1 memory is" : `${pendingCount} memories are`} saved on this device, waiting to upload.`}
           </span>
           {!syncing && (
             <button className="underline decoration-dotted underline-offset-4 hover:text-ink" onClick={() => syncNow()}>

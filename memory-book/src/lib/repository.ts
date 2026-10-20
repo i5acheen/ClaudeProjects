@@ -37,6 +37,8 @@ export interface JournalRepository {
   listBackups(): Promise<{ id: string; date: string }[]>;
   /** Adds back memories from a backup that are missing now (never removes anything). */
   restoreFromBackup(backupId: string): Promise<{ journal: Journal; restored: number }>;
+  /** Owner only: copies photos family added into the owner's Drive and points the book at the copies. */
+  adoptFamilyPhotos(): Promise<{ adopted: number; journal?: Journal }>;
   /** Messages for the person (e.g. a damaged file was repaired), each returned once. */
   takeNotices(): string[];
 }

@@ -72,6 +72,8 @@ export interface BookSettings {
   coverSubtitle?: string;
   /** Divider pages at the start of each month of age (on unless turned off). */
   monthPages?: boolean;
+  /** When the book's owner agreed to the privacy notice, confirming they're the parent or guardian. */
+  consent?: { version: string; at: string; guardian: true };
 }
 
 /** The Drive folder you drop photos into, so they turn into memories by themselves. */

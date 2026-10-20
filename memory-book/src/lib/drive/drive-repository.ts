@@ -20,6 +20,7 @@ import {
   type FamilyMember,
   type FamilyRole,
   type JournalRepository,
+  type BookSummary,
 } from "../repository";
 import {
   addPermission,
@@ -132,6 +133,29 @@ const isDamaged = (e: unknown) => e instanceof SyntaxError;
 
 export class DriveRepository implements JournalRepository {
   private location: Location | null = null;
+  /** The book chosen in the switcher (one per child); null opens the first of your own. */
+  private preferredBook: string | null = null;
+
+  selectBook(bookId: string | null) {
+    if (bookId === this.preferredBook) return;
+    this.preferredBook = bookId;
+    this.location = null;
+  }
+
+  currentBookId(): string | null {
+    return this.location?.folderId ?? this.preferredBook;
+  }
+
+  async listBooks(): Promise<BookSummary[]> {
+    const own = await findFiles(`${appPropertyQuery(KEY, "root")} and 'me' in owners`);
+    const shared = await findFiles(`${appPropertyQuery(KEY, "root")} and sharedWithMe`).catch(() => []);
+    const summary = (f: { id: string; name: string }, isShared: boolean) => ({
+      id: f.id,
+      childName: f.name.replace(/^Memory Book – /, ""),
+      shared: isShared,
+    });
+    return [...own.map((f) => summary(f, false)), ...shared.map((f) => summary(f, true))];
+  }
   /** Things the app should tell you about (e.g. a damaged file that was repaired). */
   private notices: string[] = [];
 
@@ -151,16 +175,19 @@ export class DriveRepository implements JournalRepository {
     return journal;
   }
 
-  async create(settings: BookSettings): Promise<Journal> {
-    // If a book already exists (e.g. set up on another device), use it.
-    const existing = await this.load();
-    if (existing) return existing;
+  async create(settings: BookSettings, options: { another?: boolean } = {}): Promise<Journal> {
+    // If a book already exists (e.g. set up on another device), use it — unless this is a book for another child.
+    if (!options.another) {
+      const existing = await this.load();
+      if (existing) return existing;
+    }
 
     const folder = await createFolder(folderName(settings.childName), null, { [KEY]: "root" });
     const photos = await createFolder("photos", folder.id, { [KEY]: "photos" });
     const journal = emptyJournal(settings);
     const index = await createFile("book.json", folder.id, jsonBlob(split(journal).index), { [KEY]: "index" });
     this.location = { folderId: folder.id, photosFolderId: photos.id, journalFileId: index.id, format: "split" };
+    this.preferredBook = folder.id;
     return journal;
   }
 
@@ -315,6 +342,12 @@ export class DriveRepository implements JournalRepository {
       }
     }
     return { removedPublicShares };
+  }
+
+  async trashBook(): Promise<void> {
+    const location = await this.requireLocation();
+    await trashFile(location.folderId);
+    this.location = null;
   }
 
   folderUrl(): string | null {
@@ -582,10 +615,13 @@ export class DriveRepository implements JournalRepository {
   private async locate(): Promise<Location | null> {
     if (this.location) return this.location;
 
-    // Your own book first (oldest, if two were ever made); otherwise one shared with you by family.
-    const [own] = await findFiles(`${appPropertyQuery(KEY, "root")} and 'me' in owners`);
-    const folder = own ?? (await findFiles(`${appPropertyQuery(KEY, "root")} and sharedWithMe`).catch(() => []))[0];
+    // The book chosen in the switcher; otherwise your own first book; otherwise one shared with you by family.
+    const owned = await findFiles(`${appPropertyQuery(KEY, "root")} and 'me' in owners`);
+    const sharedBooks = owned.length && !this.preferredBook ? [] : await findFiles(`${appPropertyQuery(KEY, "root")} and sharedWithMe`).catch(() => []);
+    const chosen = this.preferredBook ? [...owned, ...sharedBooks].find((f) => f.id === this.preferredBook) : undefined;
+    const folder = chosen ?? owned[0] ?? sharedBooks[0];
     if (!folder) return null;
+    const own = owned.some((f) => f.id === folder.id) ? folder : undefined;
 
     const children = await listFolderFiles(folder.id);
     let photos = children.find((f) => f.appProperties?.[KEY] === "photos");

@@ -16,6 +16,25 @@ const FIXTURES = `${APP}/tests/fixtures`;
 const OUT = `${APP}/tests/output`;
 fs.mkdirSync(OUT, { recursive: true });
 const B = 'http://localhost:3100';
+// A stand-in for the account store (Upstash Redis REST). Start the app with
+//   KV_REST_API_URL=http://localhost:3199 KV_REST_API_TOKEN=test
+// to test it; otherwise those checks are skipped.
+import http from 'http';
+const kv = new Map();
+const kvServer = http.createServer((req, res) => {
+  let body = '';
+  req.on('data', (c) => (body += c));
+  req.on('end', () => {
+    if (req.headers.authorization !== 'Bearer test') { res.writeHead(401); return res.end(); }
+    const [cmd, key, value] = JSON.parse(body);
+    let result = null;
+    if (cmd === 'GET') result = kv.get(key) ?? null;
+    if (cmd === 'SET') { kv.set(key, value); result = 'OK'; }
+    if (cmd === 'DEL') result = kv.delete(key) ? 1 : 0;
+    res.writeHead(200, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ result }));
+  });
+}).listen(3199);
 const secret = fs.readFileSync(`${APP}/.env.local`, 'utf8').match(/AUTH_SECRET=(.*)/)[1];
 
 /* ---------------- fake Drive ---------------- */
@@ -286,13 +305,25 @@ try {
   await page.fill('#dob', '2026-05-07');
   await page.fill('#book-title', 'Asha’s Little Book');
   await page.fill('#dedication', 'For you, my love.');
+  // D20: the privacy notice must be agreed (as the parent or guardian) before the book is made
+  await page.click('button[type=submit]');
+  check(await page.locator('text=Choose a style').count() === 0, 'D20: can’t continue without agreeing to the privacy notice');
+  await page.check('input[name=consent]');
   await page.click('button[type=submit]');
   await page.waitForSelector('text=Choose a style');
   await shot('01b-setup-style');
   await page.click('button[title="Sage garden"]');
   await page.click('button[type=submit]');
-  await page.waitForURL(`${B}/book/write`);
+  await page.waitForURL(`${B}/book/write**`);
   await page.waitForSelector('text=Write a new memory');
+  check(await page.locator('text=/book is ready/').count() === 1, 'C17: welcome step asks for the first memory');
+  await page.waitForTimeout(800);
+  check(journal().settings.consent?.guardian === true && !!journal().settings.consent?.version, 'D20: consent (parent/guardian) recorded in the book');
+  const storeOn = (await (await page.request.get(`${B}/api/account`)).json()).storeConfigured;
+  if (storeOn) {
+    const records = [...kv.entries()];
+    check(records.length === 1 && JSON.parse(records[0][1]).consentVersion && !/mum@example|Asha/.test(JSON.stringify(records)), 'store: only a coded account number and the consent date are kept — no email or child details');
+  } else console.log('SKIP store checks (start the app with KV_REST_API_URL=http://localhost:3199 KV_REST_API_TOKEN=test)');
   check(parseQuery("appProperties has { key='memoryBook' and value='root' }")[0]?.name === 'Memory Book – Asha', 'folder created with child name');
   check(journal().settings.childName === 'Asha' && journal().settings.coverTheme === 'sage', 'book created in Drive with chosen style');
   await page.waitForTimeout(800);
@@ -736,6 +767,7 @@ try {
   await page.fill('input[type=email]', 'grandma@example.com');
   await page.click('button:has-text("Invite")');
   await page.waitForSelector('text=Invitation sent to grandma@example.com');
+  await page.waitForTimeout(3200); // invitations are spaced out (L-3)
   await page.fill('input[type=email]', 'grandpa@example.com');
   await page.selectOption('select[aria-label="What they can do"]', 'writer');
   await page.click('button:has-text("Invite")');
@@ -975,6 +1007,65 @@ try {
   await page.waitForSelector('text=/public link/', { timeout: 20000 });
   check(!(leaked.permissions || []).some(p => p.type === 'anyone'), 'H-2: public link removed and the owner told');
 
+  // D25 / C15 / C16: legal pages, landing page and the explanation before Google sign-in
+  {
+    for (const path of ['/privacy', '/terms', '/refunds', '/contact']) {
+      const html = await (await fetch(`${B}${path}`)).text();
+      check(html.includes('sacheen501@gmail.com'), `D25: ${path} page is there, with the grievance contact`);
+    }
+    const anon = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const ap = await anon.newPage();
+    await ap.goto(`${B}/`);
+    await ap.waitForSelector('text=/Your photos stay in your own Google Drive/');
+    check(await ap.locator('text=/Free/').count() > 0 && await ap.locator('text=/Premium/').count() > 0, 'C15: landing page explains the product, privacy promise and pricing');
+    await ap.click('text=/Start your book/');
+    await ap.waitForSelector('text=Continue to Google');
+    check(await ap.locator("text=/can.t see anything else in your Drive/").count() === 1, 'C16: before Google sign-in, the app explains the Drive permission');
+    await ap.screenshot({ path: `${OUT}/23-signin-explainer.png` });
+    await anon.close();
+  }
+
+  // D22: download everything
+  {
+    await page.goto(`${B}/book/settings`);
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('text=Download everything')]);
+    const data = JSON.parse(fs.readFileSync(await download.path(), 'utf8'));
+    check(data.settings?.childName === 'Asha Rose' && data.memories?.length === journal().memories.length, 'D22: “Download everything” gives all memories and details as a file');
+  }
+
+  // L-3: invitations are gently limited
+  {
+    await page.fill('input[type=email]', 'auntie@example.com');
+    await page.click('button:has-text("Invite")');
+    await page.waitForSelector('text=Invitation sent to auntie@example.com');
+    await page.fill('input[type=email]', 'uncle@example.com');
+    await page.click('button:has-text("Invite")');
+    await page.waitForSelector('text=Just a moment before the next invitation');
+    check(true, 'L-3: invitations can’t be sent in quick bursts');
+  }
+
+  // C19: a second child gets their own book, switched from the top bar
+  {
+    await page.goto(`${B}/book/setup?another=1`);
+    await page.waitForSelector('text=A book for another child');
+    await page.fill('#child-name', 'Kabir');
+    await page.fill('#dob', '2026-08-01');
+    await page.check('input[name=consent]');
+    await page.click('button[type=submit]');
+    await page.waitForSelector('text=Choose a style');
+    await page.click('button[type=submit]');
+    await page.waitForURL(`${B}/book/write**`);
+    await page.waitForSelector('text=/Kabir.s book is ready/');
+    const roots = [...files.values()].filter(f => live(f) && f.owner === 'mum@example.com' && f.appProperties?.memoryBook === 'root').map(f => f.name);
+    check(roots.length === 2 && roots.includes('Memory Book – Kabir'), 'C19: a separate book for the second child');
+    await page.click('.book-switcher');
+    await shot('24-book-switcher');
+    await page.click('.write-menu__item:has-text("Asha Rose")');
+    await page.waitForSelector('text=Write a new memory');
+    await page.goto(`${B}/book/settings`);
+    check((await page.inputValue('#child-name')) === 'Asha Rose', 'C19: switching back opens the first child’s book');
+  }
+
   // 9. Desktop book view with cover
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`${B}/book`);
@@ -986,6 +1077,23 @@ try {
   await page.click('.write-fab');
   await page.waitForSelector('.write-menu');
   await shot('10b-desktop-write-menu');
+
+  // D23: delete my account — our record removed, Google access cancelled, book moved to the Drive bin (chosen)
+  {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${B}/book/settings`);
+    await page.click('text=Delete my account');
+    await page.check('text=Also move my book');
+    await page.fill('input[aria-label="Type DELETE to confirm"]', 'DELETE');
+    await page.click('button.danger-button:has-text("Delete my account")');
+    await page.waitForURL(`${B}/?deleted=1`, { timeout: 20000 });
+    await page.waitForSelector('text=Your account has been deleted');
+    const asha = [...files.values()].find(f => f.owner === 'mum@example.com' && f.name === 'Memory Book – Asha Rose');
+    check(asha?.trashed === true, 'D23: the book was moved to the Drive bin (recoverable for 30 days), as chosen');
+    const leftovers = await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('memory-book:')).length);
+    check(leftovers === 0, 'D23: this device forgot the book');
+    if (storeOn) check(kv.size === 0, 'D23: our account record was deleted');
+  }
 } catch (e) {
   console.log('FAIL exception:', e.message);
   await shot('zz-failure');
@@ -994,4 +1102,5 @@ try {
   console.log('Drive calls:', calls.length);
   console.log(errors.length ? 'Browser errors:\n' + errors.join('\n') : 'No browser errors');
   await browser.close();
+  kvServer.close();
 }

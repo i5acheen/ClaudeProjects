@@ -54,7 +54,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 30 },
+  // Signed in for up to 14 days without using the app (renewed while you use it).
+  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 14 },
   pages: { signIn: "/", error: "/" },
   callbacks: {
     signIn({ user }) {

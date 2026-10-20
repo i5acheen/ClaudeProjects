@@ -27,8 +27,14 @@ export function WriteScreen({ journal }: { journal: Journal }) {
 
   // Photos shared from the phone's gallery arrive here (Android "Share → Memory Book").
   const [sharedNote, setSharedNote] = useState<string | null>(null);
+  const [welcome, setWelcome] = useState(false);
   useEffect(() => {
-    const shared = new URLSearchParams(window.location.search).get("shared");
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("welcome")) {
+      setWelcome(true);
+      window.history.replaceState(null, "", "/book/write");
+    }
+    const shared = params.get("shared");
     if (!shared) return;
     setSharedNote(
       shared === "failed"
@@ -51,6 +57,17 @@ export function WriteScreen({ journal }: { journal: Journal }) {
       <SyncBanner />
 
       <div className="mx-auto max-w-xl space-y-8 px-3 pt-2 sm:px-4">
+        {welcome && (
+          <div className="sheet !py-5 text-center" role="status">
+            <p className="text-3xl" aria-hidden>
+              🎉
+            </p>
+            <h1 className="ui-h2 mt-1">{settings.childName ? `${settings.childName}’s book is ready` : "Your book is ready"}</h1>
+            <p className="mt-1 text-ink-soft">
+              Add your first memory below — a photo and a few lines is perfect. It&rsquo;s saved in your Google Drive.
+            </p>
+          </div>
+        )}
         <div className="flex flex-wrap items-center justify-end gap-2">
           {sharedNote && <p className="mr-auto text-sm text-[var(--ink-terracotta)]">{sharedNote}</p>}
           <DriveRefreshButton className="!h-10 !text-sm" />

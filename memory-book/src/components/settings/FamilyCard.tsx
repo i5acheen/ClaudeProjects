@@ -28,6 +28,16 @@ export function FamilyCard() {
     e.preventDefault();
     const address = email.trim().toLowerCase();
     if (!address) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)) {
+      setMessage({ ok: false, text: "That doesn't look like an email address." });
+      return;
+    }
+    // A gentle limit, so invitations can't be sent in bulk from this app.
+    const limit = inviteAllowance();
+    if (!limit.ok) {
+      setMessage({ ok: false, text: limit.text });
+      return;
+    }
     setBusy(true);
     setMessage(null);
     try {
@@ -104,4 +114,22 @@ export function FamilyCard() {
       </p>
     </div>
   );
+}
+
+const INVITES_KEY = "memory-book:invites-sent";
+const INVITES_PER_DAY = 20;
+const SECONDS_BETWEEN = 3;
+
+/** At most a few invitations a minute and 20 a day from this device. */
+function inviteAllowance(): { ok: true } | { ok: false; text: string } {
+  try {
+    const now = Date.now();
+    const sent = (JSON.parse(localStorage.getItem(INVITES_KEY) ?? "[]") as number[]).filter((t) => now - t < 86_400_000);
+    if (sent.length && now - sent[sent.length - 1] < SECONDS_BETWEEN * 1000) return { ok: false, text: "Just a moment before the next invitation." };
+    if (sent.length >= INVITES_PER_DAY) return { ok: false, text: `That's ${INVITES_PER_DAY} invitations today — please try again tomorrow.` };
+    localStorage.setItem(INVITES_KEY, JSON.stringify([...sent, now]));
+  } catch {
+    // storage blocked: allow
+  }
+  return { ok: true };
 }

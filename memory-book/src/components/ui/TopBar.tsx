@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BookSwitcher } from "./BookSwitcher";
 import { BookIcon, GearIcon, GridIcon, PenIcon } from "./Icons";
 import { useOptionalJournal } from "@/components/journal/JournalProvider";
 
@@ -22,6 +23,8 @@ export function TopBar({ title, basePath, active, demo, canWrite: canWriteProp }
   const canWrite = canWriteProp ?? book?.access.canEdit ?? true;
   return (
     <header className="relative z-10 flex h-14 shrink-0 items-center justify-between gap-2 px-3 sm:px-4">
+      <div className="flex min-w-0 items-center gap-2">
+        {!demo && <BookSwitcher />}
       <Link
         href={demo ? "/" : canWrite ? `${basePath}/write` : basePath}
         className="hidden min-w-0 items-center gap-2.5 truncate text-[0.95rem] font-semibold tracking-tight text-ink hover:opacity-80 md:flex"
@@ -34,6 +37,7 @@ export function TopBar({ title, basePath, active, demo, canWrite: canWriteProp }
           </span>
         )}
       </Link>
+      </div>
 
       <nav className="section-tabs" aria-label="Sections">
         {!demo && canWrite ? (

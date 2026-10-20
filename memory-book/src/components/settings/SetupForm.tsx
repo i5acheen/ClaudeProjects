@@ -6,6 +6,7 @@ import { useJournal } from "@/components/journal/JournalProvider";
 import { LoadingBook } from "@/components/journal/BookGate";
 import { DEFAULT_COVER, DEFAULT_HANDWRITING, type CoverTheme, type Handwriting } from "@/lib/book-style";
 import { StylePickers } from "./StylePickers";
+import { ConsentNotice, consentNow, recordConsent } from "@/components/app/ConsentNotice";
 
 /** First sign-in: name the child, and the book's folder is created in Google Drive. */
 export function SetupForm() {
@@ -20,13 +21,17 @@ export function SetupForm() {
   const [theme, setTheme] = useState<CoverTheme>(DEFAULT_COVER);
   const [hand, setHand] = useState<Handwriting>(DEFAULT_HANDWRITING);
   const [error, setError] = useState<string | null>(null);
+  const [agreed, setAgreed] = useState(false);
+
+  // "Add another child": a new book even though one already exists.
+  const [another] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("another"));
 
   // Already have a book (e.g. set up on another device)? Go straight to it.
   useEffect(() => {
-    if (status === "ready") router.replace("/book/write");
-  }, [status, router]);
+    if (status === "ready" && !another && !working) router.replace("/book/write");
+  }, [status, router, another, working]);
 
-  if (status === "loading" || status === "ready") return <LoadingBook />;
+  if (status === "loading" || (status === "ready" && !another)) return <LoadingBook />;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,8 +50,10 @@ export function SetupForm() {
         dedication: dedication.trim() || undefined,
         coverTheme: theme,
         handwriting: hand,
-      });
-      router.replace("/book/write");
+        consent: consentNow(),
+      }, { another });
+      void recordConsent();
+      router.replace("/book/write?welcome=1");
     } catch (err) {
       setWorking(false);
       setError(err instanceof Error ? err.message : "Couldn't create your book. Please try again.");
@@ -60,7 +67,7 @@ export function SetupForm() {
       <form className="sheet w-full max-w-xl" onSubmit={submit}>
 {step === "details" ? (
           <>
-        <h1 className="ui-h1">Let&rsquo;s start your book</h1>
+        <h1 className="ui-h1">{another ? "A book for another child" : "Let’s start your book"}</h1>
         <p className="mt-2 text-lg text-ink-soft">
           We&rsquo;ll make a folder called <em>Memory Book – {childName.trim() || "…"}</em> in your Google Drive. Your
           photos and words are kept there, and nowhere else.
@@ -116,6 +123,10 @@ export function SetupForm() {
           maxLength={300}
         />
 
+        <div className="mt-7">
+          <ConsentNotice childName={childName} agreed={agreed} onAgree={setAgreed} />
+        </div>
+
           </>
         ) : (
           <>
@@ -135,7 +146,7 @@ export function SetupForm() {
           </>
         )}
 
-        {step === "details" && (
+        {step === "details" && !another && (
           <div className="mt-8 rounded-xl border border-dashed border-[rgba(120,90,70,0.25)] bg-white/60 p-4 text-ink-soft">
             <p className="text-lg text-ink">Has someone shared their Memory Book with you?</p>
             <p className="mt-1 text-sm">

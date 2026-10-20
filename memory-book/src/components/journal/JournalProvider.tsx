@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { BookSettings, GrowthEntry, Journal, Memory, PhotoRef, Tag } from "@/lib/types";
-import type { BookAccess, FamilyMember, FamilyRole, JournalRepository } from "@/lib/repository";
+import type { BookAccess, BookSummary, FamilyMember, FamilyRole, JournalRepository } from "@/lib/repository";
 import { DriveRepository } from "@/lib/drive/drive-repository";
 import { DriveError, OfflineError, SignedOutError, getAccessToken, getImageInfo, isStorageFull } from "@/lib/drive/client";
 import { pickFromDrive, type PickedFile } from "@/lib/drive/picker";
@@ -10,6 +10,7 @@ import { fromDrive, importPhotos, type IncomingPhoto } from "@/lib/folder-import
 import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
 import { createCachedPhotoResolver } from "@/lib/photo-cache";
 import { uploadBookPhoto } from "@/lib/upload";
+import { clearDeviceData } from "@/lib/device-data";
 import { PhotoSourceProvider, type PhotoResolver } from "@/components/book/PhotoSource";
 import { handwritingStyle } from "@/lib/book-style";
 import { photoHash, samePhoto } from "@/lib/photo-hash";
@@ -36,6 +37,8 @@ export interface MemoryInput {
 /** A memory saved on this device, waiting to be uploaded to Drive. */
 interface PendingSave {
   draftId: string;
+  /** Whose memory this is: it only ever uploads into that account's book. */
+  owner?: string;
   memoryId: string;
   input: Omit<MemoryInput, "id">;
   /** Photos that were in the memory before this edit. */
@@ -56,7 +59,8 @@ interface JournalContextValue {
   pendingCount: number;
   syncing: boolean;
   folderUrl: string | null;
-  setupBook(settings: BookSettings): Promise<void>;
+  /** Creates the book in Drive (`another`: an extra book, e.g. for a second child). */
+  setupBook(settings: BookSettings, options?: { another?: boolean }): Promise<void>;
   /** Saves locally first, then uploads. Resolves with "saved" or "queued" (kept on this device). */
   saveMemory(input: MemoryInput, onProgress?: (message: string) => void): Promise<"saved" | "queued">;
   deleteMemory(id: string): Promise<void>;
@@ -78,7 +82,13 @@ interface JournalContextValue {
   /** For family: allow the app to open a book someone shared with you. */
   /** Family: open a book someone shared with you. */
   openSharedBook(): Promise<void>;
+  /** Every book this account can open (one per child, plus shared ones). */
+  books: BookSummary[];
+  currentBookId: string | null;
+  switchBook(bookId: string): Promise<void>;
   listBackups(): Promise<{ id: string; date: string }[]>;
+  /** Owner only: moves the book folder to the Drive bin. */
+  trashBook(): Promise<void>;
   /** Brings back memories from a backup that aren't in the book now; returns how many. */
   restoreFromBackup(backupId: string): Promise<number>;
 }
@@ -154,7 +164,16 @@ function photoIdsInUse(journal: Journal): Set<string> {
   return ids;
 }
 
-const cacheKey = (owner: string) => `memory-book:journal:${owner}`;
+const cacheKey = (owner: string, book: string | null) => `memory-book:journal:${owner}:${book ?? "first"}`;
+/** Which child's book is open on this device (for families with more than one). */
+const bookKey = (owner: string) => `memory-book:book:${owner}`;
+const storedBook = (owner: string) => {
+  try {
+    return localStorage.getItem(bookKey(owner));
+  } catch {
+    return null;
+  }
+};
 
 /* ------------------------------------------------------------------ */
 /* Provider                                                            */
@@ -170,7 +189,12 @@ export function JournalProvider({
   repository?: JournalRepository;
   children: React.ReactNode;
 }) {
-  const repository = useMemo(() => providedRepository ?? new DriveRepository(), [providedRepository]);
+  const repository = useMemo(() => {
+    const repo = providedRepository ?? new DriveRepository();
+    if (typeof window !== "undefined") repo.selectBook(storedBook(owner));
+    return repo;
+  }, [providedRepository, owner]);
+  const [books, setBooks] = useState<BookSummary[]>([]);
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -183,16 +207,20 @@ export function JournalProvider({
     (next: Journal) => {
       setJournal(next);
       try {
-        localStorage.setItem(cacheKey(owner), JSON.stringify(next));
+        localStorage.setItem(cacheKey(owner, repository.currentBookId()), JSON.stringify(next));
       } catch {
         // storage full or blocked — the offline copy is only a convenience
       }
     },
-    [owner],
+    [owner, repository],
   );
 
   const handleError = useCallback((e: unknown) => {
-    if (e instanceof SignedOutError) setStatus("signed-out");
+    if (e instanceof SignedOutError) {
+      setStatus("signed-out");
+      // Signed out (e.g. the sign-in expired): don't leave the book readable on this device.
+      void clearDeviceData();
+    }
     setError(friendlyError(e));
   }, []);
 
@@ -210,10 +238,11 @@ export function JournalProvider({
       if (loaded) {
         commit(loaded);
         setStatus("ready");
+        repository.listBooks().then(setBooks).catch(() => undefined);
         repository
           .access()
           .then(async (found) => {
-            setAccess(found);
+            setAccess({ ...found, known: true });
             // The owner's app keeps the book private every time it opens.
             if (!found.isOwner) return;
             // A weekly safety copy of the book's text, in your Drive's backups folder.
@@ -240,7 +269,7 @@ export function JournalProvider({
 
   useEffect(() => {
     try {
-      const cached = localStorage.getItem(cacheKey(owner));
+      const cached = localStorage.getItem(cacheKey(owner, storedBook(owner)));
       if (cached) {
         setJournal(JSON.parse(cached) as Journal);
         setStatus("ready");
@@ -249,7 +278,7 @@ export function JournalProvider({
       // ignore a damaged offline copy
     }
     idbGetAll<PendingSave>("drafts")
-      .then((drafts) => setPending(drafts.sort((a, b) => a.savedAt.localeCompare(b.savedAt))))
+      .then((drafts) => setPending(drafts.filter((d) => !d.owner || d.owner === owner).sort((a, b) => a.savedAt.localeCompare(b.savedAt))))
       .catch(() => undefined);
     void reload();
   }, [owner, reload]);
@@ -319,7 +348,7 @@ export function JournalProvider({
       enqueue(async () => {
         setSyncing(true);
         try {
-          const drafts = await idbGetAll<PendingSave>("drafts");
+          const drafts = (await idbGetAll<PendingSave>("drafts")).filter((d) => !d.owner || d.owner === owner);
           for (const draft of drafts.sort((a, b) => a.savedAt.localeCompare(b.savedAt))) {
             await uploadOne(draft.draftId);
           }
@@ -356,15 +385,42 @@ export function JournalProvider({
 
   /* ---------------- actions ---------------- */
 
+  const rememberBook = useCallback(
+    (bookId: string | null) => {
+      try {
+        if (bookId) localStorage.setItem(bookKey(owner), bookId);
+        else localStorage.removeItem(bookKey(owner));
+      } catch {
+        // this device just won't remember the choice
+      }
+    },
+    [owner],
+  );
+
   const setupBook = useCallback(
-    async (settings: BookSettings) => {
-      const created = await repository.create(settings);
+    async (settings: BookSettings, options?: { another?: boolean }) => {
+      const created = await repository.create(settings, options);
+      rememberBook(repository.currentBookId());
       setFolderUrl(repository.folderUrl());
       commit(created);
       setStatus("ready");
       setError(null);
+      repository.listBooks().then(setBooks).catch(() => undefined);
     },
-    [repository, commit],
+    [repository, commit, rememberBook],
+  );
+
+  /** Opens another child's book (or one shared with you). */
+  const switchBook = useCallback(
+    async (bookId: string) => {
+      rememberBook(bookId);
+      repository.selectBook(bookId);
+      setJournal(null);
+      setAccess({ isOwner: true, canEdit: true });
+      setStatus("loading");
+      await reload();
+    },
+    [repository, rememberBook, reload],
   );
 
   const saveMemory = useCallback(
@@ -373,6 +429,7 @@ export function JournalProvider({
       const previous = journal?.memories.find((m) => m.id === memoryId);
       const draft: PendingSave = {
         draftId: newId(),
+        owner,
         memoryId,
         input: {
           date: input.date,
@@ -721,6 +778,7 @@ export function JournalProvider({
     [repository, journal],
   );
   const listBackups = useCallback(() => repository.listBackups(), [repository]);
+  const trashBook = useCallback(() => enqueue(() => repository.trashBook()), [repository, enqueue]);
   const restoreFromBackup = useCallback(
     async (backupId: string) => {
       const { journal: saved, restored } = await enqueue(() => repository.restoreFromBackup(backupId));
@@ -841,6 +899,10 @@ export function JournalProvider({
     openSharedBook,
     listBackups,
     restoreFromBackup,
+    trashBook,
+    books,
+    currentBookId: repository.currentBookId(),
+    switchBook,
   };
 
   return (

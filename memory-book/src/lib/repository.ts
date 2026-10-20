@@ -8,8 +8,14 @@ import type { BookSettings, Journal, Memory } from "./types";
 export interface JournalRepository {
   /** Loads the book, or returns null when this account has no book yet. */
   load(): Promise<Journal | null>;
-  /** Creates a new, empty book. */
-  create(settings: BookSettings): Promise<Journal>;
+  /** Creates a new, empty book (`another`: an extra book, e.g. for a second child). */
+  create(settings: BookSettings, options?: { another?: boolean }): Promise<Journal>;
+  /** Every book this account can open: its own (one per child) and ones shared with it. */
+  listBooks(): Promise<BookSummary[]>;
+  /** Which book to open (null: the first of your own). */
+  selectBook(bookId: string | null): void;
+  /** The ID of the book that's open, if known. */
+  currentBookId(): string | null;
   /**
    * Re-reads the latest saved journal, applies `change` and saves it.
    * Re-reading first means two devices editing at once don't wipe each other out.
@@ -39,11 +45,20 @@ export interface JournalRepository {
   restoreFromBackup(backupId: string): Promise<{ journal: Journal; restored: number }>;
   /** Owner only: copies photos family added into the owner's Drive and points the book at the copies. */
   adoptFamilyPhotos(): Promise<{ adopted: number; journal?: Journal }>;
+  /** Owner only: moves the whole book folder to the Drive bin (recoverable there for 30 days). */
+  trashBook(): Promise<void>;
   /** Messages for the person (e.g. a damaged file was repaired), each returned once. */
   takeNotices(): string[];
 }
 
 export type FamilyRole = "reader" | "writer";
+
+export interface BookSummary {
+  id: string;
+  /** The child's name, from the folder's name. */
+  childName: string;
+  shared: boolean;
+}
 
 export interface FamilyMember {
   id: string;
@@ -56,6 +71,8 @@ export interface BookAccess {
   isOwner: boolean;
   canEdit: boolean;
   ownerName?: string;
+  /** False until Google has said whose book it is. */
+  known?: boolean;
 }
 
 export function emptyJournal(settings: BookSettings): Journal {
@@ -95,6 +112,10 @@ export function normaliseJournal(raw: unknown): Journal {
       coverLabel: settings.coverLabel,
       coverSubtitle: settings.coverSubtitle,
       monthPages: settings.monthPages,
+      consent:
+        settings.consent && typeof settings.consent.version === "string" && typeof settings.consent.at === "string"
+          ? { version: settings.consent.version, at: settings.consent.at, guardian: true }
+          : undefined,
     },
     memories: Array.isArray(data.memories)
       ? data.memories.map(normaliseMemory).filter((m): m is Memory => m !== null)

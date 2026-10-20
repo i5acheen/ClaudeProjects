@@ -6,8 +6,6 @@ import { useRef, useState } from "react";
 import { signOut } from "next-auth/react";
 import type { Journal, PhotoRef } from "@/lib/types";
 import { resizePhoto, type ProcessedPhoto } from "@/lib/images";
-import { idbClear } from "@/lib/idb";
-import { forgetAccessToken } from "@/lib/drive/client";
 import { usePhotoSrc } from "@/components/book/PhotoSource";
 import { useJournal } from "@/components/journal/JournalProvider";
 import { StylePickers } from "./StylePickers";
@@ -17,6 +15,9 @@ import { CoverSheet } from "@/components/book/CoverSheet";
 import { InstallApp } from "@/components/app/InstallApp";
 import { BackupsCard } from "./BackupsCard";
 import { StorageCard } from "./StorageCard";
+import { DataCard } from "./DataCard";
+import { SiteFooter } from "@/components/legal/SiteFooter";
+import { clearDeviceData, revokeGoogleAccess } from "@/lib/device-data";
 import {
   coverTheme as currentCoverTheme,
   handwriting as currentHandwriting,
@@ -95,19 +96,9 @@ export function SettingsForm({ journal }: { journal: Journal }) {
     if (pendingCount > 0 && !confirm("Some memories haven't uploaded yet and will be lost if you sign out. Sign out anyway?")) {
       return;
     }
-    // Clear this device's copies so the next person to use it can't see the book.
-    try {
-      Object.keys(localStorage)
-        .filter((k) => k.startsWith("memory-book:"))
-        .forEach((k) => localStorage.removeItem(k));
-      await idbClear("photos");
-      await idbClear("drafts");
-      // Saved copies of your signed-in pages (for opening offline).
-      if ("caches" in window) for (const key of await caches.keys()) if (key.startsWith("pages-")) await caches.delete(key);
-    } catch {
-      // nothing to clear
-    }
-    forgetAccessToken();
+    // Cancel the app's Google access, and clear this device's copies so the next person can't see the book.
+    await revokeGoogleAccess();
+    await clearDeviceData({ includingDrafts: true });
     await signOut({ redirectTo: "/" });
   }
 
@@ -221,6 +212,8 @@ export function SettingsForm({ journal }: { journal: Journal }) {
 
       <StorageCard />
 
+      <DataCard />
+
       <div className="sheet mt-6 space-y-4 text-lg text-ink-soft">
         <h2 className="ui-h2">Your book</h2>
         <InstallApp />
@@ -239,11 +232,18 @@ export function SettingsForm({ journal }: { journal: Journal }) {
             .
           </p>
         )}
+        <p>
+          <Link href="/book/setup?another=1" className="text-ink underline decoration-dotted underline-offset-4">
+            + Start a book for another child
+          </Link>{" "}
+          — each child gets their own book; switch between them from the top bar.
+        </p>
         {access.canEdit && <DuplicateCleaner />}
         <button type="button" className="chrome-button field-button" onClick={handleSignOut}>
           Sign out
         </button>
       </div>
+      <SiteFooter className="mb-10" />
     </div>
   );
 }

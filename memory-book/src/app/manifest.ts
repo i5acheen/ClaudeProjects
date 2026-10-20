@@ -11,8 +11,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "any",
-    background_color: "#f7f5f2",
-    theme_color: "#f7f5f2",
+    background_color: "#f5eedc",
+    theme_color: "#f5eedc",
     categories: ["lifestyle", "photo"],
     // Android: "Share → Memory Book" from the gallery (handled on the phone by public/sw.js).
     share_target: {

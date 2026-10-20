@@ -80,9 +80,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       <section className="mx-auto mt-20 grid max-w-5xl gap-4 sm:grid-cols-3" aria-label="How it works">
-        {FEATURES.map(({ icon, title, text }, i) => (
+        {FEATURES.map(({ icon, title, text, tile }, i) => (
           <div key={title} className="feature-card">
-            <span className="feature-card__icon" aria-hidden>
+            <span className="feature-card__icon" style={{ "--tile": `var(--sq-${tile})` } as React.CSSProperties} aria-hidden>
               {icon}
             </span>
             <p className="mt-4 text-xs font-bold tracking-[0.14em] text-ink-faint uppercase">Step {i + 1}</p>
@@ -174,6 +174,7 @@ const FEATURES = [
         <circle cx="12" cy="12.5" r="3.5" />
       </svg>
     ),
+    tile: "blush",
     title: "Add a moment",
     text: "A photo or four, the date (read from the photo), and a few lines. A minute a day is plenty.",
   },
@@ -184,6 +185,7 @@ const FEATURES = [
         <path d="M12 6.5v13" />
       </svg>
     ),
+    tile: "mint",
     title: "It becomes a book",
     text: "Pages that look hand-made: polaroids, tape, your handwriting, cover colours, paper styles, month pages and letters.",
   },
@@ -195,6 +197,7 @@ const FEATURES = [
         <path d="M15.5 6a3 3 0 0 1 0 5.5M17.5 14.5c1.6.6 2.7 2.2 3 4.5" />
       </svg>
     ),
+    tile: "blue",
     title: "Share and print",
     text: "Invite grandparents to view or add memories. Download a print-ready PDF whenever you like.",
   },

@@ -39,9 +39,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
           <span className="sr-only">Look inside a demo book</span>
         </Link>
 
-        <div className="max-w-md text-center md:text-left">
-          <p className="text-sm font-semibold tracking-wide text-[var(--accent)] uppercase">Memory Book</p>
-          <h1 className="ui-h1 mt-1 !text-4xl sm:!text-5xl">A keepsake journal of your baby&rsquo;s first years</h1>
+        <div className="max-w-xl text-center md:text-left">
+          <p className="eyebrow-pill">
+            <span aria-hidden className="eyebrow-pill__dot" /> Baby journal · private by design
+          </p>
+          <h1 className="ui-h1 mt-4 !text-[2.6rem] !leading-[1.05] sm:!text-6xl">
+            A keepsake journal of your <span className="accent-text">baby&rsquo;s first years</span>
+          </h1>
           <p className="mt-4 text-lg text-ink-soft">
             Add photos and a few lines from your phone. Memory Book lays them out like a hand-made book you can flip through,
             share with family, and print.
@@ -75,34 +79,36 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </div>
       </section>
 
-      <section className="mx-auto mt-16 grid max-w-5xl gap-4 sm:grid-cols-3" aria-label="How it works">
-        {[
-          ["📷", "Add a moment", "A photo or four, the date (read from the photo), and a few lines. A minute a day is plenty."],
-          ["📖", "It becomes a book", "Pages that look hand-made: polaroids, tape, your handwriting style, month pages and letters to your child."],
-          ["👵", "Share and print", "Invite grandparents to view or add memories. Download a print-ready PDF whenever you like."],
-        ].map(([icon, title, text]) => (
-          <div key={title} className="sheet !p-5">
-            <p className="text-2xl" aria-hidden>
+      <section className="mx-auto mt-20 grid max-w-5xl gap-4 sm:grid-cols-3" aria-label="How it works">
+        {FEATURES.map(({ icon, title, text }, i) => (
+          <div key={title} className="feature-card">
+            <span className="feature-card__icon" aria-hidden>
               {icon}
-            </p>
-            <h2 className="ui-h3 mt-2">{title}</h2>
-            <p className="mt-1 text-[0.95rem] text-ink-soft">{text}</p>
+            </span>
+            <p className="mt-4 text-xs font-bold tracking-[0.14em] text-ink-faint uppercase">Step {i + 1}</p>
+            <h2 className="ui-h3 mt-1">{title}</h2>
+            <p className="mt-1.5 text-[0.95rem] text-ink-soft">{text}</p>
           </div>
         ))}
       </section>
 
-      <section className="mx-auto mt-6 max-w-5xl sheet" aria-labelledby="privacy-heading">
-        <h2 id="privacy-heading" className="ui-h2">
-          🔒 Your photos stay in your own Google Drive
-        </h2>
-        <ul className="mt-3 grid gap-2 text-[0.95rem] text-ink-soft sm:grid-cols-2">
-          <li>✦ Your child&rsquo;s photos, name and stories are saved in a folder in your Drive — never on our servers.</li>
-          <li>✦ The app can only see the files it creates and the photos you choose. Nothing else in your Drive.</li>
-          <li>✦ No ads, no tracking, nothing sold or shared. Built for India&rsquo;s data protection law.</li>
-          <li>✦ Download everything or delete your account at any time.</li>
+      <section className="privacy-panel mx-auto mt-6 max-w-5xl" aria-labelledby="privacy-heading">
+        <div className="max-w-xl">
+          <span className="feature-card__icon feature-card__icon--dark" aria-hidden>
+            <LockIcon />
+          </span>
+          <h2 id="privacy-heading" className="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">
+            Your photos stay in your own Google Drive
+          </h2>
+        </div>
+        <ul className="mt-6 grid gap-x-8 gap-y-3 text-[0.95rem] text-white/75 sm:grid-cols-2">
+          <li>Your child&rsquo;s photos, name and stories are saved in a folder in your Drive — never on our servers.</li>
+          <li>The app can only see the files it creates and the photos you choose. Nothing else in your Drive.</li>
+          <li>No ads, no tracking, nothing sold or shared. Built for India&rsquo;s data protection law.</li>
+          <li>Download everything or delete your account at any time.</li>
         </ul>
-        <p className="mt-3 text-sm">
-          <Link href="/privacy" className="text-ink underline decoration-dotted underline-offset-4">
+        <p className="mt-6 text-sm">
+          <Link href="/privacy" className="font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
             Read exactly how your privacy is protected →
           </Link>
         </p>
@@ -112,19 +118,21 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <h2 id="pricing-heading" className="sr-only">
           Pricing
         </h2>
-        <div className="sheet !p-5">
+        <div className="sheet !p-6">
           <p className="ui-h3">Free</p>
-          <p className="mt-1 text-3xl font-bold text-ink">₹0</p>
-          <ul className="mt-3 space-y-1 text-[0.95rem] text-ink-soft">
-            <li>✓ Unlimited memories and photos (in your Drive)</li>
-            <li>✓ Family sharing, letters, month pages</li>
-            <li>✓ PDF download</li>
+          <p className="mt-2 text-4xl font-extrabold tracking-tight text-ink">₹0</p>
+          <ul className="check-list mt-4">
+            <li>Unlimited memories and photos (in your Drive)</li>
+            <li>Family sharing, letters, month pages</li>
+            <li>Cover colours, paper styles and PDF download</li>
           </ul>
         </div>
-        <div className="sheet !p-5">
-          <p className="ui-h3">Premium</p>
-          <p className="mt-1 text-lg font-semibold text-ink">Coming soon</p>
-          <p className="mt-2 text-[0.95rem] text-ink-soft">
+        <div className="sheet premium-card !p-6">
+          <div className="flex items-center justify-between gap-3">
+            <p className="ui-h3">Premium</p>
+            <span className="soon-badge">Coming soon</span>
+          </div>
+          <p className="mt-3 text-[0.95rem] text-ink-soft">
             Extra book designs, printed-book ready exports and reminders — paid securely by UPI. Everything free stays free.
           </p>
         </div>
@@ -137,6 +145,60 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     </main>
   );
 }
+
+const iconProps = {
+  width: 22,
+  height: 22,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+
+function LockIcon() {
+  return (
+    <svg {...iconProps}>
+      <rect x="4.5" y="10.5" width="15" height="10" rx="2.5" />
+      <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+    </svg>
+  );
+}
+
+const FEATURES = [
+  {
+    icon: (
+      <svg {...iconProps}>
+        <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z" />
+        <circle cx="12" cy="12.5" r="3.5" />
+      </svg>
+    ),
+    title: "Add a moment",
+    text: "A photo or four, the date (read from the photo), and a few lines. A minute a day is plenty.",
+  },
+  {
+    icon: (
+      <svg {...iconProps}>
+        <path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z" />
+        <path d="M12 6.5v13" />
+      </svg>
+    ),
+    title: "It becomes a book",
+    text: "Pages that look hand-made: polaroids, tape, your handwriting, cover colours, paper styles, month pages and letters.",
+  },
+  {
+    icon: (
+      <svg {...iconProps}>
+        <circle cx="9" cy="8.5" r="3" />
+        <path d="M3.5 19c.6-3 2.8-5 5.5-5s4.9 2 5.5 5" />
+        <path d="M15.5 6a3 3 0 0 1 0 5.5M17.5 14.5c1.6.6 2.7 2.2 3 4.5" />
+      </svg>
+    ),
+    title: "Share and print",
+    text: "Invite grandparents to view or add memories. Download a print-ready PDF whenever you like.",
+  },
+];
 
 function GoogleMark() {
   return (

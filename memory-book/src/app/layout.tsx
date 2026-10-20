@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { Caveat, Cormorant_Garamond, Courier_Prime, Fredoka, Indie_Flower, Kalam, Lora, Patrick_Hand, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ServiceWorker } from "@/components/app/ServiceWorker";
+import { NavigationTracker } from "@/components/ui/BackButton";
 
 // Variable fonts (no fixed weights): one file each covers every weight, so pages load fewer files.
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat" });
@@ -64,6 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         )}
         <ServiceWorker />
+        <NavigationTracker />
       </body>
     </html>
   );

@@ -14,6 +14,8 @@ import {
   type Paper,
 } from "@/lib/book-style";
 import { StylePickers } from "./StylePickers";
+import { BackButton } from "@/components/ui/BackButton";
+import { ChevronLeft } from "@/components/ui/Icons";
 import { ConsentNotice, consentNow, recordConsent } from "@/components/app/ConsentNotice";
 
 /** First sign-in: name the child, and the book's folder is created in Google Drive. */
@@ -77,6 +79,14 @@ export function SetupForm() {
   return (
     <main className="flex min-h-dvh items-center justify-center px-3 py-10">
       <form className="sheet w-full max-w-xl" onSubmit={submit}>
+        {/* Back: to the first step, or (for another child's book) to the book you were in. */}
+        {step === "style" ? (
+          <button type="button" className="icon-button back-button mb-3" aria-label="Back" title="Back" onClick={() => setStep("details")}>
+            <ChevronLeft />
+          </button>
+        ) : (
+          another && <BackButton fallback="/book/write" className="mb-3" />
+        )}
 {step === "details" ? (
           <>
         <h1 className="ui-h1">{another ? "A book for another child" : "Let’s start your book"}</h1>

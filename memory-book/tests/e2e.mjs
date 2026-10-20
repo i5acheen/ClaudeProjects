@@ -445,9 +445,24 @@ try {
   await page.waitForSelector('.stf__block');
   await page.waitForTimeout(1500);
 
+  // Back: from Settings to where you came from; opened directly, to the journal.
+  await page.goto(`${B}/book/timeline`);
+  await page.waitForSelector('.timeline-head');
+  await page.click('a[title="Settings"]');
+  await page.waitForURL('**/book/settings');
+  await page.click('button.back-button');
+  await page.waitForURL('**/book/timeline');
+  check(true, 'back: returns to the page you came from');
+  await page.goto(`${B}/book/settings`);
+  await page.evaluate(() => sessionStorage.clear());
+  await page.click('button.back-button');
+  await page.waitForURL((u) => u.pathname === '/book');
+  check(true, 'back: opened directly, it goes to the journal');
+
   // 6. Timeline
   await page.goto(`${B}/book/timeline`);
-  await page.waitForFunction(() => document.querySelectorAll('main a img').length === 2, null, { timeout: 15000 });
+  // The memories' thumbnails (not the logo in the top bar).
+  await page.waitForFunction(() => document.querySelectorAll('main a[href*="memory="] img').length === 2, null, { timeout: 15000 });
   await shot('07-timeline');
   check(true, 'timeline shows thumbnails');
 

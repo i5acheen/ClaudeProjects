@@ -3319,3 +3319,12 @@ body:has(.home)::before {
 .write-menu__icon--style {
   background: var(--ui-sky);
 }
+
+/* Back: a round white button at the top left of every page. */
+.back-button {
+  flex-shrink: 0;
+  color: var(--ui-ink);
+}
+.back-button svg {
+  stroke-width: 2.2;
+}

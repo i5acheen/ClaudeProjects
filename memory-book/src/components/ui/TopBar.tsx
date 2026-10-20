@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { BookSwitcher } from "./BookSwitcher";
+import { BackButton } from "./BackButton";
 import { BookIcon, GearIcon, GridIcon, PenIcon, PlusIcon } from "./Icons";
 import { useOptionalJournal } from "@/components/journal/JournalProvider";
 
@@ -24,12 +25,15 @@ export function TopBar({ title, basePath, active, demo, canWrite: canWriteProp }
   const book = useOptionalJournal();
   const canWrite = !demo && (canWriteProp ?? book?.access.canEdit ?? true);
   const current = (section: TopBarProps["active"]) => (active === section ? "page" : undefined);
+  // Where Back goes when there's no earlier page in the app to return to.
+  const backTo = active === "book" ? (demo ? "/" : canWrite ? `${basePath}/write` : "/") : basePath;
 
   return (
     <>
       <AppSky />
       <header className="app-header">
         <div className="flex min-w-0 items-center gap-2">
+          <BackButton fallback={backTo} />
           {!demo && <BookSwitcher />}
           <Link
             href={demo ? "/" : canWrite ? `${basePath}/write` : basePath}

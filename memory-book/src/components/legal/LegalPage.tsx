@@ -1,15 +1,13 @@
-import Link from "next/link";
 import { LEGAL_UPDATED } from "@/lib/legal";
 import { SiteFooter } from "./SiteFooter";
+import { BackButton } from "@/components/ui/BackButton";
 
 /** A plain, readable page for policies. */
 export function LegalPage({ title, intro, children }: { title: string; intro?: React.ReactNode; children: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
-      <p className="mb-4 text-sm">
-        <Link href="/" className="text-ink-soft underline decoration-dotted underline-offset-4">
-          ← Memory Book
-        </Link>
+      <p className="mb-4">
+        <BackButton fallback="/" />
       </p>
       <article className="sheet legal leading-relaxed text-ink-soft">
         <h1 className="ui-h1">{title}</h1>

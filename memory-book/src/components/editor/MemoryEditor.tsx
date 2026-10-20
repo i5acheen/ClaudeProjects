@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BackButton } from "@/components/ui/BackButton";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { TAGS, type Journal, type Memory, type Tag } from "@/lib/types";
@@ -427,9 +428,10 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
   return (
     <main className="min-h-dvh pb-28">
       <header className="flex h-14 items-center justify-between px-4">
-        <Link href={memory ? `/book?memory=${encodeURIComponent(memory.id)}` : "/book/write"} className="chrome-button">
-          ← <span>{memory ? "Back to the journal" : "Back"}</span>
-        </Link>
+        <BackButton
+          fallback={memory ? `/book?memory=${encodeURIComponent(memory.id)}` : "/book/write"}
+          label={memory ? "Back to the journal" : "Back"}
+        />
       </header>
 
       <div className="mx-auto max-w-xl px-3 sm:px-4">{sheet}</div>

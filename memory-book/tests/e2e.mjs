@@ -35,7 +35,8 @@ const kvServer = http.createServer((req, res) => {
     res.end(JSON.stringify({ result }));
   });
 }).listen(3199);
-const secret = fs.readFileSync(`${APP}/.env.local`, 'utf8').match(/AUTH_SECRET=(.*)/)[1];
+// The same AUTH_SECRET the app was started with: from the environment (CI), else .env.local.
+const secret = process.env.AUTH_SECRET || fs.readFileSync(`${APP}/.env.local`, 'utf8').match(/AUTH_SECRET=(.*)/)[1];
 
 /* ---------------- fake Drive ---------------- */
 const files = new Map(); // id -> {id,name,parents,appProperties,mimeType,content:Buffer,trashed}

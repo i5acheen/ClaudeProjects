@@ -128,8 +128,26 @@ The automated tests use a pretend Google Drive, so try these once with real acco
 - [ ] Add a second child's book and switch between the two from the top bar.
 - [ ] Delete a test account (keeping, then trashing, the book).
 
-## Later (P1, after launch)
+## 9. Test version (staging) and automatic checks
 
-- [ ] A separate staging setup: a Vercel preview with its own Google client, account store and
-      Razorpay test keys.
-- [ ] GitHub checks on every change (type check, tests, `npm audit`), and Dependabot.
+**The test version.** Every branch pushed to GitHub gets its own Vercel *Preview* address. It
+shows a yellow **Test version** label and is hidden from search engines. Give it its own
+settings so tests can never touch real families' data or real money:
+
+- [ ] In **Vercel → Settings → Environment Variables**, set these for **Preview** only:
+  - [ ] A different `AUTH_SECRET`.
+  - [ ] Its own Google client (`AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`), made in Google Cloud as a
+        second OAuth client. It can stay in *Testing*, with only your test accounts added.
+  - [ ] Its own account store: a second Upstash database, connected to Preview only.
+  - [ ] Razorpay **test** keys (step 5).
+  - [ ] `ALLOWED_EMAILS` with just your test accounts.
+- [ ] Try changes on the Preview address first; promote to Production only when they work.
+
+**Automatic checks on GitHub.** Every change runs **Memory Book checks** (in GitHub → Actions):
+type check, unit tests, a dependency vulnerability scan, a production build, and the full
+end-to-end test against a pretend Google Drive. No secrets are needed for this.
+
+- [ ] *(Recommended)* In **GitHub → Settings → Branches**, add a rule for your main branch:
+      *Require status checks to pass* → **checks**. Then nothing broken can be merged.
+- [ ] **Dependabot** suggests dependency updates every Monday as pull requests. Merge one only
+      when its checks are green. Security fixes come straight away.

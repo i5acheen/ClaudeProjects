@@ -246,8 +246,14 @@ Memory Book – <child's name>/
   on your device (using the open-source libheif, in its own sandbox).
 - **Your data.** Settings → **Download everything** (all words and details as a file; photos are in
   your Drive folder) and **Delete my account** (you choose whether the book stays in your Drive).
-- **Testing changes.** `npm run build`, start it with `npx next start -p 3100`, then
-  `npm run test:e2e` — over 100 checks run against a pretend Google Drive.
+- **Testing changes.** `npm run typecheck` and `npm test` (quick unit tests). For the full test:
+  `npm run build`, start it with
+  `KV_REST_API_URL=http://localhost:3199 KV_REST_API_TOKEN=test npx next start -p 3100`, then
+  `npm run test:e2e`. Over 100 checks run against a pretend Google Drive. GitHub runs all of
+  these on every change (**Actions → Memory Book checks**), and Dependabot suggests updates
+  weekly.
+- **Test version.** Vercel *Preview* deployments show a yellow **Test version** label. Give them
+  their own settings (PRODUCTION_CHECKLIST.md, step 9).
 - **PDF export** uses your browser's *Save as PDF*. In the print window pick **Save as PDF**,
   set **Margins: None** and turn **Background graphics** on if those options appear.
 

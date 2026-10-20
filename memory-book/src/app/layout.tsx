@@ -23,8 +23,12 @@ const indie = Indie_Flower({ subsets: ["latin"], weight: "400", variable: "--fon
 const courier = Courier_Prime({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-courier", preload: false });
 const lora = Lora({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-lora", preload: false });
 
+// Vercel preview deployments are the test version (staging): marked as such and kept out of search engines.
+const isPreview = process.env.VERCEL_ENV === "preview";
+
 export const metadata: Metadata = {
   title: "Memory Book",
+  ...(isPreview ? { robots: { index: false, follow: false } } : {}),
   description: "A hand-made feeling baby journal, kept safe in your own Google Drive.",
   applicationName: "Memory Book",
   appleWebApp: { capable: true, title: "Memory Book", statusBarStyle: "default" },
@@ -49,6 +53,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className={`${jakarta.variable} ${caveat.variable} ${cormorant.variable} ${kalam.variable} ${patrick.variable} ${indie.variable} ${lora.variable} ${courier.variable}`}>
       <body>
         {children}
+        {isPreview && (
+          <div
+            role="note"
+            className="pointer-events-none fixed bottom-2 left-2 z-[100] rounded-full bg-amber-300 px-3 py-1 text-xs font-semibold text-amber-950 shadow"
+          >
+            Test version
+          </div>
+        )}
         <ServiceWorker />
       </body>
     </html>

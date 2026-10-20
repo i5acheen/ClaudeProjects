@@ -1,0 +1,17 @@
+# Weekly update suggestions for Memory Book's dependencies. Small updates are
+# grouped into one pull request; each one runs the checks before you merge it.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /memory-book
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

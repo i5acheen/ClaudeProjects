@@ -1,0 +1,61 @@
+# Checks every change to Memory Book: types, unit tests, a production build,
+# known vulnerabilities in dependencies, and the full end-to-end test against
+# a fake Google Drive (no real Google account or secret is used).
+name: Memory Book checks
+
+on:
+  push:
+    paths: ["memory-book/**", ".github/workflows/ci.yml"]
+  pull_request:
+    paths: ["memory-book/**", ".github/workflows/ci.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: memory-book
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: memory-book/package-lock.json
+      - run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Known vulnerabilities (app dependencies)
+        run: npm audit --omit=dev --audit-level=moderate
+      - name: Build
+        run: npm run build
+      - name: Install the test browser
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: End-to-end test (fake Google Drive)
+        run: |
+          # A throwaway secret just for this run; the sign-in values are dummies.
+          export AUTH_SECRET="$(openssl rand -base64 32)"
+          export AUTH_GOOGLE_ID=ci AUTH_GOOGLE_SECRET=ci AUTH_URL=http://localhost:3100
+          KV_REST_API_URL=http://localhost:3199 KV_REST_API_TOKEN=test npx next start -p 3100 &
+          for i in $(seq 60); do curl -sf http://localhost:3100/api/health > /dev/null && break; sleep 1; done
+          npm run test:e2e
+      - name: Keep screenshots if the test failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-output
+          path: memory-book/tests/output
+          retention-days: 7

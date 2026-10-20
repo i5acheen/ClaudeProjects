@@ -290,7 +290,7 @@ before selling · **Medium** = fix soon · **Low** = good hygiene.
 - **Where:** `package.json` (`next-auth@5.0.0-beta.32`).
 - **What it means:** it is widely used, but it's not a "stable" release yet. Pin the exact
   version, watch its security notices, and let Dependabot (Part 2 I43) suggest updates.
-- **Status:** ⏳ **Open.** Dependabot (Part 2, P1) will suggest updates.
+- **Status:** ✅ **Handled.** Dependabot suggests updates weekly, and GitHub runs `npm audit` and all tests on every change, so a risky update is caught before it is merged. Still worth checking next-auth's notices until it reaches a stable release.
 
 ---
 

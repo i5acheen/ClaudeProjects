@@ -20,7 +20,7 @@ export const demoJournal: Journal = {
     dateOfBirth: "2026-05-07",
     bookTitle: "Little Moments",
     coverTheme: "rainbow",
-    coverPhoto: photo("yellow-bindi.jpg", 960, 1200),
+    coverPhoto: photo("ai-baby.jpg", 960, 1200),
     dedication:
       "For you, my darling girl — so that one day you can read how loved you were, from the very first breath.\n— Mama",
   },

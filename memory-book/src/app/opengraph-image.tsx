@@ -9,7 +9,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /** Under the sample photo (from the demo book). */
-const PHOTO_CAPTION = "Mira, 5 months";
+const PHOTO_CAPTION = "Little Mira";
 
 /** A Google font, just the letters this image uses; none (the default font) if it can't be fetched. */
 async function googleFont(family: string, weight: number, text: string) {
@@ -32,7 +32,7 @@ export default async function OpenGraphImage() {
     googleFont("Fredoka", 600, `${APP_NAME}${TAGLINE}`),
     googleFont("Caveat", 600, `${SUBTAGLINE}${PHOTO_CAPTION}`),
     dataUrl("icons/app-icon.svg", "image/svg+xml"),
-    dataUrl("demo/yellow-bindi.jpg", "image/jpeg"),
+    dataUrl("demo/ai-baby.jpg", "image/jpeg"),
   ]);
   const fonts = [
     ...(heading ? [{ name: "Fredoka", data: heading, weight: 600 as const }] : []),

@@ -656,7 +656,7 @@ try {
   await page.click('.write-fab');
   await page.click('.write-menu >> text=New page');
   await page.waitForSelector('[aria-label="New page"]');
-  await page.locator('.page-photos input[type=file]').setInputFiles([`${APP}/public/demo/tiny-feet.jpg`, `${APP}/public/demo/yellow-bindi.jpg`]);
+  await page.locator('.page-photos input[type=file]').setInputFiles([`${APP}/public/demo/tiny-feet.jpg`, `${APP}/public/demo/ai-baby.jpg`]);
   await page.waitForSelector('.page-photo__img img >> nth=1');
   await page.fill('.note-sheet input[aria-label=Date]', '2026-10-03');
   await page.fill('.note-sheet input[aria-label=Title]', 'Tiny toes');
@@ -978,6 +978,8 @@ try {
     check(files.get(adopted.fileId)?.owner === 'mum@example.com' && files.get(adopted.thumbId)?.owner === 'mum@example.com', 'A9: photos added by family are copied into the owner’s Drive');
     const original = [...files.values()].find(f => f.owner === 'grandpa@example.com' && f.appProperties?.memoryBook === 'photo');
     const photosFolderId = parseQuery("appProperties has { key='memoryBook' and value='photos' }")[0].id;
+    // Taking the original out of the folder happens just after the copy: give it a moment.
+    for (let i = 0; i < 40 && original?.parents.includes(photosFolderId); i++) await page.waitForTimeout(250);
     check(original && !original.parents.includes(photosFolderId) && !original.trashed, 'A9: the original is taken out of the book folder, not deleted');
     await page.reload();
     await page.waitForTimeout(2500);

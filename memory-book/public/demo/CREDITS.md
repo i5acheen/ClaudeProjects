@@ -18,4 +18,4 @@ and are used under the [Unsplash License](https://unsplash.com/license)
 | wide-eyes.jpg | https://unsplash.com/photos/adorable-baby-with-dark-hair-and-wide-eyes-iJhcUlo9Svg (Rohit Dey) |
 | toys.jpg | https://unsplash.com/photos/photo-1515488042361-ee00e0ddd4e4 |
 | nappies.jpg | https://unsplash.com/photos/photo-1584839404042-8bc21d240e91 |
-| yellow-bindi.jpg | https://unsplash.com/photos/a-baby-wearing-a-yellow-monkey-shirt-and-a-bindi-QbcrfBaYn8o (Rohit Dey) |
+| ai-baby.jpg | AI-generated picture (not a real child), supplied by the site owner; cropped and resized for the cover |

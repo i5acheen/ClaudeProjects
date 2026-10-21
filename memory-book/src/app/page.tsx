@@ -8,7 +8,7 @@ import { auth, signIn } from "@/auth";
 import { CoverPage, GuidedPage, MemoryPage } from "@/components/book/BookPages";
 import { InkFilters } from "@/components/book/Doodles";
 import { demoJournal } from "@/lib/demo-data";
-import { APP_NAME, OVERVIEW, SIGN_IN_NOTE, TAGLINE, TAGLINE_HIGHLIGHT, TAGLINE_HINGLISH } from "@/content/marketing";
+import { APP_NAME, OVERVIEW, SIGN_IN_NOTE, TAGLINE, TAGLINE_HIGHLIGHT, SUBTAGLINE } from "@/content/marketing";
 
 const ERRORS: Record<string, string> = {
   AccessDenied: "That Google account isn’t on the list of people allowed to open this book.",
@@ -66,8 +66,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <h1 className="home-h1 home-tagline">
           <Highlighted text={TAGLINE} highlight={TAGLINE_HIGHLIGHT} />
         </h1>
-        <p className="home-hinglish" lang="hi-Latn">
-          {TAGLINE_HINGLISH}
+        <p className="home-subtagline">
+          {SUBTAGLINE}
         </p>
         <p className="home-lead home-overview">{OVERVIEW}</p>
         <div className="home-hero__actions">

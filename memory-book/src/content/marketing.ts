@@ -17,7 +17,7 @@ export const TAGLINE = "Their little moments, your forever book.";
 export const TAGLINE_HIGHLIGHT = "forever book";
 
 /** A small line under the tagline. */
-export const TAGLINE_HINGLISH = "Har pal, har pehli baar, ek kitaab mein.";
+export const SUBTAGLINE = "For the memories that grow up too fast.";
 
 /** The paragraph under the headline on the home page. */
 export const OVERVIEW =

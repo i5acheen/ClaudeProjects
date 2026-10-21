@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { APP_NAME, TAGLINE, TAGLINE_HINGLISH } from "@/content/marketing";
+import { APP_NAME, TAGLINE, SUBTAGLINE } from "@/content/marketing";
 
 /** The picture shown when the site's link is shared (WhatsApp, Instagram, Messages…). */
 export const alt = `${APP_NAME} — ${TAGLINE}`;
@@ -30,7 +30,7 @@ const dataUrl = async (file: string, type: string) =>
 export default async function OpenGraphImage() {
   const [heading, hand, logo, photo] = await Promise.all([
     googleFont("Fredoka", 600, `${APP_NAME}${TAGLINE}`),
-    googleFont("Caveat", 600, `${TAGLINE_HINGLISH}${PHOTO_CAPTION}`),
+    googleFont("Caveat", 600, `${SUBTAGLINE}${PHOTO_CAPTION}`),
     dataUrl("icons/app-icon.svg", "image/svg+xml"),
     dataUrl("demo/yawn.jpg", "image/jpeg"),
   ]);
@@ -60,7 +60,7 @@ export default async function OpenGraphImage() {
             {APP_NAME}
           </div>
           <div style={{ marginTop: 40, fontSize: 70, fontWeight: 600, lineHeight: 1.08, letterSpacing: -1 }}>{TAGLINE}</div>
-          <div style={{ marginTop: 22, fontSize: 44, fontFamily: "Caveat", color: "#4a4e69" }}>{TAGLINE_HINGLISH}</div>
+          <div style={{ marginTop: 22, fontSize: 44, fontFamily: "Caveat", color: "#4a4e69" }}>{SUBTAGLINE}</div>
           <div style={{ display: "flex", marginTop: 36, width: 120, height: 12, borderRadius: 12, background: "#ffcd3c" }} />
         </div>
         <div

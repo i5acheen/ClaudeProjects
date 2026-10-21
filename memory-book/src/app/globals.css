@@ -2747,12 +2747,12 @@ body:has(.home)::before {
   }
 }
 
-/* The tagline, its Hinglish echo and the overview. */
+/* The tagline, the line under it and the overview. */
 .home-tagline {
   font-size: clamp(2.35rem, 8.6vw, 4.1rem);
   text-wrap: balance;
 }
-.home-hinglish {
+.home-subtagline {
   margin-top: 0.85rem;
   font-family: var(--font-hand);
   font-size: clamp(1.45rem, 4.8vw, 1.85rem);

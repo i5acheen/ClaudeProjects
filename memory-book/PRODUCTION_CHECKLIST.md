@@ -151,3 +151,34 @@ end-to-end test against a pretend Google Drive. No secrets are needed for this.
       *Require status checks to pass* → **checks**. Then nothing broken can be merged.
 - [ ] **Dependabot** suggests dependency updates every Monday as pull requests. Merge one only
       when its checks are green. Security fixes come straight away.
+
+## 10. Before a big launch: many families at once
+
+How the app copes: photos and memories never pass through our server. Each family's book lives in
+their own Google Drive and their browser talks to Google directly. Our server only sends the pages,
+checks who is signed in and keeps the tiny consent record, and Vercel starts more copies of it by
+itself when lots of people arrive. So the limits are settings outside the code, below.
+
+Load test (21 October 2026, live site, server in Mumbai): 3,000 requests in bursts of 250 at a time
+(home page, demo book, sign-in check). **All answered, no errors.** Typical answer: 0.3–0.5 s.
+While extra server copies started up for the sudden crowd, the slowest took up to about 5 s.
+1,000 requests in the same second *from one computer* were partly refused by Vercel's attack
+protection (it blocks a single address flooding the site); real visitors on their own phones and
+networks aren't affected by that.
+
+- [x] **Server in Mumbai.** `vercel.json` → `"regions": ["bom1"]`, close to families in India.
+- [ ] **Google sign-in: publish the app** (step 4: *Audience → Publish app*). While it is in
+      *Testing*, **only 100 people can ever sign in**. This is the one limit that would stop a launch.
+- [ ] **Google Drive API limit.** Google Cloud Console → **APIs & Services → Google Drive API →
+      Quotas**. By default the whole app may make about 12,000 Drive requests a minute; opening a
+      book takes about 10–20. Above roughly 600 books opened in the same minute, Google asks the
+      app to wait (it retries by itself, so nothing is lost, only slower). Before a big launch,
+      click **Edit quota** and ask for more. It's free.
+- [ ] **Vercel plan.** The free *Hobby* plan is for personal, non-commercial use. Once families pay
+      (Premium, gifting), move to **Pro** (Vercel → Settings → Billing). Pro also raises the
+      monthly allowances.
+- [ ] **Upstash (account store).** Make sure it is in **Mumbai**, like the server (step 3). The free
+      plan's monthly allowance covers thousands of families (it's only used at sign-up, the privacy
+      agreement and account deletion). Check usage in the Upstash dashboard after launch.
+- [ ] **Watch the first days**: Vercel → Observability (errors, slow pages) and Google Cloud →
+      Drive API → *Metrics* (look for "429" or quota errors).

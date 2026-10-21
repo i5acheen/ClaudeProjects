@@ -1232,6 +1232,14 @@ try {
     await ap.goto(`${B}/`);
     await ap.waitForSelector('text=/Your memories stay yours/');
     check(await ap.locator('text=/in your own Google Drive/').count() > 0 && await ap.locator('text=/Free/').count() > 0 && await ap.locator('text=/Premium/').count() > 0, 'C15: landing page explains the product, privacy promise and pricing');
+    // The book on the home page opens when tapped and turns its first pages by itself.
+    await ap.click('button.home-book');
+    await ap.waitForSelector('.home-flip__controls', { timeout: 15000 });
+    await ap.waitForFunction(() => !document.querySelector('.home-flip__controls button[aria-label="Previous page"]')?.disabled, null, { timeout: 15000 });
+    await ap.waitForTimeout(3500);
+    check(await ap.locator('.home-flip .title-page, .home-flip .month-page').count() > 0, 'home: tapping the book opens it and turns its pages');
+    await ap.goto(`${B}/`);
+    await ap.waitForSelector('text=/Your memories stay yours/');
     await ap.click('text=/Start your book/');
     await ap.waitForSelector('text=Continue to Google');
     check(await ap.locator("text=/can.t see anything else in your Drive/").count() === 1, 'C16: before Google sign-in, the app explains the Drive permission');

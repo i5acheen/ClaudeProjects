@@ -5,9 +5,10 @@ import { SignInButton } from "@/components/app/SignInButton";
 import { SiteFooter } from "@/components/legal/SiteFooter";
 import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
-import { CoverPage, GuidedPage, MemoryPage } from "@/components/book/BookPages";
+import { GuidedPage, MemoryPage } from "@/components/book/BookPages";
 import { InkFilters } from "@/components/book/Doodles";
 import { demoJournal } from "@/lib/demo-data";
+import { HomeBook } from "@/components/home/HomeBook";
 import { APP_NAME, OVERVIEW, SIGN_IN_NOTE, TAGLINE, TAGLINE_HIGHLIGHT, SUBTAGLINE } from "@/content/marketing";
 
 const ERRORS: Record<string, string> = {
@@ -96,12 +97,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
         <div className="home-book-stage">
           <span className="home-rainbow" aria-hidden />
-          <Link href="/demo" title="Look inside a book" className="home-book">
-            <div className="aspect-[3/4] w-full [container-type:size]">
-              <CoverPage settings={demoJournal.settings} priority />
-            </div>
-            <span className="sr-only">Look inside a demo book</span>
-          </Link>
+          <HomeBook />
         </div>
       </section>
       <Wave className="home-wave--sky" />

@@ -62,7 +62,7 @@ export function WriteScreen({ journal }: { journal: Journal }) {
       <TopBar title={settings.bookTitle} basePath="/book" active="write" />
       <SyncBanner />
 
-      <div className="mx-auto max-w-xl space-y-8 px-3 pt-2 sm:px-4">
+      <div className="mx-auto max-w-xl space-y-8 px-3 pt-2 sm:px-4 lg:max-w-5xl">
         {journal.memories.length === 0 && access.canEdit ? (
           <FirstMemoryCard
             note={
@@ -128,9 +128,10 @@ export function WriteScreen({ journal }: { journal: Journal }) {
           />
         )}
 
-        <GrowthCard journal={journal} />
-
-        <DriveFolderCard />
+        <div className="space-y-8 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8 lg:space-y-0">
+          <GrowthCard journal={journal} />
+          <DriveFolderCard />
+        </div>
 
         <p className="text-center text-lg text-ink-soft">
           <Link href="/book" className="underline decoration-dotted underline-offset-4 hover:text-ink">

@@ -61,14 +61,15 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
   }
 
   return (
-    <article className="sheet waiting-card">
-      <div className="flex flex-wrap gap-3">
+    <article className="sheet waiting-card editor-cols">
+      <div className="editor-cols__media flex flex-wrap content-start gap-3">
         {memory.photos.map((photo, i) => (
           <Thumb key={photo.fileId} photo={photo} tilt={seededRandom(photo.fileId).range(-2.5, 2.5)} big={memory.photos.length === 1 && i === 0} />
         ))}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <div className="editor-cols__fields">
+      <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 lg:mt-0">
         <input
           type="date"
           aria-label="Date"
@@ -142,6 +143,7 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
         )}
       </div>
       {error && <p className="mt-2 text-sm text-[var(--ink-terracotta)]">{error}</p>}
+      </div>
     </article>
   );
 }
@@ -149,7 +151,7 @@ export function WaitingCard({ memory, dateOfBirth, childName }: { memory: Memory
 function Thumb({ photo, tilt, big }: { photo: PhotoRef; tilt: number; big: boolean }) {
   const src = usePhotoSrc(photo.fileId, "thumb");
   return (
-    <div className={`editor-photo !aspect-auto ${big ? "w-48" : "w-28"}`} style={{ transform: `rotate(${tilt}deg)` }}>
+    <div className={`editor-photo !aspect-auto ${big ? "w-48 lg:w-64" : "w-28 lg:w-32"}`} style={{ transform: `rotate(${tilt}deg)` }}>
       <div className="overflow-hidden bg-[#e8dfd0]" style={{ aspectRatio: Math.min(1.5, Math.max(0.7, photo.width / photo.height)) }}>
         {src && <img src={src} alt="" className="h-full w-full object-cover" />}
       </div>

@@ -4371,3 +4371,26 @@ body:has(.home)::before {
 .paper.month-page {
   background-image: var(--grain), radial-gradient(circle at 50% 47%, rgba(255, 205, 60, 0.2) 0 24cqw, rgba(255, 205, 60, 0.08) 24.2cqw 31cqw, transparent 31.2cqw);
 }
+
+/* Writing a memory on a laptop: photos on the left, the words on the right. */
+@media (min-width: 1024px) {
+  .editor-cols {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: 2.5rem;
+    align-items: start;
+  }
+  .editor-cols__fields > :first-child {
+    margin-top: 1.25rem;
+  }
+  .waiting-card.editor-cols {
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+  }
+  .waiting-card .editor-cols__fields > :first-child {
+    margin-top: 0;
+  }
+  .sheet:has(> .editor-cols),
+  .sheet.editor-cols {
+    padding: 2rem 2.25rem 2.25rem;
+  }
+}

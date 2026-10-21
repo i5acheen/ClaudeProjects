@@ -269,9 +269,11 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
             {inline ? "Write a new memory" : isNew ? "A new memory" : "Edit memory"}
           </h1>
 
+          {/* On a laptop: photos on the left, the words on the right. */}
+          <div className="editor-cols">
           {/* Photos */}
           <section
-            className={`mt-5 ${dragging ? "photos--dragging" : ""}`}
+            className={`editor-cols__media mt-5 ${dragging ? "photos--dragging" : ""}`}
             aria-label="Photos"
             onDragOver={(e) => {
               if (!e.dataTransfer.types.includes("Files")) return;
@@ -303,7 +305,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
                 </div>
               </div>
             ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-2">
               {photos.map((photo, i) => (
                 <PhotoTile
                   key={photo.key}
@@ -356,6 +358,7 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
             />
           </section>
 
+          <div className="editor-cols__fields">
           {/* Date */}
           <section className="mt-7">
             <label className="field-label" htmlFor="memory-date">
@@ -459,6 +462,9 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
             </section>
           )}
 
+          </div>
+          </div>
+
           {inline && <div className="mt-8 flex items-center justify-between gap-3">{saveControls}</div>}
         </div>
   );
@@ -474,11 +480,11 @@ export function MemoryEditor({ journal, memory, variant = "page" }: MemoryEditor
         />
       </header>
 
-      <div className="mx-auto max-w-xl px-3 sm:px-4">{sheet}</div>
+      <div className="mx-auto max-w-xl px-3 sm:px-4 lg:max-w-5xl">{sheet}</div>
 
       {/* Save bar — stays at the bottom on phones */}
       <div className="save-bar">
-        <div className="mx-auto flex max-w-xl items-center justify-between gap-3 px-4">{saveControls}</div>
+        <div className="mx-auto flex max-w-xl items-center justify-between gap-3 px-4 lg:max-w-5xl">{saveControls}</div>
       </div>
     </main>
   );

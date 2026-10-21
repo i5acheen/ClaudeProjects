@@ -340,6 +340,16 @@ try {
   await page.fill('#memory-text', 'You laughed for the very first time today, at a sneeze.');
   await page.click('button.tag-toggle:has-text("First")');
   await shot('03-editor');
+  // On a laptop the editor uses the width: photos on the left, the words on the right
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(400);
+  {
+    const media = await page.locator('.editor-cols__media').first().boundingBox();
+    const fields = await page.locator('.editor-cols__fields').first().boundingBox();
+    check(media && fields && fields.x > media.x + media.width - 1 && Math.abs(fields.y - media.y) < 60, 'laptop: photos and words side by side when writing');
+  }
+  await shot('03c-editor-laptop');
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.click('text=Save to book');
   await page.waitForSelector('text=see it in the journal');
   check(await page.inputValue('#memory-text') === '', 'write card clears after saving');
@@ -543,6 +553,11 @@ try {
   await page.waitForFunction(() => !document.body.innerText.includes('Bringing in photos'), null, { timeout: 30000 });
   await page.waitForTimeout(800);
   await shot('12-waiting-for-words');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(400);
+  await page.locator('.waiting-card').first().scrollIntoViewIfNeeded();
+  await shot('12c-waiting-laptop');
+  await page.setViewportSize({ width: 390, height: 844 });
   j = journal();
   const fromDrive = j.memories.filter(m => m.source === 'drive-folder');
   check(fromDrive.length === 2 && fromDrive.some(m => m.date === '2026-09-20' && m.photos.length === 2), 'same-day photos grouped into one memory');

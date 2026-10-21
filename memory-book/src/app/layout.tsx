@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
-import { Caveat, Cormorant_Garamond, Courier_Prime, Fredoka, Indie_Flower, Kalam, Lora, Patrick_Hand, Plus_Jakarta_Sans } from "next/font/google";
+import { Caveat, Caveat_Brush, Cormorant_Garamond, Courier_Prime, Fredoka, Indie_Flower, Kalam, Lora, Patrick_Hand, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ServiceWorker } from "@/components/app/ServiceWorker";
 import { NavigationTracker } from "@/components/ui/BackButton";
@@ -8,6 +8,9 @@ import { APP_NAME, SHORT_DESCRIPTION, SITE_TITLE } from "@/content/marketing";
 
 // Variable fonts (no fixed weights): one file each covers every weight, so pages load fewer files.
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat" });
+
+// A bold felt-pen hand for the home page overview.
+const caveatBrush = Caveat_Brush({ subsets: ["latin"], weight: "400", variable: "--font-caveat-brush" });
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -63,7 +66,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Every page is rendered per request, so its scripts carry that request's CSP nonce.
   await headers();
   return (
-    <html lang="en" className={`${jakarta.variable} ${fredoka.variable} ${caveat.variable} ${cormorant.variable} ${kalam.variable} ${patrick.variable} ${indie.variable} ${lora.variable} ${courier.variable}`}>
+    <html lang="en" className={`${jakarta.variable} ${fredoka.variable} ${caveat.variable} ${caveatBrush.variable} ${cormorant.variable} ${kalam.variable} ${patrick.variable} ${indie.variable} ${lora.variable} ${courier.variable}`}>
       <body>
         {children}
         {isPreview && (

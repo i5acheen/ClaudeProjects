@@ -2762,7 +2762,12 @@ body:has(.home)::before {
 .home-overview {
   max-width: 37.5rem;
   margin: 1.25rem auto 0;
-  font-size: 1.05rem;
+  /* Felt-pen handwriting, like a note on a packet. */
+  font-family: var(--font-caveat-brush), var(--font-hand);
+  font-size: clamp(1.3rem, 4.4vw, 1.45rem);
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  color: var(--home-ink);
   text-wrap: pretty;
 }
 .home-hero__actions {

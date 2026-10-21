@@ -527,8 +527,8 @@ try {
   // 8c. Photos from Google Drive, chosen in Google's picker (the app can open only those)
   const holiday = userFolder('Holiday 2026');
   const ups = [
-    userUploads(holiday.id, 'IMG_1001.jpg', `${APP}/public/demo/bear-suit.jpg`, '2026:09:20 09:00:00'),
-    userUploads(holiday.id, 'IMG_1002.jpg', `${APP}/public/demo/blue-eyes.jpg`, '2026:09:20 17:30:00'),
+    userUploads(holiday.id, 'IMG_1001.jpg', `${APP}/public/demo/bunny-hat.jpg`, '2026:09:20 09:00:00'),
+    userUploads(holiday.id, 'IMG_1002.jpg', `${APP}/public/demo/wide-eyes.jpg`, '2026:09:20 17:30:00'),
     userUploads(holiday.id, 'IMG_1003.jpg', `${APP}/public/demo/lifted-high.jpg`, '2026:09:25 12:00:00'),
     userUploads(holiday.id, 'IMG_1004.heic', `${APP}/public/demo/CREDITS.md`, null, 'image/heic'),
   ];
@@ -656,7 +656,7 @@ try {
   await page.click('.write-fab');
   await page.click('.write-menu >> text=New page');
   await page.waitForSelector('[aria-label="New page"]');
-  await page.locator('.page-photos input[type=file]').setInputFiles([`${APP}/public/demo/tiny-feet.jpg`, `${APP}/public/demo/yawn.jpg`]);
+  await page.locator('.page-photos input[type=file]').setInputFiles([`${APP}/public/demo/tiny-feet.jpg`, `${APP}/public/demo/yellow-bindi.jpg`]);
   await page.waitForSelector('.page-photo__img img >> nth=1');
   await page.fill('.note-sheet input[aria-label=Date]', '2026-10-03');
   await page.fill('.note-sheet input[aria-label=Title]', 'Tiny toes');
@@ -927,7 +927,7 @@ try {
   // Grandpa adds a page with a photo: the photo is his (in his Drive) until Mum's app copies it.
   await pp.click('.write-fab');
   await pp.click('.write-menu >> text=New page');
-  await pp.locator('.page-photos input[type=file]').setInputFiles([`${APP}/public/demo/blanket-peek.jpg`]);
+  await pp.locator('.page-photos input[type=file]').setInputFiles([`${APP}/public/demo/towel-peek.jpg`]);
   await pp.waitForSelector('.page-photo__img img');
   await pp.fill('.note-sheet textarea', 'Grandpa took this one');
   await pp.click('text=Add page to journal');

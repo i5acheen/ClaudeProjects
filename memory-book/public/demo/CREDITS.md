@@ -11,11 +11,11 @@ and are used under the [Unsplash License](https://unsplash.com/license)
 | hello-tiles.jpg | https://unsplash.com/photos/photo-1596443686812-2f45229eebc3 |
 | sleepyhead.jpg | https://unsplash.com/photos/photo-1544126592-807ade215a0b |
 | beach-float.jpg | https://unsplash.com/photos/photo-1519689680058-324335c77eba |
-| blanket-peek.jpg | https://unsplash.com/photos/photo-1566004100631-35d015d6a491 |
+| towel-peek.jpg | https://unsplash.com/photos/girl-covered-with-white-towel-UvZzgPeDl60 (Nihal Karkala) |
 | family-sofa.jpg | https://unsplash.com/photos/photo-1476703993599-0035a21b17a9 |
 | lifted-high.jpg | https://unsplash.com/photos/photo-1492725764893-90b379c2b6e7 |
-| bear-suit.jpg | https://unsplash.com/photos/photo-1522771930-78848d9293e8 |
-| blue-eyes.jpg | https://unsplash.com/photos/photo-1491013516836-7db643ee125a |
+| bunny-hat.jpg | https://unsplash.com/photos/baby-in-white-knit-cap-lying-on-white-textile-p76UivR30oo (kaushal mishra) |
+| wide-eyes.jpg | https://unsplash.com/photos/adorable-baby-with-dark-hair-and-wide-eyes-iJhcUlo9Svg (Rohit Dey) |
 | toys.jpg | https://unsplash.com/photos/photo-1515488042361-ee00e0ddd4e4 |
 | nappies.jpg | https://unsplash.com/photos/photo-1584839404042-8bc21d240e91 |
-| yawn.jpg | https://unsplash.com/photos/photo-1546015720-b8b30df5aa27 |
+| yellow-bindi.jpg | https://unsplash.com/photos/a-baby-wearing-a-yellow-monkey-shirt-and-a-bindi-QbcrfBaYn8o (Rohit Dey) |

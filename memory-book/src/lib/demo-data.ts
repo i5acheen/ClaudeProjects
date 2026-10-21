@@ -20,7 +20,7 @@ export const demoJournal: Journal = {
     dateOfBirth: "2026-05-07",
     bookTitle: "Little Moments",
     coverTheme: "rainbow",
-    coverPhoto: photo("yawn.jpg", 1200, 800),
+    coverPhoto: photo("yellow-bindi.jpg", 960, 1200),
     dedication:
       "For you, my darling girl — so that one day you can read how loved you were, from the very first breath.\n— Mama",
   },
@@ -79,7 +79,7 @@ export const demoJournal: Journal = {
       text:
         "Your first trip to the sea! You frowned at the wind, then at the sand, then at the waves — and then you laughed out loud for the very first time. A real giggle. We have no idea what was so funny. Papa says it was his hat.",
       tags: ["First"],
-      photos: [photo("beach-float.jpg", 1200, 800), photo("blanket-peek.jpg", 1200, 800)],
+      photos: [photo("beach-float.jpg", 1200, 800), photo("towel-peek.jpg", 1200, 800)],
       createdAt: stamp("2026-07-11"),
       updatedAt: stamp("2026-07-11"),
     },
@@ -103,8 +103,8 @@ export const demoJournal: Journal = {
         "Five months old today! You rolled over (once, by accident — you looked very surprised), you grab everything, especially my hair, and the crinkly giraffe is your best friend. Nappies changed so far: Papa says 847.",
       tags: ["Milestone", "Funny"],
       photos: [
-        photo("bear-suit.jpg", 900, 1200),
-        photo("blue-eyes.jpg", 1200, 960),
+        photo("bunny-hat.jpg", 900, 1200),
+        photo("wide-eyes.jpg", 960, 1200),
         photo("toys.jpg", 1200, 796),
         photo("nappies.jpg", 800, 1200),
       ],

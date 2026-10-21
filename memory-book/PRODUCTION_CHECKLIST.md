@@ -56,7 +56,7 @@ every 7 days.
 - [ ] **Branding**:
   - [ ] App name: *Memory Book*.
   - [ ] Support email.
-  - [ ] App logo: upload `public/icons/icon-512.png`.
+  - [ ] App logo: upload `public/icons/icon-512-v2.png`.
   - [ ] Home page: `https://<your-domain>`
   - [ ] Privacy policy: `https://<your-domain>/privacy`
   - [ ] Terms of service: `https://<your-domain>/terms`

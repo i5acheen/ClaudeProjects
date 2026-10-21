@@ -21,7 +21,7 @@ which project is the right one. Never show or copy any client secret.
    - App name: Memory Book
    - User support email and developer contact email: my email
    - App logo: the 512×512 icon, which can be downloaded from
-     https://memory-book-lovat.vercel.app/icons/icon-512.png
+     https://memory-book-lovat.vercel.app/icons/icon-512-v2.png
    - Home page: https://memory-book-lovat.vercel.app
    - Privacy policy: https://memory-book-lovat.vercel.app/privacy
    - Terms of service: https://memory-book-lovat.vercel.app/terms

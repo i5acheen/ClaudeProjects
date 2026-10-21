@@ -23,13 +23,13 @@ export default function manifest(): MetadataRoute.Manifest {
       params: { files: [{ name: "photos", accept: ["image/*", ".jpg", ".jpeg", ".png", ".webp", ".heic"] }] },
     },
     icons: [
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icons/icon-192-v2.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512-v2.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-maskable-512-v2.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: "Write", url: "/book/write", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
-      { name: "Timeline", url: "/book/timeline", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
+      { name: "Write", url: "/book/write", icons: [{ src: "/icons/icon-192-v2.png", sizes: "192x192" }] },
+      { name: "Timeline", url: "/book/timeline", icons: [{ src: "/icons/icon-192-v2.png", sizes: "192x192" }] },
     ],
   };
 }

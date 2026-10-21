@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getStorageQuota } from "@/lib/drive/client";
+import { isNearlyFull, setSpaceSaver } from "@/lib/images";
 
 const gb = (bytes: number) => `${(bytes / 1024 ** 3).toFixed(bytes < 10 * 1024 ** 3 ? 1 : 0)} GB`;
 
@@ -10,7 +11,10 @@ export function StorageCard() {
   const [quota, setQuota] = useState<{ used: number; limit?: number } | null>(null);
   useEffect(() => {
     getStorageQuota()
-      .then(setQuota)
+      .then((found) => {
+        setQuota(found);
+        setSpaceSaver(isNearlyFull(found));
+      })
       .catch(() => setQuota(null));
   }, []);
   if (!quota) return null;
@@ -38,6 +42,9 @@ export function StorageCard() {
                 one.google.com
               </a>
               .
+              <br />
+              To save space meanwhile, new photos are saved a little smaller (1600 pixels instead of 2400). They still look
+              sharp in the book and print well at smaller sizes.
             </p>
           )}
         </>

@@ -1054,6 +1054,36 @@ try {
     await page.goto(`${B}/book/settings`);
     await page.waitForSelector('text=/nearly full/');
     check(await page.locator('[role=meter]').count() === 1, 'A8: storage meter warns when Drive is over 90% full');
+    check(await page.locator('text=/1600 pixels/').count() === 1, 'A8: Settings explains that photos are saved smaller meanwhile');
+    // Drive nearly full: new photos are saved at 1600px instead of 2400px.
+    const jpegSize = (buf) => {
+      for (let i = 2; i < buf.length - 9; ) {
+        if (buf[i] !== 0xff) { i++; continue; }
+        const marker = buf[i + 1];
+        if (marker >= 0xc0 && marker <= 0xc3) return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+        i += 2 + buf.readUInt16BE(i + 2);
+      }
+      return null;
+    };
+    const savedPhoto = async (title, fixture) => {
+      await page.goto(`${B}/book/write`);
+      await page.waitForSelector('#memory-text');
+      await page.locator('input[type=file][multiple]').setInputFiles([`${FIXTURES}/${fixture}`]);
+      await page.waitForFunction(() => document.querySelector('#memory-text')?.closest('.sheet')?.querySelectorAll('.editor-photo img').length === 1, null, { timeout: 30000 });
+      await page.fill('#memory-title', title);
+      await page.fill('#memory-text', 'A big photo.');
+      await page.click('.sheet:has(#memory-text) >> text=Save to book');
+      await page.waitForSelector('text=see it in the journal', { timeout: 30000 });
+      const memory = journal().memories.find(m => m.title === title);
+      const file = files.get(memory?.photos[0]?.fileId);
+      return { memory, size: file ? jpegSize(file.content) : null };
+    };
+    const small = await savedPhoto('Saved while Drive was nearly full', 'big-photo.jpg');
+    check(small.memory?.photos[0].width === 1600 && small.size?.width === 1600, `A8: photos saved at 1600px while Drive is nearly full (${small.size?.width}px)`);
+    quota.usage = 2 * 1024 ** 3;
+    const normal = await savedPhoto('Saved with room in Drive', 'big-photo-2.jpg');
+    check(Math.max(normal.memory?.photos[0].width ?? 0, normal.memory?.photos[0].height ?? 0) === 2400 && Math.max(normal.size?.width ?? 0, normal.size?.height ?? 0) === 2400, `A8: back to 2400px once there's room (long side ${Math.max(normal.size?.width ?? 0, normal.size?.height ?? 0)}px)`);
+    quota.usage = 0.95 * quota.limit;
     driveFull = true;
     await page.goto(`${B}/book`);
     await page.waitForSelector('.write-fab');

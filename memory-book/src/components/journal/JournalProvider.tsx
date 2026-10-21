@@ -4,7 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { BookSettings, GrowthEntry, Journal, Memory, PhotoRef, Tag } from "@/lib/types";
 import type { BookAccess, BookSummary, FamilyMember, FamilyRole, JournalRepository } from "@/lib/repository";
 import { DriveRepository } from "@/lib/drive/drive-repository";
-import { DriveError, NoDrivePermissionError, OfflineError, SignedOutError, getAccessToken, getImageInfo, isStorageFull } from "@/lib/drive/client";
+import { DriveError, NoDrivePermissionError, OfflineError, SignedOutError, getAccessToken, getImageInfo, getStorageQuota, isStorageFull } from "@/lib/drive/client";
+import { isNearlyFull, setSpaceSaver } from "@/lib/images";
 import { pickFromDrive, type PickedFile } from "@/lib/drive/picker";
 import { fromDrive, importPhotos, type IncomingPhoto } from "@/lib/folder-import";
 import { idbDelete, idbGet, idbGetAll, idbPut } from "@/lib/idb";
@@ -224,6 +225,8 @@ export function JournalProvider({
 
   const handleError = useCallback((e: unknown) => {
     if (e instanceof NoDrivePermissionError) setStatus("needs-permission");
+    // Drive is full: save new photos smaller from now on, so they fit sooner.
+    if (isStorageFull(e)) setSpaceSaver(true);
     if (e instanceof SignedOutError) {
       setStatus("signed-out");
       // Signed out (e.g. the sign-in expired): don't leave the book readable on this device.
@@ -247,6 +250,10 @@ export function JournalProvider({
         commit(loaded);
         setStatus("ready");
         repository.listBooks().then(setBooks).catch(() => undefined);
+        // Drive nearly full? New photos are then saved a little smaller (lib/images.ts).
+        getStorageQuota()
+          .then((quota) => setSpaceSaver(isNearlyFull(quota)))
+          .catch(() => undefined);
         repository
           .access()
           .then(async (found) => {

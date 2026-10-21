@@ -1,7 +1,7 @@
 "use client";
 
 import type { JournalRepository } from "./repository";
-import { makePagePhoto } from "./images";
+import { isSpaceSaver, makePagePhoto, shrinkForSpace } from "./images";
 import { primePhotoCache } from "./photo-cache";
 
 /**
@@ -14,6 +14,8 @@ export async function uploadBookPhoto(
   photo: Blob,
   name: string,
 ): Promise<{ fileId: string; thumbId?: string }> {
+  // Drive nearly full: a photo prepared earlier at full size (e.g. waiting on this device) is made smaller first.
+  if (isSpaceSaver()) photo = await shrinkForSpace(photo).catch(() => photo);
   const fileId = await repository.uploadPhoto(photo, name);
   let thumbId: string | undefined;
   let page: Blob | undefined;

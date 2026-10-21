@@ -15,6 +15,20 @@ export interface ProcessedPhoto {
 /** Sharp enough to print a full A4 page well. */
 export const MAX_PHOTO_SIZE = 2400;
 const JPEG_QUALITY = 0.88;
+/**
+ * When the family's Google Drive is nearly full, photos are saved at this size
+ * instead: about half the space, and still sharp in print at smaller sizes.
+ */
+export const SPACE_SAVER_PHOTO_SIZE = 1600;
+let spaceSaver = false;
+/** Turned on while Drive is nearly full (see JournalProvider), off once there's room again. */
+export function setSpaceSaver(on: boolean) {
+  spaceSaver = on;
+}
+export const isSpaceSaver = () => spaceSaver;
+/** 90% or more of the Drive used. An unlimited plan is never nearly full. */
+export const isNearlyFull = (quota: { used: number; limit?: number }) => !!quota.limit && quota.used / quota.limit >= 0.9;
+
 /** The smaller copy used to show the book on screen. */
 export const PAGE_PHOTO_SIZE = 1000;
 /** Bigger files are refused (the phone or browser could struggle to open them). */
@@ -77,12 +91,23 @@ async function encode(bitmap: ImageBitmap, maxSize: number, quality: number): Pr
   return { blob, width, height };
 }
 
-/** Shrinks a photo to at most 2000px on its longest side, as a good-quality JPEG. */
-export async function resizePhoto(file: Blob, maxSize = MAX_PHOTO_SIZE): Promise<ProcessedPhoto> {
+/** Shrinks a photo to at most 2400px on its longest side (1600px while Drive is nearly full), as a good-quality JPEG. */
+export async function resizePhoto(file: Blob, maxSize = spaceSaver ? SPACE_SAVER_PHOTO_SIZE : MAX_PHOTO_SIZE): Promise<ProcessedPhoto> {
   const bitmap = await decode(file);
   try {
     const processed = await encode(bitmap, maxSize, JPEG_QUALITY);
     return { ...processed, hash: await photoHash(bitmap).catch(() => undefined) };
+  } finally {
+    bitmap.close();
+  }
+}
+
+/** A prepared photo made smaller to save Drive space (returned as it is if it's already small enough). */
+export async function shrinkForSpace(blob: Blob): Promise<Blob> {
+  const bitmap = await createImageBitmap(blob);
+  try {
+    if (Math.max(bitmap.width, bitmap.height) <= SPACE_SAVER_PHOTO_SIZE) return blob;
+    return (await encode(bitmap, SPACE_SAVER_PHOTO_SIZE, JPEG_QUALITY)).blob;
   } finally {
     bitmap.close();
   }

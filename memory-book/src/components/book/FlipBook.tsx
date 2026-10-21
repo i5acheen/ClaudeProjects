@@ -26,6 +26,8 @@ interface FlipBookProps {
   startPage?: number;
   onFlip?: (index: number) => void;
   onOrientationChange?: (orientation: "portrait" | "landscape") => void;
+  /** Only a cover showing (an open spread has room for two pages): slide the book to the middle. */
+  closed?: "front" | "back";
   className?: string;
 }
 
@@ -45,7 +47,7 @@ function pageRatio(width: number, height: number): number {
 }
 
 export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(function FlipBook(
-  { pageCount, isHard, renderPage, startPage = 0, onFlip, onOrientationChange, className },
+  { pageCount, isHard, renderPage, startPage = 0, onFlip, onOrientationChange, closed, className },
   ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -150,7 +152,7 @@ export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(function FlipB
   }, [pageCount, ratio]);
 
   return (
-    <div ref={containerRef} className={className}>
+    <div ref={containerRef} className={className} data-closed={closed}>
       {pageEls.map((el, i) => createPortal(<div className="page-surface">{renderPage(i)}</div>, el, `page-${i}`))}
     </div>
   );

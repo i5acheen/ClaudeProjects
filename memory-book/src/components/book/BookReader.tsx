@@ -151,6 +151,9 @@ export function BookReader({
           startPage={startPage}
           onFlip={setCurrent}
           onOrientationChange={setOrientation}
+          closed={
+            orientation !== "landscape" ? undefined : current === 0 ? "front" : current >= last && pages.length % 2 === 0 ? "back" : undefined
+          }
         />
 
         <button

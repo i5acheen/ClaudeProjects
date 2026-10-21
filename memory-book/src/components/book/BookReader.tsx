@@ -6,6 +6,7 @@ import { memoryPageIndex, pageNumber, paginate } from "@/lib/pagination";
 import { BookPageView } from "./BookPages";
 import { InkFilters } from "./Doodles";
 import { FlipBook, type FlipBookHandle } from "./FlipBook";
+import { PagePens } from "./PageTyper";
 import { ChevronLeft, ChevronRight, CloseIcon, ExpandIcon, MailIcon, MoonIcon, PaletteIcon, PenIcon, PlusIcon, SparklesIcon, SunIcon } from "@/components/ui/Icons";
 
 interface BookReaderProps {
@@ -28,6 +29,8 @@ interface BookReaderProps {
   onPageStyle?: (memories: Memory[]) => void;
   /** Turn to this memory whenever it changes (e.g. right after saving it). */
   focusMemoryId?: string;
+  /** Type straight onto a page: a pen appears on each page you can write on. */
+  onTypeSave?: (memory: Memory, change: { title: string; text: string }) => Promise<void>;
 }
 
 /** Pages further than this from the open spread are drawn blank until you get near them, so big books stay fast. */
@@ -44,6 +47,7 @@ export function BookReader({
   onPageStyle,
   onNewGuided,
   focusMemoryId,
+  onTypeSave,
 }: BookReaderProps) {
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("landscape");
   // One page at a time (phones) needs no filler pages to keep spreads together.
@@ -54,12 +58,15 @@ export function BookReader({
   );
 
   const bookRef = useRef<FlipBookHandle>(null);
+  const bookArea = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(startPage);
   const last = pages.length - 1;
   const immersive = useImmersive();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Arrow keys move the cursor while typing, not the pages.
+      if ((e.target as HTMLElement | null)?.closest?.("input, textarea, select, [contenteditable]")) return;
       if (e.key === "ArrowRight") bookRef.current?.next();
       if (e.key === "ArrowLeft") bookRef.current?.prev();
     };
@@ -132,7 +139,7 @@ export function BookReader({
           </button>
         </div>
       )}
-      <div className={`relative flex min-h-0 flex-1 items-center justify-center ${immersive.on ? "px-1 py-2 sm:px-10 sm:py-6" : "px-2 sm:px-6"}`}>
+      <div ref={bookArea} className={`relative flex min-h-0 flex-1 items-center justify-center ${immersive.on ? "px-1 py-2 sm:px-10 sm:py-6" : "px-2 sm:px-6"}`}>
         <button
           className="round-button absolute left-2 z-10 hidden sm:grid"
           onClick={() => bookRef.current?.prev()}
@@ -164,6 +171,9 @@ export function BookReader({
         >
           <ChevronRight />
         </button>
+        {onTypeSave && !immersive.on && (
+          <PagePens area={bookArea} pages={pages} visible={visible} settings={journal.settings} onSave={onTypeSave} />
+        )}
       </div>
 
       <div className="book-controls relative flex h-14 shrink-0 items-center justify-center gap-2 sm:gap-4 text-ink-soft">

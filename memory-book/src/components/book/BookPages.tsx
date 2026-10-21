@@ -183,7 +183,16 @@ export function TitlePage({ settings }: { settings: BookSettings }) {
 /* Memory pages                                                        */
 /* ------------------------------------------------------------------ */
 
+/** Typing straight onto the page: the title and the words become editable, in place. */
+export interface PageEditor {
+  title: string;
+  text: string;
+  onTitle: (title: string) => void;
+  onText: (text: string) => void;
+}
+
 interface MemoryPageProps {
+  editor?: PageEditor;
   memory: Memory;
   text: string;
   continued: boolean;
@@ -199,7 +208,7 @@ function pagePaperStyle(memory: Memory) {
   return paper ? (paperVars(paper) as React.CSSProperties) : undefined;
 }
 
-export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, childName, pageNumber }: MemoryPageProps) {
+export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, childName, pageNumber, editor }: MemoryPageProps) {
   const layout = layoutMemory(memory, pageNumber, usePageFormat());
   const textRef = useFitText<HTMLDivElement>(text);
   const { top, bottom } = layout.doodles;
@@ -221,11 +230,22 @@ export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, chil
           {isLetter && <p className="letter-eyebrow">a letter for {childName}</p>}
           <p className="memory-date">{longDate(memory.date)}</p>
           <p className="memory-age">{ageStamp(dateOfBirth, memory.date)}</p>
-          {memory.title && (
-            <h3 className="memory-title">
-              {memory.title}
-              <Squiggle color={top.color} />
-            </h3>
+          {editor ? (
+            <input
+              className="memory-title memory-title--input"
+              aria-label="Title"
+              placeholder="A title (optional)"
+              maxLength={80}
+              value={editor.title}
+              onChange={(e) => editor.onTitle(e.target.value)}
+            />
+          ) : (
+            memory.title && (
+              <h3 className="memory-title">
+                {memory.title}
+                <Squiggle color={top.color} />
+              </h3>
+            )
           )}
         </header>
       )}
@@ -254,6 +274,17 @@ export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, chil
         </div>
       )}
 
+      {editor ? (
+        <textarea
+          className={`memory-text memory-textarea${layout.photos.length === 0 ? " memory-text--ruled" : ""}`}
+          aria-label="The memory"
+          placeholder={`Dear ${childName || "little one"}, today…`}
+          value={editor.text}
+          onChange={(e) => editor.onText(e.target.value)}
+          autoFocus
+          onFocus={(e) => e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length)}
+        />
+      ) : (
       <div ref={textRef} className={`memory-text${continued || layout.photos.length === 0 ? " memory-text--ruled" : ""}`}>
         {text.split(/\n\s*\n/).map((para, i) => (
           <p key={i}>{para}</p>
@@ -262,6 +293,7 @@ export function MemoryPage({ memory, text, continued, hasMore, dateOfBirth, chil
         {/* Only on screen, for whoever can write: never in the PDF. */}
         {showHints && !text.trim() && !continued && <p className="memory-hint">✎ add a few lines…</p>}
       </div>
+      )}
 
       <footer className="memory-page__footer">
         <div className="memory-tags">

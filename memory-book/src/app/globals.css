@@ -4394,3 +4394,95 @@ body:has(.home)::before {
     padding: 2rem 2.25rem 2.25rem;
   }
 }
+
+/* Type on the page: a pen on each page you can write on. */
+.page-pen {
+  position: absolute;
+  z-index: 15;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  color: var(--ui-ink);
+  background: var(--ui-sun);
+  box-shadow: 0 3px 0 var(--ui-sun-deep), 0 6px 14px rgba(43, 45, 66, 0.18);
+  transition: transform 0.15s;
+  animation: page-pen-in 0.25s ease-out;
+}
+.page-pen svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.page-pen:hover {
+  transform: translateY(-1px) rotate(-8deg);
+}
+.page-pen:focus-visible {
+  outline: 3px solid var(--ui-ink);
+  outline-offset: 2px;
+}
+@keyframes page-pen-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-pen {
+    animation: none;
+  }
+}
+
+/* The page you're typing on, lifted above the book. */
+.page-typer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+}
+.page-typer__dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 250, 240, 0.72);
+  backdrop-filter: blur(2px);
+}
+.page-typer__page {
+  position: absolute;
+  border-radius: 0.6rem;
+  box-shadow: 0 0 0 3px var(--ui-sun), 0 18px 40px rgba(43, 45, 66, 0.25);
+}
+.page-typer__bar {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.page-typer__error {
+  font-size: 0.85rem;
+  color: var(--accent-dark);
+}
+.memory-title--input,
+.memory-textarea {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+  outline: none;
+}
+.memory-title--input {
+  margin-top: 1.6cqw;
+}
+.memory-title--input::placeholder,
+.memory-textarea::placeholder {
+  color: var(--ink-faint);
+  opacity: 0.7;
+}
+.memory-textarea {
+  resize: none;
+  overflow-y: auto;
+  /* Keeps the ruled lines under the words as they scroll. */
+  background-attachment: local;
+  caret-color: var(--accent);
+}

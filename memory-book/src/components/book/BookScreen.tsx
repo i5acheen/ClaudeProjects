@@ -23,7 +23,23 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
   const [editingMonth, setEditingMonth] = useState<number | null>(null);
   const [styling, setStyling] = useState<Memory[] | null>(null);
   const [guided, setGuided] = useState<{ memory?: Memory } | null>(null);
-  const { access } = useJournal();
+  const { access, saveMemory } = useJournal();
+
+  /** Words typed straight onto a page: everything else about the memory stays as it was. */
+  async function saveTyped(memory: Memory, change: { title: string; text: string }) {
+    await saveMemory({
+      id: memory.id,
+      date: memory.date,
+      title: change.title || undefined,
+      text: change.text,
+      tags: memory.tags,
+      photos: memory.photos.map((ref) => ({ kind: "existing" as const, ref })),
+      kind: memory.kind,
+      sealedUntil: memory.sealedUntil,
+      paper: memory.paper,
+      pageStyle: memory.pageStyle,
+    });
+  }
 
   return (
     <main className="flex h-dvh flex-col overflow-hidden">
@@ -49,6 +65,7 @@ export function BookScreen({ startMemoryId }: { startMemoryId?: string }) {
               onEditMonth={access.canEdit ? setEditingMonth : undefined}
               onPageStyle={access.canEdit ? setStyling : undefined}
               onNewGuided={access.canEdit ? () => setGuided({}) : undefined}
+              onTypeSave={access.canEdit ? saveTyped : undefined}
             />
             </WritingHintsContext.Provider>
             {editingMonth !== null && <MonthSheet journal={journal} months={editingMonth} onClose={() => setEditingMonth(null)} />}

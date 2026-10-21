@@ -715,6 +715,53 @@ try {
   const framed = journal().memories.find(m => m.title === 'Tiny toes')?.paper;
   check(framed?.frame === 'sun' && framed.color === 'sky' && framed.pattern === 'stars', 'page style: a frame can be added, keeping the colour and pattern');
 
+  // Type straight onto the page: tap the pen, type, Done.
+  {
+    await page.goto(`${B}/book?memory=${encodeURIComponent(toes.id)}`);
+    await page.waitForSelector('.page-pen[aria-label*="Tiny toes"]', { timeout: 15000 });
+    await page.click('.page-pen[aria-label*="Tiny toes"]');
+    await page.waitForSelector('.page-typer textarea');
+    check(await page.evaluate(() => document.activeElement?.tagName === 'TEXTAREA'), 'type on page: the pen opens the page ready to type');
+    await page.keyboard.press('ArrowLeft'); // moves the cursor, not the page
+    await page.locator('.page-typer textarea').fill('Your feet fit in my palm today. And you kicked the moon!');
+    await page.locator('.page-typer input[aria-label=Title]').fill('Tiny toes, big kicks');
+    await shot('14b0-type-on-page');
+    await page.click('.page-typer >> text=Done');
+    await page.waitForSelector('.page-typer', { state: 'detached' });
+    for (let i = 0; i < 40 && journal().memories.find(m => m.id === toes.id)?.title !== 'Tiny toes, big kicks'; i++) await page.waitForTimeout(250);
+    const typed = journal().memories.find(m => m.id === toes.id);
+    check(typed?.text.endsWith('you kicked the moon!') && typed.title === 'Tiny toes, big kicks' && typed.photos.length === 2 && typed.paper?.frame === 'sun', 'type on page: words saved, photos and page style kept');
+    await page.waitForSelector('text=you kicked the moon!');
+    // Cancel leaves the page as it was.
+    await page.waitForSelector('.page-pen[aria-label*="Tiny toes"]', { timeout: 15000 });
+    await page.click('.page-pen[aria-label*="Tiny toes"]');
+    await page.locator('.page-typer textarea').fill('Never mind');
+    page.once('dialog', (d) => d.accept());
+    await page.click('.page-typer >> text=Cancel');
+    await page.waitForSelector('.page-typer', { state: 'detached' });
+    await page.waitForTimeout(800);
+    check(journal().memories.find(m => m.id === toes.id)?.text.endsWith('you kicked the moon!'), 'type on page: Cancel keeps the page as it was');
+    // Restore the words the later checks expect.
+    await page.waitForSelector('.page-pen[aria-label*="Tiny toes"]', { timeout: 15000 });
+    await page.click('.page-pen[aria-label*="Tiny toes"]');
+    await page.locator('.page-typer textarea').fill('Your feet fit in my palm today.');
+    await page.locator('.page-typer input[aria-label=Title]').fill('Tiny toes');
+    await page.click('.page-typer >> text=Done');
+    await page.waitForSelector('.page-typer', { state: 'detached' });
+    for (let i = 0; i < 40 && journal().memories.find(m => m.id === toes.id)?.title !== 'Tiny toes'; i++) await page.waitForTimeout(250);
+    // The same on a laptop (two pages open), then Escape to leave without changes.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`${B}/book?memory=${encodeURIComponent(toes.id)}`);
+    await page.waitForSelector('.page-pen[aria-label*="Tiny toes"]', { timeout: 15000 });
+    await shot('14b0b-pens-laptop');
+    await page.click('.page-pen[aria-label*="Tiny toes"]');
+    await page.waitForSelector('.page-typer textarea');
+    await shot('14b0c-type-on-page-laptop');
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('.page-typer', { state: 'detached' });
+    await page.setViewportSize({ width: 390, height: 844 });
+  }
+
   // A guided page ("All about me"), straight from the journal.
   await page.click('.write-fab');
   await page.click('.write-menu >> text=Guided page');

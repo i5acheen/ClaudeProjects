@@ -172,6 +172,8 @@ const isDamaged = (e: unknown) => e instanceof SyntaxError;
 
 export class DriveRepository implements JournalRepository {
   private location: Location | null = null;
+  /** The folder listing made while opening the book, used once by the first read. */
+  private freshListing: { folderId: string; files: DriveChild[]; at: number } | null = null;
   /** The book chosen in the switcher (one per child); null opens the first of your own. */
   private preferredBook: string | null = null;
 
@@ -417,7 +419,11 @@ export class DriveRepository implements JournalRepository {
   /** Every file of a split book, each with the exact version read. */
   private async readState(location: Location): Promise<BookState> {
     // One listing gives every file's current version; only changed ones are downloaded.
-    const files = await listFolderFiles(location.folderId);
+    // (Opening the book has just listed the folder: use that rather than asking again.)
+    const listed = this.freshListing;
+    const fresh = listed?.folderId === location.folderId && Date.now() - listed.at < 5000 ? listed.files : null;
+    this.freshListing = null;
+    const files = fresh ?? (await listFolderFiles(location.folderId));
     const versions = new Map(files.map((f) => [f.id, f.headRevisionId]));
     const read = async <T,>(fileId: string, parse: (raw: unknown) => T, name: string): Promise<Part<T>> => {
       const revision = versions.get(fileId) ?? (await headRevision(fileId).catch(() => undefined));
@@ -428,11 +434,17 @@ export class DriveRepository implements JournalRepository {
         return this.repair(location, fileId, revision, parse, name);
       }
     };
-    const index = await read(location.journalFileId, parseIndex, "book.json");
+    // Every file at once rather than one after another.
+    const yearFiles = files
+      .filter((f) => f.appProperties?.[KEY] === "year")
+      .map((file) => ({ file, year: file.appProperties?.[YEAR_KEY] ?? file.name.replace(/^memories-|\.json$/g, "") }));
+    const [index, ...yearParts] = await Promise.all([
+      read(location.journalFileId, parseIndex, "book.json"),
+      ...yearFiles.map(({ file, year }) => read(file.id, (raw) => parseYear(raw, year), file.name)),
+    ]);
     const years = new Map<string, Part<YearContent>>();
-    for (const file of files.filter((f) => f.appProperties?.[KEY] === "year")) {
-      const year = file.appProperties?.[YEAR_KEY] ?? file.name.replace(/^memories-|\.json$/g, "");
-      const part = await read(file.id, (raw) => parseYear(raw, year), file.name);
+    for (const [i, { year }] of yearFiles.entries()) {
+      const part = yearParts[i] as Part<YearContent>;
       const existing = years.get(year);
       if (!existing) years.set(year, part);
       else
@@ -688,25 +700,33 @@ export class DriveRepository implements JournalRepository {
     if (this.location) return this.location;
 
     // The book chosen in the switcher; otherwise your own first book; otherwise one shared with you by family.
-    const owned = await findFiles(`${appPropertyQuery(KEY, "root")} and 'me' in owners`);
-    const sharedBooks = owned.length && !this.preferredBook ? [] : await findFiles(`${appPropertyQuery(KEY, "root")} and sharedWithMe`).catch(() => []);
+    // (With a book chosen, both lists are needed: ask for them at the same time.)
+    const sharedQuery = () => findFiles(`${appPropertyQuery(KEY, "root")} and sharedWithMe`).catch((): Awaited<ReturnType<typeof findFiles>> => []);
+    const [owned, sharedFirst] = await Promise.all([
+      findFiles(`${appPropertyQuery(KEY, "root")} and 'me' in owners`),
+      this.preferredBook ? sharedQuery() : Promise.resolve(null),
+    ]);
+    const sharedBooks = sharedFirst ?? (owned.length ? [] : await sharedQuery());
     const chosen = this.preferredBook ? [...owned, ...sharedBooks].find((f) => f.id === this.preferredBook) : undefined;
     const folder = chosen ?? owned[0] ?? sharedBooks[0];
     if (!folder) return null;
     const own = owned.some((f) => f.id === folder.id) ? folder : undefined;
 
     const children = await listFolderFiles(folder.id);
+    this.freshListing = { folderId: folder.id, files: children, at: Date.now() };
     let photos = children.find((f) => f.appProperties?.[KEY] === "photos");
     let index = children.find((f) => f.appProperties?.[KEY] === "index");
     const legacy = children.find((f) => f.appProperties?.[KEY] === "journal");
 
     // Repair a half-created book (e.g. the connection dropped during setup).
+    if (!photos && own) this.freshListing = null;
     if (!photos && own) photos = await createFolder("photos", folder.id, { [KEY]: "photos" });
     if (!photos) return null;
 
     // The book's main file is missing (deleted by mistake?): rescue it rather than start a new book.
     let legacyFile = legacy;
     if (!index && !legacy && own) {
+      this.freshListing = null;
       const binned = await listTrashedInFolder(folder.id).catch((): DriveChild[] => []);
       const rescued = binned.find((f) => f.appProperties?.[KEY] === "index") ?? binned.find((f) => f.appProperties?.[KEY] === "journal");
       if (rescued) {

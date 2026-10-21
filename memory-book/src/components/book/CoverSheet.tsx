@@ -32,7 +32,7 @@ export function CoverSheet({
   const [label, setLabel] = useState<"top" | "bottom">(settings.coverLabel ?? "bottom");
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const photoSrc = usePhotoSrc(settings.coverPhoto?.fileId);
+  const photoSrc = usePhotoSrc(settings.coverPhoto?.fileId, "page");
   const picker = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const theme = coverTheme(settings);

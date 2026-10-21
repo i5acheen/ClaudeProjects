@@ -54,7 +54,9 @@ function Squiggle({ color = "var(--ink-rose)" }: { color?: string }) {
 
 /** `priority`: the cover is the first thing people see (e.g. on the home page), so its photo loads first. */
 export function CoverPage({ settings, priority = false }: { settings: BookSettings; priority?: boolean }) {
-  const coverSrc = usePhotoSrc(settings.coverPhoto?.fileId);
+  // On screen the smaller copy is sharp enough and much quicker; printing uses the full photo.
+  const screen = usePageFormat().id === "screen";
+  const coverSrc = usePhotoSrc(settings.coverPhoto?.fileId, screen ? "page" : "full");
   const theme = coverTheme(settings);
   const subtitle = settings.coverSubtitle?.trim() || `for ${settings.childName} · ${shortDate(settings.dateOfBirth)}`;
   const focus = settings.coverFocus;

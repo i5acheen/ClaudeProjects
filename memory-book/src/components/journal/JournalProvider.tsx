@@ -892,8 +892,10 @@ export function JournalProvider({
   }, [journal, pending]);
 
   // Which photos have a smaller copy in Drive (kept in a ref so the resolver and its cache stay the same).
+  // Known before the pages render (an effect would run after they've asked for their photos,
+  // and every photo would then be downloaded full size).
   const smallCopies = useRef(new Map<string, string>());
-  useEffect(() => {
+  useMemo(() => {
     for (const m of journal?.memories ?? []) for (const p of m.photos) if (p.thumbId) smallCopies.current.set(p.fileId, p.thumbId);
     const cover = journal?.settings.coverPhoto;
     if (cover?.thumbId) smallCopies.current.set(cover.fileId, cover.thumbId);

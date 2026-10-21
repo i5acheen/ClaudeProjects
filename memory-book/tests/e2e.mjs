@@ -372,6 +372,7 @@ try {
     await c3.close();
   }
 
+
   // A5: an iPhone (HEIC) photo is converted in the browser and added
   {
     await page.goto(`${B}/book/write`);
@@ -478,6 +479,21 @@ try {
   j = journal();
   check(j.settings.childName === 'Asha Rose' && !!j.settings.coverPhoto, 'settings + cover saved');
   check(parseQuery("appProperties has { key='memoryBook' and value='root' }")[0]?.name === 'Memory Book – Asha Rose', 'folder renamed');
+
+  // Opening the journal on a new device: the cover comes from its smaller copy, not the full photo
+  {
+    const c5 = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    await c5.addCookies([{ name: 'authjs.session-token', value: token, url: B }]);
+    const fetched = [];
+    await c5.route('https://www.googleapis.com/**', (route) => { const u = new URL(route.request().url()); if (u.searchParams.get('alt') === 'media') fetched.push(u.pathname.split('/').pop()); return handleDrive(route); });
+    const p5 = await c5.newPage();
+    await p5.goto(`${B}/book`);
+    await p5.waitForSelector('.stf__block');
+    await p5.waitForTimeout(2500);
+    const cover = j.settings.coverPhoto;
+    check(!!cover.thumbId && fetched.includes(cover.thumbId) && !fetched.includes(cover.fileId), 'the cover on screen loads its smaller copy, not the full photo');
+    await c5.close();
+  }
 
   // 8. Delete a memory
   const toy = j.memories.find(m => m.title === 'Toy day');

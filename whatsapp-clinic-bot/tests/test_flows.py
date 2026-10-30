@@ -1,3 +1,4 @@
+import json
 import asyncio
 
 import pytest
@@ -37,7 +38,7 @@ def test_all_titles_fit_whatsapp_limits(lang):
     c = FLOWS.c
     for it in c["menu"]["items"]:
         assert len(FLOWS.t(it["title"], lang)) <= 24, it["title"]
-        assert len(FLOWS.t(it["description"], lang)) <= 72
+        assert len(FLOWS.t(it.get("description"), lang)) <= 72
     for section in ("concerns", "times"):
         for x in c[section]:
             assert len(FLOWS.t(x["title"], lang)) <= 24, x["title"]
@@ -56,7 +57,7 @@ def test_language_pick_shows_welcome_menu_without_llm():
     run(agent.handle(tap("m2", "lang_mr", "मराठी")))
     assert llm.calls == []
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and "1000+" in body and "🆓" in body and len(titles) == 10
+    assert kind == "list" and "🆓" in body and len(titles) == 7
 
 
 def test_full_booking_flow_without_llm():
@@ -280,7 +281,7 @@ def test_menu_only_mode_without_ai():
     agent = Agent(db, None, sender, None, flows=FLOWS, clinic_phone="+91 96995 59301")
     run(agent.handle(say("m1", "mala sugar ahe, laser hoil ka?")))
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and len(titles) == 10                      # the main menu
+    assert kind == "list" and len(titles) == 7                       # the main menu
     assert "+91 96995 59301" in body and "नोंदवला" in body
     assert db.recent_events("no_ai")[0]["detail"].startswith("mala sugar")
     run(agent.handle(tap("m2", "f:m:location")))                     # menu still works
@@ -307,3 +308,23 @@ def test_settings_do_not_require_ai_keys():
     s = load_settings()
     object.__setattr__(s, "llm_keys", {"openrouter": "", "groq": "", "cerebras": "", "gemini": ""})
     assert not any("API_KEY" in m for m in s.missing_required())
+
+
+def test_workflow_is_standard_no_names_or_videos():
+    """Patient-facing workflow text must not name the doctor/hospital or offer videos."""
+    import yaml
+
+    raw = FLOWS.path.read_text(encoding="utf-8")
+    texts = yaml.safe_load(raw)
+    flat = json.dumps({k: v for k, v in texts.items() if k != "business"}, ensure_ascii=False).lower()
+    for banned in ("lahoti", "लाहोटी", "century", "सेंच्युरी", "सेंचुरी", "youtube", "video", "व्हिडिओ",
+                   "वीडियो", "dramollahoti", "vascular center", "व्हॅस्कुलर सेंटर", "ajinkya"):
+        assert banned not in flat, banned
+    ids = [it["id"] for it in texts["menu"]["items"]]
+    assert ids == ["book", "scheme", "treatment", "cost", "location", "callback", "other"]
+
+
+@pytest.mark.parametrize("lang", ["mr", "hi", "en"])
+def test_location_uses_business_contact(lang):
+    text = FLOWS.answer("location", lang).text
+    assert "{" not in text and "maps.google.com" in text and "96995 59301" in text

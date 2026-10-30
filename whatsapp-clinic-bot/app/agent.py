@@ -45,7 +45,7 @@ class Sender(Protocol):
 
 
 LANGUAGE_PICKER_BODY = (
-    "नमस्कार 🙏 द व्हॅस्कुलर सेंटर (डॉ. अमोल लाहोटी) मध्ये आपलं स्वागत आहे.\n\n"
+    "नमस्कार 🙏 आपलं स्वागत आहे.\n\n"
     "कृपया तुमची भाषा निवडा\nकृपया अपनी भाषा चुनें\nPlease choose your language"
 )
 LANGUAGE_CHOICES = [
@@ -84,6 +84,20 @@ class Sheet(Protocol):
     async def upsert(self, lead: dict) -> None: ...
 
 
+def clinic_contact(language: str | None) -> dict:
+    """Address / map / phone from the `business` block of flows.yaml, so the AI and the menu agree."""
+    try:
+        import yaml
+
+        b = (yaml.safe_load(FLOWS_FILE.read_text(encoding="utf-8")) or {}).get("business") or {}
+    except Exception:
+        return {}
+    addr = b.get("address")
+    if isinstance(addr, dict):
+        addr = addr.get(language or "mr") or addr.get("en")
+    return {"address": addr, "map_link": b.get("map_link"), "phone": b.get("phone")}
+
+
 def build_system_instruction(lead: dict, first_reply: bool, language: str | None = None,
                              query: str = "") -> str:
     # Read on every call so edits to the .md files apply without restarting.
@@ -95,6 +109,7 @@ def build_system_instruction(lead: dict, first_reply: bool, language: str | None
         "whatsapp_profile_name": lead.get("profile_name"),
         "current_lead_details": {k: lead["data"].get(k) for k in LEAD_FIELDS},
         "details_already_confirmed": lead.get("details_confirmed", False),
+        "clinic_contact": clinic_contact(language),
     }
     return (
         f"{prompt}\n\n---\n# Clinic knowledge\n{knowledge}\n\n---\n"

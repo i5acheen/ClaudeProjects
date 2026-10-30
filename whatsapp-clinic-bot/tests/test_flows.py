@@ -51,13 +51,18 @@ def test_all_titles_fit_whatsapp_limits(lang):
         assert FLOWS.t(a["text"], lang) and len(a.get("next", [])) <= 3
 
 
-def test_language_pick_shows_welcome_menu_without_llm():
+def test_first_message_gets_marathi_welcome_menu_and_switches_on_request():
     agent, db, llm, sender = make(language=None)
     run(agent.handle(say("m1", "hi")))
-    run(agent.handle(tap("m2", "lang_mr", "मराठी")))
     assert llm.calls == []
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and "🆓" in body and len(titles) == 7
+    assert kind == "list" and "स्वागत" in body and "🆓" in body and len(titles) == 6
+    assert db.get_lead(PHONE)["language"] == "mr"
+    run(agent.handle(say("m2", "Hindi")))                     # asked to switch
+    to, body, kind, titles = sender.sent[-1]
+    assert kind == "list" and "हमारे" in body and db.get_lead(PHONE)["language"] == "hi"
+    run(agent.handle(tap("m3", "f:m:cost")))
+    assert "खर्च" in sender.sent[-1][1] and db.get_lead(PHONE)["language"] == "hi"
 
 
 def test_full_booking_flow_without_llm():
@@ -85,8 +90,8 @@ def test_full_booking_flow_without_llm():
 
 def test_fixed_answers_and_free_text_goes_to_llm_and_is_logged():
     agent, db, llm, sender = make()
-    run(agent.handle(tap("m1", "f:m:location")))
-    assert "maps.google.com" in sender.sent[-1][1] and llm.calls == []
+    run(agent.handle(tap("m1", "f:m:location")))               # old taps still answered safely
+    assert "प्रतिनिधी" in sender.sent[-1][1] and "maps" not in sender.sent[-1][1] and llm.calls == []
     run(agent.handle(tap("m2", "f:m:other")))
     run(agent.handle(say("m3", "Mala sugar ahe, laser karta yeil ka?")))
     assert len(llm.calls) == 1
@@ -281,11 +286,11 @@ def test_menu_only_mode_without_ai():
     agent = Agent(db, None, sender, None, flows=FLOWS, clinic_phone="+91 96995 59301")
     run(agent.handle(say("m1", "mala sugar ahe, laser hoil ka?")))
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and len(titles) == 7                       # the main menu
-    assert "+91 96995 59301" in body and "नोंदवला" in body
+    assert kind == "list" and len(titles) == 6                       # the main menu
+    assert "प्रतिनिधी" in body and "नोंदवला" in body and "96995" not in body
     assert db.recent_events("no_ai")[0]["detail"].startswith("mala sugar")
-    run(agent.handle(tap("m2", "f:m:location")))                     # menu still works
-    assert "maps.google.com" in sender.sent[-1][1]
+    run(agent.handle(tap("m2", "f:m:cost")))                         # menu still works
+    assert "खर्च" in sender.sent[-1][1]
 
 
 def test_emergency_words_answered_instantly_without_llm():
@@ -311,20 +316,22 @@ def test_settings_do_not_require_ai_keys():
 
 
 def test_workflow_is_standard_no_names_or_videos():
-    """Patient-facing workflow text must not name the doctor/hospital or offer videos."""
+    """Patient-facing workflow text must not reveal doctor, hospital, location or phone, or offer videos."""
     import yaml
 
-    raw = FLOWS.path.read_text(encoding="utf-8")
-    texts = yaml.safe_load(raw)
-    flat = json.dumps({k: v for k, v in texts.items() if k != "business"}, ensure_ascii=False).lower()
+    texts = yaml.safe_load(FLOWS.path.read_text(encoding="utf-8"))
+    flat = json.dumps(texts, ensure_ascii=False).lower()
     for banned in ("lahoti", "लाहोटी", "century", "सेंच्युरी", "सेंचुरी", "youtube", "video", "व्हिडिओ",
-                   "वीडियो", "dramollahoti", "vascular center", "व्हॅस्कुलर सेंटर", "ajinkya"):
+                   "वीडियो", "dramollahoti", "vascular center", "व्हॅस्कुलर सेंटर", "ajinkya", "maps.google",
+                   "96995", "88057", "kotwalpura", "कोतवालपुरा", "bus stand", "बस स्टँड", "{phone}"):
         assert banned not in flat, banned
     ids = [it["id"] for it in texts["menu"]["items"]]
-    assert ids == ["book", "scheme", "treatment", "cost", "location", "callback", "other"]
+    assert ids == ["book", "scheme", "treatment", "cost", "callback", "other"]
+    assert [c["id"] for c in texts["concerns"]] == ["varicose", "other"]
 
 
 @pytest.mark.parametrize("lang", ["mr", "hi", "en"])
-def test_location_uses_business_contact(lang):
-    text = FLOWS.answer("location", lang).text
-    assert "{" not in text and "maps.google.com" in text and "96995 59301" in text
+def test_location_question_promises_a_call(lang):
+    r = FLOWS.answer("location", lang)
+    assert "📞" in r.text and not any(ch.isdigit() for ch in r.text)
+    assert r.choices[0]["id"] == "f:go:call"

@@ -44,10 +44,6 @@ class Sender(Protocol):
                            button_label: str = "") -> bool: ...
 
 
-LANGUAGE_PICKER_BODY = (
-    "नमस्कार 🙏 आपलं स्वागत आहे.\n\n"
-    "कृपया तुमची भाषा निवडा\nकृपया अपनी भाषा चुनें\nPlease choose your language"
-)
 LANGUAGE_CHOICES = [
     {"id": "lang_mr", "title": "मराठी"},
     {"id": "lang_hi", "title": "हिंदी"},
@@ -55,21 +51,25 @@ LANGUAGE_CHOICES = [
 ]
 LANGUAGE_NAMES = {"mr": "Marathi (मराठी)", "hi": "Hindi (हिंदी)", "en": "English"}
 _LANGUAGE_WORDS = {
-    "mr": ("marathi", "मराठी", "1"),
-    "hi": ("hindi", "हिंदी", "हिन्दी", "2"),
-    "en": ("english", "इंग्रजी", "अंग्रेजी", "इंग्लिश", "3"),
+    "mr": ("marathi", "मराठी"),
+    "hi": ("hindi", "हिंदी", "हिन्दी"),
+    "en": ("english", "इंग्रजी", "अंग्रेजी", "इंग्लिश"),
 }
+DEFAULT_LANGUAGE = "mr"   # everyone starts in Marathi; switch only when they ask
 
 
 def detect_language_choice(msg: IncomingMessage) -> str | None:
-    """Return 'mr'/'hi'/'en' if the message is a language selection (button tap or typed name)."""
+    """Return 'mr'/'hi'/'en' if the person asks for a language: a language button, the language's
+    name on its own ("Hindi"), or a short request naming it ("hindi me baat karo", "reply in English")."""
     if msg.choice_id and msg.choice_id.startswith("lang_"):
         return msg.choice_id.removeprefix("lang_")
-    text = (msg.text or "").strip().lower().strip(".!")
-    for code, words in _LANGUAGE_WORDS.items():
-        if text in words:
-            return code
-    return None
+    if msg.choice_id:
+        return None
+    text = (msg.text or "").strip().lower().strip(".!?")
+    if not text or len(text.split()) > 6:
+        return None
+    found = [code for code, words in _LANGUAGE_WORDS.items() if any(w in text for w in words)]
+    return found[0] if len(found) == 1 else None
 
 
 def mentions_language(text: str, code: str) -> bool:
@@ -84,20 +84,6 @@ class Sheet(Protocol):
     async def upsert(self, lead: dict) -> None: ...
 
 
-def clinic_contact(language: str | None) -> dict:
-    """Address / map / phone from the `business` block of flows.yaml, so the AI and the menu agree."""
-    try:
-        import yaml
-
-        b = (yaml.safe_load(FLOWS_FILE.read_text(encoding="utf-8")) or {}).get("business") or {}
-    except Exception:
-        return {}
-    addr = b.get("address")
-    if isinstance(addr, dict):
-        addr = addr.get(language or "mr") or addr.get("en")
-    return {"address": addr, "map_link": b.get("map_link"), "phone": b.get("phone")}
-
-
 def build_system_instruction(lead: dict, first_reply: bool, language: str | None = None,
                              query: str = "") -> str:
     # Read on every call so edits to the .md files apply without restarting.
@@ -109,7 +95,6 @@ def build_system_instruction(lead: dict, first_reply: bool, language: str | None
         "whatsapp_profile_name": lead.get("profile_name"),
         "current_lead_details": {k: lead["data"].get(k) for k in LEAD_FIELDS},
         "details_already_confirmed": lead.get("details_confirmed", False),
-        "clinic_contact": clinic_contact(language),
     }
     return (
         f"{prompt}\n\n---\n# Clinic knowledge\n{knowledge}\n\n---\n"
@@ -181,14 +166,13 @@ class Agent:
         self._locks: defaultdict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
 
     def fallback_reply(self, language: str | None = None) -> str:
-        phone = self.clinic_phone
         texts = {
-            "mr": "क्षमस्व, सध्या तांत्रिक अडचण आहे. कृपया थोड्या वेळाने पुन्हा मेसेज करा"
-                  + (f" किंवा क्लिनिकला कॉल करा: {phone}" if phone else "") + ".",
-            "hi": "क्षमा करें, अभी तकनीकी समस्या है. कृपया थोड़ी देर बाद फिर से मैसेज करें"
-                  + (f" या क्लिनिक को कॉल करें: {phone}" if phone else "") + ".",
-            "en": "Sorry, we're facing a technical issue. Please try again shortly"
-                  + (f" or call the clinic: {phone}" if phone else "") + ".",
+            "mr": "क्षमस्व, सध्या तांत्रिक अडचण आहे. कृपया थोड्या वेळाने पुन्हा मेसेज करा. "
+                  "आमचे प्रतिनिधी तुम्हाला कॉल करतील.",
+            "hi": "क्षमा करें, अभी तकनीकी समस्या है. कृपया थोड़ी देर बाद फिर से मैसेज करें. "
+                  "हमारे प्रतिनिधि आपको कॉल करेंगे.",
+            "en": "Sorry, we're facing a technical issue. Please try again shortly. "
+                  "Our representative will call you.",
         }
         return texts.get(language or "") or "\n\n".join(texts.values())
 
@@ -214,7 +198,7 @@ class Agent:
         language = lead.get("language")
 
         if msg.type != "text" or not (msg.text or "").strip():
-            reply = NON_TEXT_REPLY.get(language or "") or "\n\n".join(NON_TEXT_REPLY.values())
+            reply = NON_TEXT_REPLY.get(language or DEFAULT_LANGUAGE)
             await self.sender.send_text(msg.phone, reply)
             return
 
@@ -225,23 +209,19 @@ class Agent:
             self.db.log_event(msg.phone, "human", text)
             log.info("Staff handling ...%s, bot paused", msg.phone[-4:])
             return
+        first_contact = language is None and not self.db.recent_messages(msg.phone, 1)
         chosen = detect_language_choice(msg)
-        if chosen:
-            # Language picked (first time or later): lock it and answer their earlier message.
+        if chosen and chosen != language:
+            # They asked for another language: switch, and show the menu in it.
             language = chosen
             self.db.save_lead(msg.phone, lead["data"], language, msg.profile_name,
                               lead["details_confirmed"])
-            recent = self.db.recent_messages(msg.phone, 1)
-            if not recent:
-                text = {"mr": "नमस्कार", "hi": "नमस्ते", "en": "Hello"}[language]
-            elif recent[-1]["role"] == "user":
-                text = ""  # answer the message they sent before picking the language
-        elif language is None and not self.db.recent_messages(msg.phone, 1):
-            # Very first message: remember it and ask which language they prefer.
-            self.db.add_message(msg.phone, "user", text)
-            self.db.save_lead(msg.phone, lead["data"], None, msg.profile_name, False)
-            await self.sender.send_choices(msg.phone, LANGUAGE_PICKER_BODY, "buttons", LANGUAGE_CHOICES)
-            return
+        elif chosen:
+            chosen = None             # already in that language: treat as a normal message
+        if language is None:
+            language = DEFAULT_LANGUAGE
+            self.db.save_lead(msg.phone, lead["data"], language, msg.profile_name,
+                              lead["details_confirmed"])
 
         # 0) Emergency words: answer instantly, with or without AI.
         if self.flows and not msg.choice_id and self.flows.is_emergency(text):
@@ -253,6 +233,11 @@ class Agent:
             self.db.log_event(msg.phone, "emergency", text)
             await self._save(msg, lead, dict(lead["data"]) | {"status": "Hot", "summary": f"EMERGENCY words: {text[:80]}"},
                              language, lead["details_confirmed"])
+            return
+
+        # First message (often from an ad): the standard welcome + menu, in Marathi.
+        if self.flows and (first_contact or chosen):
+            await self._apply_flow(msg, text, self.flows.menu(language, welcome=True), lead, language)
             return
 
         # 1) Menu / predefined flow first: instant, free, and no risk of invented answers.
@@ -392,12 +377,6 @@ class Agent:
     async def _flow_reply(self, msg: IncomingMessage, text: str, chosen: str | None, lead: dict,
                     language: str) -> FlowReply | None:
         flows = self.flows
-        if chosen:
-            # Just picked a language: greet with the menu, unless their first message was a real
-            # question (then let the LLM answer it; it will offer the menu afterwards).
-            recent = self.db.recent_messages(msg.phone, 1)
-            prior = recent[-1]["content"] if recent and recent[-1]["role"] == "user" and not text else ""
-            return flows.menu(language, welcome=True) if not prior or is_greeting(prior) else None
         reply = await flows.handle(text, msg.choice_id, lead["data"], language, msg.phone)
         if reply is None and is_greeting(text) and lead["data"].get("_step") in (None, "free"):
             reply = flows.menu(language, welcome=not self.db.has_assistant_replied(msg.phone))

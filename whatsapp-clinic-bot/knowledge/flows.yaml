@@ -3,18 +3,11 @@
 # WhatsApp limits: list item title ≤ 24 characters, description ≤ 72, button title ≤ 20.
 # Use ONLY facts from clinic_info.md. Anything not listed in this file goes to the AI.
 
-# Clinic contact details, written once and used in every message as {address}, {map_link} and {clinic_phone}.
-# No doctor or hospital names anywhere in patient messages (standard template).
-business:
-  address:
-    mr: "सेंट्रल बस स्टँडच्या समोर, कोतवालपुरा, छत्रपती संभाजीनगर"
-    hi: "सेंट्रल बस स्टैंड के सामने, कोतवालपुरा, छत्रपति संभाजीनगर"
-    en: "Opposite Central Bus Stand, Kotwalpura, Chhatrapati Sambhajinagar"
-  map_link: "https://maps.google.com/?cid=17175394663658005878"
-  phone: "+91 96995 59301 / +91 88057 89301"
+# Standard template: never mention doctor, hospital, address or phone numbers to patients.
+# If they ask, our representative calls them (see answers.location and prompts.no_ai).
 
 welcome:
-  mr: "नमस्कार 🙏 आमच्या व्हेरिकोज व्हेन्स (पायाच्या नसा) क्लिनिकमध्ये आपलं स्वागत आहे.\n🆓 पात्र रुग्णांसाठी सरकारी योजनेअंतर्गत मोफत उपचार."
+  mr: "नमस्कार 🙏 आमच्या व्हेरिकोज व्हेन्स (पायाच्या नसा) क्लिनिकमध्ये आपलं स्वागत आहे.\n🆓 पात्र रुग्णांसाठी सरकारी योजनेअंतर्गत मोफत उपचार.\n(हिंदी / English साठी 'Hindi' किंवा 'English' टाइप करा)"
   hi: "नमस्ते 🙏 हमारे वेरिकोज़ वेन्स (पैरों की नसें) क्लिनिक में आपका स्वागत है.\n🆓 पात्र मरीज़ों के लिए सरकारी योजना में मुफ़्त इलाज."
   en: "Hello 🙏 Welcome to our varicose veins (leg veins) clinic.\n🆓 Free treatment for eligible patients under government schemes."
 
@@ -35,8 +28,6 @@ menu:
       title: {mr: "💉 उपचार कसे होतात", hi: "💉 इलाज कैसे होता है", en: "💉 How treatment works"}
     - id: cost
       title: {mr: "💰 खर्च व विमा", hi: "💰 खर्च और बीमा", en: "💰 Cost & insurance"}
-    - id: location
-      title: {mr: "📍 पत्ता व संपर्क", hi: "📍 पता और संपर्क", en: "📍 Location & contact"}
     - id: callback
       title: {mr: "📞 मला कॉल करा", hi: "📞 मुझे कॉल करें", en: "📞 Call me back"}
     - id: other
@@ -57,11 +48,12 @@ answers:
       en: "*Cost* 💰\n• 🆓 Free for eligible patients under government schemes\n• Usually covered by health insurance\n• The exact cost is shared after the check-up"
     next: [book, scheme, call]
   location:
+    # Asked for address/location/doctor/hospital details: never disclosed in chat.
     text:
-      mr: "📍 {address}\n🗺️ {map_link}\n📞 {clinic_phone}"
-      hi: "📍 {address}\n🗺️ {map_link}\n📞 {clinic_phone}"
-      en: "📍 {address}\n🗺️ {map_link}\n📞 {clinic_phone}"
-    next: [book, call, menu]
+      mr: "📞 पत्ता व इतर सर्व माहिती आमचे प्रतिनिधी तुम्हाला कॉल करून सांगतील."
+      hi: "📞 पता और बाकी सारी जानकारी हमारे प्रतिनिधि आपको कॉल करके बताएंगे."
+      en: "📞 Our representative will call you with the address and all other details."
+    next: [call, book, menu]
   scheme:
     # ⚠️ [TO BE CONFIRMED BY CLINIC]: scheme names, which treatments are covered, and documents needed.
     text:
@@ -80,42 +72,14 @@ answers:
 concerns:
   - id: varicose
     label: varicose veins
-    title: {mr: "पायावर फुगलेल्या नसा", hi: "पैरों में उभरी नसें", en: "Varicose / bulging veins"}
+    title: {mr: "व्हेरिकोज व्हेन्स", hi: "वेरिकोज़ वेन्स", en: "Varicose veins"}
     info:
-      mr: "फुगलेल्या नसांकडे (व्हेरिकोज व्हेन्स) दुर्लक्ष केल्यास सूज, वेदना, त्वचेचा रंग बदलणे असे त्रास वाढू शकतात. वेळीच तपासणी केल्यास गुंतागुंत टाळता येते, आणि आधुनिक डे-केअर लेझर/ग्लू उपचार उपलब्ध आहेत."
-      hi: "उभरी नसों (वेरिकोज़ वेन्स) को नज़रअंदाज़ करने से सूजन, दर्द, त्वचा का रंग बदलना जैसी तकलीफ़ें बढ़ सकती हैं. समय पर जांच से जटिलताएं टाली जा सकती हैं, और आधुनिक डे-केयर लेज़र/ग्लू इलाज उपलब्ध है."
-      en: "If ignored, varicose veins can lead to more swelling, pain and skin colour changes. Early check-up helps avoid complications, and modern day-care laser/glue treatment is available."
-  - id: swelling
-    label: leg swelling
-    title: {mr: "पायाला सूज", hi: "पैरों में सूजन", en: "Leg swelling"}
-    info:
-      mr: "पायाची सूज व्हेरिकोज व्हेन्स, DVT किंवा रक्तवाहिन्यांच्या इतर त्रासामुळे असू शकते. तपासणी व कलर डॉपलरने नेमके कारण समजते.\n⚠️ अचानक मोठी सूज, तीव्र वेदना किंवा श्वास घ्यायला त्रास असल्यास लगेच 108 वर कॉल करा."
-      hi: "पैरों की सूजन वेरिकोज़ वेन्स, DVT या खून की नसों की किसी और तकलीफ़ से हो सकती है. जांच और कलर डॉप्लर से सही कारण पता चलता है.\n⚠️ अचानक बहुत सूजन, तेज़ दर्द या सांस लेने में तकलीफ़ हो तो तुरंत 108 पर कॉल करें."
-      en: "Leg swelling can be due to varicose veins, DVT or other blood vessel problems. Examination and Colour Doppler show the exact cause.\n⚠️ Sudden severe swelling, strong pain or breathlessness: call 108 immediately."
-  - id: pain
-    label: leg pain
-    title: {mr: "पाय दुखणे / जडपणा", hi: "पैर दर्द / भारीपन", en: "Leg pain / heaviness"}
-    info:
-      mr: "पाय दुखणे, जडपणा किंवा पेटके हे व्हेरिकोज व्हेन्स किंवा रक्तवाहिन्यांच्या त्रासाचे लक्षण असू शकते. क्लिनिकल तपासणी व कलर डॉपलरने कारण समजते."
-      hi: "पैर दर्द, भारीपन या ऐंठन वेरिकोज़ वेन्स या खून की नसों की तकलीफ़ का लक्षण हो सकता है. क्लिनिकल जांच और कलर डॉप्लर से कारण पता चलता है."
-      en: "Leg pain, heaviness or cramps can be a sign of varicose veins or a blood vessel problem. Clinical examination and Colour Doppler find the cause."
-  - id: spider
-    label: spider veins
-    title: {mr: "बारीक जाळीदार नसा", hi: "बारीक जालीदार नसें", en: "Spider veins"}
-    info:
-      mr: "बारीक जाळीदार नसा (spider veins) नसांमधील वाढलेल्या दाबाचे लक्षण असू शकतात. तपासणीनंतर योग्य उपाय सुचवले जातात."
-      hi: "बारीक जालीदार नसें (spider veins) नसों में बढ़े दबाव का लक्षण हो सकती हैं. जांच के बाद सही उपाय बताया जाता है."
-      en: "Spider veins can be a sign of raised pressure in the veins. The right option is suggested after examination."
-  - id: ulcer
-    label: leg ulcer
-    title: {mr: "पायावर न भरणारी जखम", hi: "पैर पर न भरने वाला घाव", en: "Non-healing leg wound"}
-    info:
-      mr: "न भरणारी जखम नसांच्या आजाराशी संबंधित असू शकते. उपचारासोबत नियमित जखमेची काळजी व जीवनशैलीतील बदल महत्त्वाचे आहेत. लवकर तपासणी करून घ्या."
-      hi: "न भरने वाला घाव नसों की बीमारी से जुड़ा हो सकता है. इलाज के साथ नियमित घाव की देखभाल और जीवनशैली में बदलाव ज़रूरी हैं. जल्दी जांच करवाएं."
-      en: "A non-healing wound can be linked to vein disease. Along with treatment, regular wound care and lifestyle changes matter. Please get checked early."
+      mr: "फुगलेल्या नसांकडे (व्हेरिकोज व्हेन्स) दुर्लक्ष केल्यास सूज, वेदना वाढू शकतात. वेळीच तपासणी केल्यास गुंतागुंत टाळता येते."
+      hi: "उभरी नसों (वेरिकोज़ वेन्स) को नज़रअंदाज़ करने से सूजन और दर्द बढ़ सकता है. समय पर जांच से जटिलताएं टाली जा सकती हैं."
+      en: "If ignored, varicose veins can lead to more swelling and pain. An early check-up helps avoid complications."
   - id: other
     label: other
-    title: {mr: "दुसरा त्रास", hi: "कोई और तकलीफ़", en: "Other problem"}
+    title: {mr: "इतर त्रास", hi: "कोई और तकलीफ़", en: "Other problem"}
 
 durations:
   - {id: lt6m, label: "less than 6 months", title: {mr: "6 महिन्यांपेक्षा कमी", hi: "6 महीने से कम", en: "Under 6 months"}}
@@ -176,18 +140,17 @@ prompts:
     duration: {mr: "कालावधी", hi: "अवधि", en: "Since"}
     preferred_time: {mr: "सोयीची वेळ", hi: "सही समय", en: "Preferred time"}
   done: {mr: "धन्यवाद, {name}! 🙏\nआमची क्लिनिक टीम लवकरच तुम्हाला कॉल करून अपॉइंटमेंट निश्चित करेल.", hi: "धन्यवाद, {name}! 🙏\nहमारी क्लिनिक टीम जल्द ही आपको कॉल करके अपॉइंटमेंट पक्की करेगी.", en: "Thank you, {name}! 🙏\nOur clinic team will call you soon to confirm the appointment."}
-  done_next: [location, menu]
+  done_next: [menu]
   # ⚠️ [TO BE CONFIRMED BY CLINIC]: documents patients should bring for the scheme.
   scheme_card: {mr: "छान! 👍 तपासणीला येताना योजनेचे कार्ड, आधार कार्ड व रेशन कार्ड सोबत आणा. आमची टीम योजनेची प्रक्रिया पूर्ण करण्यास मदत करेल.", hi: "बढ़िया! 👍 जांच के लिए आते समय योजना का कार्ड, आधार कार्ड और राशन कार्ड साथ लाएं. हमारी टीम योजना की प्रक्रिया में मदद करेगी.", en: "Great! 👍 Please bring your scheme card, Aadhaar card and ration card to the consultation. Our team will help complete the scheme process."}
   scheme_unknown: {mr: "काही हरकत नाही 🙏 आमची टीम तुमची पात्रता तपासेल. तपासणीला येताना आधार कार्ड व रेशन कार्ड सोबत आणा.", hi: "कोई बात नहीं 🙏 हमारी टीम आपकी पात्रता जांचेगी. जांच के लिए आते समय आधार कार्ड और राशन कार्ड साथ लाएं.", en: "No problem 🙏 Our team will check your eligibility. Please bring your Aadhaar card and ration card to the consultation."}
-  # Used when no AI key is set: typed questions get this + the main menu ({phone} = CLINIC_PHONE).
-  no_ai: {mr: "क्षमस्व 🙏 या प्रश्नाचे उत्तर इथे देता येत नाही. तुमचा प्रश्न नोंदवला आहे.\nकृपया खालील मेनूमधून पर्याय निवडा किंवा कॉल करा: {phone}", hi: "क्षमा करें 🙏 इस सवाल का जवाब यहां नहीं दिया जा सकता. आपका सवाल दर्ज कर लिया गया है.\nकृपया नीचे मेनू से विकल्प चुनें या कॉल करें: {phone}", en: "Sorry 🙏 we can't answer that here. Your question has been noted.\nPlease choose from the menu below, or call {phone}"}
+  # Used when no AI key is set: typed questions get this + the main menu.
+  no_ai: {mr: "तुमचा प्रश्न नोंदवला आहे 🙏 आमचे प्रतिनिधी तुम्हाला कॉल करून माहिती देतील.\nतोपर्यंत खालील मेनूमधून पर्याय निवडू शकता.", hi: "आपका सवाल दर्ज कर लिया गया है 🙏 हमारे प्रतिनिधि आपको कॉल करके जानकारी देंगे.\nतब तक नीचे मेनू से विकल्प चुन सकते हैं.", en: "Your question has been noted 🙏 Our representative will call you with the details.\nMeanwhile, you can choose from the menu below."}
   change: {mr: "ठीक आहे, तपशील पुन्हा भरूया.", hi: "ठीक है, जानकारी फिर से भरते हैं.", en: "Okay, let's fill in the details again."}
 
 # Small buttons used under answers.
 buttons:
   book: {mr: "📅 अपॉइंटमेंट", hi: "📅 अपॉइंटमेंट", en: "📅 Book"}
-  location: {mr: "📍 पत्ता", hi: "📍 पता", en: "📍 Location"}
   call: {mr: "📞 कॉल हवा", hi: "📞 कॉल करें", en: "📞 Call me"}
   cost: {mr: "💰 खर्च", hi: "💰 खर्च", en: "💰 Cost"}
   menu: {mr: "☰ मेनू", hi: "☰ मेनू", en: "☰ Menu"}
@@ -226,6 +189,6 @@ emergency:
              "खून बह", "heavy bleeding", "bleeding", "khoon", "लकवा", "पक्षाघात", "paralysis", "stroke",
              "पाय काळा", "पाय निळा", "पैर काला", "पैर नीला", "foot black", "foot blue"]
   text:
-    mr: "⚠️ हे गंभीर असू शकते. कृपया *लगेच 108 वर कॉल करा* किंवा जवळच्या हॉस्पिटलच्या इमर्जन्सी विभागात जा. उशीर करू नका.\nक्लिनिक: {phone}"
-    hi: "⚠️ यह गंभीर हो सकता है. कृपया *तुरंत 108 पर कॉल करें* या नज़दीकी अस्पताल के इमरजेंसी विभाग में जाएं. देर न करें.\nक्लिनिक: {phone}"
-    en: "⚠️ This could be serious. Please *call 108 immediately* or go to the nearest hospital emergency department. Don't wait.\nClinic: {phone}"
+    mr: "⚠️ हे गंभीर असू शकते. कृपया *लगेच 108 वर कॉल करा* किंवा जवळच्या हॉस्पिटलच्या इमर्जन्सी विभागात जा. उशीर करू नका."
+    hi: "⚠️ यह गंभीर हो सकता है. कृपया *तुरंत 108 पर कॉल करें* या नज़दीकी अस्पताल के इमरजेंसी विभाग में जाएं. देर न करें."
+    en: "⚠️ This could be serious. Please *call 108 immediately* or go to the nearest hospital emergency department. Don't wait."

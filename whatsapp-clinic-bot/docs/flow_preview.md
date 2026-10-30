@@ -1,25 +1,19 @@
 # WhatsApp conversation preview (generated from knowledge/flows.yaml)
-Every fixed message, in the order patients see it. Edit the text in `knowledge/flows.yaml`, then run `python scripts/flow_preview.py`. Clinic address, map link and phone are set once in the `business:` block. Items marked ⚠️ need the clinic's confirmation.
-## 0. First message: language picker (same for everyone)
-```
-नमस्कार 🙏 आपलं स्वागत आहे.
+Every fixed message, in the order patients see it. Edit the text in `knowledge/flows.yaml`, then run `python scripts/flow_preview.py`. Items marked ⚠️ need the clinic's confirmation.
 
-कृपया तुमची भाषा निवडा
-कृपया अपनी भाषा चुनें
-Please choose your language
-```
-Buttons: मराठी | हिंदी | English
+**Rules:** every chat starts in **Marathi** (no language picker) and switches only when the patient asks (types "Hindi" / "English" or "Hindi me batao"). Doctor, hospital, address and phone numbers are **never** shared. If asked, the reply is that our representative will call.
 
 ---
-## मराठी
+## मराठी (default)
 **1. Welcome + main menu**
 ```
 नमस्कार 🙏 आमच्या व्हेरिकोज व्हेन्स (पायाच्या नसा) क्लिनिकमध्ये आपलं स्वागत आहे.
 🆓 पात्र रुग्णांसाठी सरकारी योजनेअंतर्गत मोफत उपचार.
+(हिंदी / English साठी 'Hindi' किंवा 'English' टाइप करा)
 
 आम्ही कशी मदत करू? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करा | 🆓 योजनेत मोफत उपचार | 💉 उपचार कसे होतात | 💰 खर्च व विमा | 📍 पत्ता व संपर्क | 📞 मला कॉल करा | ❓ दुसरा प्रश्न
+Menu: 📅 अपॉइंटमेंट बुक करा | 🆓 योजनेत मोफत उपचार | 💉 उपचार कसे होतात | 💰 खर्च व विमा | 📞 मला कॉल करा | ❓ दुसरा प्रश्न
 
 **2. 🆓 Free treatment under scheme**
 ```
@@ -48,18 +42,16 @@ Buttons: 📅 अपॉइंटमेंट | 🆓 मोफत योजना
 ```
 Buttons: 📅 अपॉइंटमेंट | 🆓 मोफत योजना | 📞 कॉल हवा
 
-**5. 📍 Location & contact**
-```
-📍 सेंट्रल बस स्टँडच्या समोर, कोतवालपुरा, छत्रपती संभाजीनगर
-🗺️ https://maps.google.com/?cid=17175394663658005878
-📞 +91 96995 59301 / +91 88057 89301
-```
-Buttons: 📅 अपॉइंटमेंट | 📞 कॉल हवा | ☰ मेनू
-
-**6. ❓ Other question**
+**5. ❓ Other question**
 ```
 नक्की 🙏 तुमचा प्रश्न टाइप करा.
 ```
+
+**6. If asked for address / doctor / hospital / phone (menu or AI)**
+```
+📞 पत्ता व इतर सर्व माहिती आमचे प्रतिनिधी तुम्हाला कॉल करून सांगतील.
+```
+Buttons: 📞 कॉल हवा | 📅 अपॉइंटमेंट | ☰ मेनू
 
 **7. Scheme answer → then booking starts**
 If ✅ card:
@@ -76,7 +68,7 @@ a) Problem
 ```
 तुम्हाला पायाचा कोणता त्रास होत आहे? 👇
 ```
-List: पायावर फुगलेल्या नसा | पायाला सूज | पाय दुखणे / जडपणा | बारीक जाळीदार नसा | पायावर न भरणारी जखम | दुसरा त्रास
+List: व्हेरिकोज व्हेन्स | इतर त्रास
 b) How long
 ```
 हा त्रास किती काळापासून आहे?
@@ -113,7 +105,7 @@ g) Done
 धन्यवाद, <name>! 🙏
 आमची क्लिनिक टीम लवकरच तुम्हाला कॉल करून अपॉइंटमेंट निश्चित करेल.
 ```
-Buttons: 📍 पत्ता | ☰ मेनू
+Buttons: ☰ मेनू
 
 **9. 📞 Call me back**
 Asks name, then preferred time:
@@ -138,19 +130,18 @@ Buttons: 📅 अपॉइंटमेंट | 📞 कॉल हवा | ☰ �
 
 **11. Typed question when AI is off (menu-only mode)**
 ```
-क्षमस्व 🙏 या प्रश्नाचे उत्तर इथे देता येत नाही. तुमचा प्रश्न नोंदवला आहे.
-कृपया खालील मेनूमधून पर्याय निवडा किंवा कॉल करा: <clinic phone>
+तुमचा प्रश्न नोंदवला आहे 🙏 आमचे प्रतिनिधी तुम्हाला कॉल करून माहिती देतील.
+तोपर्यंत खालील मेनूमधून पर्याय निवडू शकता.
 ```
 Then the main menu.
 
 **12. ⚠️ Emergency words (always, instantly)**
 ```
 ⚠️ हे गंभीर असू शकते. कृपया *लगेच 108 वर कॉल करा* किंवा जवळच्या हॉस्पिटलच्या इमर्जन्सी विभागात जा. उशीर करू नका.
-क्लिनिक: <clinic phone>
 ```
 
 ---
-## हिंदी
+## हिंदी (only if the patient asks)
 **1. Welcome + main menu**
 ```
 नमस्ते 🙏 हमारे वेरिकोज़ वेन्स (पैरों की नसें) क्लिनिक में आपका स्वागत है.
@@ -158,7 +149,7 @@ Then the main menu.
 
 हम कैसे मदद करें? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करें | 🆓 योजना में मुफ़्त इलाज | 💉 इलाज कैसे होता है | 💰 खर्च और बीमा | 📍 पता और संपर्क | 📞 मुझे कॉल करें | ❓ दूसरा सवाल
+Menu: 📅 अपॉइंटमेंट बुक करें | 🆓 योजना में मुफ़्त इलाज | 💉 इलाज कैसे होता है | 💰 खर्च और बीमा | 📞 मुझे कॉल करें | ❓ दूसरा सवाल
 
 **2. 🆓 Free treatment under scheme**
 ```
@@ -187,18 +178,16 @@ Buttons: 📅 अपॉइंटमेंट | 🆓 मुफ़्त योज
 ```
 Buttons: 📅 अपॉइंटमेंट | 🆓 मुफ़्त योजना | 📞 कॉल करें
 
-**5. 📍 Location & contact**
-```
-📍 सेंट्रल बस स्टैंड के सामने, कोतवालपुरा, छत्रपति संभाजीनगर
-🗺️ https://maps.google.com/?cid=17175394663658005878
-📞 +91 96995 59301 / +91 88057 89301
-```
-Buttons: 📅 अपॉइंटमेंट | 📞 कॉल करें | ☰ मेनू
-
-**6. ❓ Other question**
+**5. ❓ Other question**
 ```
 ज़रूर 🙏 अपना सवाल टाइप करें.
 ```
+
+**6. If asked for address / doctor / hospital / phone (menu or AI)**
+```
+📞 पता और बाकी सारी जानकारी हमारे प्रतिनिधि आपको कॉल करके बताएंगे.
+```
+Buttons: 📞 कॉल करें | 📅 अपॉइंटमेंट | ☰ मेनू
 
 **7. Scheme answer → then booking starts**
 If ✅ card:
@@ -215,7 +204,7 @@ a) Problem
 ```
 आपको पैर में कौन सी तकलीफ़ है? 👇
 ```
-List: पैरों में उभरी नसें | पैरों में सूजन | पैर दर्द / भारीपन | बारीक जालीदार नसें | पैर पर न भरने वाला घाव | कोई और तकलीफ़
+List: वेरिकोज़ वेन्स | कोई और तकलीफ़
 b) How long
 ```
 यह तकलीफ़ कब से है?
@@ -252,7 +241,7 @@ g) Done
 धन्यवाद, <name>! 🙏
 हमारी क्लिनिक टीम जल्द ही आपको कॉल करके अपॉइंटमेंट पक्की करेगी.
 ```
-Buttons: 📍 पता | ☰ मेनू
+Buttons: ☰ मेनू
 
 **9. 📞 Call me back**
 Asks name, then preferred time:
@@ -277,19 +266,18 @@ Buttons: 📅 अपॉइंटमेंट | 📞 कॉल करें | ☰
 
 **11. Typed question when AI is off (menu-only mode)**
 ```
-क्षमा करें 🙏 इस सवाल का जवाब यहां नहीं दिया जा सकता. आपका सवाल दर्ज कर लिया गया है.
-कृपया नीचे मेनू से विकल्प चुनें या कॉल करें: <clinic phone>
+आपका सवाल दर्ज कर लिया गया है 🙏 हमारे प्रतिनिधि आपको कॉल करके जानकारी देंगे.
+तब तक नीचे मेनू से विकल्प चुन सकते हैं.
 ```
 Then the main menu.
 
 **12. ⚠️ Emergency words (always, instantly)**
 ```
 ⚠️ यह गंभीर हो सकता है. कृपया *तुरंत 108 पर कॉल करें* या नज़दीकी अस्पताल के इमरजेंसी विभाग में जाएं. देर न करें.
-क्लिनिक: <clinic phone>
 ```
 
 ---
-## English
+## English (only if the patient asks)
 **1. Welcome + main menu**
 ```
 Hello 🙏 Welcome to our varicose veins (leg veins) clinic.
@@ -297,7 +285,7 @@ Hello 🙏 Welcome to our varicose veins (leg veins) clinic.
 
 How can we help? 👇
 ```
-Menu: 📅 Book appointment | 🆓 Free under govt scheme | 💉 How treatment works | 💰 Cost & insurance | 📍 Location & contact | 📞 Call me back | ❓ Other question
+Menu: 📅 Book appointment | 🆓 Free under govt scheme | 💉 How treatment works | 💰 Cost & insurance | 📞 Call me back | ❓ Other question
 
 **2. 🆓 Free treatment under scheme**
 ```
@@ -326,18 +314,16 @@ Buttons: 📅 Book | 🆓 Free scheme | ☰ Menu
 ```
 Buttons: 📅 Book | 🆓 Free scheme | 📞 Call me
 
-**5. 📍 Location & contact**
-```
-📍 Opposite Central Bus Stand, Kotwalpura, Chhatrapati Sambhajinagar
-🗺️ https://maps.google.com/?cid=17175394663658005878
-📞 +91 96995 59301 / +91 88057 89301
-```
-Buttons: 📅 Book | 📞 Call me | ☰ Menu
-
-**6. ❓ Other question**
+**5. ❓ Other question**
 ```
 Sure 🙏 Please type your question.
 ```
+
+**6. If asked for address / doctor / hospital / phone (menu or AI)**
+```
+📞 Our representative will call you with the address and all other details.
+```
+Buttons: 📞 Call me | 📅 Book | ☰ Menu
 
 **7. Scheme answer → then booking starts**
 If ✅ card:
@@ -354,7 +340,7 @@ a) Problem
 ```
 What problem are you facing? 👇
 ```
-List: Varicose / bulging veins | Leg swelling | Leg pain / heaviness | Spider veins | Non-healing leg wound | Other problem
+List: Varicose veins | Other problem
 b) How long
 ```
 How long have you had this?
@@ -391,7 +377,7 @@ g) Done
 Thank you, <name>! 🙏
 Our clinic team will call you soon to confirm the appointment.
 ```
-Buttons: 📍 Location | ☰ Menu
+Buttons: ☰ Menu
 
 **9. 📞 Call me back**
 Asks name, then preferred time:
@@ -416,14 +402,13 @@ Buttons: 📅 Book | 📞 Call me | ☰ Menu
 
 **11. Typed question when AI is off (menu-only mode)**
 ```
-Sorry 🙏 we can't answer that here. Your question has been noted.
-Please choose from the menu below, or call <clinic phone>
+Your question has been noted 🙏 Our representative will call you with the details.
+Meanwhile, you can choose from the menu below.
 ```
 Then the main menu.
 
 **12. ⚠️ Emergency words (always, instantly)**
 ```
 ⚠️ This could be serious. Please *call 108 immediately* or go to the nearest hospital emergency department. Don't wait.
-Clinic: <clinic phone>
 ```
 

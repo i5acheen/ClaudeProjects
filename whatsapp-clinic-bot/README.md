@@ -14,7 +14,7 @@ whatsapp-clinic-bot/
 │   ├── security.py    # X-Hub-Signature-256 check
 │   ├── whatsapp.py    # parse webhook payloads, send replies (Graph API)
 │   ├── llm.py         # LLM fallback chain (OpenRouter/Groq/Cerebras/Gemini) + JSON parsing
-│   ├── agent.py       # language picker, history → LLM → reply/options, lead update, alerts
+│   ├── agent.py       # Marathi by default, menu → LLM → reply/options, lead update, alerts
 │   ├── knowledge.py   # sends only the relevant parts of clinic_info.md (smaller prompts)
 │   ├── alerts.py      # hot-lead / failure alerts (WhatsApp, email) + per-user rate limit
 │   ├── db.py          # Postgres (DATABASE_URL) or SQLite: history, dedupe, lead state
@@ -142,10 +142,10 @@ pytest -q
 - **AI is optional.** With no AI key, the bot runs **menu-only** (₹0): typed questions get "please choose from the menu or call the clinic" plus the menu, and are logged in `/admin/insights`. **Emergency words** (breathlessness, chest pain, heavy bleeding, stroke signs…; list in `flows.yaml → emergency`) always get an instant "call 108" reply, with or without AI.
 - **Built for Meta Click-to-WhatsApp ads:** the ad a person came from is saved with their lead (Sheet column "Ad Source", alerts and insights). The welcome and menu lead with **🆓 free treatment under government schemes for eligible patients**, a quick scheme-card check, and the treatment journey (check-up → day-care laser → scheme paperwork → home the same or next day).
 - **Follow-ups:** if a patient stops replying, up to 2 gentle reminders are sent (after about 2h and 20h, texts in `flows.yaml → followups`). They go only inside the free 24-hour window, never after a confirmed booking, and never while staff are chatting. Set `FOLLOWUPS_ENABLED=false` to turn them off.
-- **Menu first, AI second.** After the language picker, patients get a tap menu (`knowledge/flows.yaml`): book an appointment, leg problem, treatment, cost, location, doctor, videos, call-back. Fixed answers and the booking questions (concern → duration → name → city → time → confirm) run **without the AI**: instant, free, and nothing invented. Only typed questions the menu can't handle, and "❓ Other question", go to the AI.
+- **Menu first, AI second.** Patients get a tap menu (`knowledge/flows.yaml`): book an appointment, free scheme, treatment, cost, call-back, other question. **No doctor, hospital, address or phone details are ever shared**; if asked, the reply is that our representative will call. Fixed answers and the booking questions (concern → duration → name → city → time → confirm) run **without the AI**: instant, free, and nothing invented. Only typed questions the menu can't handle, and "❓ Other question", go to the AI.
 - **See where the AI is needed:** open `https://<bot-url>/admin/insights?token=<VERIFY_TOKEN>`. It shows how many messages the menu handled and lists every question that went to the AI. Turn frequent ones into new menu answers.
 - `POST /webhook` checks `X-Hub-Signature-256` against `APP_SECRET` (an invalid signature gets 403). It returns **200 immediately** and processes messages in the background. Status updates are ignored and duplicate message IDs are skipped.
-- **First message:** a language picker (मराठी / हिंदी / English buttons). The chosen language is locked unless the person explicitly asks to switch.
+- **Language:** every chat starts in **Marathi** with the welcome + menu. It switches to Hindi or English only when the person asks ("Hindi", "reply in English"…), then stays there.
 - **Each reply:** the last `HISTORY_LIMIT` messages, the lead details and only the relevant parts of `clinic_info.md` (about 3.5–4.5k tokens) go through the LLM chain. The model returns JSON: `reply`, `language`, `lead{…}`, `details_confirmed` and `options` (WhatsApp buttons or list).
 - The lead is merged (new values never erase old ones), saved, and upserted to Google Sheets. **Hot** or **confirmed** leads trigger a one-time alert to `ALERT_PHONE` / `ALERT_EMAIL`.
 - If every model fails, the patient gets a polite "please call the clinic" message and the team is alerted.

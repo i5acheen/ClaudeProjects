@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from app.agent import FLOWS_FILE, LANGUAGE_CHOICES, LANGUAGE_PICKER_BODY  # noqa: E402
+from app.agent import FLOWS_FILE  # noqa: E402
 from app.flows import Flows  # noqa: E402
 
 LANGS = {"mr": "मराठी", "hi": "हिंदी", "en": "English"}
@@ -31,22 +31,22 @@ def main() -> None:
     c = f.c
     out = ["# WhatsApp conversation preview (generated from knowledge/flows.yaml)\n",
            "Every fixed message, in the order patients see it. Edit the text in `knowledge/flows.yaml`, "
-           "then run `python scripts/flow_preview.py`. Clinic address, map link and phone are set once in "
-           "the `business:` block. Items marked ⚠️ need the clinic's confirmation.\n",
-           "## 0. First message: language picker (same for everyone)\n",
-           block(LANGUAGE_PICKER_BODY), opts([x["title"] for x in LANGUAGE_CHOICES]), "\n"]
+           "then run `python scripts/flow_preview.py`. Items marked ⚠️ need the clinic's confirmation.\n\n",
+           "**Rules:** every chat starts in **Marathi** (no language picker) and switches only when the patient "
+           "asks (types \"Hindi\" / \"English\" or \"Hindi me batao\"). Doctor, hospital, address and phone "
+           "numbers are **never** shared. If asked, the reply is that our representative will call.\n\n"]
 
     for lang, name in LANGS.items():
         t = lambda obj: f.t(obj, lang)  # noqa: E731
         btn = lambda keys: [t(c["buttons"][k]) for k in keys if k in c["buttons"]]  # noqa: E731
         n = 1
-        out.append(f"---\n## {name}\n")
+        out.append(f"---\n## {name}" + (" (default)" if lang == "mr" else " (only if the patient asks)") + "\n")
         menu = f.menu(lang, welcome=True)
         out += [f"**{n}. Welcome + main menu**\n", block(menu.text),
                 opts([ch["title"] for ch in menu.choices], "Menu"), "\n"]
         for key, title in (("scheme", "🆓 Free treatment under scheme"), ("treatment", "💉 How treatment works"),
-                           ("cost", "💰 Cost & insurance"), ("location", "📍 Location & contact"),
-                           ("other", "❓ Other question")):
+                           ("cost", "💰 Cost & insurance"), ("other", "❓ Other question"),
+                           ("location", "If asked for address / doctor / hospital / phone (menu or AI)")):
             n += 1
             a = c["answers"][key]
             buttons = ([t(c["buttons"][k]) for k in ("scheme_card", "scheme_unknown", "book")]
@@ -79,10 +79,10 @@ def main() -> None:
             out += [f"After {fu['after_hours']} h:\n", block(text), opts(btn(fu.get("buttons", [])))]
         n += 1
         out += ["\n", f"**{n}. Typed question when AI is off (menu-only mode)**\n",
-                block(t(p["no_ai"]).replace("{phone}", "<clinic phone>")), "Then the main menu.\n\n"]
+                block(t(p["no_ai"])), "Then the main menu.\n\n"]
         n += 1
         out += [f"**{n}. ⚠️ Emergency words (always, instantly)**\n",
-                block(t(c["emergency"]["text"]).replace("{phone}", "<clinic phone>")), "\n"]
+                block(t(c["emergency"]["text"])), "\n"]
 
     OUT.write_text("".join(out), encoding="utf-8")
     print(f"Wrote {OUT.relative_to(ROOT)}")

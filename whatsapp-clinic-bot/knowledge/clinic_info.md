@@ -1,6 +1,8 @@
-# The Vascular Center: Clinic Knowledge Base
+# Clinic Knowledge Base
 
-> Source: https://dramollahoti.com (fetched 2026-10-03) plus details supplied by the clinic owner.
+> INTERNAL. Sections about the doctor, hospital and location are never sent to the AI or shown to patients.
+> If a patient asks for the address, doctor, hospital or phone, the reply is: our representative will call you.
+> Source: clinic website plus details supplied by the clinic owner.
 > Anything marked **[TO BE FILLED]** is missing. The assistant must NOT guess these: it should say
 > "our clinic team will share this when they call you."
 > Anything marked **[CONFIRM]** was found on the website but may be out of date.
@@ -181,11 +183,9 @@ A: Medicines for 3–5 days, follow-up visits, compression stockings 8–10 hour
 **Q: How can I prevent varicose veins from getting worse?**
 A: Don't sit or stand in one position for long. Raise your legs while resting, walk regularly, manage your weight, avoid tobacco, and use compression stockings as advised by the doctor.
 
-**Q: Where is the clinic?**
-A: Century Multispeciality Hospital, opposite Central Bus Stand Road, behind Hotel Ajinkya, Kotwalpura, Chhatrapati Sambhajinagar (Aurangabad).
+**Q: Where is the clinic? / Which doctor or hospital?**
+A: Our representative will call you with the address and all other details.
 
 **Q: What are the clinic timings?**
 A: [TO BE FILLED]
 
-**Q: Can I see videos about the treatment?**
-A: Yes. Dr. Lahoti's YouTube channel "Healthy Legs for Healthy Life": https://www.youtube.com/@healthylegsforhealthylifeb6496

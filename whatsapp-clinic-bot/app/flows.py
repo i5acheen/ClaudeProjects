@@ -99,24 +99,10 @@ class Flows:
         return self._cache[1]
 
     @staticmethod
-    def _pick(obj, lang: str) -> str:
+    def t(obj, lang: str) -> str:
         if isinstance(obj, dict):
             return obj.get(lang) or obj.get("en") or ""
         return obj or ""
-
-    def t(self, obj, lang: str) -> str:
-        """Text in the patient's language, with {address}, {map_link}, {clinic_phone} filled in."""
-        text = self._pick(obj, lang)
-        if "{" in text:
-            for token, value in self.business(lang).items():
-                text = text.replace("{" + token + "}", value)
-        return text
-
-    def business(self, lang: str) -> dict:
-        """Clinic contact details from the `business` block of flows.yaml (one place to edit)."""
-        b = self.c.get("business") or {}
-        return {"address": self._pick(b.get("address"), lang), "map_link": b.get("map_link") or "",
-                "clinic_phone": b.get("phone") or ""}
 
     # ---------- building blocks ----------
     def menu(self, lang: str, welcome: bool = False) -> FlowReply:

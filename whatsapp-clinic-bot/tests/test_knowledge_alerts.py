@@ -12,7 +12,8 @@ KNOWLEDGE = (Path(__file__).resolve().parent.parent / "knowledge" / "clinic_info
 
 def test_knowledge_always_has_core_and_adds_relevant_sections():
     base = select_knowledge(KNOWLEDGE, "namaskar")
-    assert "Century Multispeciality Hospital" in base and "maps.google.com" in base
+    for private in ("Century", "maps.google.com", "Lahoti", "96995", "youtube", "## 1. Doctor"):
+        assert private not in base                # never sent to the AI
     assert "### 3.1 Varicose" in base          # main specialty when nothing specific asked
     assert "### 3.5 Deep Vein" not in base
     assert len(base) < len(KNOWLEDGE) * 0.75

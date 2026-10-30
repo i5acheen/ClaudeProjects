@@ -65,13 +65,13 @@ def test_non_text_message_asks_for_text_without_llm():
     agent, db, llm, sender, _ = make(language=None)
     run(agent.handle(IncomingMessage("m1", "919000000001", "audio", None, None)))
     assert llm.calls == []
-    assert "टेक्स्ट" in sender.sent[0][1] and "text" in sender.sent[0][1]
+    assert "टेक्स्ट" in sender.sent[0][1]                       # Marathi by default
 
 
 def test_llm_failure_sends_fallback():
     agent, db, llm, sender, sheet = make(error=RuntimeError("quota"))
     run(agent.handle(text("m1", "hello")))
-    assert "+91 1" in sender.sent[0][1]
+    assert "प्रतिनिधी" in sender.sent[0][1] and "+91" not in sender.sent[0][1]
     assert sheet.rows == []
 
 
@@ -101,17 +101,22 @@ def test_format_keeps_doctor_title_together():
     assert "डॉ. अमोल" in out and "Dr. Lahoti" in out and out.count("\n") == 3
 
 
-def test_first_message_shows_language_picker_then_answers_it():
+def test_first_message_defaults_to_marathi():
     agent, db, llm, sender, _ = make(language=None)
     run(agent.handle(text("m1", "mala payat dukhta")))
-    assert llm.calls == []
-    assert sender.sent[0][2] == "buttons" and sender.sent[0][3] == ["मराठी", "हिंदी", "English"]
-    tap = IncomingMessage("m2", "919000000001", "text", "मराठी", "Ramesh", "lang_mr")
-    run(agent.handle(tap))
     system, history = llm.calls[0]
     assert "Marathi" in system and '"first_reply": true' in system
     assert history == [{"role": "user", "content": "mala payat dukhta"}]
     assert db.get_lead("919000000001")["language"] == "mr"
+
+
+def test_language_request_detection():
+    from app.agent import detect_language_choice
+    ask = lambda t: detect_language_choice(IncomingMessage("x", "9", "text", t, None))  # noqa: E731
+    assert ask("Hindi") == "hi" and ask("hindi me baat karo") == "hi" and ask("reply in English") == "en"
+    assert ask("मराठी") == "mr" and ask("mala payat dukhta") is None
+    assert ask("1") is None                                      # no numeric picker any more
+    assert ask("I can speak hindi and english both, but my leg hurts a lot") is None
 
 
 def test_language_stays_locked_unless_user_asks_to_switch():
@@ -166,7 +171,9 @@ def test_agent_rate_limit_drops_extra_messages():
 def test_fallback_and_non_text_replies_cover_all_three_languages():
     agent, db, llm, sender, _ = make(error=RuntimeError("down"), language=None)
     run(agent.handle(IncomingMessage("m0", "919000000001", "audio", None, None)))
-    body = sender.sent[0][1]
-    assert "टेक्स्ट" in body and "टाइप करके" in body and "Please type" in body
+    assert "टेक्स्ट" in sender.sent[0][1]
     assert all(k in agent.fallback_reply() for k in ("क्षमस्व", "क्षमा करें", "Sorry"))
-    assert agent.fallback_reply("hi").startswith("क्षमा करें") and "+91 1" in agent.fallback_reply("hi")
+    assert agent.fallback_reply("hi").startswith("क्षमा करें") and "प्रतिनिधि" in agent.fallback_reply("hi")
+    assert "+91" not in agent.fallback_reply()                  # no clinic phone disclosed
+
+

@@ -6,16 +6,13 @@ import re
 from pathlib import Path
 
 # Sections always sent (matched by heading prefix). Everything else is sent only when relevant.
-CORE = ("## 1. Doctor", "### Qualifications", "## 2. Clinic location", "### Timings",
-        "### Fees", "## 2b.")
+CORE = ("### Timings", "### Fees")
+# Never sent to the AI: doctor, hospital and location details must not reach patients.
+PRIVATE = ("## 1. Doctor", "### Qualifications", "### Professional highlights", "## 2. Clinic location",
+           "### Other hospital", "### Practical details", "## 2b.")
 
 # Heading prefix -> keywords (English, Romanized and Devanagari) that make the section relevant.
 TOPICS: dict[str, tuple[str, ...]] = {
-    "### Professional highlights": ("qualif", "degree", "experience", "hopkins", "doctor", "शिक्षण",
-                                    "अनुभव", "डिग्री", "शिक्षा", "anubhav"),
-    "### Other hospital": ("carewell", "jalna road", "other hospital", "दुसर", "केअरवेल", "mondha"),
-    "### Practical details": ("parking", "walk", "bring", "document", "report", "पार्किंग", "कागद",
-                              "रिपोर्ट", "appointment", "language"),
     "### 3.1 Varicose": ("varicose", "vein", "nas", "नस", "नसा", "laser", "लेझर", "लेजर", "glue",
                          "venaseal", "cost", "kharch", "खर्च", "किंमत", "fees", "price", "operation",
                          "ऑपरेशन", "surgery", "stocking", "recover", "doppler", "डॉपलर", "itch",
@@ -33,7 +30,7 @@ TOPICS: dict[str, tuple[str, ...]] = {
                                "थायरॉईड", "कॅन्सर", "कैंसर", "पक्षाघात", "लकवा"),
     "## 4. Frequently asked": ("cost", "kharch", "खर्च", "insurance", "विमा", "scheme", "yojana",
                                "योजना", "ayushman", "come back", "recurr", "परत", "after care",
-                               "stocking", "hospital", "admit", "stay", "दिवस", "video", "youtube"),
+                               "stocking", "hospital", "admit", "stay", "दिवस"),
 }
 
 
@@ -50,6 +47,8 @@ def select_knowledge(full_text: str, query: str) -> str:
     chunks = _split(full_text)
     matched_topic = False
     for heading, chunk in chunks:
+        if heading.startswith(PRIVATE):
+            continue
         if heading.startswith("# ") or heading.startswith(CORE):
             out.append(chunk)
             continue

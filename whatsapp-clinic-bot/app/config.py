@@ -38,6 +38,7 @@ class Settings:
     whatsapp_token: str
     phone_number_id: str
     verify_token: str
+    admin_password: str
     app_secret: str
     graph_api_version: str
     whatsapp_api_url: str
@@ -95,6 +96,7 @@ def load_settings() -> Settings:
         whatsapp_token=env("WHATSAPP_TOKEN", ""),
         phone_number_id=env("PHONE_NUMBER_ID", ""),
         verify_token=env("VERIFY_TOKEN", ""),
+        admin_password=env("ADMIN_PASSWORD", ""),
         app_secret=env("APP_SECRET", ""),
         graph_api_version=env("GRAPH_API_VERSION", "v26.0"),
         whatsapp_api_url=env("WHATSAPP_API_URL", ""),

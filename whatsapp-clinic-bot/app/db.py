@@ -215,6 +215,36 @@ class Database:
         return [{"phone": r["phone"], "route": r["route"], "detail": r["detail"],
                  "created_at": str(r["created_at"])} for r in rows]
 
+    # ---- staff inbox (/admin/chats) ----
+    def list_conversations(self, limit: int = 200) -> list[dict]:
+        """One row per patient: their latest message plus lead info, newest first."""
+        rows = self._run(
+            """
+            SELECT m.phone, m.role, m.content, m.created_at, l.profile_name, l.data, l.details_confirmed
+            FROM messages m
+            JOIN (SELECT phone, MAX(id) AS mid FROM messages GROUP BY phone) t ON m.id = t.mid
+            LEFT JOIN leads l ON l.phone = m.phone
+            ORDER BY m.id DESC LIMIT ?
+            """, (limit,), fetch="all")
+        out = []
+        for r in rows:
+            data = json.loads(r["data"]) if r["data"] else {}
+            out.append({"phone": r["phone"], "last_role": r["role"], "last_text": r["content"],
+                        "last_at": str(r["created_at"]), "profile_name": r["profile_name"],
+                        "data": data, "details_confirmed": bool(r["details_confirmed"])})
+        return out
+
+    def conversation(self, phone: str, limit: int = 500) -> list[dict]:
+        rows = self._run("SELECT role, content, created_at FROM messages WHERE phone = ? "
+                         "ORDER BY id DESC LIMIT ?", (phone, limit), fetch="all")
+        return [{"role": r["role"], "content": r["content"], "created_at": str(r["created_at"])}
+                for r in reversed(rows)]
+
+    def last_user_message_at(self, phone: str) -> str | None:
+        row = self._run("SELECT created_at FROM messages WHERE phone = ? AND role = 'user' "
+                        "ORDER BY id DESC LIMIT 1", (phone,), fetch="one")
+        return str(row["created_at"]) if row else None
+
     def unconfirmed_leads(self, limit: int = 500) -> list[str]:
         """Phones of recent leads that haven't confirmed a booking (for follow-ups)."""
         rows = self._run("SELECT phone FROM leads WHERE details_confirmed = 0 ORDER BY updated_at DESC LIMIT ?",

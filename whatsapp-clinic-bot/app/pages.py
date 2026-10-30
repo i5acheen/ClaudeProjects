@@ -128,3 +128,116 @@ Turn frequent AI questions into new menu answers in <code>knowledge/flows.yaml</
 td,th{{border-bottom:1px solid #8884;padding:6px 8px;text-align:left;vertical-align:top}}
 code{{font-size:.9em}}</style>
 """)
+
+
+# ---------------------------------------------------------------- staff inbox (/admin/chats)
+
+_INBOX_STYLE = """
+<style>
+  .row { display:block; padding:12px 4px; border-bottom:1px solid #8883; text-decoration:none; color:inherit; }
+  .row:hover { background:#8881; }
+  .top { display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+  .name { font-weight:600; } .when { color:var(--muted); font-size:.8rem; white-space:nowrap; }
+  .last { color:var(--muted); font-size:.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tag { display:inline-block; font-size:.72rem; padding:1px 7px; border-radius:9px; margin-left:6px;
+         border:1px solid #8886; font-weight:600; }
+  .Hot { color:#c0392b; border-color:#c0392b; } .Warm { color:#b9770e; border-color:#b9770e; }
+  .Cold { color:var(--muted); } .ok { color:var(--accent); border-color:var(--accent); }
+  .paused { color:#7d3cb5; border-color:#7d3cb5; }
+  .chat { display:flex; flex-direction:column; gap:8px; margin:16px 0; }
+  .msg { max-width:82%; padding:8px 11px; border-radius:12px; white-space:pre-wrap; word-wrap:break-word;
+         font-size:.95rem; }
+  .user { align-self:flex-start; background:#8882; }
+  .assistant { align-self:flex-end; background:color-mix(in srgb, var(--accent) 18%, transparent); }
+  .staff { align-self:flex-end; background:color-mix(in srgb, #7d3cb5 22%, transparent); }
+  .meta { font-size:.7rem; color:var(--muted); margin-top:3px; }
+  .facts { font-size:.9rem; color:var(--muted); }
+  textarea { width:100%; box-sizing:border-box; min-height:80px; font:inherit; padding:8px;
+             border-radius:8px; border:1px solid #8886; background:transparent; color:inherit; }
+  button { font:inherit; padding:8px 14px; border-radius:8px; border:1px solid var(--accent);
+           background:var(--accent); color:#fff; cursor:pointer; }
+  button.secondary { background:transparent; color:var(--accent); }
+  .note { padding:8px 11px; border-radius:8px; background:#8882; font-size:.9rem; margin:10px 0; }
+  .bar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0; }
+</style>
+"""
+
+
+def _esc(value) -> str:
+    import html
+    return html.escape("" if value is None else str(value))
+
+
+def _short_time(ts: str) -> str:
+    return _esc((ts or "")[:16].replace("T", " "))
+
+
+def chats_list_page(rows: list[dict], now_ts: float) -> str:
+    items = []
+    for r in rows:
+        d = r["data"] or {}
+        name = d.get("name") or r.get("profile_name") or ("…" + r["phone"][-4:])
+        tags = ""
+        if d.get("status") in ("Hot", "Warm", "Cold"):
+            tags += f'<span class="tag {_esc(d["status"])}">{_esc(d["status"])}</span>'
+        if r["details_confirmed"]:
+            tags += '<span class="tag ok">Booked</span>'
+        if (d.get("_human_until") or 0) > now_ts:
+            tags += '<span class="tag paused">Staff</span>'
+        who = "Patient: " if r["last_role"] == "user" else "Bot: "
+        items.append(
+            f'<a class="row" href="/admin/chats/{_esc(r["phone"])}">'
+            f'<div class="top"><span class="name">{_esc(name)}{tags}</span>'
+            f'<span class="when">{_short_time(r["last_at"])}</span></div>'
+            f'<div class="last">{who}{_esc((r["last_text"] or "")[:120])}</div></a>')
+    body = "".join(items) or '<p class="muted">No conversations yet.</p>'
+    return _page("Chats", f"""
+<meta http-equiv="refresh" content="30">
+<h1>Chats</h1>
+<p class="muted">Newest first · times in UTC · refreshes every 30 s</p>
+{body}{_INBOX_STYLE}
+""")
+
+
+def chat_page(phone: str, lead: dict, messages: list[dict], can_reply: bool, paused: bool,
+              csrf: str, flash: str = "") -> str:
+    d = lead.get("data") or {}
+    name = d.get("name") or lead.get("profile_name") or ("…" + phone[-4:])
+    facts = " · ".join(f"{label}: {_esc(d[key])}" for key, label in
+                       (("city", "City"), ("concern", "Concern"), ("duration", "Since"),
+                        ("preferred_time", "Preferred"), ("status", "Status"), ("_ad", "Ad"))
+                       if d.get(key))
+    bubbles = []
+    for m in messages:
+        text = m["content"] or ""
+        cls = m["role"]
+        if cls == "assistant" and text.startswith("[Clinic staff]"):
+            cls, text = "staff", text[len("[Clinic staff]"):].strip()
+        label = {"user": "Patient", "assistant": "Bot", "staff": "Clinic staff"}[cls]
+        bubbles.append(f'<div class="msg {cls}">{_esc(text)}'
+                       f'<div class="meta">{label} · {_short_time(m["created_at"])}</div></div>')
+    flash_html = f'<div class="note">{_esc(flash)}</div>' if flash else ""
+    pause_btn = (f'<form method="post" action="/admin/chats/{_esc(phone)}/resume">'
+                 f'<input type="hidden" name="csrf" value="{_esc(csrf)}">'
+                 f'<button class="secondary">Resume bot</button></form>') if paused else (
+                 f'<form method="post" action="/admin/chats/{_esc(phone)}/pause">'
+                 f'<input type="hidden" name="csrf" value="{_esc(csrf)}">'
+                 f'<button class="secondary">Pause bot (staff take over)</button></form>')
+    if can_reply:
+        reply = (f'<form method="post" action="/admin/chats/{_esc(phone)}/reply">'
+                 f'<input type="hidden" name="csrf" value="{_esc(csrf)}">'
+                 f'<textarea name="text" maxlength="4000" placeholder="Type a reply… (sending pauses the bot for this patient)" required></textarea>'
+                 f'<div class="bar"><button>Send on WhatsApp</button></div></form>')
+    else:
+        reply = ('<div class="note">The patient\'s last message was more than 24 hours ago, so WhatsApp '
+                 'does not allow a free-text reply. Call them instead, or wait until they message again.</div>')
+    return _page(f"Chat with {name}", f"""
+<p><a href="/admin/chats">← All chats</a></p>
+<h1>{_esc(name)}{' <span class="tag paused">Staff handling</span>' if paused else ''}</h1>
+<p class="facts">+{_esc(phone)}{(' · ' + facts) if facts else ''}</p>
+<div class="bar"><a href="tel:+{_esc(phone)}">📞 Call</a> {pause_btn}</div>
+{flash_html}
+<div class="chat">{''.join(bubbles) or '<p class="muted">No messages.</p>'}</div>
+{reply}
+{_INBOX_STYLE}
+""")

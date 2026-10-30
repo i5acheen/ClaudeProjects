@@ -179,6 +179,120 @@ async def insights(request: Request, token: str = ""):
     return pages.insights_page(total, llm_n, rows, qs)
 
 
+# ---------------------------------------------------------------- staff inbox (/admin/chats)
+
+def _inbox_auth(request: Request) -> Response | None:
+    """HTTP Basic login (username "admin", password ADMIN_PASSWORD). Returns an error response or None."""
+    password = settings.admin_password
+    if not password:
+        return Response(status_code=404)            # inbox switched off
+    import base64
+    import hmac
+
+    header = request.headers.get("Authorization", "")
+    if header.startswith("Basic "):
+        try:
+            user, _, given = base64.b64decode(header[6:]).decode("utf-8").partition(":")
+        except Exception:
+            user, given = "", ""
+        if hmac.compare_digest(user, "admin") and hmac.compare_digest(given.encode(), password.encode()):
+            return None
+    return Response("Login required", status_code=401,
+                    headers={"WWW-Authenticate": 'Basic realm="Clinic inbox", charset="UTF-8"'})
+
+
+def _inbox_csrf() -> str:
+    import hashlib
+    import hmac
+
+    return hmac.new(settings.admin_password.encode(), b"inbox-csrf", hashlib.sha256).hexdigest()
+
+
+async def _inbox_form(request: Request) -> dict | None:
+    """Parse a posted form and check its CSRF token (blocks forged posts from other sites)."""
+    import hmac
+    from urllib.parse import parse_qs
+
+    raw = (await request.body()).decode("utf-8", "replace")
+    form = {k: v[0] for k, v in parse_qs(raw).items()}
+    if not hmac.compare_digest(form.get("csrf", ""), _inbox_csrf()):
+        return None
+    return form
+
+
+def _valid_phone(phone: str) -> bool:
+    return phone.isdigit() and 8 <= len(phone) <= 15
+
+
+def _redirect(phone: str, flash: str = "") -> Response:
+    from urllib.parse import quote
+
+    return Response(status_code=303, headers={"Location": f"/admin/chats/{phone}"
+                                              + (f"?m={quote(flash)}" if flash else "")})
+
+
+@app.get("/admin/chats", response_class=HTMLResponse)
+async def inbox_list(request: Request):
+    if (denied := _inbox_auth(request)) is not None:
+        return denied
+    import time as _time
+
+    return pages.chats_list_page(request.app.state.db.list_conversations(), _time.time())
+
+
+@app.get("/admin/chats/{phone}", response_class=HTMLResponse)
+async def inbox_chat(request: Request, phone: str, m: str = ""):
+    if (denied := _inbox_auth(request)) is not None:
+        return denied
+    if not _valid_phone(phone):
+        return Response(status_code=404)
+    import time as _time
+    from .agent import within_customer_window
+
+    db: Database = request.app.state.db
+    lead = db.get_lead(phone)
+    flashes = {"sent": "Sent ✓ The bot is paused for this patient.",
+               "window_closed": "Not sent: more than 24 hours since the patient's last message.",
+               "send_failed": "Not sent: WhatsApp rejected the message. Check the server logs.",
+               "empty": "Type a message first.", "paused": "Bot paused. Staff are handling this chat.",
+               "resumed": "Bot resumed for this patient."}
+    return pages.chat_page(phone, lead, db.conversation(phone),
+                           can_reply=within_customer_window(db.last_user_message_at(phone)),
+                           paused=(lead["data"].get("_human_until") or 0) > _time.time(),
+                           csrf=_inbox_csrf(), flash=flashes.get(m, ""))
+
+
+@app.post("/admin/chats/{phone}/reply")
+async def inbox_reply(request: Request, phone: str):
+    if (denied := _inbox_auth(request)) is not None:
+        return denied
+    form = await _inbox_form(request)
+    if form is None or not _valid_phone(phone):
+        return Response(status_code=403)
+    ok, reason = await request.app.state.agent.staff_send(phone, form.get("text", "")[:4000])
+    return _redirect(phone, reason)
+
+
+@app.post("/admin/chats/{phone}/pause")
+async def inbox_pause(request: Request, phone: str):
+    if (denied := _inbox_auth(request)) is not None:
+        return denied
+    if await _inbox_form(request) is None or not _valid_phone(phone):
+        return Response(status_code=403)
+    await request.app.state.agent.set_bot_paused(phone, True)
+    return _redirect(phone, "paused")
+
+
+@app.post("/admin/chats/{phone}/resume")
+async def inbox_resume(request: Request, phone: str):
+    if (denied := _inbox_auth(request)) is not None:
+        return denied
+    if await _inbox_form(request) is None or not _valid_phone(phone):
+        return Response(status_code=403)
+    await request.app.state.agent.set_bot_paused(phone, False)
+    return _redirect(phone, "resumed")
+
+
 @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
 async def home():
     return pages.HOME

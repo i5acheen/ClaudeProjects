@@ -121,6 +121,15 @@ Free-plan limits:
 - The service sleeps after 15 minutes idle, and the first reply after that takes about a minute. To keep it awake, add a free job at https://cron-job.org that opens `/health` every 10 minutes.
 - The disk is wiped on every restart or redeploy. Set `DATABASE_URL` (Neon) so chat memory survives.
 
+## 6c. Staff inbox: see and answer chats (no WhatsApp app needed)
+When the number is on the Cloud API, it can't be opened in the WhatsApp app. Staff use the built-in inbox instead:
+1. In Render → Environment, set `ADMIN_PASSWORD` to a long random password (e.g. `openssl rand -base64 18`) and redeploy.
+2. Open `https://<your-service>.onrender.com/admin/chats` on a phone or laptop. Log in with username **admin** and that password.
+3. You'll see every patient (newest first, with Hot/Warm/Cold, Booked and Staff tags). Tap one to read the full conversation.
+4. **Reply** from the page. This sends a WhatsApp message and pauses the bot for that patient for `HUMAN_HANDOFF_HOURS`. You can also **Pause** or **Resume** the bot, or tap **Call**.
+   - WhatsApp allows free-text replies only within 24 hours of the patient's last message. After that, the page asks you to call instead.
+   - Set `DATABASE_URL` (Neon) so chat history survives restarts.
+
 ## 7. Tests
 
 ```bash

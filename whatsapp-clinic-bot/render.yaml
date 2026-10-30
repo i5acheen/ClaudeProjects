@@ -19,6 +19,8 @@ services:
         sync: false
       - key: VERIFY_TOKEN
         sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
       - key: APP_SECRET
         sync: false
       - key: OPENROUTER_API_KEY

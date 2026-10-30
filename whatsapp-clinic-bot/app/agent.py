@@ -8,6 +8,7 @@ import logging
 import re
 import time
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Protocol
 
@@ -129,6 +130,27 @@ def merge_lead(old: dict, new: dict) -> dict:
         if v is not None:
             merged[k] = v
     return merged
+
+
+def parse_db_time(value: str | None) -> datetime | None:
+    """DB timestamps: SQLite gives naive UTC text, Postgres gives aware text. Returns aware UTC."""
+    if not value:
+        return None
+    try:
+        dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def within_customer_window(last_user_at: str | None, now: datetime | None = None,
+                           hours: float = 23.9) -> bool:
+    """WhatsApp allows free-text replies only within 24h of the customer's last message."""
+    last = parse_db_time(last_user_at)
+    if last is None:
+        return False
+    now = now or datetime.now(timezone.utc)
+    return now - last < timedelta(hours=hours)
 
 
 class Agent:
@@ -292,6 +314,33 @@ class Agent:
             self.db.log_event(customer, "staff_reply")
             log.info("Staff replied to ...%s from the Business app; bot paused %sh",
                      customer[-4:], self.human_handoff_hours)
+
+    async def staff_send(self, phone: str, text: str) -> tuple[bool, str]:
+        """Reply typed by staff in the /admin/chats inbox. Pauses the bot for this patient.
+        Free-text messages are only allowed within 24h of the patient's last message (WhatsApp rule)."""
+        text = (text or "").strip()
+        if not text:
+            return False, "empty"
+        async with self._locks[phone]:
+            if not within_customer_window(self.db.last_user_message_at(phone)):
+                return False, "window_closed"
+            if not await self.sender.send_text(phone, text):
+                return False, "send_failed"
+            lead = self.db.get_lead(phone)
+            data = dict(lead["data"]) | {"_human_until": time.time() + self.human_handoff_hours * 3600}
+            self.db.save_lead(phone, data, lead["language"], None, lead["details_confirmed"])
+            self.db.add_message(phone, "assistant", f"[Clinic staff] {text}")
+            self.db.log_event(phone, "staff_reply", "inbox")
+            return True, "sent"
+
+    async def set_bot_paused(self, phone: str, paused: bool) -> None:
+        """Pause (staff take over) or resume the bot for one patient from the inbox."""
+        async with self._locks[phone]:
+            lead = self.db.get_lead(phone)
+            until = time.time() + self.human_handoff_hours * 3600 if paused else 0
+            self.db.save_lead(phone, dict(lead["data"]) | {"_human_until": until}, lead["language"],
+                              None, lead["details_confirmed"])
+            self.db.log_event(phone, "bot_paused" if paused else "bot_resumed", "inbox")
 
     async def send_followups(self, now: float | None = None) -> int:
         """Send due reminders to patients who stopped replying. Only inside the free 24-hour

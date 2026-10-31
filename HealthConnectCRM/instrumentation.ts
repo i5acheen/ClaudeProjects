@@ -2,10 +2,16 @@ import * as Sentry from "@sentry/nextjs";
 import { scrubEvent } from "@/lib/sentry-scrub";
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs" && process.env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production") {
-    // Validate env at boot in production: fail fast rather than run half-configured (CLAUDE.md §10).
-    const { serverEnv } = await import("@/lib/env");
-    serverEnv();
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    // Validate env at boot (CLAUDE.md §10). Report loudly instead of crashing the whole app: public pages
+    // (privacy policy, needed by Meta) and /api/health must stay up, and every code path that needs a
+    // secret calls serverEnv(), which throws, so nothing runs half-configured.
+    const { checkEnv } = await import("@/lib/env");
+    const result = checkEnv();
+    if (!result.ok) {
+      const { log } = await import("@/lib/log");
+      log.error("env.invalid_at_boot", { invalid: result.problems });
+    }
   }
   if (process.env.SENTRY_DSN) {
     Sentry.init({

@@ -9,7 +9,15 @@ export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return res;
+  const path = req.nextUrl.pathname;
+  if (!url || !key) {
+    // Not configured yet: fail closed — only public routes are reachable.
+    if (PUBLIC.some((r) => r.test(path))) return res;
+    const to = req.nextUrl.clone();
+    to.pathname = "/login";
+    to.search = "";
+    return NextResponse.redirect(to);
+  }
 
   const supabase = createServerClient(url, key, {
     cookieOptions: { maxAge: SESSION_MAX_AGE_S, sameSite: "lax", secure: process.env.NODE_ENV === "production" },
@@ -23,7 +31,6 @@ export async function middleware(req: NextRequest) {
     },
   });
   const { data } = await supabase.auth.getUser();
-  const path = req.nextUrl.pathname;
   if (PUBLIC.some((r) => r.test(path))) return res;
 
   // Hard 12 h cap from sign-in, independent of refresh tokens.

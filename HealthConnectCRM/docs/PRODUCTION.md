@@ -83,7 +83,9 @@ order: each section depends on the one before it. Tick each box as you go.
 
 ## 5. Environment variables checklist (Production)
 
-Validated at boot with zod (CLAUDE.md §10): a missing or malformed value must fail the deploy, not run.
+Validated with zod (CLAUDE.md §10). At boot, invalid variable *names* are logged (`env.invalid_at_boot`)
+and `/api/health` returns 503 listing them; every code path that needs a secret refuses to run until fixed,
+while public pages (privacy policy, terms, login) stay up.
 
 | Variable | Source | Secret | Rotation |
 |---|---|---|---|

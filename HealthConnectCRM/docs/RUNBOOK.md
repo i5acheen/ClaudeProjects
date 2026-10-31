@@ -167,8 +167,8 @@ Pick the fastest option that is available; any one is enough:
    bot off with option 1 or 2 **first**, then unpause — the queued runs drain, filing every message
    without any bot reply.
 4. **Last resort:** in Vercel set `ANTHROPIC_API_KEY` (or `GEMINI_API_KEY`) to an invalid placeholder such
-   as `disabled-incident` and redeploy. Do **not** delete the variable: boot-time env validation would
-   then stop the whole app. With an invalid key every bot turn fails and the code sends the safe fallback
+   as `disabled-incident` and redeploy. Do **not** delete the variable: env validation would then
+   fail every server call that reads configuration — webhooks, jobs and the CRM — not just the bot. With an invalid key every bot turn fails and the code sends the safe fallback
    ("आमचे समन्वयक लवकरच आपल्याला फोन करतील.") and hands the patient to a human.
 
 While the bot is off, new messages still land in the Inbox (unread) and the assigned coordinator — or all

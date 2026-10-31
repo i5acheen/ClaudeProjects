@@ -3,10 +3,9 @@
 Phase 9 of `CLAUDE.md`. This is the one-time setup for the production stack. Do it in
 order: each section depends on the one before it. Tick each box as you go.
 
-> **Status (2026-10-30):** the infrastructure config in this repo is ready
-> (`vercel.json` pins functions to `bom1`, security headers, `.env.example`).
-> The application from phases 1–8 has **not been built yet**, so nothing below
-> has been provisioned. See `docs/DOD_REPORT.md`.
+> **Status (2026-10-31):** the application (phases 1–8) is built and its offline checks pass, and the
+> repo config is ready (`vercel.json` → `bom1`, security headers, `.env.example`, CI). **None of the cloud
+> services below has been provisioned yet** — they need your accounts (CLAUDE.md Part C). See `docs/DOD_REPORT.md`.
 
 | Service | Region / plan | Why |
 |---|---|---|
@@ -109,9 +108,9 @@ Validated at boot with zod (CLAUDE.md §10): a missing or malformed value must f
 | `SENTRY_DSN` | Sentry → Project → Client Keys | No (public by design) | On abuse |
 | `APP_BASE_URL` | `https://crm.<yourdomain>.in` | No | — |
 
-Also needed for production but not in CLAUDE.md §11 — add to `.env.example` in phase 1:
-`SENTRY_AUTH_TOKEN` (build-time source-map upload, secret), `SENTRY_ORG`, `SENTRY_PROJECT`, and
-`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` if Upstash is chosen for rate limiting.
+Also used (in `.env.example`, not in CLAUDE.md §11): `AI_MODEL` (optional model override),
+`NEXT_PUBLIC_SENTRY_DSN` (browser errors), `SENTRY_AUTH_TOKEN` (build-time source maps, secret), `SENTRY_ORG`,
+`SENTRY_PROJECT`. Do **not** set `INNGEST_DEV` in production.
 
 Checks before go-live:
 - [ ] No `NEXT_PUBLIC_` prefix on any secret.

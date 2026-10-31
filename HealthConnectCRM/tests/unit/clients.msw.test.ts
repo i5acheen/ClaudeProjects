@@ -93,13 +93,18 @@ describe("WhatsApp Cloud client", () => {
 
   it("downloads media in two steps", async () => {
     server.use(
-      http.get(`${G}/MEDIA1`, () => HttpResponse.json({ url: "https://lookaside.example/m1", mime_type: "image/jpeg", file_size: 3 })),
-      http.get("https://lookaside.example/m1", ({ request }) => {
+      http.get(`${G}/MEDIA1`, () => HttpResponse.json({ url: "https://lookaside.fbsbx.com/m1", mime_type: "image/jpeg", file_size: 3 })),
+      http.get("https://lookaside.fbsbx.com/m1", ({ request }) => {
         expect(request.headers.get("authorization")).toBe("Bearer wa-token");
         return new HttpResponse(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/jpeg" } });
       }),
     );
     const m = await downloadMedia(waCfg, "MEDIA1");
     expect(m).toMatchObject({ mimeType: "image/jpeg", size: 3 });
+  });
+
+  it("refuses to send the token to a non-Meta media host", async () => {
+    server.use(http.get(`${G}/MEDIA2`, () => HttpResponse.json({ url: "https://evil.example/x", mime_type: "image/jpeg" })));
+    await expect(downloadMedia(waCfg, "MEDIA2")).rejects.toThrow(/unexpected host/);
   });
 });

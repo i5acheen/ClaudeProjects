@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { setLocale, signOut } from "@/app/actions";
 import type { Role } from "@/lib/auth/session";
+import { userDb } from "@/lib/db/server";
 
 const ITEMS: { href: string; key: string; roles: Role[] }[] = [
   { href: "/dashboard", key: "dashboard", roles: ["admin", "coordinator", "viewer"] },
@@ -17,6 +18,10 @@ const ITEMS: { href: string; key: string; roles: Role[] }[] = [
 
 export async function Nav({ role, name, locale }: { role: Role; name: string; locale: string }) {
   const t = await getTranslations();
+  const unread =
+    role === "admin" || role === "coordinator"
+      ? ((await (await userDb()).from("notifications").select("id", { count: "exact", head: true }).is("read_at", null)).count ?? 0)
+      : 0;
   return (
     <header className="border-b border-border bg-surface">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:p-2">
@@ -31,6 +36,11 @@ export async function Nav({ role, name, locale }: { role: Role; name: string; lo
             </Link>
           ))}
         </nav>
+        {(role === "admin" || role === "coordinator") && (
+          <Link href="/alerts" className="rounded px-2 py-2 text-sm hover:bg-bg" aria-label={`Alerts: ${unread} unread`}>
+            🔔 {unread > 0 && <span className="rounded-full bg-danger px-1.5 text-xs text-white">{unread}</span>}
+          </Link>
+        )}
         <span className="hidden text-sm text-muted sm:inline">{name}</span>
         <form action={setLocale.bind(null, locale === "mr" ? "en" : "mr")}>
           <button className="rounded px-2 py-2 text-sm hover:bg-bg" type="submit">

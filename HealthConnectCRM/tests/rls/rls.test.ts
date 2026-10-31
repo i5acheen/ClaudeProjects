@@ -266,6 +266,60 @@ describe("privacy tools", () => {
   });
 });
 
+describe("conversation integrity (security review F1/F2)", () => {
+  it("staff cannot forge patient-visible messages", async () => {
+    await expect(
+      asUser(db, ids.coordA, async (q) => {
+        const [conv] = await q("select id from conversations limit 1");
+        await q(
+          "insert into messages (org_id, conversation_id, direction, sender, type, body) values ($1, $2, 'out', 'bot', 'text', 'forged')",
+          [ids.orgA, conv.id],
+        );
+      }),
+    ).rejects.toThrow(/row-level security/);
+  });
+
+  it("staff can add an internal note as themselves only", async () => {
+    await asUser(db, ids.coordA, async (q) => {
+      const [conv] = await q("select id from conversations limit 1");
+      await q(
+        "insert into messages (org_id, conversation_id, direction, sender, sender_user_id, type, body, is_internal_note) values ($1, $2, 'out', 'coordinator', $3, 'text', 'note', true)",
+        [ids.orgA, conv.id, ids.coordA],
+      );
+    });
+    await expect(
+      asUser(db, ids.coordA, async (q) => {
+        const [conv] = await q("select id from conversations limit 1");
+        await q(
+          "insert into messages (org_id, conversation_id, direction, sender, sender_user_id, type, body, is_internal_note) values ($1, $2, 'out', 'coordinator', $3, 'text', 'note', true)",
+          [ids.orgA, conv.id, ids.adminA],
+        );
+      }),
+    ).rejects.toThrow(/row-level security/);
+  });
+
+  it("staff cannot edit existing messages", async () => {
+    await expect(asUser(db, ids.coordA, (q) => q("update messages set body = 'edited'"))).rejects.toThrow(/permission denied/);
+  });
+
+  it("document verifier is always the caller", async () => {
+    await asUser(db, ids.coordA, async (q) => {
+      await q("update documents set verified_at = now(), verified_by = $1", [ids.adminA]);
+      const [d] = await q("select verified_by from documents");
+      expect(d.verified_by).toBe(ids.coordA);
+    });
+  });
+
+  it("consent changes by users are audited", async () => {
+    await asUser(db, ids.coordA, async (q) => {
+      await q("update patients set consent_whatsapp = true where id = $1", [ids.patNewA1]);
+      await q("reset role");
+      const a = await q("select action, actor_user_id from audit_log where entity_id = $1", [ids.patNewA1]);
+      expect(a).toContainEqual({ action: "patient.consent_changed", actor_user_id: ids.coordA });
+    });
+  });
+});
+
 describe("webhook_events", () => {
   it("is not readable by any user role", async () => {
     await db.query("insert into webhook_events (provider, event_key, payload) values ('meta', 'k1', '{}')");

@@ -545,3 +545,9 @@ export async function anonymisePatient(input: { patientId: string; reason: strin
     return fail(e);
   }
 }
+
+export async function markAlertsRead(): Promise<void> {
+  const s = await assertRole("admin", "coordinator");
+  await (await userDb()).from("notifications").update({ read_at: new Date().toISOString() }).eq("user_id", s.userId).is("read_at", null);
+  revalidatePath("/alerts");
+}

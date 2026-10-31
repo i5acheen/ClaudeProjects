@@ -65,6 +65,12 @@ export async function downloadMedia(cfg: WaConfig, mediaId: string): Promise<{ b
   });
   if (!metaRes.ok) throw new WaApiError(`media lookup ${metaRes.status}`, metaRes.status);
   const meta = z.object({ url: z.string().url(), mime_type: z.string(), file_size: z.number().optional() }).parse(await metaRes.json());
+  // The bearer token is sent to this URL: only follow https links on Meta-owned hosts (SSRF / token leak guard).
+  const host = new URL(meta.url).hostname;
+  if (!meta.url.startsWith("https://") || !/(^|\.)(fbsbx\.com|fbcdn\.net|facebook\.com|whatsapp\.net)$/.test(host)) {
+    throw new WaApiError(`refusing media URL on unexpected host ${host}`, 0);
+  }
+  if ((meta.file_size ?? 0) > 10 * 1024 * 1024) throw new WaApiError("media larger than 10 MB", 413);
   const fileRes = await fetchWithTimeout(meta.url, { headers: { Authorization: `Bearer ${cfg.accessToken}` } }, 20_000);
   if (!fileRes.ok) throw new WaApiError(`media download ${fileRes.status}`, fileRes.status);
   const bytes = await fileRes.arrayBuffer();

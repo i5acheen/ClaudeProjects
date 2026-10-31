@@ -26,12 +26,13 @@ GREETINGS = {"hi", "hii", "hiii", "hello", "helo", "hey", "hy", "namaskar", "nam
 
 BOOK_FIELDS = ["preferred_time"]       # appointment: only the day (the team calls to fix the time)
 CALLBACK_FIELDS: list[str] = []        # "call me": no questions at all
-TYPED_STEPS = {"name", "city", "concern_text", "duration", "preferred_time"}
+FORM_FIELDS = ["name", "age", "city", "concern"]   # patient details form (chat version)
+TYPED_STEPS = {"name", "age", "city", "concern_text", "duration", "preferred_time"}
 
 # Menu item -> fixed answer key, or a special action.
 MENU_ACTIONS = {"book": "book", "problem": "problem", "callback": "callback", "other": "other",
                 "scheme": "scheme", "treatment": "answer", "cost": "answer", "location": "answer",
-                "photo": "answer", "disease": "disease"}
+                "photo": "answer", "disease": "disease", "form": "form"}
 # Small "next" buttons -> menu item they open.
 BUTTON_TARGETS = {"book": "book", "location": "location", "call": "callback",
                   "cost": "cost", "menu": "menu", "scheme": "scheme"}
@@ -77,13 +78,22 @@ def looks_like_answer(text: str, step: str = "name", max_len: int = 40) -> bool:
         return any(ch.isdigit() for ch in t) or any(w in low for w in TIME_WORDS)
     if step in ("name", "city"):
         return not any(ch.isdigit() for ch in t)
+    if step == "age":
+        digits = "".join(ch for ch in t if ch.isdigit())
+        return bool(digits) and 0 < int(digits[:3]) < 120
     return True
 
 
+def clean_age(text: str) -> str:
+    digits = "".join(ch for ch in (text or "") if ch.isdigit())[:3]
+    return digits or (text or "").strip()[:10]
+
+
 class Flows:
-    def __init__(self, path: Path, calendar: GoogleCalendar | None = None):
+    def __init__(self, path: Path, calendar: GoogleCalendar | None = None, form_flow_id: str = ""):
         self.path = path
         self.calendar = calendar
+        self.form_flow_id = form_flow_id   # WhatsApp native form (Flow) id; empty = chat form
         self._cache: tuple[float, dict] | None = None
 
     @property
@@ -202,7 +212,34 @@ class Flows:
         return value or "-"
 
     # ---------- booking ----------
+    async def start_form(self, data: dict, lang: str) -> FlowReply:
+        """Patient details form: a native WhatsApp form if configured, else one question at a time."""
+        p = self.c["prompts"]
+        if self.form_flow_id:
+            return FlowReply(self.t(p["form_intro"], lang), "flow",
+                             [{"id": self.form_flow_id, "title": self.t(p["form_button"], lang)}],
+                             updates={"_step": None, "_flow": "form"}, route="form:native")
+        r = await self.next_step(data, lang, "form", prefix=self.t(p["form_intro_chat"], lang))
+        r.route = "form:start"
+        return r
+
+    def form_submitted(self, values: dict, data: dict, lang: str) -> FlowReply:
+        """Answers from the native WhatsApp form."""
+        concern_id = (values.get("disease") or "").strip()
+        item = self._find("concerns", concern_id)
+        fields = {"name": (values.get("name") or "").strip()[:60] or None,
+                  "age": clean_age(values.get("age") or "") or None,
+                  "city": (values.get("location") or "").strip()[:80] or None,
+                  "concern": item["label"] if item else (concern_id[:60] or None)}
+        upd = self._set(data, **{k: v for k, v in fields.items() if v})
+        r = self._done(data | upd, lang, "form")
+        r.updates = upd | r.updates
+        r.route = "form:submitted"
+        return r
+
     async def next_step(self, data: dict, lang: str, flow: str, prefix: str = "") -> FlowReply:
+        if flow == "form":
+            return self._form_step(data, lang, prefix)
         required = CALLBACK_FIELDS if flow == "callback" else BOOK_FIELDS
         p = self.c["prompts"]
         missing = next((f for f in required if not data.get(f)), None)
@@ -239,8 +276,38 @@ class Flows:
         # Everything collected: done straight away (no confirm step). The team calls to fix the time.
         return self._done(data, lang, flow, head)
 
+    def _form_step(self, data: dict, lang: str, prefix: str = "") -> FlowReply:
+        p = self.c["prompts"]
+        head = f"{prefix}\n\n" if prefix else ""
+        missing = next((f for f in FORM_FIELDS if not data.get(f)), None)
+        upd = {"_flow": "form"}
+        if missing in ("name", "age", "city"):
+            key = {"name": "form_name", "age": "form_age", "city": "form_location"}[missing]
+            return FlowReply(head + self.t(p[key], lang), updates=upd | {"_step": missing},
+                             route=f"form:{missing}")
+        if missing == "concern":
+            r = self.disease_picker(lang)
+            r.text = head + r.text
+            r.updates = upd | {"_step": "concern"}
+            r.route = "form:concern"
+            return r
+        return self._done(data, lang, "form", head)
+
     def _done(self, data: dict, lang: str, flow: str, head: str = "") -> FlowReply:
         p = self.c["prompts"]
+        if flow == "form":
+            lines = [self.t(p["form_done"], lang)]
+            for f, key in (("name", "name"), ("age", "age"), ("city", "location"), ("concern", "concern")):
+                if data.get(f):
+                    val = data[f]
+                    if f == "concern":
+                        item = next((x for x in self.c["concerns"] if x["label"] == val), None)
+                        val = self.t(item["title"], lang) if item and item["id"] != "other" else val.removeprefix("other: ")
+                    lines.append(f"• {self.t(p['form_fields'][key], lang)}: {val}")
+            upd = {"_step": None, "_flow": None, "status": "Hot",
+                   "summary": f"filled details form: {data.get('concern') or '-'} (via menu)"}
+            return FlowReply(head + "\n".join(lines), "buttons", self.buttons(["book", "call", "menu"], lang),
+                             updates=upd, confirmed=True, route="form:done")
         if flow == "callback":
             text = self.t(p["callback_done"], lang)
         elif data.get("preferred_time") == "call me first" or not data.get("_day"):
@@ -303,6 +370,11 @@ class Flows:
             if t.lower() in MENU_WORDS:
                 return self.menu(lang)
             step = data.get("_step")
+            if step == "concern_text" and looks_like_answer(t, step) and flow == "form":
+                upd = self._set(data, concern=f"other: {t}")
+                r = await self.next_step(data | upd, lang, "form")
+                r.updates = upd | r.updates
+                return r
             if step == "concern_text" and looks_like_answer(t, step):
                 upd = self._set(data, concern=f"other: {t}")
                 r = self.disease_info(data | upd, lang, prefix=self.t(self.c["prompts"]["concern_noted"], lang))
@@ -311,7 +383,7 @@ class Flows:
                 return r
             if step in TYPED_STEPS and looks_like_answer(t, step):
                 field_name = "concern" if step == "concern_text" else step
-                value = f"other: {t}" if step == "concern_text" else t
+                value = f"other: {t}" if step == "concern_text" else (clean_age(t) if step == "age" else t)
                 upd = self._set(data, **{field_name: value})
                 r = await self.next_step(data | upd, lang, flow)
                 r.updates = upd | r.updates
@@ -319,6 +391,13 @@ class Flows:
                 return r
             return None  # free text: LLM
 
+        if cid == "f:formdata":                       # native WhatsApp form submitted
+            import json as _json
+            try:
+                values = _json.loads(t or "{}")
+            except ValueError:
+                values = {}
+            return self.form_submitted(values if isinstance(values, dict) else {}, data, lang)
         parts = cid.split(":")
         kind, val = parts[1], ":".join(parts[2:])
         if kind == "menu" or (kind == "go" and val == "menu"):
@@ -337,6 +416,8 @@ class Flows:
                 return self.scheme_answer(lang)
             if action == "disease":
                 return self.disease_picker(lang)
+            if action == "form":
+                return await self.start_form(data, lang)
             if action in ("book", "problem", "callback"):
                 flow_name = "callback" if action == "callback" else "book"
                 fresh = {"preferred_time": None, "_day": None}   # every tap is a new request
@@ -356,10 +437,17 @@ class Flows:
             item = self._find("concerns", val)
             if not item:
                 return self.menu(lang)
+            in_form = data.get("_flow") == "form"
             if val == "other":
                 return FlowReply(self.t(self.c["prompts"]["concern_text"], lang),
-                                 updates={"_step": "concern_text", "_flow": "book"}, route="book:concern_text")
+                                 updates={"_step": "concern_text", "_flow": "form" if in_form else "book"},
+                                 route="book:concern_text")
             upd = self._set(data, concern=item["label"])
+            if in_form:
+                r = await self.next_step(data | upd, lang, "form")
+                r.updates = upd | r.updates
+                r.route = f"form:concern:{val}"
+                return r
             r = self.disease_info(data | upd, lang)
             r.updates = upd | r.updates
             r.route = f"concern:{val}"

@@ -413,6 +413,15 @@ class Agent:
                           language: str) -> None:
         if text:
             self.db.add_message(msg.phone, "user", text)
+        if reply.kind == "flow" and not await self._send(msg.phone, reply.text, reply.kind, reply.choices):
+            # Native WhatsApp form not available (not published / wrong id): use the chat form instead.
+            reply = self.flows._form_step(lead["data"], language,
+                                          self.flows.t(self.flows.c["prompts"]["form_intro_chat"], language))
+        elif reply.kind == "flow":
+            self.db.add_message(msg.phone, "assistant", reply.text + "\n[Form sent]")
+            self.db.log_event(msg.phone, reply.route)
+            await self._save(msg, lead, dict(lead["data"]) | reply.updates, language, lead["details_confirmed"])
+            return
         if await self._send(msg.phone, reply.text, reply.kind, reply.choices, reply.button_label):
             shown = " | ".join(c["title"] for c in reply.choices)
             self.db.add_message(msg.phone, "assistant",
@@ -424,6 +433,9 @@ class Agent:
         await self._save(msg, lead, new_data, language, confirmed)
 
     async def _send(self, phone: str, text: str, kind: str, choices: list[dict], label: str = "") -> bool:
+        if kind == "flow" and choices:
+            send_flow = getattr(self.sender, "send_flow", None)
+            return bool(send_flow) and await send_flow(phone, text, choices[0]["id"], choices[0]["title"])
         if kind == "buttons" and 1 <= len(choices) <= 3 and len(text) <= 1024:
             sent = await self.sender.send_choices(phone, text, "buttons", choices)
         elif kind == "list" and 1 <= len(choices) <= 10 and len(text) <= 1024:

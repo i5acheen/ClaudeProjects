@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 class LeadInfo(BaseModel):
     name: Optional[str] = None
+    age: Optional[str] = None
     city: Optional[str] = None
     concern: Optional[str] = None
     duration: Optional[str] = None

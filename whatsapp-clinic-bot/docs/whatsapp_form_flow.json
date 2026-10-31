@@ -1,0 +1,37 @@
+{
+  "version": "6.3",
+  "screens": [
+    {
+      "id": "PATIENT_DETAILS",
+      "title": "रुग्णाची माहिती",
+      "terminal": true,
+      "success": true,
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {"type": "TextSubheading", "text": "कृपया रुग्णाची माहिती भरा"},
+          {"type": "TextInput", "name": "name", "label": "नाव (Name)", "input-type": "text", "required": true},
+          {"type": "TextInput", "name": "age", "label": "वय (Age)", "input-type": "number", "required": true},
+          {"type": "TextInput", "name": "location", "label": "गाव / शहर (Location)", "input-type": "text", "required": true},
+          {
+            "type": "Dropdown", "name": "disease", "label": "त्रास (Problem)", "required": true,
+            "data-source": [
+              {"id": "varicose", "title": "व्हेरिकोज व्हेन्स (Varicose veins)"},
+              {"id": "varicocele", "title": "व्हॅरिकोसील (Varicocele)"},
+              {"id": "spine", "title": "स्पाइन / मणका (Spine)"},
+              {"id": "other", "title": "इतर (Other)"}
+            ]
+          },
+          {
+            "type": "Footer", "label": "पाठवा (Submit)",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {"name": "${form.name}", "age": "${form.age}", "location": "${form.location}",
+                          "disease": "${form.disease}"}
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -60,7 +60,7 @@ async def lifespan(app: FastAPI):
         history_limit=settings.history_limit, clinic_phone=settings.clinic_phone,
         alerter=alerter if alerter.enabled else None,
         rate_limiter=RateLimiter(settings.rate_limit_count, settings.rate_limit_window),
-        flows=Flows(FLOWS_FILE, calendar),
+        flows=Flows(FLOWS_FILE, calendar, settings.form_flow_id),
         human_handoff_hours=settings.human_handoff_hours,
     )
     log.info("Started. LLM chain=%s | DB=%s | Sheets=%s | Calendar=%s | Alerts=%s | Diag=%s",

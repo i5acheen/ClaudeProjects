@@ -34,7 +34,7 @@ List: 🦵 व्हेरिकोज व्हेन्स | व्हॅर�
 
 आम्ही कशी मदत करू? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
+Menu: 📅 अपॉइंटमेंट बुक करा | 📝 माहिती फॉर्म भरा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
 
 **3. Picked: व्हॅरिकोसील**
 ```
@@ -49,7 +49,7 @@ Menu: 📅 अपॉइंटमेंट बुक करा | 📷 फोट�
 
 आम्ही कशी मदत करू? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
+Menu: 📅 अपॉइंटमेंट बुक करा | 📝 माहिती फॉर्म भरा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
 
 **4. Picked: 🦴 स्पाइन (मणका) त्रास**
 ```
@@ -68,7 +68,7 @@ MRI / X-ray रिपोर्ट असल्यास त्याचा फ�
 
 आम्ही कशी मदत करू? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
+Menu: 📅 अपॉइंटमेंट बुक करा | 📝 माहिती फॉर्म भरा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
 
 **5. Picked: ❓ इतर त्रास**
 ```
@@ -80,7 +80,7 @@ After they type it:
 
 आम्ही कशी मदत करू? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
+Menu: 📅 अपॉइंटमेंट बुक करा | 📝 माहिती फॉर्म भरा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
 
 **6. 📷 Send leg photos**
 ```
@@ -116,19 +116,46 @@ After "call me first":
 ```
 Buttons: ☰ मेनू
 
-**10. 📞 Call me back (one tap)**
+**10. 📝 Details form (chat version; one question at a time)**
+```
+📝 रुग्णाची माहिती भरूया (४ छोटे प्रश्न).
+
+1️⃣ रुग्णाचे *नाव* टाइप करा.
+```
+```
+2️⃣ रुग्णाचे *वय* किती आहे?
+```
+```
+3️⃣ तुम्ही कोणत्या *गाव / शहरातून* आहात?
+```
+Then the problem list (skipped if already chosen):
+```
+तुम्हाला यापैकी कोणता त्रास आहे? 👇
+```
+Done:
+```
+✅ धन्यवाद! माहिती नोंदवली आहे. आमचे प्रतिनिधी तुम्हाला लवकरच कॉल करतील.
+• नाव: …
+• वय: …
+• ठिकाण: …
+• त्रास: …
+```
+Buttons: 📅 अपॉइंटमेंट | 📞 कॉल हवा | ☰ मेनू
+_With `WHATSAPP_FORM_FLOW_ID` set, a native WhatsApp form opens instead (fields: name, age, location, problem)._
+
+**11. 📞 Call me back (one tap)**
 ```
 ठीक आहे 🙏 आमचे प्रतिनिधी तुम्हाला लवकरच कॉल करतील.
 ```
 
-**11. 📷 Patient sends a photo (legs or Doppler report)**
+**12. 📷 Patient sends a photo (legs or Doppler report)**
 Saved for staff in the inbox; the patient is thanked once per batch of photos:
 ```
 धन्यवाद 🙏 फोटो / रिपोर्ट मिळाला. डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला तुम्हाला कळवला जाईल.
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल हवा | ☰ मेनू
 
-**12. Reminders if the patient stops replying (inside 24 h only)**
+**13. Reminders if the patient stops replying (inside 24 h only)**
 After 2 h:
 ```
 नमस्कार <name> 🙏 तुमच्या त्रासाचे फोटो किंवा रिपोर्ट पाठवायचा असेल तर इथेच पाठवा. डॉक्टरांचा सल्ला कळवला जाईल.
@@ -142,14 +169,14 @@ After 20 h:
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल हवा | ☰ मेनू
 
-**13. Typed question when AI is off (menu-only mode)**
+**14. Typed question when AI is off (menu-only mode)**
 ```
 तुमचा प्रश्न नोंदवला आहे 🙏 आमचे प्रतिनिधी तुम्हाला कॉल करून माहिती देतील.
 तोपर्यंत खालील मेनूमधून पर्याय निवडू शकता.
 ```
 Then the main menu.
 
-**14. ⚠️ Emergency words (always, instantly)**
+**15. ⚠️ Emergency words (always, instantly)**
 ```
 ⚠️ हे गंभीर असू शकते. कृपया *लगेच 108 वर कॉल करा* किंवा जवळच्या हॉस्पिटलच्या इमर्जन्सी विभागात जा. उशीर करू नका.
 ```
@@ -184,7 +211,7 @@ List: 🦵 वेरिकोज़ वेन्स | वैरिकोसी�
 
 हम कैसे मदद करें? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
+Menu: 📅 अपॉइंटमेंट बुक करें | 📝 जानकारी फ़ॉर्म भरें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
 
 **3. Picked: वैरिकोसील**
 ```
@@ -199,7 +226,7 @@ Menu: 📅 अपॉइंटमेंट बुक करें | 📷 फ़�
 
 हम कैसे मदद करें? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
+Menu: 📅 अपॉइंटमेंट बुक करें | 📝 जानकारी फ़ॉर्म भरें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
 
 **4. Picked: 🦴 स्पाइन की तकलीफ़**
 ```
@@ -218,7 +245,7 @@ MRI / X-ray रिपोर्ट हो तो उसकी फ़ोटो य
 
 हम कैसे मदद करें? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
+Menu: 📅 अपॉइंटमेंट बुक करें | 📝 जानकारी फ़ॉर्म भरें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
 
 **5. Picked: ❓ कोई और तकलीफ़**
 ```
@@ -230,7 +257,7 @@ After they type it:
 
 हम कैसे मदद करें? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
+Menu: 📅 अपॉइंटमेंट बुक करें | 📝 जानकारी फ़ॉर्म भरें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
 
 **6. 📷 Send leg photos**
 ```
@@ -266,19 +293,46 @@ After "call me first":
 ```
 Buttons: ☰ मेनू
 
-**10. 📞 Call me back (one tap)**
+**10. 📝 Details form (chat version; one question at a time)**
+```
+📝 मरीज़ की जानकारी भरते हैं (4 छोटे सवाल).
+
+1️⃣ मरीज़ का *नाम* टाइप करें.
+```
+```
+2️⃣ मरीज़ की *उम्र* कितनी है?
+```
+```
+3️⃣ आप किस *गांव / शहर* से हैं?
+```
+Then the problem list (skipped if already chosen):
+```
+आपको इनमें से कौन सी तकलीफ़ है? 👇
+```
+Done:
+```
+✅ धन्यवाद! जानकारी दर्ज कर ली गई है. हमारे प्रतिनिधि जल्द ही आपको कॉल करेंगे.
+• नाम: …
+• उम्र: …
+• जगह: …
+• तकलीफ़: …
+```
+Buttons: 📅 अपॉइंटमेंट | 📞 कॉल करें | ☰ मेनू
+_With `WHATSAPP_FORM_FLOW_ID` set, a native WhatsApp form opens instead (fields: name, age, location, problem)._
+
+**11. 📞 Call me back (one tap)**
 ```
 ठीक है 🙏 हमारे प्रतिनिधि जल्द ही आपको कॉल करेंगे.
 ```
 
-**11. 📷 Patient sends a photo (legs or Doppler report)**
+**12. 📷 Patient sends a photo (legs or Doppler report)**
 Saved for staff in the inbox; the patient is thanked once per batch of photos:
 ```
 धन्यवाद 🙏 फ़ोटो / रिपोर्ट मिल गई. डॉक्टर को दिखाकर उनकी सलाह आपको बताई जाएगी.
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल करें | ☰ मेनू
 
-**12. Reminders if the patient stops replying (inside 24 h only)**
+**13. Reminders if the patient stops replying (inside 24 h only)**
 After 2 h:
 ```
 नमस्ते <name> 🙏 तकलीफ़ की फ़ोटो या रिपोर्ट भेजनी हो तो यहीं भेजें. डॉक्टर की सलाह बताई जाएगी.
@@ -292,14 +346,14 @@ After 20 h:
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल करें | ☰ मेनू
 
-**13. Typed question when AI is off (menu-only mode)**
+**14. Typed question when AI is off (menu-only mode)**
 ```
 आपका सवाल दर्ज कर लिया गया है 🙏 हमारे प्रतिनिधि आपको कॉल करके जानकारी देंगे.
 तब तक नीचे मेनू से विकल्प चुन सकते हैं.
 ```
 Then the main menu.
 
-**14. ⚠️ Emergency words (always, instantly)**
+**15. ⚠️ Emergency words (always, instantly)**
 ```
 ⚠️ यह गंभीर हो सकता है. कृपया *तुरंत 108 पर कॉल करें* या नज़दीकी अस्पताल के इमरजेंसी विभाग में जाएं. देर न करें.
 ```
@@ -334,7 +388,7 @@ We will show the photos to the doctor and share their advice.
 
 How can we help? 👇
 ```
-Menu: 📅 Book appointment | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
+Menu: 📅 Book appointment | 📝 Fill details form | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
 
 **3. Picked: Varicocele**
 ```
@@ -349,7 +403,7 @@ If you have a sonography / Colour Doppler report, send a photo here for the doct
 
 How can we help? 👇
 ```
-Menu: 📅 Book appointment | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
+Menu: 📅 Book appointment | 📝 Fill details form | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
 
 **4. Picked: 🦴 Spine problem**
 ```
@@ -368,7 +422,7 @@ If you have an MRI / X-ray report, send a photo here for the doctor's advice.
 
 How can we help? 👇
 ```
-Menu: 📅 Book appointment | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
+Menu: 📅 Book appointment | 📝 Fill details form | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
 
 **5. Picked: ❓ Other problem**
 ```
@@ -380,7 +434,7 @@ Thank you 🙏 Your problem is noted. Our representative will call you with deta
 
 How can we help? 👇
 ```
-Menu: 📅 Book appointment | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
+Menu: 📅 Book appointment | 📝 Fill details form | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
 
 **6. 📷 Send leg photos**
 ```
@@ -416,19 +470,46 @@ Thank you 🙏 Our representative will call you soon to fix the appointment.
 ```
 Buttons: ☰ Menu
 
-**10. 📞 Call me back (one tap)**
+**10. 📝 Details form (chat version; one question at a time)**
+```
+📝 Let's fill in the patient's details (4 short questions).
+
+1️⃣ Type the patient's *name*.
+```
+```
+2️⃣ What is the patient's *age*?
+```
+```
+3️⃣ Which *village / city* are you from?
+```
+Then the problem list (skipped if already chosen):
+```
+Which of these problems do you have? 👇
+```
+Done:
+```
+✅ Thank you! Your details are noted. Our representative will call you soon.
+• Name: …
+• Age: …
+• Location: …
+• Problem: …
+```
+Buttons: 📅 Book | 📞 Call me | ☰ Menu
+_With `WHATSAPP_FORM_FLOW_ID` set, a native WhatsApp form opens instead (fields: name, age, location, problem)._
+
+**11. 📞 Call me back (one tap)**
 ```
 Okay 🙏 Our representative will call you soon.
 ```
 
-**11. 📷 Patient sends a photo (legs or Doppler report)**
+**12. 📷 Patient sends a photo (legs or Doppler report)**
 Saved for staff in the inbox; the patient is thanked once per batch of photos:
 ```
 Thank you 🙏 Photo / report received. We'll show it to the doctor and share their advice with you.
 ```
 Buttons: 📅 Book | 📞 Call me | ☰ Menu
 
-**12. Reminders if the patient stops replying (inside 24 h only)**
+**13. Reminders if the patient stops replying (inside 24 h only)**
 After 2 h:
 ```
 Hello <name> 🙏 You can send photos or reports of your problem right here for the doctor's advice.
@@ -442,14 +523,14 @@ Shall we pick a day for the appointment?
 ```
 Buttons: 📅 Book | 📞 Call me | ☰ Menu
 
-**13. Typed question when AI is off (menu-only mode)**
+**14. Typed question when AI is off (menu-only mode)**
 ```
 Your question has been noted 🙏 Our representative will call you with the details.
 Meanwhile, you can choose from the menu below.
 ```
 Then the main menu.
 
-**14. ⚠️ Emergency words (always, instantly)**
+**15. ⚠️ Emergency words (always, instantly)**
 ```
 ⚠️ This could be serious. Please *call 108 immediately* or go to the nearest hospital emergency department. Don't wait.
 ```

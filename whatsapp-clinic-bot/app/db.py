@@ -14,7 +14,7 @@ from pathlib import Path
 
 log = logging.getLogger(__name__)
 
-LEAD_FIELDS = ("name", "city", "concern", "duration", "preferred_time", "status", "summary")
+LEAD_FIELDS = ("name", "age", "city", "concern", "duration", "preferred_time", "status", "summary")
 
 _SQLITE_SCHEMA = """
 CREATE TABLE IF NOT EXISTS messages (

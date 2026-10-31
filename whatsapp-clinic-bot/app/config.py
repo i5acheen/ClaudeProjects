@@ -44,6 +44,7 @@ class Settings:
     whatsapp_api_url: str
     whatsapp_auth_header: str
     webhook_url_key: str
+    form_flow_id: str
     llm_chain: list[str]
     llm_keys: dict[str, str]
     database_url: str
@@ -102,6 +103,7 @@ def load_settings() -> Settings:
         whatsapp_api_url=env("WHATSAPP_API_URL", ""),
         whatsapp_auth_header=env("WHATSAPP_AUTH_HEADER", ""),
         webhook_url_key=env("WEBHOOK_URL_KEY", ""),
+        form_flow_id=env("WHATSAPP_FORM_FLOW_ID", ""),
         llm_chain=[e.strip() for e in (env("LLM_CHAIN") or DEFAULT_LLM_CHAIN).split(",") if e.strip()],
         llm_keys={
             "openrouter": env("OPENROUTER_API_KEY", ""),

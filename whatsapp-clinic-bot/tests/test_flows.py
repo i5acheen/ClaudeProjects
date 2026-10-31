@@ -61,7 +61,7 @@ def test_first_message_asks_which_disease_in_marathi_then_shows_its_info():
     assert db.get_lead(PHONE)["language"] == "mr"
     run(agent.handle(tap("m2", "f:concern:varicose")))
     to, body, kind, titles = sender.sent[-1]
-    assert "25 मिनिटात" in body and kind == "list" and len(titles) == 5 and len(body) <= 1024
+    assert "25 मिनिटात" in body and kind == "list" and len(titles) == 6 and len(body) <= 1024
     assert db.get_lead(PHONE)["data"]["concern"] == "varicose veins"
     run(agent.handle(tap("m3", "f:m:disease")))                 # choose another problem
     run(agent.handle(tap("m4", "f:concern:spine")))
@@ -302,7 +302,7 @@ def test_menu_only_mode_without_ai():
     agent = Agent(db, None, sender, None, flows=FLOWS, clinic_phone="+91 96995 59301")
     run(agent.handle(say("m1", "mala sugar ahe, laser hoil ka?")))
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and len(titles) == 5                       # the main menu
+    assert kind == "list" and len(titles) == 6                       # the main menu
     assert "प्रतिनिधी" in body and "नोंदवला" in body and "96995" not in body
     assert db.recent_events("no_ai")[0]["detail"].startswith("mala sugar")
     run(agent.handle(tap("m2", "f:m:cost")))                         # menu still works
@@ -342,7 +342,7 @@ def test_workflow_is_standard_no_names_or_videos():
                    "96995", "88057", "kotwalpura", "कोतवालपुरा", "bus stand", "बस स्टँड", "{phone}"):
         assert banned not in flat, banned
     ids = [it["id"] for it in texts["menu"]["items"]]
-    assert ids == ["book", "photo", "callback", "disease", "other"]
+    assert ids == ["book", "form", "photo", "callback", "disease", "other"]
     assert [c["id"] for c in texts["concerns"]] == ["varicose", "varicocele", "spine", "other"]
 
 
@@ -351,3 +351,84 @@ def test_location_question_promises_a_call(lang):
     r = FLOWS.answer("location", lang)
     assert "📞" in r.text and not any(ch.isdigit() for ch in r.text)
     assert r.choices[0]["id"] == "f:go:call"
+
+
+def test_chat_form_asks_name_age_location_disease():
+    agent, db, llm, sender = make()
+    run(agent.handle(tap("m1", "f:m:form")))
+    assert "नाव" in sender.sent[-1][1]
+    run(agent.handle(say("m2", "Sunita Patil")))
+    assert "वय" in sender.sent[-1][1]
+    run(agent.handle(say("m3", "abc")))                          # not an age -> not taken as one
+    assert db.get_lead(PHONE)["data"].get("age") is None
+    run(agent.handle(say("m4", "45 वर्ष")))
+    assert "गाव" in sender.sent[-1][1]
+    run(agent.handle(say("m5", "Jalna")))
+    to, body, kind, titles = sender.sent[-1]
+    assert kind == "list" and "कोणता त्रास" in body             # disease picker inside the form
+    run(agent.handle(tap("m6", "f:concern:spine")))
+    body = sender.sent[-1][1]
+    assert "नोंदवली" in body and "Sunita Patil" in body and "45" in body and "Jalna" in body and "स्पाइन" in body
+    lead = db.get_lead(PHONE)
+    d = lead["data"]
+    assert (d["name"], d["age"], d["city"], d["concern"]) == ("Sunita Patil", "45", "Jalna", "spine problem")
+    assert lead["details_confirmed"] and d["status"] == "Hot"
+
+
+def test_chat_form_skips_known_disease():
+    agent, db, llm, sender = make()
+    db.save_lead(PHONE, {"concern": "varicocele"}, "mr", None, False)
+    run(agent.handle(tap("m1", "f:m:form")))
+    run(agent.handle(say("m2", "Ramesh")))
+    run(agent.handle(say("m3", "30")))
+    run(agent.handle(say("m4", "Paithan")))
+    assert "नोंदवली" in sender.sent[-1][1] and "व्हॅरिकोसील" in sender.sent[-1][1]
+
+
+def test_native_form_sent_and_answers_saved():
+    from app.flows import Flows
+
+    class FlowSender(FakeSender):
+        async def send_flow(self, to, body, flow_id, cta):
+            self.sent.append((to, body, "flow", [flow_id, cta]))
+            return True
+
+    flows = Flows(FLOWS_FILE, None, form_flow_id="123456")
+    db, sender = Database(":memory:"), FlowSender()
+    db.save_lead(PHONE, {}, "mr", None, False)
+    agent = Agent(db, FakeLLM(), sender, None, flows=flows)
+    run(agent.handle(tap("m1", "f:m:form")))
+    assert sender.sent[-1][2] == "flow" and sender.sent[-1][3] == ["123456", "फॉर्म भरा"]
+    answers = '{"name": "Asha", "age": "52", "location": "Vaijapur", "disease": "varicose"}'
+    run(agent.handle(IncomingMessage("m2", PHONE, "text", answers, None, "f:formdata")))
+    d = db.get_lead(PHONE)["data"]
+    assert (d["name"], d["age"], d["city"], d["concern"]) == ("Asha", "52", "Vaijapur", "varicose veins")
+    assert "नोंदवली" in sender.sent[-1][1]
+
+
+def test_native_form_falls_back_to_chat_form():
+    from app.flows import Flows
+
+    class FailingFlowSender(FakeSender):
+        async def send_flow(self, to, body, flow_id, cta):
+            return False
+
+    flows = Flows(FLOWS_FILE, None, form_flow_id="bad-id")
+    db, sender = Database(":memory:"), FailingFlowSender()
+    db.save_lead(PHONE, {}, "mr", None, False)
+    agent = Agent(db, FakeLLM(), sender, None, flows=flows)
+    run(agent.handle(tap("m1", "f:m:form")))
+    assert "नाव" in sender.sent[-1][1] and db.get_lead(PHONE)["data"]["_step"] == "name"
+    run(agent.handle(say("m2", "Asha")))
+    assert "वय" in sender.sent[-1][1]
+
+
+def test_parse_native_form_reply():
+    from app.whatsapp import parse_messages
+    payload = {"object": "whatsapp_business_account", "entry": [{"changes": [{"value": {
+        "contacts": [{"wa_id": PHONE, "profile": {"name": "R"}}],
+        "messages": [{"id": "w1", "from": PHONE, "type": "interactive", "interactive": {
+            "type": "nfm_reply", "nfm_reply": {"name": "flow", "body": "Sent",
+                                               "response_json": '{"name": "Asha", "flow_token": "x"}'}}}]}}]}]}
+    m = parse_messages(payload)[0]
+    assert m.choice_id == "f:formdata" and '"Asha"' in m.text and m.type == "text"

@@ -42,8 +42,12 @@ def parse_messages(payload: dict) -> list[IncomingMessage]:
                     text = msg.get("text", {}).get("body")
                 elif mtype == "interactive":  # tapped reply button or list row
                     inter = msg.get("interactive", {})
-                    picked = inter.get("button_reply") or inter.get("list_reply") or {}
-                    text, choice_id, mtype = picked.get("title"), picked.get("id"), "text"
+                    if inter.get("type") == "nfm_reply":   # native WhatsApp form (Flow) submitted
+                        text = (inter.get("nfm_reply") or {}).get("response_json") or "{}"
+                        choice_id, mtype = "f:formdata", "text"
+                    else:
+                        picked = inter.get("button_reply") or inter.get("list_reply") or {}
+                        text, choice_id, mtype = picked.get("title"), picked.get("id"), "text"
                 elif mtype == "button":  # quick-reply button on a template message
                     text, choice_id, mtype = msg.get("button", {}).get("text"), None, "text"
                 media_id = None
@@ -127,6 +131,28 @@ class WhatsAppClient:
             return False
         if resp.status_code >= 400:
             log.error("WhatsApp send failed %s: %s", resp.status_code, resp.text[:500])
+            return False
+        return True
+
+    async def send_flow(self, to: str, body: str, flow_id: str, cta: str) -> bool:
+        """Open a native WhatsApp form (Flow) published in WhatsApp Manager."""
+        payload = {
+            "messaging_product": "whatsapp", "recipient_type": "individual", "to": to,
+            "type": "interactive",
+            "interactive": {
+                "type": "flow", "body": {"text": body[:1024]},
+                "action": {"name": "flow", "parameters": {
+                    "flow_message_version": "3", "flow_id": flow_id, "flow_cta": cta[:20],
+                    "flow_action": "navigate", "flow_action_payload": {"screen": "PATIENT_DETAILS"}}},
+            },
+        }
+        try:
+            resp = await self._http.post(self._url, json=payload, headers=self._headers)
+        except httpx.HTTPError as exc:
+            log.error("WhatsApp form send failed (network): %s", exc)
+            return False
+        if resp.status_code >= 400:
+            log.error("WhatsApp form send failed %s: %s", resp.status_code, resp.text[:500])
             return False
         return True
 

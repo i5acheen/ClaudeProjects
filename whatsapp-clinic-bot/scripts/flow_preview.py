@@ -72,6 +72,16 @@ def main() -> None:
                 "After \"call me first\":\n", block(t(p["booked_call_first"])),
                 opts(btn(p.get("done_next", []))), "\n"]
         n += 1
+        ff = p["form_fields"]
+        out += [f"**{n}. 📝 Details form (chat version; one question at a time)**\n",
+                block(t(p["form_intro_chat"]) + "\n\n" + t(p["form_name"])), block(t(p["form_age"])),
+                block(t(p["form_location"])), "Then the problem list (skipped if already chosen):\n",
+                block(t(p["which_disease"])), "Done:\n",
+                block(t(p["form_done"]) + "".join(f"\n• {t(ff[k])}: …" for k in ("name", "age", "location", "concern"))),
+                opts(btn(["book", "call", "menu"])),
+                "_With `WHATSAPP_FORM_FLOW_ID` set, a native WhatsApp form opens instead "
+                "(fields: name, age, location, problem)._\n\n"]
+        n += 1
         out += [f"**{n}. 📞 Call me back (one tap)**\n", block(t(p["callback_done"])), "\n"]
         n += 1
         out += [f"**{n}. 📷 Patient sends a photo (legs or Doppler report)**\n",

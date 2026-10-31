@@ -130,6 +130,15 @@ When the number is on the Cloud API, it can't be opened in the WhatsApp app. Sta
    - WhatsApp allows free-text replies only within 24 hours of the patient's last message. After that, the page asks you to call instead.
    - Set `DATABASE_URL` (Neon) so chat history survives restarts.
 
+## 6d. Patient details form (name, age, location, problem)
+The menu item **📝 माहिती फॉर्म भरा** works straight away as a **chat form**: four short questions, answered one at a time. Answers go to the lead, the Google Sheet (new **Age** column) and the email alert.
+
+Optional: a **native WhatsApp form** (one screen with fields and a dropdown):
+1. WhatsApp Manager → **Flows → Create flow**. Name it "Patient details" and pick a template with no endpoint ("None").
+2. Open the **JSON editor**, paste `docs/whatsapp_form_flow.json`, then **Save → Publish**. If Meta asks for a newer `"version"`, change it to the one it suggests.
+3. Copy the **Flow ID** into Render → Environment → `WHATSAPP_FORM_FLOW_ID`, and redeploy.
+If the native form can't be sent (wrong ID, not published), the bot uses the chat form automatically.
+
 ## 7. Tests
 
 ```bash

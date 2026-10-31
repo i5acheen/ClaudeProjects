@@ -21,6 +21,9 @@ menu:
     - id: book
       title: {mr: "📅 अपॉइंटमेंट बुक करा", hi: "📅 अपॉइंटमेंट बुक करें", en: "📅 Book appointment"}
       description: {mr: "फक्त दिवस निवडा", hi: "बस दिन चुनें", en: "Just pick a day"}
+    - id: form
+      title: {mr: "📝 माहिती फॉर्म भरा", hi: "📝 जानकारी फ़ॉर्म भरें", en: "📝 Fill details form"}
+      description: {mr: "नाव, वय, ठिकाण, त्रास", hi: "नाम, उम्र, जगह, तकलीफ़", en: "Name, age, location, problem"}
     - id: photo
       title: {mr: "📷 फोटो / रिपोर्ट पाठवा", hi: "📷 फ़ोटो / रिपोर्ट भेजें", en: "📷 Send photos / reports"}
       description: {mr: "डॉक्टरांचा सल्ला मिळवा", hi: "डॉक्टर की सलाह पाएं", en: "Get the doctor's advice"}
@@ -138,6 +141,19 @@ schedule:
 prompts:
   concern: {mr: "तुम्हाला पायाचा कोणता त्रास होत आहे? 👇", hi: "आपको पैर में कौन सी तकलीफ़ है? 👇", en: "What problem are you facing? 👇"}
   concern_text: {mr: "थोडक्यात त्रास टाइप करा.", hi: "तकलीफ़ थोड़े में टाइप करें.", en: "Please type the problem in a few words."}
+  # Patient details form (name, age, location, problem). Native WhatsApp form if WHATSAPP_FORM_FLOW_ID is set.
+  form_intro: {mr: "📝 कृपया खालील फॉर्ममध्ये रुग्णाची माहिती भरा.", hi: "📝 कृपया नीचे दिए फ़ॉर्म में मरीज़ की जानकारी भरें.", en: "📝 Please fill in the patient's details in the form below."}
+  form_button: {mr: "फॉर्म भरा", hi: "फ़ॉर्म भरें", en: "Fill form"}
+  form_intro_chat: {mr: "📝 रुग्णाची माहिती भरूया (४ छोटे प्रश्न).", hi: "📝 मरीज़ की जानकारी भरते हैं (4 छोटे सवाल).", en: "📝 Let's fill in the patient's details (4 short questions)."}
+  form_name: {mr: "1️⃣ रुग्णाचे *नाव* टाइप करा.", hi: "1️⃣ मरीज़ का *नाम* टाइप करें.", en: "1️⃣ Type the patient's *name*."}
+  form_age: {mr: "2️⃣ रुग्णाचे *वय* किती आहे?", hi: "2️⃣ मरीज़ की *उम्र* कितनी है?", en: "2️⃣ What is the patient's *age*?"}
+  form_location: {mr: "3️⃣ तुम्ही कोणत्या *गाव / शहरातून* आहात?", hi: "3️⃣ आप किस *गांव / शहर* से हैं?", en: "3️⃣ Which *village / city* are you from?"}
+  form_done: {mr: "✅ धन्यवाद! माहिती नोंदवली आहे. आमचे प्रतिनिधी तुम्हाला लवकरच कॉल करतील.", hi: "✅ धन्यवाद! जानकारी दर्ज कर ली गई है. हमारे प्रतिनिधि जल्द ही आपको कॉल करेंगे.", en: "✅ Thank you! Your details are noted. Our representative will call you soon."}
+  form_fields:
+    name: {mr: "नाव", hi: "नाम", en: "Name"}
+    age: {mr: "वय", hi: "उम्र", en: "Age"}
+    location: {mr: "ठिकाण", hi: "जगह", en: "Location"}
+    concern: {mr: "त्रास", hi: "तकलीफ़", en: "Problem"}
   which_disease: {mr: "तुम्हाला यापैकी कोणता त्रास आहे? 👇", hi: "आपको इनमें से कौन सी तकलीफ़ है? 👇", en: "Which of these problems do you have? 👇"}
   concern_noted: {mr: "धन्यवाद 🙏 तुमचा त्रास नोंदवला आहे. आमचे प्रतिनिधी तुम्हाला कॉल करून माहिती देतील.", hi: "धन्यवाद 🙏 आपकी तकलीफ़ दर्ज कर ली गई है. हमारे प्रतिनिधि आपको कॉल करके जानकारी देंगे.", en: "Thank you 🙏 Your problem is noted. Our representative will call you with details."}
   duration: {mr: "हा त्रास किती काळापासून आहे?", hi: "यह तकलीफ़ कब से है?", en: "How long have you had this?"}

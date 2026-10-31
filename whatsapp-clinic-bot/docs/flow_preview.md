@@ -5,10 +5,18 @@ Every fixed message, in the order patients see it. Edit the text in `knowledge/f
 
 ---
 ## मराठी (default)
-**1. Welcome + main menu**
+**1. First message: welcome + which problem?**
 ```
-नमस्कार,
+नमस्कार 🙏
+आमच्याकडे *आयुष्मान भारत* / सरकारी योजनेअंतर्गत उपचाराची सुविधा उपलब्ध आहे.
+(हिंदी / English साठी 'Hindi' किंवा 'English' टाइप करा)
 
+तुम्हाला यापैकी कोणता त्रास आहे? 👇
+```
+List: 🦵 व्हेरिकोज व्हेन्स | व्हॅरिकोसील | 🦴 स्पाइन (मणका) त्रास | ❓ इतर त्रास
+
+**2. Picked: 🦵 व्हेरिकोज व्हेन्स**
+```
 *महत्त्वपूर्ण माहिती-*
 -----------------------------------
 आमच्या येथे शासनातर्फे प्रायव्हेट हॉस्पिटलमध्ये मोफत *व्हेरिकोज व्हेन्स लेझर ट्रीटमेंट* करून मिळते.
@@ -24,32 +32,75 @@ Every fixed message, in the order patients see it. Edit the text in `knowledge/f
 
 फोटो डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला कळवला जाईल.
 
-धन्यवाद...
-(हिंदी / English साठी 'Hindi' किंवा 'English' टाइप करा)
+आम्ही कशी मदत करू? 👇
+```
+Menu: 📅 अपॉइंटमेंट बुक करा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
+
+**3. Picked: व्हॅरिकोसील**
+```
+*व्हॅरिकोसीलचा त्रास आहे का?*
+अंडकोषात सूज, दुखणे किंवा जडपणा जाणवतो का?
+
+✅ योग्य उपचार आणि मार्गदर्शन मिळवा.
+✅ *आयुष्मान भारत* अंतर्गत उपचाराची सुविधा.
+✅ *मोफत सल्ला* (Free Consultancy).
+
+सोनोग्राफी / कलर डॉपलर रिपोर्ट असल्यास त्याचा फोटो इथे पाठवा. डॉक्टरांचा सल्ला कळवला जाईल.
 
 आम्ही कशी मदत करू? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करा | 📷 पायाचे फोटो पाठवा | 📞 मला कॉल करा | ❓ दुसरा प्रश्न
+Menu: 📅 अपॉइंटमेंट बुक करा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
 
-**2. 📷 Send leg photos**
+**4. Picked: 🦴 स्पाइन (मणका) त्रास**
 ```
-📷 पेशंटच्या दोन्ही पायांचे फोटो किंवा कलर डॉपलर टेस्टचा फोटो इथेच पाठवा.
+*स्पाइनच्या आजाराने त्रस्त आहात?*
+आता *संभाजीनगर* येथे योग्य उपचार सुविधा उपलब्ध!
+
+✔️ कंबरदुखी
+✔️ मानदुखी
+✔️ पाठीचा त्रास
+✔️ स्नायूंच्या वेदना
+✔️ साईटिका वेदना
+
+✅ *आयुष्मान कार्ड* द्वारे कॅशलेस उपचार उपलब्ध!
+
+MRI / X-ray रिपोर्ट असल्यास त्याचा फोटो इथे पाठवा. डॉक्टरांचा सल्ला कळवला जाईल.
+
+आम्ही कशी मदत करू? 👇
+```
+Menu: 📅 अपॉइंटमेंट बुक करा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
+
+**5. Picked: ❓ इतर त्रास**
+```
+थोडक्यात त्रास टाइप करा.
+```
+After they type it:
+```
+धन्यवाद 🙏 तुमचा त्रास नोंदवला आहे. आमचे प्रतिनिधी तुम्हाला कॉल करून माहिती देतील.
+
+आम्ही कशी मदत करू? 👇
+```
+Menu: 📅 अपॉइंटमेंट बुक करा | 📷 फोटो / रिपोर्ट पाठवा | 📞 मला कॉल करा | 🩺 दुसरा त्रास निवडा | ❓ दुसरा प्रश्न
+
+**6. 📷 Send leg photos**
+```
+📷 त्रासाचे फोटो किंवा रिपोर्ट (उदा. कलर डॉपलर, सोनोग्राफी, MRI / X-ray) इथेच पाठवा.
 फोटो डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला कळवला जाईल.
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल हवा | ☰ मेनू
 
-**3. ❓ Other question**
+**7. ❓ Other question**
 ```
 नक्की 🙏 तुमचा प्रश्न टाइप करा.
 ```
 
-**4. If asked for address / doctor / hospital / phone (menu or AI)**
+**8. If asked for address / doctor / hospital / phone (menu or AI)**
 ```
 📞 पत्ता व इतर सर्व माहिती आमचे प्रतिनिधी तुम्हाला कॉल करून सांगतील.
 ```
 Buttons: 📞 कॉल हवा | 📅 अपॉइंटमेंट | ☰ मेनू
 
-**5. 📅 Book appointment: only the day**
+**9. 📅 Book appointment: only the day**
 ```
 📅 अपॉइंटमेंटसाठी दिवस निवडा 👇
 ```
@@ -65,50 +116,57 @@ After "call me first":
 ```
 Buttons: ☰ मेनू
 
-**6. 📞 Call me back (one tap)**
+**10. 📞 Call me back (one tap)**
 ```
 ठीक आहे 🙏 आमचे प्रतिनिधी तुम्हाला लवकरच कॉल करतील.
 ```
 
-**7. 📷 Patient sends a photo (legs or Doppler report)**
+**11. 📷 Patient sends a photo (legs or Doppler report)**
 Saved for staff in the inbox; the patient is thanked once per batch of photos:
 ```
-धन्यवाद 🙏 फोटो मिळाला. डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला तुम्हाला कळवला जाईल.
+धन्यवाद 🙏 फोटो / रिपोर्ट मिळाला. डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला तुम्हाला कळवला जाईल.
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल हवा | ☰ मेनू
 
-**8. Reminders if the patient stops replying (inside 24 h only)**
+**12. Reminders if the patient stops replying (inside 24 h only)**
 After 2 h:
 ```
-नमस्कार <name> 🙏 पायाचे फोटो किंवा कलर डॉपलर रिपोर्ट पाठवायचा असेल तर इथेच पाठवा. डॉक्टरांचा सल्ला कळवला जाईल.
+नमस्कार <name> 🙏 तुमच्या त्रासाचे फोटो किंवा रिपोर्ट पाठवायचा असेल तर इथेच पाठवा. डॉक्टरांचा सल्ला कळवला जाईल.
 किंवा अपॉइंटमेंटसाठी फक्त दिवस निवडा.
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल हवा | ☰ मेनू
 After 20 h:
 ```
-<name>, फुगलेल्या नसांकडे दुर्लक्ष केल्यास सूज व वेदना वाढू शकतात. पात्र रुग्णांसाठी लेझर ट्रीटमेंट मोफत आहे. 🙏
+<name>, त्रासाकडे दुर्लक्ष केल्यास तो वाढू शकतो. आयुष्मान भारत / सरकारी योजनेअंतर्गत उपचाराची सुविधा उपलब्ध आहे. 🙏
 अपॉइंटमेंटसाठी दिवस निवडायचा का?
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल हवा | ☰ मेनू
 
-**9. Typed question when AI is off (menu-only mode)**
+**13. Typed question when AI is off (menu-only mode)**
 ```
 तुमचा प्रश्न नोंदवला आहे 🙏 आमचे प्रतिनिधी तुम्हाला कॉल करून माहिती देतील.
 तोपर्यंत खालील मेनूमधून पर्याय निवडू शकता.
 ```
 Then the main menu.
 
-**10. ⚠️ Emergency words (always, instantly)**
+**14. ⚠️ Emergency words (always, instantly)**
 ```
 ⚠️ हे गंभीर असू शकते. कृपया *लगेच 108 वर कॉल करा* किंवा जवळच्या हॉस्पिटलच्या इमर्जन्सी विभागात जा. उशीर करू नका.
 ```
 
 ---
 ## हिंदी (only if the patient asks)
-**1. Welcome + main menu**
+**1. First message: welcome + which problem?**
 ```
-नमस्ते,
+नमस्ते 🙏
+हमारे यहां *आयुष्मान भारत* / सरकारी योजना के तहत इलाज की सुविधा उपलब्ध है.
 
+आपको इनमें से कौन सी तकलीफ़ है? 👇
+```
+List: 🦵 वेरिकोज़ वेन्स | वैरिकोसील | 🦴 स्पाइन की तकलीफ़ | ❓ कोई और तकलीफ़
+
+**2. Picked: 🦵 वेरिकोज़ वेन्स**
+```
 *महत्वपूर्ण जानकारी-*
 -----------------------------------
 हमारे यहां सरकार की ओर से प्राइवेट हॉस्पिटल में मुफ़्त *वेरिकोज़ वेन्स लेज़र ट्रीटमेंट* करवाया जाता है.
@@ -120,35 +178,79 @@ Then the main menu.
 - ट्रीटमेंट सिर्फ़ 25 मिनट में होता है.
 - पैर पर कहीं भी कट या टांका नहीं लगता.
 
-मरीज़ के दोनों पैरों की फ़ोटो या कलर डॉप्लर टेस्ट की फ़ोटो खींचकर इसी नंबर पर भेजें.
+मरीज़ के दोनों पैरों की फ़ोटो या कलर डॉप्लर टेस्ट की फ़ोटो इसी नंबर पर भेजें.
 
-फ़ोटो डॉक्टर को दिखाकर उनकी सलाह आपको बताई जाएगी.
-
-धन्यवाद...
+फ़ोटो डॉक्टर को दिखाकर उनकी सलाह बताई जाएगी.
 
 हम कैसे मदद करें? 👇
 ```
-Menu: 📅 अपॉइंटमेंट बुक करें | 📷 पैरों की फ़ोटो भेजें | 📞 मुझे कॉल करें | ❓ दूसरा सवाल
+Menu: 📅 अपॉइंटमेंट बुक करें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
 
-**2. 📷 Send leg photos**
+**3. Picked: वैरिकोसील**
 ```
-📷 मरीज़ के दोनों पैरों की फ़ोटो या कलर डॉप्लर टेस्ट की फ़ोटो यहीं भेजें.
+*वैरिकोसील की तकलीफ़ है?*
+अंडकोष में सूजन, दर्द या भारीपन महसूस होता है?
+
+✅ सही इलाज और मार्गदर्शन पाएं.
+✅ *आयुष्मान भारत* के तहत इलाज की सुविधा.
+✅ *मुफ़्त सलाह* (Free Consultancy).
+
+सोनोग्राफी / कलर डॉप्लर रिपोर्ट हो तो उसकी फ़ोटो यहां भेजें. डॉक्टर की सलाह बताई जाएगी.
+
+हम कैसे मदद करें? 👇
+```
+Menu: 📅 अपॉइंटमेंट बुक करें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
+
+**4. Picked: 🦴 स्पाइन की तकलीफ़**
+```
+*स्पाइन की बीमारी से परेशान हैं?*
+अब *संभाजीनगर* में सही इलाज की सुविधा उपलब्ध!
+
+✔️ कमर दर्द
+✔️ गर्दन दर्द
+✔️ पीठ की तकलीफ़
+✔️ मांसपेशियों का दर्द
+✔️ साइटिका का दर्द
+
+✅ *आयुष्मान कार्ड* से कैशलेस इलाज उपलब्ध!
+
+MRI / X-ray रिपोर्ट हो तो उसकी फ़ोटो यहां भेजें. डॉक्टर की सलाह बताई जाएगी.
+
+हम कैसे मदद करें? 👇
+```
+Menu: 📅 अपॉइंटमेंट बुक करें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
+
+**5. Picked: ❓ कोई और तकलीफ़**
+```
+तकलीफ़ थोड़े में टाइप करें.
+```
+After they type it:
+```
+धन्यवाद 🙏 आपकी तकलीफ़ दर्ज कर ली गई है. हमारे प्रतिनिधि आपको कॉल करके जानकारी देंगे.
+
+हम कैसे मदद करें? 👇
+```
+Menu: 📅 अपॉइंटमेंट बुक करें | 📷 फ़ोटो / रिपोर्ट भेजें | 📞 मुझे कॉल करें | 🩺 दूसरी तकलीफ़ चुनें | ❓ दूसरा सवाल
+
+**6. 📷 Send leg photos**
+```
+📷 तकलीफ़ की फ़ोटो या रिपोर्ट (जैसे कलर डॉप्लर, सोनोग्राफी, MRI / X-ray) यहीं भेजें.
 फ़ोटो डॉक्टर को दिखाकर उनकी सलाह बताई जाएगी.
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल करें | ☰ मेनू
 
-**3. ❓ Other question**
+**7. ❓ Other question**
 ```
 ज़रूर 🙏 अपना सवाल टाइप करें.
 ```
 
-**4. If asked for address / doctor / hospital / phone (menu or AI)**
+**8. If asked for address / doctor / hospital / phone (menu or AI)**
 ```
 📞 पता और बाकी सारी जानकारी हमारे प्रतिनिधि आपको कॉल करके बताएंगे.
 ```
 Buttons: 📞 कॉल करें | 📅 अपॉइंटमेंट | ☰ मेनू
 
-**5. 📅 Book appointment: only the day**
+**9. 📅 Book appointment: only the day**
 ```
 📅 अपॉइंटमेंट के लिए दिन चुनें 👇
 ```
@@ -164,50 +266,57 @@ After "call me first":
 ```
 Buttons: ☰ मेनू
 
-**6. 📞 Call me back (one tap)**
+**10. 📞 Call me back (one tap)**
 ```
 ठीक है 🙏 हमारे प्रतिनिधि जल्द ही आपको कॉल करेंगे.
 ```
 
-**7. 📷 Patient sends a photo (legs or Doppler report)**
+**11. 📷 Patient sends a photo (legs or Doppler report)**
 Saved for staff in the inbox; the patient is thanked once per batch of photos:
 ```
-धन्यवाद 🙏 फ़ोटो मिल गई. डॉक्टर को दिखाकर उनकी सलाह आपको बताई जाएगी.
+धन्यवाद 🙏 फ़ोटो / रिपोर्ट मिल गई. डॉक्टर को दिखाकर उनकी सलाह आपको बताई जाएगी.
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल करें | ☰ मेनू
 
-**8. Reminders if the patient stops replying (inside 24 h only)**
+**12. Reminders if the patient stops replying (inside 24 h only)**
 After 2 h:
 ```
-नमस्ते <name> 🙏 पैरों की फ़ोटो या कलर डॉप्लर रिपोर्ट भेजनी हो तो यहीं भेजें. डॉक्टर की सलाह बताई जाएगी.
+नमस्ते <name> 🙏 तकलीफ़ की फ़ोटो या रिपोर्ट भेजनी हो तो यहीं भेजें. डॉक्टर की सलाह बताई जाएगी.
 या अपॉइंटमेंट के लिए बस दिन चुनें.
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल करें | ☰ मेनू
 After 20 h:
 ```
-<name>, उभरी नसों को नज़रअंदाज़ करने से सूजन और दर्द बढ़ सकता है. पात्र मरीज़ों के लिए लेज़र ट्रीटमेंट मुफ़्त है. 🙏
+<name>, तकलीफ़ को नज़रअंदाज़ करने से वह बढ़ सकती है. आयुष्मान भारत / सरकारी योजना के तहत इलाज की सुविधा उपलब्ध है. 🙏
 अपॉइंटमेंट के लिए दिन चुनें?
 ```
 Buttons: 📅 अपॉइंटमेंट | 📞 कॉल करें | ☰ मेनू
 
-**9. Typed question when AI is off (menu-only mode)**
+**13. Typed question when AI is off (menu-only mode)**
 ```
 आपका सवाल दर्ज कर लिया गया है 🙏 हमारे प्रतिनिधि आपको कॉल करके जानकारी देंगे.
 तब तक नीचे मेनू से विकल्प चुन सकते हैं.
 ```
 Then the main menu.
 
-**10. ⚠️ Emergency words (always, instantly)**
+**14. ⚠️ Emergency words (always, instantly)**
 ```
 ⚠️ यह गंभीर हो सकता है. कृपया *तुरंत 108 पर कॉल करें* या नज़दीकी अस्पताल के इमरजेंसी विभाग में जाएं. देर न करें.
 ```
 
 ---
 ## English (only if the patient asks)
-**1. Welcome + main menu**
+**1. First message: welcome + which problem?**
 ```
-Hello,
+Hello 🙏
+Treatment under *Ayushman Bharat* / government schemes is available with us.
 
+Which of these problems do you have? 👇
+```
+List: 🦵 Varicose veins | Varicocele | 🦴 Spine problem | ❓ Other problem
+
+**2. Picked: 🦵 Varicose veins**
+```
 *Important information-*
 -----------------------------------
 We arrange free *varicose vein laser treatment* at a private hospital under a government scheme.
@@ -219,35 +328,79 @@ About the laser treatment:
 - It takes only 25 minutes.
 - No cut or stitch anywhere on the leg.
 
-Please send photos of both of the patient's legs, or a photo of the Colour Doppler test report, to this number.
+Please send photos of both of the patient's legs, or the Colour Doppler report, to this number.
 
-We will show the photos to the doctor and share their advice with you.
-
-Thank you...
+We will show the photos to the doctor and share their advice.
 
 How can we help? 👇
 ```
-Menu: 📅 Book appointment | 📷 Send leg photos | 📞 Call me back | ❓ Other question
+Menu: 📅 Book appointment | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
 
-**2. 📷 Send leg photos**
+**3. Picked: Varicocele**
 ```
-📷 Send photos of both of the patient's legs, or the Colour Doppler report, right here.
+*Suffering from varicocele?*
+Swelling, pain or heaviness in the scrotum?
+
+✅ Get the right treatment and guidance.
+✅ Treatment available under *Ayushman Bharat*.
+✅ *Free consultation*.
+
+If you have a sonography / Colour Doppler report, send a photo here for the doctor's advice.
+
+How can we help? 👇
+```
+Menu: 📅 Book appointment | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
+
+**4. Picked: 🦴 Spine problem**
+```
+*Troubled by a spine problem?*
+Proper treatment is now available in *Sambhajinagar*!
+
+✔️ Lower back pain
+✔️ Neck pain
+✔️ Back problems
+✔️ Muscle pain
+✔️ Sciatica pain
+
+✅ Cashless treatment with the *Ayushman card*!
+
+If you have an MRI / X-ray report, send a photo here for the doctor's advice.
+
+How can we help? 👇
+```
+Menu: 📅 Book appointment | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
+
+**5. Picked: ❓ Other problem**
+```
+Please type the problem in a few words.
+```
+After they type it:
+```
+Thank you 🙏 Your problem is noted. Our representative will call you with details.
+
+How can we help? 👇
+```
+Menu: 📅 Book appointment | 📷 Send photos / reports | 📞 Call me back | 🩺 Choose another problem | ❓ Other question
+
+**6. 📷 Send leg photos**
+```
+📷 Send photos or reports (e.g. Colour Doppler, sonography, MRI / X-ray) right here.
 We'll show them to the doctor and share their advice.
 ```
 Buttons: 📅 Book | 📞 Call me | ☰ Menu
 
-**3. ❓ Other question**
+**7. ❓ Other question**
 ```
 Sure 🙏 Please type your question.
 ```
 
-**4. If asked for address / doctor / hospital / phone (menu or AI)**
+**8. If asked for address / doctor / hospital / phone (menu or AI)**
 ```
 📞 Our representative will call you with the address and all other details.
 ```
 Buttons: 📞 Call me | 📅 Book | ☰ Menu
 
-**5. 📅 Book appointment: only the day**
+**9. 📅 Book appointment: only the day**
 ```
 📅 Pick a day for the appointment 👇
 ```
@@ -263,40 +416,40 @@ Thank you 🙏 Our representative will call you soon to fix the appointment.
 ```
 Buttons: ☰ Menu
 
-**6. 📞 Call me back (one tap)**
+**10. 📞 Call me back (one tap)**
 ```
 Okay 🙏 Our representative will call you soon.
 ```
 
-**7. 📷 Patient sends a photo (legs or Doppler report)**
+**11. 📷 Patient sends a photo (legs or Doppler report)**
 Saved for staff in the inbox; the patient is thanked once per batch of photos:
 ```
-Thank you 🙏 Photo received. We'll show it to the doctor and share their advice with you.
+Thank you 🙏 Photo / report received. We'll show it to the doctor and share their advice with you.
 ```
 Buttons: 📅 Book | 📞 Call me | ☰ Menu
 
-**8. Reminders if the patient stops replying (inside 24 h only)**
+**12. Reminders if the patient stops replying (inside 24 h only)**
 After 2 h:
 ```
-Hello <name> 🙏 You can send leg photos or the Colour Doppler report right here for the doctor's advice.
+Hello <name> 🙏 You can send photos or reports of your problem right here for the doctor's advice.
 Or just pick a day for the appointment.
 ```
 Buttons: 📅 Book | 📞 Call me | ☰ Menu
 After 20 h:
 ```
-<name>, If ignored, varicose veins can lead to more swelling and pain. Laser treatment is free for eligible patients. 🙏
+<name>, Problems can get worse if ignored. Treatment under Ayushman Bharat / government schemes is available. 🙏
 Shall we pick a day for the appointment?
 ```
 Buttons: 📅 Book | 📞 Call me | ☰ Menu
 
-**9. Typed question when AI is off (menu-only mode)**
+**13. Typed question when AI is off (menu-only mode)**
 ```
 Your question has been noted 🙏 Our representative will call you with the details.
 Meanwhile, you can choose from the menu below.
 ```
 Then the main menu.
 
-**10. ⚠️ Emergency words (always, instantly)**
+**14. ⚠️ Emergency words (always, instantly)**
 ```
 ⚠️ This could be serious. Please *call 108 immediately* or go to the nearest hospital emergency department. Don't wait.
 ```

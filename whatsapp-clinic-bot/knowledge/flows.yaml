@@ -7,9 +7,9 @@
 # If they ask, our representative calls them (see answers.location and prompts.no_ai).
 
 welcome:
-  mr: "नमस्कार,\n\n*महत्त्वपूर्ण माहिती-*\n-----------------------------------\nआमच्या येथे शासनातर्फे प्रायव्हेट हॉस्पिटलमध्ये मोफत *व्हेरिकोज व्हेन्स लेझर ट्रीटमेंट* करून मिळते.\n\nही ट्रीटमेंट आधार कार्ड आणि आयुष्मान कार्ड धारकांना मोफत करून मिळते.\n\nलेझर ट्रीटमेंट ची वैशिष्टे:\n- ही एक ऍडव्हॅन्स ट्रीटमेंट आहे.\n- ट्रीटमेंट फक्त 25 मिनिटात होते.\n- पायाला कुठेही कट किंवा टाका लागत नाही.\n\nपेशंटचा दोन्ही पायाचे फोटो किंवा कलर डॉपलर टेस्टचा फोटो काढून आम्हाला याच नंबर वर पाठवा.\n\nफोटो डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला कळवला जाईल.\n\nधन्यवाद...\n(हिंदी / English साठी 'Hindi' किंवा 'English' टाइप करा)"
-  hi: "नमस्ते,\n\n*महत्वपूर्ण जानकारी-*\n-----------------------------------\nहमारे यहां सरकार की ओर से प्राइवेट हॉस्पिटल में मुफ़्त *वेरिकोज़ वेन्स लेज़र ट्रीटमेंट* करवाया जाता है.\n\nयह ट्रीटमेंट आधार कार्ड और आयुष्मान कार्ड धारकों को मुफ़्त मिलता है.\n\nलेज़र ट्रीटमेंट की खासियतें:\n- यह एक एडवांस ट्रीटमेंट है.\n- ट्रीटमेंट सिर्फ़ 25 मिनट में होता है.\n- पैर पर कहीं भी कट या टांका नहीं लगता.\n\nमरीज़ के दोनों पैरों की फ़ोटो या कलर डॉप्लर टेस्ट की फ़ोटो खींचकर इसी नंबर पर भेजें.\n\nफ़ोटो डॉक्टर को दिखाकर उनकी सलाह आपको बताई जाएगी.\n\nधन्यवाद..."
-  en: "Hello,\n\n*Important information-*\n-----------------------------------\nWe arrange free *varicose vein laser treatment* at a private hospital under a government scheme.\n\nThe treatment is free for Aadhaar card and Ayushman card holders.\n\nAbout the laser treatment:\n- It is an advanced treatment.\n- It takes only 25 minutes.\n- No cut or stitch anywhere on the leg.\n\nPlease send photos of both of the patient's legs, or a photo of the Colour Doppler test report, to this number.\n\nWe will show the photos to the doctor and share their advice with you.\n\nThank you..."
+  mr: "नमस्कार 🙏\nआमच्याकडे *आयुष्मान भारत* / सरकारी योजनेअंतर्गत उपचाराची सुविधा उपलब्ध आहे.\n(हिंदी / English साठी 'Hindi' किंवा 'English' टाइप करा)"
+  hi: "नमस्ते 🙏\nहमारे यहां *आयुष्मान भारत* / सरकारी योजना के तहत इलाज की सुविधा उपलब्ध है."
+  en: "Hello 🙏\nTreatment under *Ayushman Bharat* / government schemes is available with us."
 
 menu:
   text:
@@ -22,10 +22,12 @@ menu:
       title: {mr: "📅 अपॉइंटमेंट बुक करा", hi: "📅 अपॉइंटमेंट बुक करें", en: "📅 Book appointment"}
       description: {mr: "फक्त दिवस निवडा", hi: "बस दिन चुनें", en: "Just pick a day"}
     - id: photo
-      title: {mr: "📷 पायाचे फोटो पाठवा", hi: "📷 पैरों की फ़ोटो भेजें", en: "📷 Send leg photos"}
+      title: {mr: "📷 फोटो / रिपोर्ट पाठवा", hi: "📷 फ़ोटो / रिपोर्ट भेजें", en: "📷 Send photos / reports"}
       description: {mr: "डॉक्टरांचा सल्ला मिळवा", hi: "डॉक्टर की सलाह पाएं", en: "Get the doctor's advice"}
     - id: callback
       title: {mr: "📞 मला कॉल करा", hi: "📞 मुझे कॉल करें", en: "📞 Call me back"}
+    - id: disease
+      title: {mr: "🩺 दुसरा त्रास निवडा", hi: "🩺 दूसरी तकलीफ़ चुनें", en: "🩺 Choose another problem"}
     - id: other
       title: {mr: "❓ दुसरा प्रश्न", hi: "❓ दूसरा सवाल", en: "❓ Other question"}
 
@@ -33,9 +35,9 @@ menu:
 answers:
   photo:
     text:
-      mr: "📷 पेशंटच्या दोन्ही पायांचे फोटो किंवा कलर डॉपलर टेस्टचा फोटो इथेच पाठवा.\nफोटो डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला कळवला जाईल."
-      hi: "📷 मरीज़ के दोनों पैरों की फ़ोटो या कलर डॉप्लर टेस्ट की फ़ोटो यहीं भेजें.\nफ़ोटो डॉक्टर को दिखाकर उनकी सलाह बताई जाएगी."
-      en: "📷 Send photos of both of the patient's legs, or the Colour Doppler report, right here.\nWe'll show them to the doctor and share their advice."
+      mr: "📷 त्रासाचे फोटो किंवा रिपोर्ट (उदा. कलर डॉपलर, सोनोग्राफी, MRI / X-ray) इथेच पाठवा.\nफोटो डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला कळवला जाईल."
+      hi: "📷 तकलीफ़ की फ़ोटो या रिपोर्ट (जैसे कलर डॉप्लर, सोनोग्राफी, MRI / X-ray) यहीं भेजें.\nफ़ोटो डॉक्टर को दिखाकर उनकी सलाह बताई जाएगी."
+      en: "📷 Send photos or reports (e.g. Colour Doppler, sonography, MRI / X-ray) right here.\nWe'll show them to the doctor and share their advice."
     next: [book, call, menu]
   treatment:
     text:
@@ -74,14 +76,31 @@ answers:
 concerns:
   - id: varicose
     label: varicose veins
-    title: {mr: "व्हेरिकोज व्हेन्स", hi: "वेरिकोज़ वेन्स", en: "Varicose veins"}
+    title: {mr: "🦵 व्हेरिकोज व्हेन्स", hi: "🦵 वेरिकोज़ वेन्स", en: "🦵 Varicose veins"}
+    description: {mr: "पायावर फुगलेल्या नसा", hi: "पैरों में उभरी नसें", en: "Swollen veins on the legs"}
     info:
-      mr: "फुगलेल्या नसांकडे (व्हेरिकोज व्हेन्स) दुर्लक्ष केल्यास सूज, वेदना वाढू शकतात. वेळीच तपासणी केल्यास गुंतागुंत टाळता येते."
-      hi: "उभरी नसों (वेरिकोज़ वेन्स) को नज़रअंदाज़ करने से सूजन और दर्द बढ़ सकता है. समय पर जांच से जटिलताएं टाली जा सकती हैं."
-      en: "If ignored, varicose veins can lead to more swelling and pain. An early check-up helps avoid complications."
+      mr: "*महत्त्वपूर्ण माहिती-*\n-----------------------------------\nआमच्या येथे शासनातर्फे प्रायव्हेट हॉस्पिटलमध्ये मोफत *व्हेरिकोज व्हेन्स लेझर ट्रीटमेंट* करून मिळते.\n\nही ट्रीटमेंट आधार कार्ड आणि आयुष्मान कार्ड धारकांना मोफत करून मिळते.\n\nलेझर ट्रीटमेंट ची वैशिष्टे:\n- ही एक ऍडव्हॅन्स ट्रीटमेंट आहे.\n- ट्रीटमेंट फक्त 25 मिनिटात होते.\n- पायाला कुठेही कट किंवा टाका लागत नाही.\n\nपेशंटचा दोन्ही पायाचे फोटो किंवा कलर डॉपलर टेस्टचा फोटो काढून आम्हाला याच नंबर वर पाठवा.\n\nफोटो डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला कळवला जाईल."
+      hi: "*महत्वपूर्ण जानकारी-*\n-----------------------------------\nहमारे यहां सरकार की ओर से प्राइवेट हॉस्पिटल में मुफ़्त *वेरिकोज़ वेन्स लेज़र ट्रीटमेंट* करवाया जाता है.\n\nयह ट्रीटमेंट आधार कार्ड और आयुष्मान कार्ड धारकों को मुफ़्त मिलता है.\n\nलेज़र ट्रीटमेंट की खासियतें:\n- यह एक एडवांस ट्रीटमेंट है.\n- ट्रीटमेंट सिर्फ़ 25 मिनट में होता है.\n- पैर पर कहीं भी कट या टांका नहीं लगता.\n\nमरीज़ के दोनों पैरों की फ़ोटो या कलर डॉप्लर टेस्ट की फ़ोटो इसी नंबर पर भेजें.\n\nफ़ोटो डॉक्टर को दिखाकर उनकी सलाह बताई जाएगी."
+      en: "*Important information-*\n-----------------------------------\nWe arrange free *varicose vein laser treatment* at a private hospital under a government scheme.\n\nThe treatment is free for Aadhaar card and Ayushman card holders.\n\nAbout the laser treatment:\n- It is an advanced treatment.\n- It takes only 25 minutes.\n- No cut or stitch anywhere on the leg.\n\nPlease send photos of both of the patient's legs, or the Colour Doppler report, to this number.\n\nWe will show the photos to the doctor and share their advice."
+  - id: varicocele
+    label: varicocele
+    title: {mr: "व्हॅरिकोसील", hi: "वैरिकोसील", en: "Varicocele"}
+    description: {mr: "अंडकोषात सूज, दुखणे, जडपणा", hi: "अंडकोष में सूजन, दर्द, भारीपन", en: "Swelling, pain or heaviness in the scrotum"}
+    info:
+      mr: "*व्हॅरिकोसीलचा त्रास आहे का?*\nअंडकोषात सूज, दुखणे किंवा जडपणा जाणवतो का?\n\n✅ योग्य उपचार आणि मार्गदर्शन मिळवा.\n✅ *आयुष्मान भारत* अंतर्गत उपचाराची सुविधा.\n✅ *मोफत सल्ला* (Free Consultancy).\n\nसोनोग्राफी / कलर डॉपलर रिपोर्ट असल्यास त्याचा फोटो इथे पाठवा. डॉक्टरांचा सल्ला कळवला जाईल."
+      hi: "*वैरिकोसील की तकलीफ़ है?*\nअंडकोष में सूजन, दर्द या भारीपन महसूस होता है?\n\n✅ सही इलाज और मार्गदर्शन पाएं.\n✅ *आयुष्मान भारत* के तहत इलाज की सुविधा.\n✅ *मुफ़्त सलाह* (Free Consultancy).\n\nसोनोग्राफी / कलर डॉप्लर रिपोर्ट हो तो उसकी फ़ोटो यहां भेजें. डॉक्टर की सलाह बताई जाएगी."
+      en: "*Suffering from varicocele?*\nSwelling, pain or heaviness in the scrotum?\n\n✅ Get the right treatment and guidance.\n✅ Treatment available under *Ayushman Bharat*.\n✅ *Free consultation*.\n\nIf you have a sonography / Colour Doppler report, send a photo here for the doctor's advice."
+  - id: spine
+    label: spine problem
+    title: {mr: "🦴 स्पाइन (मणका) त्रास", hi: "🦴 स्पाइन की तकलीफ़", en: "🦴 Spine problem"}
+    description: {mr: "कंबरदुखी, मानदुखी, पाठ, साईटिका", hi: "कमर दर्द, गर्दन दर्द, पीठ, साइटिका", en: "Back, neck pain, sciatica"}
+    info:
+      mr: "*स्पाइनच्या आजाराने त्रस्त आहात?*\nआता *संभाजीनगर* येथे योग्य उपचार सुविधा उपलब्ध!\n\n✔️ कंबरदुखी\n✔️ मानदुखी\n✔️ पाठीचा त्रास\n✔️ स्नायूंच्या वेदना\n✔️ साईटिका वेदना\n\n✅ *आयुष्मान कार्ड* द्वारे कॅशलेस उपचार उपलब्ध!\n\nMRI / X-ray रिपोर्ट असल्यास त्याचा फोटो इथे पाठवा. डॉक्टरांचा सल्ला कळवला जाईल."
+      hi: "*स्पाइन की बीमारी से परेशान हैं?*\nअब *संभाजीनगर* में सही इलाज की सुविधा उपलब्ध!\n\n✔️ कमर दर्द\n✔️ गर्दन दर्द\n✔️ पीठ की तकलीफ़\n✔️ मांसपेशियों का दर्द\n✔️ साइटिका का दर्द\n\n✅ *आयुष्मान कार्ड* से कैशलेस इलाज उपलब्ध!\n\nMRI / X-ray रिपोर्ट हो तो उसकी फ़ोटो यहां भेजें. डॉक्टर की सलाह बताई जाएगी."
+      en: "*Troubled by a spine problem?*\nProper treatment is now available in *Sambhajinagar*!\n\n✔️ Lower back pain\n✔️ Neck pain\n✔️ Back problems\n✔️ Muscle pain\n✔️ Sciatica pain\n\n✅ Cashless treatment with the *Ayushman card*!\n\nIf you have an MRI / X-ray report, send a photo here for the doctor's advice."
   - id: other
     label: other
-    title: {mr: "इतर त्रास", hi: "कोई और तकलीफ़", en: "Other problem"}
+    title: {mr: "❓ इतर त्रास", hi: "❓ कोई और तकलीफ़", en: "❓ Other problem"}
 
 durations:
   - {id: lt6m, label: "less than 6 months", title: {mr: "6 महिन्यांपेक्षा कमी", hi: "6 महीने से कम", en: "Under 6 months"}}
@@ -119,6 +138,8 @@ schedule:
 prompts:
   concern: {mr: "तुम्हाला पायाचा कोणता त्रास होत आहे? 👇", hi: "आपको पैर में कौन सी तकलीफ़ है? 👇", en: "What problem are you facing? 👇"}
   concern_text: {mr: "थोडक्यात त्रास टाइप करा.", hi: "तकलीफ़ थोड़े में टाइप करें.", en: "Please type the problem in a few words."}
+  which_disease: {mr: "तुम्हाला यापैकी कोणता त्रास आहे? 👇", hi: "आपको इनमें से कौन सी तकलीफ़ है? 👇", en: "Which of these problems do you have? 👇"}
+  concern_noted: {mr: "धन्यवाद 🙏 तुमचा त्रास नोंदवला आहे. आमचे प्रतिनिधी तुम्हाला कॉल करून माहिती देतील.", hi: "धन्यवाद 🙏 आपकी तकलीफ़ दर्ज कर ली गई है. हमारे प्रतिनिधि आपको कॉल करके जानकारी देंगे.", en: "Thank you 🙏 Your problem is noted. Our representative will call you with details."}
   duration: {mr: "हा त्रास किती काळापासून आहे?", hi: "यह तकलीफ़ कब से है?", en: "How long have you had this?"}
   name: {mr: "अपॉइंटमेंटसाठी कृपया रुग्णाचे *नाव* टाइप करा.", hi: "अपॉइंटमेंट के लिए कृपया मरीज़ का *नाम* टाइप करें.", en: "For the appointment, please type the patient's *name*."}
   city: {mr: "तुम्ही कोणत्या शहरातून / भागातून आहात?", hi: "आप किस शहर / इलाके से हैं?", en: "Which city / area are you from?"}
@@ -147,7 +168,7 @@ prompts:
   booked: {mr: "धन्यवाद 🙏 *{day}* साठी तुमची अपॉइंटमेंट विनंती नोंदवली आहे.\nआमचे प्रतिनिधी तुम्हाला कॉल करून वेळ निश्चित करतील.", hi: "धन्यवाद 🙏 *{day}* के लिए आपका अपॉइंटमेंट अनुरोध दर्ज हो गया है.\nहमारे प्रतिनिधि आपको कॉल करके समय तय करेंगे.", en: "Thank you 🙏 Your appointment request for *{day}* is noted.\nOur representative will call you to fix the time."}
   booked_call_first: {mr: "धन्यवाद 🙏 आमचे प्रतिनिधी तुम्हाला लवकरच कॉल करून अपॉइंटमेंट ठरवतील.", hi: "धन्यवाद 🙏 हमारे प्रतिनिधि जल्द ही आपको कॉल करके अपॉइंटमेंट तय करेंगे.", en: "Thank you 🙏 Our representative will call you soon to fix the appointment."}
   callback_done: {mr: "ठीक आहे 🙏 आमचे प्रतिनिधी तुम्हाला लवकरच कॉल करतील.", hi: "ठीक है 🙏 हमारे प्रतिनिधि जल्द ही आपको कॉल करेंगे.", en: "Okay 🙏 Our representative will call you soon."}
-  photo_received: {mr: "धन्यवाद 🙏 फोटो मिळाला. डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला तुम्हाला कळवला जाईल.", hi: "धन्यवाद 🙏 फ़ोटो मिल गई. डॉक्टर को दिखाकर उनकी सलाह आपको बताई जाएगी.", en: "Thank you 🙏 Photo received. We'll show it to the doctor and share their advice with you."}
+  photo_received: {mr: "धन्यवाद 🙏 फोटो / रिपोर्ट मिळाला. डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला तुम्हाला कळवला जाईल.", hi: "धन्यवाद 🙏 फ़ोटो / रिपोर्ट मिल गई. डॉक्टर को दिखाकर उनकी सलाह आपको बताई जाएगी.", en: "Thank you 🙏 Photo / report received. We'll show it to the doctor and share their advice with you."}
   # ⚠️ [TO BE CONFIRMED BY CLINIC]: documents patients should bring for the scheme.
   scheme_card: {mr: "छान! 👍 तपासणीला येताना योजनेचे कार्ड, आधार कार्ड व रेशन कार्ड सोबत आणा. आमची टीम योजनेची प्रक्रिया पूर्ण करण्यास मदत करेल.", hi: "बढ़िया! 👍 जांच के लिए आते समय योजना का कार्ड, आधार कार्ड और राशन कार्ड साथ लाएं. हमारी टीम योजना की प्रक्रिया में मदद करेगी.", en: "Great! 👍 Please bring your scheme card, Aadhaar card and ration card to the consultation. Our team will help complete the scheme process."}
   scheme_unknown: {mr: "काही हरकत नाही 🙏 आमची टीम तुमची पात्रता तपासेल. तपासणीला येताना आधार कार्ड व रेशन कार्ड सोबत आणा.", hi: "कोई बात नहीं 🙏 हमारी टीम आपकी पात्रता जांचेगी. जांच के लिए आते समय आधार कार्ड और राशन कार्ड साथ लाएं.", en: "No problem 🙏 Our team will check your eligibility. Please bring your Aadhaar card and ration card to the consultation."}
@@ -173,15 +194,15 @@ buttons:
 followups:
   - after_hours: 2
     text:
-      mr: "नमस्कार{name} 🙏 पायाचे फोटो किंवा कलर डॉपलर रिपोर्ट पाठवायचा असेल तर इथेच पाठवा. डॉक्टरांचा सल्ला कळवला जाईल.\nकिंवा अपॉइंटमेंटसाठी फक्त दिवस निवडा."
-      hi: "नमस्ते{name} 🙏 पैरों की फ़ोटो या कलर डॉप्लर रिपोर्ट भेजनी हो तो यहीं भेजें. डॉक्टर की सलाह बताई जाएगी.\nया अपॉइंटमेंट के लिए बस दिन चुनें."
-      en: "Hello{name} 🙏 You can send leg photos or the Colour Doppler report right here for the doctor's advice.\nOr just pick a day for the appointment."
+      mr: "नमस्कार{name} 🙏 तुमच्या त्रासाचे फोटो किंवा रिपोर्ट पाठवायचा असेल तर इथेच पाठवा. डॉक्टरांचा सल्ला कळवला जाईल.\nकिंवा अपॉइंटमेंटसाठी फक्त दिवस निवडा."
+      hi: "नमस्ते{name} 🙏 तकलीफ़ की फ़ोटो या रिपोर्ट भेजनी हो तो यहीं भेजें. डॉक्टर की सलाह बताई जाएगी.\nया अपॉइंटमेंट के लिए बस दिन चुनें."
+      en: "Hello{name} 🙏 You can send photos or reports of your problem right here for the doctor's advice.\nOr just pick a day for the appointment."
     buttons: [book, call, menu]
   - after_hours: 20
     text:
-      mr: "{name_comma}फुगलेल्या नसांकडे दुर्लक्ष केल्यास सूज व वेदना वाढू शकतात. पात्र रुग्णांसाठी लेझर ट्रीटमेंट मोफत आहे. 🙏\nअपॉइंटमेंटसाठी दिवस निवडायचा का?"
-      hi: "{name_comma}उभरी नसों को नज़रअंदाज़ करने से सूजन और दर्द बढ़ सकता है. पात्र मरीज़ों के लिए लेज़र ट्रीटमेंट मुफ़्त है. 🙏\nअपॉइंटमेंट के लिए दिन चुनें?"
-      en: "{name_comma}If ignored, varicose veins can lead to more swelling and pain. Laser treatment is free for eligible patients. 🙏\nShall we pick a day for the appointment?"
+      mr: "{name_comma}त्रासाकडे दुर्लक्ष केल्यास तो वाढू शकतो. आयुष्मान भारत / सरकारी योजनेअंतर्गत उपचाराची सुविधा उपलब्ध आहे. 🙏\nअपॉइंटमेंटसाठी दिवस निवडायचा का?"
+      hi: "{name_comma}तकलीफ़ को नज़रअंदाज़ करने से वह बढ़ सकती है. आयुष्मान भारत / सरकारी योजना के तहत इलाज की सुविधा उपलब्ध है. 🙏\nअपॉइंटमेंट के लिए दिन चुनें?"
+      en: "{name_comma}Problems can get worse if ignored. Treatment under Ayushman Bharat / government schemes is available. 🙏\nShall we pick a day for the appointment?"
     buttons: [book, call, menu]
 
 # Adding other treatments later (e.g. piles, heart): add their problems to `concerns`, their facts to

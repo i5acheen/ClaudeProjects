@@ -51,19 +51,35 @@ def test_all_titles_fit_whatsapp_limits(lang):
         assert FLOWS.t(a["text"], lang) and len(a.get("next", [])) <= 3
 
 
-def test_first_message_gets_marathi_welcome_menu_and_switches_on_request():
+def test_first_message_asks_which_disease_in_marathi_then_shows_its_info():
     agent, db, llm, sender = make(language=None)
     run(agent.handle(say("m1", "hi")))
     assert llm.calls == []
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and "महत्त्वपूर्ण माहिती" in body and "25 मिनिटात" in body and len(titles) == 4
-    assert len(body) <= 1024                                   # WhatsApp list body limit
+    assert kind == "list" and "कोणता त्रास" in body and "आयुष्मान" in body
+    assert titles == ["🦵 व्हेरिकोज व्हेन्स", "व्हॅरिकोसील", "🦴 स्पाइन (मणका) त्रास", "❓ इतर त्रास"]
     assert db.get_lead(PHONE)["language"] == "mr"
-    run(agent.handle(say("m2", "Hindi")))                     # asked to switch
+    run(agent.handle(tap("m2", "f:concern:varicose")))
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and "महत्वपूर्ण जानकारी" in body and db.get_lead(PHONE)["language"] == "hi"
-    run(agent.handle(tap("m3", "f:m:photo")))
-    assert "फ़ोटो" in sender.sent[-1][1] and db.get_lead(PHONE)["language"] == "hi"
+    assert "25 मिनिटात" in body and kind == "list" and len(titles) == 5 and len(body) <= 1024
+    assert db.get_lead(PHONE)["data"]["concern"] == "varicose veins"
+    run(agent.handle(tap("m3", "f:m:disease")))                 # choose another problem
+    run(agent.handle(tap("m4", "f:concern:spine")))
+    assert "साईटिका" in sender.sent[-1][1] and "कॅशलेस" in sender.sent[-1][1]
+    run(agent.handle(tap("m5", "f:concern:varicocele")))
+    assert "अंडकोषात" in sender.sent[-1][1] and "मोफत सल्ला" in sender.sent[-1][1]
+    run(agent.handle(say("m6", "Hindi")))                       # asked to switch: same info, in Hindi
+    assert "अंडकोष में" in sender.sent[-1][1] and db.get_lead(PHONE)["language"] == "hi"
+    assert llm.calls == []
+
+
+def test_other_problem_is_typed_then_noted():
+    agent, db, llm, sender = make()
+    run(agent.handle(tap("m1", "f:concern:other")))
+    assert "टाइप करा" in sender.sent[-1][1]
+    run(agent.handle(say("m2", "गुडघेदुखी आहे")))
+    assert "नोंदवला" in sender.sent[-1][1] and sender.sent[-1][2] == "list"
+    assert db.get_lead(PHONE)["data"]["concern"] == "other: गुडघेदुखी आहे" and llm.calls == []
 
 
 def test_booking_asks_only_for_the_date():
@@ -120,7 +136,7 @@ def test_photo_is_saved_acknowledged_once_and_marks_lead_hot():
     agent, db, llm, sender = make()
     run(agent.handle(IncomingMessage("p1", PHONE, "image", "left leg", "Ramesh", None, None, "MEDIA123")))
     run(agent.handle(IncomingMessage("p2", PHONE, "image", None, "Ramesh", None, None, "MEDIA124")))
-    acks = [m for m in sender.sent if "फोटो मिळाला" in m[1]]
+    acks = [m for m in sender.sent if "मिळाला" in m[1]]
     assert len(acks) == 1                                       # one thank-you per burst
     conv = db.conversation(PHONE)
     assert conv[0]["content"] == "[photo:MEDIA123] left leg" and conv[-1]["content"].startswith("[photo:MEDIA124]")
@@ -286,7 +302,7 @@ def test_menu_only_mode_without_ai():
     agent = Agent(db, None, sender, None, flows=FLOWS, clinic_phone="+91 96995 59301")
     run(agent.handle(say("m1", "mala sugar ahe, laser hoil ka?")))
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and len(titles) == 4                       # the main menu
+    assert kind == "list" and len(titles) == 5                       # the main menu
     assert "प्रतिनिधी" in body and "नोंदवला" in body and "96995" not in body
     assert db.recent_events("no_ai")[0]["detail"].startswith("mala sugar")
     run(agent.handle(tap("m2", "f:m:cost")))                         # menu still works
@@ -326,8 +342,8 @@ def test_workflow_is_standard_no_names_or_videos():
                    "96995", "88057", "kotwalpura", "कोतवालपुरा", "bus stand", "बस स्टँड", "{phone}"):
         assert banned not in flat, banned
     ids = [it["id"] for it in texts["menu"]["items"]]
-    assert ids == ["book", "photo", "callback", "other"]
-    assert [c["id"] for c in texts["concerns"]] == ["varicose", "other"]
+    assert ids == ["book", "photo", "callback", "disease", "other"]
+    assert [c["id"] for c in texts["concerns"]] == ["varicose", "varicocele", "spine", "other"]
 
 
 @pytest.mark.parametrize("lang", ["mr", "hi", "en"])

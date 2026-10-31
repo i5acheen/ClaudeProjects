@@ -31,7 +31,7 @@ TYPED_STEPS = {"name", "city", "concern_text", "duration", "preferred_time"}
 # Menu item -> fixed answer key, or a special action.
 MENU_ACTIONS = {"book": "book", "problem": "problem", "callback": "callback", "other": "other",
                 "scheme": "scheme", "treatment": "answer", "cost": "answer", "location": "answer",
-                "photo": "answer"}
+                "photo": "answer", "disease": "disease"}
 # Small "next" buttons -> menu item they open.
 BUTTON_TARGETS = {"book": "book", "location": "location", "call": "callback",
                   "cost": "cost", "menu": "menu", "scheme": "scheme"}
@@ -115,6 +115,25 @@ class Flows:
                     "description": self.t(it.get("description"), lang) or None} for it in m["items"]]
         return FlowReply(text, "list", choices, self.t(m["button"], lang),
                          updates={"_step": None, "_flow": None}, route="menu")
+
+    def disease_picker(self, lang: str, welcome: bool = False) -> FlowReply:
+        """First step: which problem do you have? (varicose veins / varicocele / spine / other)."""
+        p = self.c["prompts"]
+        text = self.t(p["which_disease"], lang)
+        if welcome:
+            text = f"{self.t(self.c['welcome'], lang)}\n\n{text}"
+        choices = [{"id": f"f:concern:{x['id']}", "title": self.t(x["title"], lang),
+                    "description": self.t(x.get("description"), lang) or None} for x in self.c["concerns"]]
+        return FlowReply(text, "list", choices, self.t(p["list_button"], lang),
+                         updates={"_step": None, "_flow": None}, route="disease_picker")
+
+    def disease_info(self, data: dict, lang: str, prefix: str = "") -> FlowReply:
+        """The chosen problem's information, followed by the action menu (book / photos / call / other)."""
+        r = self.menu(lang)
+        item = next((x for x in self.c["concerns"] if x["label"] == data.get("concern")), None)
+        info = self.t(item.get("info"), lang) if item else ""
+        r.text = "\n\n".join(x for x in (prefix, info, r.text) if x)
+        return r
 
     def buttons(self, keys: list[str], lang: str) -> list[dict]:
         b = self.c["buttons"]
@@ -284,6 +303,12 @@ class Flows:
             if t.lower() in MENU_WORDS:
                 return self.menu(lang)
             step = data.get("_step")
+            if step == "concern_text" and looks_like_answer(t, step):
+                upd = self._set(data, concern=f"other: {t}")
+                r = self.disease_info(data | upd, lang, prefix=self.t(self.c["prompts"]["concern_noted"], lang))
+                r.updates = upd | r.updates
+                r.route = "typed:concern_text"
+                return r
             if step in TYPED_STEPS and looks_like_answer(t, step):
                 field_name = "concern" if step == "concern_text" else step
                 value = f"other: {t}" if step == "concern_text" else t
@@ -310,6 +335,8 @@ class Flows:
                 return self.answer("other", lang)
             if action == "scheme":
                 return self.scheme_answer(lang)
+            if action == "disease":
+                return self.disease_picker(lang)
             if action in ("book", "problem", "callback"):
                 flow_name = "callback" if action == "callback" else "book"
                 fresh = {"preferred_time": None, "_day": None}   # every tap is a new request
@@ -333,7 +360,7 @@ class Flows:
                 return FlowReply(self.t(self.c["prompts"]["concern_text"], lang),
                                  updates={"_step": "concern_text", "_flow": "book"}, route="book:concern_text")
             upd = self._set(data, concern=item["label"])
-            r = await self.next_step(data | upd, lang, "book", prefix=self.t(item.get("info"), lang))
+            r = self.disease_info(data | upd, lang)
             r.updates = upd | r.updates
             r.route = f"concern:{val}"
             return r

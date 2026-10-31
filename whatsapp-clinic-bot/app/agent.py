@@ -244,7 +244,10 @@ class Agent:
 
         # First message (often from an ad): the standard welcome + menu, in Marathi.
         if self.flows and (first_contact or chosen):
-            await self._apply_flow(msg, text, self.flows.menu(language, welcome=True), lead, language)
+            # First message (or language switch): welcome + "which of these problems do you have?"
+            reply = (self.flows.disease_info(lead["data"], language) if chosen and lead["data"].get("concern")
+                     else self.flows.disease_picker(language, welcome=True))
+            await self._apply_flow(msg, text, reply, lead, language)
             return
 
         # 1) Menu / predefined flow first: instant, free, and no risk of invented answers.

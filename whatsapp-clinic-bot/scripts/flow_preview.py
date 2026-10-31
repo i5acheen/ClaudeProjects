@@ -41,9 +41,20 @@ def main() -> None:
         btn = lambda keys: [t(c["buttons"][k]) for k in keys if k in c["buttons"]]  # noqa: E731
         n = 1
         out.append(f"---\n## {name}" + (" (default)" if lang == "mr" else " (only if the patient asks)") + "\n")
-        menu = f.menu(lang, welcome=True)
-        out += [f"**{n}. Welcome + main menu**\n", block(menu.text),
-                opts([ch["title"] for ch in menu.choices], "Menu"), "\n"]
+        pick = f.disease_picker(lang, welcome=True)
+        out += [f"**{n}. First message: welcome + which problem?**\n", block(pick.text),
+                opts([ch["title"] for ch in pick.choices], "List"), "\n"]
+        menu_titles = [ch["title"] for ch in f.menu(lang).choices]
+        for item in c["concerns"]:
+            n += 1
+            if item["id"] == "other":
+                out += [f"**{n}. Picked: {t(item['title'])}**\n", block(t(c["prompts"]["concern_text"])),
+                        "After they type it:\n", block(f.disease_info({"concern": "other: …"}, lang,
+                                                       prefix=t(c["prompts"]["concern_noted"])).text),
+                        opts(menu_titles, "Menu"), "\n"]
+                continue
+            info = f.disease_info({"concern": item["label"]}, lang)
+            out += [f"**{n}. Picked: {t(item['title'])}**\n", block(info.text), opts(menu_titles, "Menu"), "\n"]
         for key, title in (("photo", "📷 Send leg photos"), ("other", "❓ Other question"),
                            ("location", "If asked for address / doctor / hospital / phone (menu or AI)")):
             n += 1

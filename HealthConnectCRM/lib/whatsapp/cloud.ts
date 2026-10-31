@@ -30,7 +30,11 @@ async function post(cfg: WaConfig, body: Record<string, unknown>): Promise<unkno
   const json: unknown = await res.json().catch(() => ({}));
   if (!res.ok) {
     const e = errorBody.safeParse(json);
-    throw new WaApiError(e.success ? e.data.error.message : `WhatsApp ${res.status}`, res.status, e.success ? e.data.error.code : undefined);
+    throw new WaApiError(
+      e.success ? e.data.error.message : `WhatsApp ${res.status}`,
+      res.status,
+      e.success ? e.data.error.code : undefined,
+    );
   }
   return json;
 }
@@ -42,7 +46,11 @@ export async function sendText(cfg: WaConfig, to: string, text: string): Promise
 
 export async function sendTemplate(cfg: WaConfig, to: string, name: string, language: string, params: string[]): Promise<string> {
   const components = params.length ? [{ type: "body", parameters: params.map((text) => ({ type: "text", text })) }] : [];
-  const json = await post(cfg, { to: to.replace(/^\+/, ""), type: "template", template: { name, language: { code: language }, components } });
+  const json = await post(cfg, {
+    to: to.replace(/^\+/, ""),
+    type: "template",
+    template: { name, language: { code: language }, components },
+  });
   return sendResult.parse(json).messages[0].id;
 }
 
@@ -52,7 +60,9 @@ export async function markRead(cfg: WaConfig, waMessageId: string, typing = fals
 
 /** Two-step media download: resolve the short-lived URL, then fetch bytes with the same token. */
 export async function downloadMedia(cfg: WaConfig, mediaId: string): Promise<{ bytes: ArrayBuffer; mimeType: string; size: number }> {
-  const metaRes = await fetchWithTimeout(`${base(cfg)}/${encodeURIComponent(mediaId)}`, { headers: { Authorization: `Bearer ${cfg.accessToken}` } });
+  const metaRes = await fetchWithTimeout(`${base(cfg)}/${encodeURIComponent(mediaId)}`, {
+    headers: { Authorization: `Bearer ${cfg.accessToken}` },
+  });
   if (!metaRes.ok) throw new WaApiError(`media lookup ${metaRes.status}`, metaRes.status);
   const meta = z.object({ url: z.string().url(), mime_type: z.string(), file_size: z.number().optional() }).parse(await metaRes.json());
   const fileRes = await fetchWithTimeout(meta.url, { headers: { Authorization: `Bearer ${cfg.accessToken}` } }, 20_000);

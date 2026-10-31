@@ -11,7 +11,9 @@ async function leadState(leadId: string) {
   const db = adminDb();
   const { data } = await db
     .from("leads")
-    .select("id, org_id, stage, assigned_to, needs_human, closed_at, patient_id, patients!inner(preferred_language, full_name), last_outbound_at")
+    .select(
+      "id, org_id, stage, assigned_to, needs_human, closed_at, patient_id, patients!inner(preferred_language, full_name), last_outbound_at",
+    )
     .eq("id", leadId)
     .single();
   return data;
@@ -35,8 +37,11 @@ export const leadFollowups = inngest.createFunction(
       // Before 8 pm IST: due now. Later: due at 9 am next day so nobody is asked to call at night.
       const now = new Date();
       const due = istHour(now) < 20 ? now : new Date(now.getTime() + (24 - istHour(now) + 9) * 3600_000 - now.getUTCMinutes() * 60_000);
-      await adminDb().from("tasks").insert({ org_id: orgId, lead_id: leadId, assigned_to: lead.assigned_to, type: "call", due_at: due.toISOString() });
-      if (lead.assigned_to) await notify(adminDb(), orgId, [lead.assigned_to], leadId, "call_lead", "No reply to greeting for 2 hours — please call.");
+      await adminDb()
+        .from("tasks")
+        .insert({ org_id: orgId, lead_id: leadId, assigned_to: lead.assigned_to, type: "call", due_at: due.toISOString() });
+      if (lead.assigned_to)
+        await notify(adminDb(), orgId, [lead.assigned_to], leadId, "call_lead", "No reply to greeting for 2 hours — please call.");
       return "task";
     });
 
@@ -48,8 +53,16 @@ export const leadFollowups = inngest.createFunction(
       if (!conv) return "no conversation";
       const lang = (lead.patients as unknown as { preferred_language: "mr" | "hi" | "en" }).preferred_language;
       const r = await sendWhatsApp(adminDb(), {
-        conversationId: conv, leadId, sender: "system",
-        content: { kind: "template", name: lang === "hi" ? "docs_reminder_hi" : "docs_reminder_mr", language: lang === "hi" ? "hi" : "mr", params: [], category: "utility" },
+        conversationId: conv,
+        leadId,
+        sender: "system",
+        content: {
+          kind: "template",
+          name: lang === "hi" ? "docs_reminder_hi" : "docs_reminder_mr",
+          language: lang === "hi" ? "hi" : "mr",
+          params: [],
+          category: "utility",
+        },
       });
       return r.status;
     });
@@ -72,16 +85,28 @@ export const docsPendingFollowups = inngest.createFunction(
       const conv = await conversationFor(lead.patient_id);
       if (!conv) return "no conversation";
       const lang = (lead.patients as unknown as { preferred_language: "mr" | "hi" | "en" }).preferred_language;
-      return (await sendWhatsApp(adminDb(), {
-        conversationId: conv, leadId, sender: "system",
-        content: { kind: "template", name: lang === "hi" ? "docs_reminder_hi" : "docs_reminder_mr", language: lang === "hi" ? "hi" : "mr", params: [], category: "utility" },
-      })).status;
+      return (
+        await sendWhatsApp(adminDb(), {
+          conversationId: conv,
+          leadId,
+          sender: "system",
+          content: {
+            kind: "template",
+            name: lang === "hi" ? "docs_reminder_hi" : "docs_reminder_mr",
+            language: lang === "hi" ? "hi" : "mr",
+            params: [],
+            category: "utility",
+          },
+        })
+      ).status;
     });
     await step.sleep("wait-48h", "48h");
     return step.run("chase-task", async () => {
       const lead = await leadState(leadId);
       if (!lead || lead.stage !== 2) return "skip";
-      await adminDb().from("tasks").insert({ org_id: orgId, lead_id: leadId, assigned_to: lead.assigned_to, type: "chase_docs", due_at: new Date().toISOString() });
+      await adminDb()
+        .from("tasks")
+        .insert({ org_id: orgId, lead_id: leadId, assigned_to: lead.assigned_to, type: "chase_docs", due_at: new Date().toISOString() });
       return "task";
     });
   },
@@ -95,18 +120,45 @@ export const needsHumanEscalation = inngest.createFunction(
     const db = adminDb();
     await step.run("notify", async () => {
       const lead = await leadState(data.leadId);
-      const targets = data.emergency || !lead?.assigned_to
-        ? (await db.from("profiles").select("user_id").eq("org_id", data.orgId).in("role", ["admin", "coordinator"]).eq("is_active", true)).data?.map((p) => p.user_id) ?? []
-        : [lead.assigned_to];
-      await notify(db, data.orgId, targets, data.leadId, data.emergency ? "emergency" : "needs_human", data.emergency ? "EMERGENCY reported by patient — call now." : `Patient needs a coordinator (${data.reason}).`);
+      const targets =
+        data.emergency || !lead?.assigned_to
+          ? ((
+              await db
+                .from("profiles")
+                .select("user_id")
+                .eq("org_id", data.orgId)
+                .in("role", ["admin", "coordinator"])
+                .eq("is_active", true)
+            ).data?.map((p) => p.user_id) ?? [])
+          : [lead.assigned_to];
+      await notify(
+        db,
+        data.orgId,
+        targets,
+        data.leadId,
+        data.emergency ? "emergency" : "needs_human",
+        data.emergency ? "EMERGENCY reported by patient — call now." : `Patient needs a coordinator (${data.reason}).`,
+      );
     });
     await step.sleep("wait-30m", "30m");
     return step.run("escalate", async () => {
       const { data: lead } = await db.from("leads").select("needs_human, needs_human_since").eq("id", data.leadId).single();
       if (!lead?.needs_human) return "resolved";
-      const { count } = await db.from("messages").select("id", { count: "exact", head: true }).eq("lead_id", data.leadId).eq("sender", "coordinator").gte("created_at", lead.needs_human_since ?? new Date(0).toISOString());
+      const { count } = await db
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("lead_id", data.leadId)
+        .eq("sender", "coordinator")
+        .gte("created_at", lead.needs_human_since ?? new Date(0).toISOString());
       if ((count ?? 0) > 0) return "answered";
-      await notify(db, data.orgId, await adminsOf(db, data.orgId), data.leadId, "escalation", "Patient waiting for a coordinator for 30+ minutes.");
+      await notify(
+        db,
+        data.orgId,
+        await adminsOf(db, data.orgId),
+        data.leadId,
+        "escalation",
+        "Patient waiting for a coordinator for 30+ minutes.",
+      );
       return "escalated";
     });
   },

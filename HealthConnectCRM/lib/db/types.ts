@@ -865,6 +865,16 @@ export type Database = {
         }
         Relationships: []
       }
+      v_coordinator_stats: {
+        Row: {
+          user_id: string | null
+          leads: number | null
+          contacted: number | null
+          referred: number | null
+          admitted: number | null
+        }
+        Relationships: []
+      }
       v_funnel: {
         Row: {
           day: string | null
@@ -893,6 +903,25 @@ export type Database = {
           created_at: string | null
           admitted_at: string | null
           reached_stage: number | null
+        }
+        Relationships: []
+      }
+      v_response_times: {
+        Row: {
+          day: string | null
+          replied_by: string | null
+          replies: number | null
+          avg_minutes: number | null
+          median_minutes: number | null
+        }
+        Relationships: []
+      }
+      v_template_counts: {
+        Row: {
+          month: string | null
+          category: string | null
+          sent: number | null
+          delivered: number | null
         }
         Relationships: []
       }

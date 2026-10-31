@@ -14,7 +14,10 @@ export async function storeWebhookEvents(
   if (!events.length) return new Map();
   const { data, error } = await db
     .from("webhook_events")
-    .upsert(events.map((e) => ({ provider, event_key: e.key, payload: e.payload })), { onConflict: "event_key", ignoreDuplicates: true })
+    .upsert(
+      events.map((e) => ({ provider, event_key: e.key, payload: e.payload })),
+      { onConflict: "event_key", ignoreDuplicates: true },
+    )
     .select("id, event_key");
   if (error) throw new Error(`webhook_events insert: ${error.message}`);
   return new Map((data ?? []).map((r) => [r.event_key, r.id]));

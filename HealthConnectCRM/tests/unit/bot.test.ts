@@ -4,7 +4,16 @@ import type { AiProvider, CompletionRequest } from "@/lib/ai/provider";
 
 const empty = { problem: "", since: "", age: "", district: "", aadhaar: "", ration_card: "", scheme_card: "" };
 const good = (over: Record<string, unknown> = {}) =>
-  JSON.stringify({ reply: "धन्यवाद जी. आपले वय किती आहे?", language: "mr", proposed_stage: 1, handover: false, handover_reason: "", facts: { ...empty, problem: "varicose veins" }, confidence: 0.9, ...over });
+  JSON.stringify({
+    reply: "धन्यवाद जी. आपले वय किती आहे?",
+    language: "mr",
+    proposed_stage: 1,
+    handover: false,
+    handover_reason: "",
+    facts: { ...empty, problem: "varicose veins" },
+    confidence: 0.9,
+    ...over,
+  });
 
 function fake(...replies: string[]) {
   const calls: CompletionRequest[] = [];
@@ -66,7 +75,7 @@ describe("runBotTurn", () => {
   });
 
   it("falls back and hands over after two invalid outputs", async () => {
-    const { provider } = fake("nope", "{\"reply\": 1}");
+    const { provider } = fake("nope", '{"reply": 1}');
     const d = await runBotTurn(provider, input("नमस्कार, मला माहिती हवी आहे"));
     expect(d).toMatchObject({ kind: "fallback", handover: true, handoverReason: "invalid_model_output" });
     expect(d.reply).toBe("आमचे समन्वयक लवकरच आपल्याला फोन करतील.");
@@ -113,7 +122,11 @@ describe("runBotTurn", () => {
 
   it("sends at most the last 16 history messages", async () => {
     const { provider, calls } = fake(good());
-    const history = Array.from({ length: 30 }, (_, i) => ({ direction: (i % 2 ? "out" : "in") as "in" | "out", body: `m${i}`, type: "text" }));
+    const history = Array.from({ length: 30 }, (_, i) => ({
+      direction: (i % 2 ? "out" : "in") as "in" | "out",
+      body: `m${i}`,
+      type: "text",
+    }));
     await runBotTurn(provider, input("latest", { history }));
     const sent = calls[0].messages.map((m) => m.content).join("\n");
     expect(sent).not.toContain("m13");
@@ -123,6 +136,10 @@ describe("runBotTurn", () => {
 
 describe("sanitiseFacts", () => {
   it("never keeps ID numbers", () => {
-    expect(sanitiseFacts({ aadhaar: "1234 5678 9012", ration_card: "yes, orange", age: "45" })).toEqual({ aadhaar: "yes", ration_card: "yes, orange", age: "45" });
+    expect(sanitiseFacts({ aadhaar: "1234 5678 9012", ration_card: "yes, orange", age: "45" })).toEqual({
+      aadhaar: "yes",
+      ration_card: "yes, orange",
+      age: "45",
+    });
   });
 });

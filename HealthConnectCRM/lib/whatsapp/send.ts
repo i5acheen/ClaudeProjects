@@ -12,7 +12,13 @@ import { decideSend, type SendDecision } from "./policy";
  */
 export type OutboundContent =
   | { kind: "text"; text: string }
-  | { kind: "template"; name: string; language: "mr" | "hi" | "en"; params: string[]; category: "utility" | "marketing" | "authentication" };
+  | {
+      kind: "template";
+      name: string;
+      language: "mr" | "hi" | "en";
+      params: string[];
+      category: "utility" | "marketing" | "authentication";
+    };
 
 export type SendRequest = {
   conversationId: string;
@@ -46,7 +52,11 @@ export async function sendWhatsApp(db: AdminDb, req: SendRequest, cfg: WaConfig 
     .single();
   if (error || !conv) throw new Error(`conversation ${req.conversationId} not found`);
   const patient = conv.patients as unknown as {
-    id: string; phone_e164: string; opted_out_at: string | null; consent_whatsapp: boolean; deleted_at: string | null;
+    id: string;
+    phone_e164: string;
+    opted_out_at: string | null;
+    consent_whatsapp: boolean;
+    deleted_at: string | null;
   };
   const attemptLog = log.child({ conversationId: conv.id, leadId: req.leadId, sender: req.sender, kind: req.content.kind });
 
@@ -100,7 +110,10 @@ export async function sendWhatsApp(db: AdminDb, req: SendRequest, cfg: WaConfig 
     return { status: "sent", messageId: msg.id, waMessageId };
   } catch (e) {
     const err = e instanceof WaApiError ? e : new WaApiError(e instanceof Error ? e.message : String(e), 0);
-    await db.from("messages").update({ status: "failed", error_code: String(err.code ?? err.status) }).eq("id", msg.id);
+    await db
+      .from("messages")
+      .update({ status: "failed", error_code: String(err.code ?? err.status) })
+      .eq("id", msg.id);
     const retryable = err.status === 0 || err.status >= 500 || err.status === 429;
     attemptLog.error("whatsapp.send.failed", { messageId: msg.id, status: err.status, code: err.code, error: err.message });
     return { status: "failed", messageId: msg.id, error: err.message, retryable };

@@ -14,10 +14,11 @@ export type PromptContext = {
 const STAGE_NAMES = ["New", "Contacted", "Docs pending", "Eligible", "Referred", "Admitted"];
 
 export function buildSystemPrompt(ctx: PromptContext): string {
-  const facts = Object.entries(ctx.knownFacts)
-    .filter(([, v]) => v)
-    .map(([k, v]) => `- ${k}: ${v}`)
-    .join("\n") || "- (nothing yet)";
+  const facts =
+    Object.entries(ctx.knownFacts)
+      .filter(([, v]) => v)
+      .map(([k, v]) => `- ${k}: ${v}`)
+      .join("\n") || "- (nothing yet)";
   const kb = ctx.kb.map((a) => `### ${a.title}\n${a.body}`).join("\n\n") || "(no articles)";
 
   return `You are "Sahayak", the WhatsApp assistant of a free patient coordination service in Chhatrapati Sambhajinagar, Maharashtra. The service helps patients get treatment at empanelled hospitals under government schemes: MJPJAY (Mahatma Jyotiba Phule Jan Arogya Yojana) and PM-JAY (Ayushman Bharat). Current treatments: varicose veins, spine surgery, thyroid. Our job ends when the patient is admitted. A human coordinator handles everything you cannot.

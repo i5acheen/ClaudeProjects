@@ -12,20 +12,36 @@ describe("decideSend", () => {
     expect(decideSend({ ...base, kind: "text", now: noonIst, windowExpiresAt: inOneHour(noonIst) })).toEqual({ allow: true });
   });
   it("refuses free text when the window is closed or never opened", () => {
-    expect(decideSend({ ...base, kind: "text", now: noonIst, windowExpiresAt: new Date(noonIst.getTime() - 1) })).toMatchObject({ allow: false, reason: "window_closed" });
-    expect(decideSend({ ...base, kind: "text", now: noonIst, windowExpiresAt: null })).toMatchObject({ allow: false, reason: "window_closed" });
+    expect(decideSend({ ...base, kind: "text", now: noonIst, windowExpiresAt: new Date(noonIst.getTime() - 1) })).toMatchObject({
+      allow: false,
+      reason: "window_closed",
+    });
+    expect(decideSend({ ...base, kind: "text", now: noonIst, windowExpiresAt: null })).toMatchObject({
+      allow: false,
+      reason: "window_closed",
+    });
   });
   it("allows templates outside the window with consent", () => {
-    expect(decideSend({ ...base, kind: "template", templateCategory: "utility", now: noonIst, windowExpiresAt: null })).toEqual({ allow: true });
+    expect(decideSend({ ...base, kind: "template", templateCategory: "utility", now: noonIst, windowExpiresAt: null })).toEqual({
+      allow: true,
+    });
   });
   it("refuses templates without consent", () => {
-    expect(decideSend({ ...base, consentWhatsapp: false, kind: "template", now: noonIst, windowExpiresAt: null })).toMatchObject({ reason: "no_consent" });
+    expect(decideSend({ ...base, consentWhatsapp: false, kind: "template", now: noonIst, windowExpiresAt: null })).toMatchObject({
+      reason: "no_consent",
+    });
   });
   it("never messages opted-out patients, except the single confirmation", () => {
     const optedOutAt = new Date(noonIst.getTime() - 1000);
-    expect(decideSend({ ...base, optedOutAt, kind: "text", now: noonIst, windowExpiresAt: inOneHour(noonIst) })).toMatchObject({ reason: "opted_out" });
-    expect(decideSend({ ...base, optedOutAt, kind: "template", now: noonIst, windowExpiresAt: null })).toMatchObject({ reason: "opted_out" });
-    expect(decideSend({ ...base, optedOutAt, kind: "text", isOptOutConfirmation: true, now: tenPmIst, windowExpiresAt: inOneHour(tenPmIst) })).toEqual({ allow: true });
+    expect(decideSend({ ...base, optedOutAt, kind: "text", now: noonIst, windowExpiresAt: inOneHour(noonIst) })).toMatchObject({
+      reason: "opted_out",
+    });
+    expect(decideSend({ ...base, optedOutAt, kind: "template", now: noonIst, windowExpiresAt: null })).toMatchObject({
+      reason: "opted_out",
+    });
+    expect(
+      decideSend({ ...base, optedOutAt, kind: "text", isOptOutConfirmation: true, now: tenPmIst, windowExpiresAt: inOneHour(tenPmIst) }),
+    ).toEqual({ allow: true });
   });
   it("queues proactive messages during quiet hours until 8 am IST", () => {
     const d = decideSend({ ...base, kind: "template", now: tenPmIst, windowExpiresAt: null });
@@ -33,7 +49,9 @@ describe("decideSend", () => {
     if (!d.allow) expect(d.retryAt?.toISOString()).toBe("2026-10-31T02:30:00.000Z");
   });
   it("allows a direct reply to a patient during quiet hours", () => {
-    expect(decideSend({ ...base, kind: "text", isReplyToPatient: true, now: tenPmIst, windowExpiresAt: inOneHour(tenPmIst) })).toEqual({ allow: true });
+    expect(decideSend({ ...base, kind: "text", isReplyToPatient: true, now: tenPmIst, windowExpiresAt: inOneHour(tenPmIst) })).toEqual({
+      allow: true,
+    });
   });
 });
 

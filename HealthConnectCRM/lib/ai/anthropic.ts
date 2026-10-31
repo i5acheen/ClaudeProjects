@@ -33,7 +33,13 @@ export class AnthropicProvider implements AiProvider {
       { timeout: req.timeoutMs ?? 8000 },
     );
     if (response.stop_reason === "refusal") {
-      return { text: "", model: response.model, inputTokens: response.usage.input_tokens, outputTokens: response.usage.output_tokens, refused: true };
+      return {
+        text: "",
+        model: response.model,
+        inputTokens: response.usage.input_tokens,
+        outputTokens: response.usage.output_tokens,
+        refused: true,
+      };
     }
     const text = response.content
       .filter((b): b is Anthropic.Beta.BetaTextBlock => b.type === "text")

@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-const mediaSchema = z.object({ id: z.string(), mime_type: z.string().optional(), caption: z.string().optional(), filename: z.string().optional() });
+const mediaSchema = z.object({
+  id: z.string(),
+  mime_type: z.string().optional(),
+  caption: z.string().optional(),
+  filename: z.string().optional(),
+});
 
 export const waInboundMessageSchema = z.object({
   from: z.string(),
@@ -84,7 +89,13 @@ export function describeInbound(m: WaInboundMessage): {
 } {
   if (m.text) return { type: "text", body: m.text.body, mediaId: null, mimeType: null };
   if (m.image) return { type: "image", body: m.image.caption ?? null, mediaId: m.image.id, mimeType: m.image.mime_type ?? null };
-  if (m.document) return { type: "document", body: m.document.caption ?? m.document.filename ?? null, mediaId: m.document.id, mimeType: m.document.mime_type ?? null };
+  if (m.document)
+    return {
+      type: "document",
+      body: m.document.caption ?? m.document.filename ?? null,
+      mediaId: m.document.id,
+      mimeType: m.document.mime_type ?? null,
+    };
   if (m.audio) return { type: "audio", body: null, mediaId: m.audio.id, mimeType: m.audio.mime_type ?? null };
   if (m.interactive) {
     const r = m.interactive.button_reply ?? m.interactive.list_reply;

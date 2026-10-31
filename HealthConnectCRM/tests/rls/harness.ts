@@ -26,7 +26,9 @@ export async function createTestDatabase(name: string): Promise<Client> {
   await db.connect();
   await db.query(readFileSync(path.join(ROOT, "tests/rls/setup.sql"), "utf8"));
   const dir = path.join(ROOT, "supabase/migrations");
-  for (const file of readdirSync(dir).filter((f) => f.endsWith(".sql")).sort()) {
+  for (const file of readdirSync(dir)
+    .filter((f) => f.endsWith(".sql"))
+    .sort()) {
     await db.query(readFileSync(path.join(dir, file), "utf8"));
   }
   return db;

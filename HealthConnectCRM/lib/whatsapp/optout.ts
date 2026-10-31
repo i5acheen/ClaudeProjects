@@ -3,7 +3,11 @@ const OPT_OUT = ["stop", "unsubscribe", "थांबवा", "बंद कर�
 const OPT_IN = ["start", "सुरू करा", "शुरू करो"];
 
 function norm(text: string): string {
-  return text.trim().toLowerCase().replace(/[.!।\s]+$/u, "").replace(/\s+/g, " ");
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[.!।\s]+$/u, "")
+    .replace(/\s+/g, " ");
 }
 
 export function isOptOut(text: string | null | undefined): boolean {

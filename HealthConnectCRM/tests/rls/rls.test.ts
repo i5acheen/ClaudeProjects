@@ -110,7 +110,9 @@ describe("hospital partner", () => {
       const lead = (await db.query("select stage, admitted_at from leads where id = $1", [ids.leadReferredA1])).rows[0];
       expect(lead.stage).toBe(5);
       expect(lead.admitted_at).not.toBeNull();
-      const ev = (await db.query("select from_stage, to_stage, actor_type, actor_user_id from stage_events where lead_id = $1", [ids.leadReferredA1])).rows;
+      const ev = (
+        await db.query("select from_stage, to_stage, actor_type, actor_user_id from stage_events where lead_id = $1", [ids.leadReferredA1])
+      ).rows;
       expect(ev).toEqual([{ from_stage: 4, to_stage: 5, actor_type: "user", actor_user_id: ids.partnerA1 }]);
       const audit = (await db.query("select action from audit_log where entity_id = $1", [ids.leadReferredA1])).rows;
       expect(audit.map((a) => a.action)).toContain("lead.stage_changed");
@@ -120,9 +122,9 @@ describe("hospital partner", () => {
   });
 
   it("cannot mark another hospital's patient admitted", async () => {
-    await expect(
-      asUser(db, ids.partnerA1, (q) => q("select move_lead_stage($1, 5::smallint, 'x')", [ids.leadReferredA2])),
-    ).rejects.toThrow(/only mark their referred patients/);
+    await expect(asUser(db, ids.partnerA1, (q) => q("select move_lead_stage($1, 5::smallint, 'x')", [ids.leadReferredA2]))).rejects.toThrow(
+      /only mark their referred patients/,
+    );
   });
 
   it("cannot move a lead to any stage other than Admitted", async () => {
@@ -152,15 +154,15 @@ describe("viewer", () => {
 
 describe("stage rules", () => {
   it("coordinator cannot write stage directly", async () => {
-    await expect(
-      asUser(db, ids.coordA, (q) => q("update leads set stage = 5 where id = $1", [ids.leadNewA1])),
-    ).rejects.toThrow(/permission denied/);
+    await expect(asUser(db, ids.coordA, (q) => q("update leads set stage = 5 where id = $1", [ids.leadNewA1]))).rejects.toThrow(
+      /permission denied/,
+    );
   });
 
   it("Lost requires a reason", async () => {
-    await expect(
-      asUser(db, ids.coordA, (q) => q("select move_lead_stage($1, -1::smallint, '')", [ids.leadNewA1])),
-    ).rejects.toThrow(/reason is required/);
+    await expect(asUser(db, ids.coordA, (q) => q("select move_lead_stage($1, -1::smallint, '')", [ids.leadNewA1]))).rejects.toThrow(
+      /reason is required/,
+    );
   });
 
   it("bot can move forward up to Eligible only", async () => {
@@ -169,9 +171,9 @@ describe("stage rules", () => {
       const r = await q("select stage from leads where id = $1", [ids.leadNewA1]);
       expect(r[0].stage).toBe(3);
     });
-    await expect(
-      asUser(db, null, (q) => q("select move_lead_stage($1, 4::smallint, 'x', null, 'bot')", [ids.leadNewA1])),
-    ).rejects.toThrow(/forward up to Eligible/);
+    await expect(asUser(db, null, (q) => q("select move_lead_stage($1, 4::smallint, 'x', null, 'bot')", [ids.leadNewA1]))).rejects.toThrow(
+      /forward up to Eligible/,
+    );
   });
 
   it("bot cannot move backwards", async () => {
@@ -195,9 +197,7 @@ describe("stage rules", () => {
     await db.query("begin");
     try {
       await db.query("set local role anon");
-      await expect(db.query("select move_lead_stage($1, 1::smallint)", [ids.leadNewA1])).rejects.toThrow(
-        /permission denied/,
-      );
+      await expect(db.query("select move_lead_stage($1, 1::smallint)", [ids.leadNewA1])).rejects.toThrow(/permission denied/);
     } finally {
       await db.query("rollback");
     }
@@ -210,9 +210,9 @@ describe("audit log", () => {
   });
 
   it("users cannot insert audit rows directly", async () => {
-    await expect(
-      asUser(db, ids.adminA, (q) => q("insert into audit_log (action, entity) values ('fake', 'x')")),
-    ).rejects.toThrow(/permission denied/);
+    await expect(asUser(db, ids.adminA, (q) => q("insert into audit_log (action, entity) values ('fake', 'x')"))).rejects.toThrow(
+      /permission denied/,
+    );
   });
 
   it("role changes are audited and admins cannot demote themselves", async () => {
@@ -221,9 +221,9 @@ describe("audit log", () => {
       const a = await q("select action from audit_log where entity_id = $1 and action = 'profile.role_changed'", [ids.coordA]);
       expect(a).toHaveLength(1);
     });
-    await expect(
-      asUser(db, ids.adminA, (q) => q("update profiles set role = 'viewer' where user_id = $1", [ids.adminA])),
-    ).rejects.toThrow(/cannot change your own role/);
+    await expect(asUser(db, ids.adminA, (q) => q("update profiles set role = 'viewer' where user_id = $1", [ids.adminA]))).rejects.toThrow(
+      /cannot change your own role/,
+    );
   });
 
   it("coordinator cannot change roles", async () => {
@@ -243,9 +243,7 @@ describe("privacy tools", () => {
       const a = await q("select action from audit_log where entity_id = $1", [ids.patReferredA1]);
       expect(a.map((r) => r.action)).toContain("patient.exported");
     });
-    await expect(
-      asUser(db, ids.coordA, (q) => q("select export_patient($1)", [ids.patReferredA1])),
-    ).rejects.toThrow(/admin only/);
+    await expect(asUser(db, ids.coordA, (q) => q("select export_patient($1)", [ids.patReferredA1]))).rejects.toThrow(/admin only/);
   });
 
   it("anonymise removes personal data, returns document paths and is audited", async () => {
@@ -264,9 +262,7 @@ describe("privacy tools", () => {
   });
 
   it("admin cannot export another org's patient", async () => {
-    await expect(asUser(db, ids.adminA, (q) => q("select export_patient($1)", [ids.patB]))).rejects.toThrow(
-      /not found/,
-    );
+    await expect(asUser(db, ids.adminA, (q) => q("select export_patient($1)", [ids.patB]))).rejects.toThrow(/not found/);
   });
 });
 

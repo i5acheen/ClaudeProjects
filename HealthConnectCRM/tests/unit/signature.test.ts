@@ -28,7 +28,11 @@ describe("verifyChallenge", () => {
     expect(verifyChallenge(p, token)).toBe("42");
   });
   it("rejects a wrong token or mode", () => {
-    expect(verifyChallenge(new URLSearchParams({ "hub.mode": "subscribe", "hub.verify_token": "nope", "hub.challenge": "42" }), token)).toBeNull();
-    expect(verifyChallenge(new URLSearchParams({ "hub.mode": "unsubscribe", "hub.verify_token": token, "hub.challenge": "42" }), token)).toBeNull();
+    expect(
+      verifyChallenge(new URLSearchParams({ "hub.mode": "subscribe", "hub.verify_token": "nope", "hub.challenge": "42" }), token),
+    ).toBeNull();
+    expect(
+      verifyChallenge(new URLSearchParams({ "hub.mode": "unsubscribe", "hub.verify_token": token, "hub.challenge": "42" }), token),
+    ).toBeNull();
   });
 });

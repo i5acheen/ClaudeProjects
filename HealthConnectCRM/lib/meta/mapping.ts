@@ -3,7 +3,17 @@ import { toE164 } from "@/lib/phone";
 import type { GraphLead } from "./graph";
 
 /** CRM fields a Meta form question can map to (Settings → Meta field mapping). */
-export const CRM_FIELDS = ["full_name", "phone", "district", "taluka", "treatment", "has_scheme_card", "age", "language", "ignore"] as const;
+export const CRM_FIELDS = [
+  "full_name",
+  "phone",
+  "district",
+  "taluka",
+  "treatment",
+  "has_scheme_card",
+  "age",
+  "language",
+  "ignore",
+] as const;
 export type CrmField = (typeof CRM_FIELDS)[number];
 
 export const fieldMappingSchema = z.record(z.string(), z.enum(CRM_FIELDS));
@@ -66,7 +76,9 @@ export function mapLead(lead: GraphLead, mapping: FieldMapping = DEFAULT_MAPPING
     else if (target !== "ignore" && value) values[target] = value;
   }
   const ageNum = values.age ? Number.parseInt(values.age, 10) : NaN;
-  const consent = (lead.custom_disclaimer_responses ?? []).some((r) => r.is_checked === true || r.is_checked === "1" || r.is_checked === "true");
+  const consent = (lead.custom_disclaimer_responses ?? []).some(
+    (r) => r.is_checked === true || r.is_checked === "1" || r.is_checked === "true",
+  );
   return {
     fullName: values.full_name ?? "",
     phoneE164: values.phone ? toE164(values.phone) : null,

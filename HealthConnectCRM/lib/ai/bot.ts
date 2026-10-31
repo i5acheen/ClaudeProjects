@@ -76,7 +76,10 @@ export function sanitiseFacts(facts: Partial<Record<FactKey, string>>): Partial<
   for (const key of FACT_KEYS) {
     const v = facts[key]?.trim();
     if (!v) continue;
-    out[key] = (key === "aadhaar" || key === "ration_card" || key === "scheme_card") && /\d{6,}/.test(v.replace(/\s|-/g, "")) ? "yes" : v.slice(0, 200);
+    out[key] =
+      (key === "aadhaar" || key === "ration_card" || key === "scheme_card") && /\d{6,}/.test(v.replace(/\s|-/g, ""))
+        ? "yes"
+        : v.slice(0, 200);
   }
   return out;
 }
@@ -113,30 +116,79 @@ export async function runBotTurn(provider: AiProvider, input: BotTurnInput): Pro
 
   // 1. Emergencies: fixed reply, no model.
   if (check.emergency) {
-    return { ...base(input, language), kind: "emergency", reply: EMERGENCY_REPLY[language], handover: true, handoverReason: "emergency", emergency: true, flags: ["emergency"] };
+    return {
+      ...base(input, language),
+      kind: "emergency",
+      reply: EMERGENCY_REPLY[language],
+      handover: true,
+      handoverReason: "emergency",
+      emergency: true,
+      flags: ["emergency"],
+    };
   }
 
   // 2. Deterministic handover triggers.
-  const trigger = check.wantsHuman ? "asked_for_person" : check.angry ? "angry" : check.medicalQuestion ? "medical_question" : check.moneyQuestion ? "money_question" : null;
+  const trigger = check.wantsHuman
+    ? "asked_for_person"
+    : check.angry
+      ? "angry"
+      : check.medicalQuestion
+        ? "medical_question"
+        : check.moneyQuestion
+          ? "money_question"
+          : null;
   if (trigger) {
-    return { ...base(input, language), kind: "handover", reply: HANDOVER_REPLY[language], handover: true, handoverReason: trigger, flags: [trigger] };
+    return {
+      ...base(input, language),
+      kind: "handover",
+      reply: HANDOVER_REPLY[language],
+      handover: true,
+      handoverReason: trigger,
+      flags: [trigger],
+    };
   }
 
   // 3. Media: never sent to the model.
   if (input.inbound.type === "image" || input.inbound.type === "document") {
-    return { ...base(input, language), kind: "document_ack", reply: DOC_ACK[language], handover: false, handoverReason: "", documentKind: classifyDocument(input.inbound.body) };
+    return {
+      ...base(input, language),
+      kind: "document_ack",
+      reply: DOC_ACK[language],
+      handover: false,
+      handoverReason: "",
+      documentKind: classifyDocument(input.inbound.body),
+    };
   }
   if (input.inbound.type === "audio") {
-    return { ...base(input, language), kind: "handover", reply: HANDOVER_REPLY[language], handover: true, handoverReason: "voice_note", flags: ["audio"] };
+    return {
+      ...base(input, language),
+      kind: "handover",
+      reply: HANDOVER_REPLY[language],
+      handover: true,
+      handoverReason: "voice_note",
+      flags: ["audio"],
+    };
   }
 
   // 4. No progress for too long.
   if (input.botTurnsWithoutProgress >= MAX_TURNS_WITHOUT_PROGRESS) {
-    return { ...base(input, language), kind: "handover", reply: HANDOVER_REPLY[language], handover: true, handoverReason: "no_progress", flags: ["no_progress"] };
+    return {
+      ...base(input, language),
+      kind: "handover",
+      reply: HANDOVER_REPLY[language],
+      handover: true,
+      handoverReason: "no_progress",
+      flags: ["no_progress"],
+    };
   }
 
   // 5. Model turn with one repair retry.
-  const system = buildSystemPrompt({ knownFacts: input.knownFacts, currentStage: input.currentStage, preferredLanguage: input.preferredLanguage, kb: input.kb });
+  const system = buildSystemPrompt({
+    knownFacts: input.knownFacts,
+    currentStage: input.currentStage,
+    preferredLanguage: input.preferredLanguage,
+    kb: input.kb,
+  });
   const messages = toTurns([...input.history, { direction: "in", body: text, type: input.inbound.type }]);
   const started = Date.now();
   const run: BotDecision["run"] = { ...base(input, language).run };
@@ -148,7 +200,11 @@ export async function runBotTurn(provider: AiProvider, input: BotTurnInput): Pro
     run.outputTokens = res.outputTokens;
     let parsed = res.refused ? ({ ok: false, error: "refused" } as const) : parseBotOutput(res.text);
     if (!parsed.ok && !res.refused) {
-      res = await provider.complete({ system, messages: [...messages, { role: "assistant", content: res.text || "{}" }, { role: "user", content: repairPrompt(parsed.error) }], jsonSchema: botOutputJsonSchema });
+      res = await provider.complete({
+        system,
+        messages: [...messages, { role: "assistant", content: res.text || "{}" }, { role: "user", content: repairPrompt(parsed.error) }],
+        jsonSchema: botOutputJsonSchema,
+      });
       run.inputTokens = (run.inputTokens ?? 0) + (res.inputTokens ?? 0);
       run.outputTokens = (run.outputTokens ?? 0) + (res.outputTokens ?? 0);
       parsed = res.refused ? ({ ok: false, error: "refused" } as const) : parseBotOutput(res.text);
@@ -162,17 +218,43 @@ export async function runBotTurn(provider: AiProvider, input: BotTurnInput): Pro
   run.output = output;
 
   if (!output) {
-    return { ...base(input, language), kind: "fallback", reply: FALLBACK_REPLY[language], handover: true, handoverReason: "invalid_model_output", flags: ["invalid_output"], run };
+    return {
+      ...base(input, language),
+      kind: "fallback",
+      reply: FALLBACK_REPLY[language],
+      handover: true,
+      handoverReason: "invalid_model_output",
+      flags: ["invalid_output"],
+      run,
+    };
   }
 
   // 6. Post-generation checks.
   const outFlags = checkOutput(output.reply);
   const replyLang = output.language;
   if (isBlocking(outFlags)) {
-    return { ...base(input, replyLang), kind: "fallback", reply: FALLBACK_REPLY[replyLang], handover: true, handoverReason: `guardrail:${outFlags.join(",")}`, flags: outFlags, facts: sanitiseFacts(output.facts), run };
+    return {
+      ...base(input, replyLang),
+      kind: "fallback",
+      reply: FALLBACK_REPLY[replyLang],
+      handover: true,
+      handoverReason: `guardrail:${outFlags.join(",")}`,
+      flags: outFlags,
+      facts: sanitiseFacts(output.facts),
+      run,
+    };
   }
   if (output.confidence < MIN_CONFIDENCE) {
-    return { ...base(input, replyLang), kind: "fallback", reply: FALLBACK_REPLY[replyLang], handover: true, handoverReason: "low_confidence", flags: [...outFlags, "low_confidence"], facts: sanitiseFacts(output.facts), run };
+    return {
+      ...base(input, replyLang),
+      kind: "fallback",
+      reply: FALLBACK_REPLY[replyLang],
+      handover: true,
+      handoverReason: "low_confidence",
+      flags: [...outFlags, "low_confidence"],
+      facts: sanitiseFacts(output.facts),
+      run,
+    };
   }
 
   const proposedStage = botMayMove(input.currentStage, output.proposed_stage) ? output.proposed_stage : null;

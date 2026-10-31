@@ -6,7 +6,7 @@ import { downloadMedia, sendTemplate, sendText, WaApiError } from "@/lib/whatsap
 
 const G = "https://graph.facebook.com/v21.0";
 const server = setupServer();
-beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
@@ -18,7 +18,12 @@ describe("Meta Graph client", () => {
     server.use(
       http.get(`${G}/123`, ({ request }) => {
         expect(request.headers.get("authorization")).toBe("Bearer page-token");
-        return HttpResponse.json({ id: "123", created_time: "2026-10-30T10:00:00+0000", ad_id: "AD1", field_data: [{ name: "full_name", values: ["Asha"] }] });
+        return HttpResponse.json({
+          id: "123",
+          created_time: "2026-10-30T10:00:00+0000",
+          ad_id: "AD1",
+          field_data: [{ name: "full_name", values: ["Asha"] }],
+        });
       }),
     );
     const lead = await fetchLead(graphCfg, "123");
@@ -78,7 +83,11 @@ describe("WhatsApp Cloud client", () => {
   });
 
   it("maps API errors (131047 = window closed)", async () => {
-    server.use(http.post(`${G}/PNID/messages`, () => HttpResponse.json({ error: { message: "Re-engagement message", code: 131047 } }, { status: 400 })));
+    server.use(
+      http.post(`${G}/PNID/messages`, () =>
+        HttpResponse.json({ error: { message: "Re-engagement message", code: 131047 } }, { status: 400 }),
+      ),
+    );
     await expect(sendText(waCfg, "+919876543210", "hi")).rejects.toMatchObject({ code: 131047, status: 400 } satisfies Partial<WaApiError>);
   });
 

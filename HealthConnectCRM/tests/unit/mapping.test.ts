@@ -12,8 +12,23 @@ const lead = (fields: Record<string, string>, consent = true): GraphLead => ({
 
 describe("mapLead", () => {
   it("maps Meta standard fields and detects scheme + consent", () => {
-    const m = mapLead(lead({ full_name: "Sunita Patil", phone_number: "+919876543210", city: "Paithan", "Do you have an Ayushman/MJPJAY card?": "होय, आयुष्मान", treatment: "Varicose veins" }));
-    expect(m).toMatchObject({ fullName: "Sunita Patil", phoneE164: "+919876543210", district: "Paithan", scheme: "PM-JAY", treatment: "Varicose veins", consentWhatsapp: true });
+    const m = mapLead(
+      lead({
+        full_name: "Sunita Patil",
+        phone_number: "+919876543210",
+        city: "Paithan",
+        "Do you have an Ayushman/MJPJAY card?": "होय, आयुष्मान",
+        treatment: "Varicose veins",
+      }),
+    );
+    expect(m).toMatchObject({
+      fullName: "Sunita Patil",
+      phoneE164: "+919876543210",
+      district: "Paithan",
+      scheme: "PM-JAY",
+      treatment: "Varicose veins",
+      consentWhatsapp: true,
+    });
   });
   it("uses admin-configured mappings for custom questions", () => {
     const m = mapLead(lead({ full_name: "A", phone_number: "9876543210", "तुमचा तालुका?": "Vaijapur" }), { "तुमचा तालुका?": "taluka" });

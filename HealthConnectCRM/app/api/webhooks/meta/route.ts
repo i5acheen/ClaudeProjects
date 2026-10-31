@@ -43,7 +43,12 @@ export async function POST(req: NextRequest) {
       fresh.map((e) => ({
         name: EVENTS.leadReceived,
         id: `lead-${e.leadgen_id}`,
-        data: { leadgenId: e.leadgen_id, pageId: e.page_id, formId: e.form_id, webhookEventId: inserted.get(`meta:leadgen:${e.leadgen_id}`) },
+        data: {
+          leadgenId: e.leadgen_id,
+          pageId: e.page_id,
+          formId: e.form_id,
+          webhookEventId: inserted.get(`meta:leadgen:${e.leadgen_id}`),
+        },
       })),
     );
   }

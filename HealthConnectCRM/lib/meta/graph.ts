@@ -12,9 +12,7 @@ export const graphLeadSchema = z.object({
   form_id: z.string().optional(),
   platform: z.string().optional(),
   field_data: z.array(z.object({ name: z.string(), values: z.array(z.string()) })),
-  custom_disclaimer_responses: z
-    .array(z.object({ checkbox_key: z.string(), is_checked: z.union([z.string(), z.boolean()]) }))
-    .optional(),
+  custom_disclaimer_responses: z.array(z.object({ checkbox_key: z.string(), is_checked: z.union([z.string(), z.boolean()]) })).optional(),
 });
 export type GraphLead = z.infer<typeof graphLeadSchema>;
 
@@ -40,7 +38,11 @@ async function graphGet(cfg: GraphConfig, path: string, params: Record<string, s
   const json: unknown = await res.json().catch(() => ({}));
   if (!res.ok) {
     const err = z.object({ error: z.object({ message: z.string(), code: z.number().optional() }) }).safeParse(json);
-    throw new GraphError(err.success ? err.data.error.message : `Graph ${res.status}`, res.status, err.success ? err.data.error.code : undefined);
+    throw new GraphError(
+      err.success ? err.data.error.message : `Graph ${res.status}`,
+      res.status,
+      err.success ? err.data.error.code : undefined,
+    );
   }
   return json;
 }

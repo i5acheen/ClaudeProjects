@@ -35,7 +35,14 @@ export async function storeInbound(
     // Patient started the conversation: consent to reply on WhatsApp is implied for this enquiry and recorded.
     const { data: created, error } = await db
       .from("patients")
-      .insert({ org_id: org.id, full_name: profileName ?? "", phone_e164: phone, consent_whatsapp: true, consent_at: sentAt.toISOString(), consent_source: "whatsapp_inbound" })
+      .insert({
+        org_id: org.id,
+        full_name: profileName ?? "",
+        phone_e164: phone,
+        consent_whatsapp: true,
+        consent_at: sentAt.toISOString(),
+        consent_source: "whatsapp_inbound",
+      })
       .select("id, deleted_at")
       .single();
     if (error?.code === "23505") {
@@ -44,8 +51,12 @@ export async function storeInbound(
     else {
       patient = created;
       await db.from("consents").insert({
-        org_id: org.id, patient_id: created.id, purpose: "whatsapp_contact", granted: true,
-        text_shown: "Patient started the WhatsApp conversation.", source: "whatsapp_inbound",
+        org_id: org.id,
+        patient_id: created.id,
+        purpose: "whatsapp_contact",
+        granted: true,
+        text_shown: "Patient started the WhatsApp conversation.",
+        source: "whatsapp_inbound",
       });
     }
   }
@@ -53,7 +64,10 @@ export async function storeInbound(
 
   const { data: conv, error: convErr } = await db
     .from("conversations")
-    .upsert({ org_id: org.id, patient_id: patient.id, wa_phone_number_id: phoneNumberId, status: "open" }, { onConflict: "patient_id,wa_phone_number_id" })
+    .upsert(
+      { org_id: org.id, patient_id: patient.id, wa_phone_number_id: phoneNumberId, status: "open" },
+      { onConflict: "patient_id,wa_phone_number_id" },
+    )
     .select("id, window_expires_at, unread_count")
     .single();
   if (convErr || !conv) throw new Error(`conversation upsert: ${convErr?.message}`);
@@ -76,7 +90,9 @@ export async function storeInbound(
       .select("id, stage")
       .single();
     if (error || !created) throw new Error(`lead insert: ${error?.message}`);
-    await db.from("stage_events").insert({ org_id: org.id, lead_id: created.id, to_stage: 0, actor_type: "system", reason: "WhatsApp enquiry" });
+    await db
+      .from("stage_events")
+      .insert({ org_id: org.id, lead_id: created.id, to_stage: 0, actor_type: "system", reason: "WhatsApp enquiry" });
     lead = created;
     newLead = true;
   }
@@ -100,13 +116,34 @@ export async function storeInbound(
     .single();
   if (msgErr?.code === "23505") {
     const existing = await db.from("messages").select("id").eq("wa_message_id", msg.id).single();
-    return { duplicate: true, orgId: org.id, patientId: patient.id, conversationId: conv.id, leadId: lead.id, messageId: existing.data?.id ?? "", stage: lead.stage, newLead: false };
+    return {
+      duplicate: true,
+      orgId: org.id,
+      patientId: patient.id,
+      conversationId: conv.id,
+      leadId: lead.id,
+      messageId: existing.data?.id ?? "",
+      stage: lead.stage,
+      newLead: false,
+    };
   }
   if (msgErr || !message) throw new Error(`message insert: ${msgErr?.message}`);
 
   const windowExpires = new Date(sentAt.getTime() + WINDOW_MS).toISOString();
-  await db.from("conversations").update({ window_expires_at: windowExpires, unread_count: conv.unread_count + 1, status: "open" }).eq("id", conv.id);
+  await db
+    .from("conversations")
+    .update({ window_expires_at: windowExpires, unread_count: conv.unread_count + 1, status: "open" })
+    .eq("id", conv.id);
   await db.from("leads").update({ last_inbound_at: sentAt.toISOString() }).eq("id", lead.id);
 
-  return { duplicate: false, orgId: org.id, patientId: patient.id, conversationId: conv.id, leadId: lead.id, messageId: message.id, stage: lead.stage, newLead };
+  return {
+    duplicate: false,
+    orgId: org.id,
+    patientId: patient.id,
+    conversationId: conv.id,
+    leadId: lead.id,
+    messageId: message.id,
+    stage: lead.stage,
+    newLead,
+  };
 }

@@ -37,13 +37,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid payload" }, { status: 400 });
   }
 
-  const inserted = await storeWebhookEvents(adminDb(), "whatsapp", events.map((e) => ({ key: e.key, payload: e as unknown as Json })));
+  const inserted = await storeWebhookEvents(
+    adminDb(),
+    "whatsapp",
+    events.map((e) => ({ key: e.key, payload: e as unknown as Json })),
+  );
   const fresh = events.filter((e) => inserted.has(e.key));
   if (fresh.length) {
     await inngest.send(
       fresh.map((e) =>
         e.kind === "message"
-          ? { name: EVENTS.waMessage, id: e.key, data: { webhookEventId: inserted.get(e.key), phoneNumberId: e.phoneNumberId, profileName: e.profileName, message: e.message } }
+          ? {
+              name: EVENTS.waMessage,
+              id: e.key,
+              data: { webhookEventId: inserted.get(e.key), phoneNumberId: e.phoneNumberId, profileName: e.profileName, message: e.message },
+            }
           : { name: EVENTS.waStatus, id: e.key, data: { webhookEventId: inserted.get(e.key), status: e.status } },
       ),
     );

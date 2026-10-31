@@ -16,7 +16,10 @@ export const waStatus = inngest.createFunction(
       if (webhookEventId) await db.from("webhook_events").update({ processed_at: new Date().toISOString() }).eq("id", webhookEventId);
       if (!msg) return { skipped: "unknown message" };
       if (RANK[status.status] <= RANK[msg.status]) return { skipped: "older status" };
-      await db.from("messages").update({ status: status.status, error_code: status.errors?.[0] ? String(status.errors[0].code) : null }).eq("id", msg.id);
+      await db
+        .from("messages")
+        .update({ status: status.status, error_code: status.errors?.[0] ? String(status.errors[0].code) : null })
+        .eq("id", msg.id);
       return { updated: status.status };
     });
   },

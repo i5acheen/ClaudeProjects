@@ -8,7 +8,12 @@ import { fetchLead } from "@/lib/meta/graph";
 import { sendWhatsApp } from "@/lib/whatsapp/send";
 import { EVENTS, inngest } from "../client";
 
-const dataSchema = z.object({ leadgenId: z.string(), pageId: z.string(), formId: z.string().optional(), webhookEventId: z.string().optional() });
+const dataSchema = z.object({
+  leadgenId: z.string(),
+  pageId: z.string(),
+  formId: z.string().optional(),
+  webhookEventId: z.string().optional(),
+});
 
 /** Meta lead → patient + lead → greeting template (CLAUDE.md §6.1, §9). */
 export const leadReceived = inngest.createFunction(
@@ -29,7 +34,10 @@ export const leadReceived = inngest.createFunction(
 
     if (data.webhookEventId) {
       await step.run("mark-processed", async () => {
-        await db.from("webhook_events").update({ processed_at: new Date().toISOString(), error: "skipped" in result ? result.skipped : null }).eq("id", data.webhookEventId!);
+        await db
+          .from("webhook_events")
+          .update({ processed_at: new Date().toISOString(), error: "skipped" in result ? result.skipped : null })
+          .eq("id", data.webhookEventId!);
       });
     }
     if ("skipped" in result) {
@@ -42,7 +50,13 @@ export const leadReceived = inngest.createFunction(
 
     if (!result.consent) {
       await step.run("no-consent-task", async () => {
-        await db.from("tasks").insert({ org_id: result.orgId, lead_id: result.leadId, assigned_to: result.assignedTo, type: "call", due_at: new Date().toISOString() });
+        await db.from("tasks").insert({
+          org_id: result.orgId,
+          lead_id: result.leadId,
+          assigned_to: result.assignedTo,
+          type: "call",
+          due_at: new Date().toISOString(),
+        });
       });
       return { leadId: result.leadId, greeting: "skipped_no_consent" };
     }

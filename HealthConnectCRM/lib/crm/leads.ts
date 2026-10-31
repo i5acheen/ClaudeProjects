@@ -41,7 +41,9 @@ export async function upsertMetaLead(
         district: found.district ?? m.district,
         taluka: found.taluka ?? m.taluka,
         age: found.age ?? m.age,
-        ...(m.consentWhatsapp && !found.consent_whatsapp ? { consent_whatsapp: true, consent_at: now, consent_source: "meta_lead_form" } : {}),
+        ...(m.consentWhatsapp && !found.consent_whatsapp
+          ? { consent_whatsapp: true, consent_at: now, consent_source: "meta_lead_form" }
+          : {}),
       })
       .eq("id", found.id);
   } else {
@@ -72,7 +74,11 @@ export async function upsertMetaLead(
     .single();
   if (convErr || !conv) throw new Error(`conversation upsert: ${convErr?.message}`);
 
-  const { data: patient } = await db.from("patients").select("consent_whatsapp, preferred_language, full_name").eq("id", patientId).single();
+  const { data: patient } = await db
+    .from("patients")
+    .select("consent_whatsapp, preferred_language, full_name")
+    .eq("id", patientId)
+    .single();
   const base = {
     patientId,
     conversationId: conv.id,
@@ -88,7 +94,14 @@ export async function upsertMetaLead(
     const { data: camp } = await db
       .from("campaigns")
       .upsert(
-        { org_id: org.id, meta_ad_id: lead.ad_id, meta_adset_id: lead.adset_id ?? null, meta_campaign_id: lead.campaign_id ?? null, name: lead.campaign_name ?? lead.ad_name ?? "", treatment: m.treatment },
+        {
+          org_id: org.id,
+          meta_ad_id: lead.ad_id,
+          meta_adset_id: lead.adset_id ?? null,
+          meta_campaign_id: lead.campaign_id ?? null,
+          name: lead.campaign_name ?? lead.ad_name ?? "",
+          treatment: m.treatment,
+        },
         { onConflict: "org_id,meta_ad_id" },
       )
       .select("id")
@@ -138,9 +151,13 @@ export async function upsertMetaLead(
     m.hasSchemeCard && { key: "scheme_card", value: m.hasSchemeCard },
   ].filter((f): f is { key: string; value: string } => !!f);
   if (facts.length) {
-    await db.from("lead_facts").upsert(facts.map((f) => ({ ...f, lead_id: inserted.id, org_id: org.id, source: "form" as const, confidence: 1 })));
+    await db
+      .from("lead_facts")
+      .upsert(facts.map((f) => ({ ...f, lead_id: inserted.id, org_id: org.id, source: "form" as const, confidence: 1 })));
   }
-  await db.from("stage_events").insert({ org_id: org.id, lead_id: inserted.id, from_stage: null, to_stage: 0, actor_type: "system", reason: "Meta lead received" });
+  await db
+    .from("stage_events")
+    .insert({ org_id: org.id, lead_id: inserted.id, from_stage: null, to_stage: 0, actor_type: "system", reason: "Meta lead received" });
 
   return { ...base, leadId: inserted.id, created: true, assignedTo };
 }

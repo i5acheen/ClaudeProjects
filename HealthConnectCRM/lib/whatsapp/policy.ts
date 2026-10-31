@@ -21,8 +21,7 @@ export type SendContext = {
 };
 
 export type SendDecision =
-  | { allow: true }
-  | { allow: false; reason: "opted_out" | "window_closed" | "no_consent" | "quiet_hours"; retryAt?: Date };
+  { allow: true } | { allow: false; reason: "opted_out" | "window_closed" | "no_consent" | "quiet_hours"; retryAt?: Date };
 
 export const QUIET_START_HOUR = 21; // 9 pm IST
 export const QUIET_END_HOUR = 8; // 8 am IST

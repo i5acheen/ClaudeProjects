@@ -2,16 +2,31 @@ import { describe, expect, it } from "vitest";
 import { checkInput, checkOutput, guessLanguage, isBlocking } from "@/lib/ai/guardrails";
 
 describe("input checks", () => {
-  it.each(["I have chest pain", "माझ्या वडिलांना छातीत दुखणे सुरू आहे", "मेरे पिताजी बेहोश हो गए", "papa behosh ho gaye"])("emergency: %s", (t) => expect(checkInput(t).emergency).toBe(true));
-  it.each(["I want to talk to a person", "मला माणसाशी बोलायचं आहे", "किसी इंसान से बात करवाओ", "please call me"])("wants human: %s", (t) => expect(checkInput(t).wantsHuman).toBe(true));
-  it.each(["which medicine should I take", "कोणते औषध घ्यावे?", "कौन सी दवा लूँ"])("medical: %s", (t) => expect(checkInput(t).medicalQuestion).toBe(true));
-  it.each(["how much will it cost", "किती पैसे लागतील", "कितने पैसे लगेंगे"])("money: %s", (t) => expect(checkInput(t).moneyQuestion).toBe(true));
+  it.each(["I have chest pain", "माझ्या वडिलांना छातीत दुखणे सुरू आहे", "मेरे पिताजी बेहोश हो गए", "papa behosh ho gaye"])(
+    "emergency: %s",
+    (t) => expect(checkInput(t).emergency).toBe(true),
+  );
+  it.each(["I want to talk to a person", "मला माणसाशी बोलायचं आहे", "किसी इंसान से बात करवाओ", "please call me"])("wants human: %s", (t) =>
+    expect(checkInput(t).wantsHuman).toBe(true),
+  );
+  it.each(["which medicine should I take", "कोणते औषध घ्यावे?", "कौन सी दवा लूँ"])("medical: %s", (t) =>
+    expect(checkInput(t).medicalQuestion).toBe(true),
+  );
+  it.each(["how much will it cost", "किती पैसे लागतील", "कितने पैसे लगेंगे"])("money: %s", (t) =>
+    expect(checkInput(t).moneyQuestion).toBe(true),
+  );
   it("word boundaries: 'feel' is not 'fee', 'payal' is not 'pay'", () => {
     const c = checkInput("I feel pain in legs, my name is Payal");
     expect(c.moneyQuestion).toBe(false);
   });
   it("ordinary messages trigger nothing", () => {
-    expect(checkInput("माझ्या पायाच्या नसा फुगल्या आहेत, दोन वर्षांपासून")).toEqual({ emergency: false, wantsHuman: false, angry: false, medicalQuestion: false, moneyQuestion: false });
+    expect(checkInput("माझ्या पायाच्या नसा फुगल्या आहेत, दोन वर्षांपासून")).toEqual({
+      emergency: false,
+      wantsHuman: false,
+      angry: false,
+      medicalQuestion: false,
+      moneyQuestion: false,
+    });
   });
 });
 

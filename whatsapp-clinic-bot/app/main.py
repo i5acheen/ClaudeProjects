@@ -262,6 +262,24 @@ async def inbox_chat(request: Request, phone: str, m: str = ""):
                            csrf=_inbox_csrf(), flash=flashes.get(m, ""))
 
 
+@app.get("/admin/media/{media_id}")
+async def inbox_media(request: Request, media_id: str):
+    """A patient's photo/document, fetched from WhatsApp for staff viewing in the inbox."""
+    if (denied := _inbox_auth(request)) is not None:
+        return denied
+    if not media_id.isalnum() or len(media_id) > 64:
+        return Response(status_code=404)
+    fetch = getattr(request.app.state.wa, "fetch_media", None)
+    got = await fetch(media_id) if fetch else None
+    if not got:
+        return Response("Photo not available (WhatsApp keeps media for about 30 days).", status_code=404)
+    content, mime = got
+    if not mime.startswith(("image/", "application/pdf")):
+        mime = "application/octet-stream"
+    return Response(content, media_type=mime, headers={"Cache-Control": "private, max-age=3600",
+                                                       "X-Content-Type-Options": "nosniff"})
+
+
 @app.post("/admin/chats/{phone}/reply")
 async def inbox_reply(request: Request, phone: str):
     if (denied := _inbox_auth(request)) is not None:

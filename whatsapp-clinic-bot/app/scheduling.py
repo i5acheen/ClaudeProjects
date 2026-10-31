@@ -145,6 +145,20 @@ class Scheduler:
             return None
 
     # ---------- labels ----------
+    async def request_day(self, day: date, summary: str, description: str) -> str | None:
+        """Date-only appointment request: a short tentative calendar entry at the day's first session,
+        marked 'time to be fixed', so staff see it. Returns the event id, or None without a calendar."""
+        if not self.calendar:
+            return None
+        sessions = self._sessions()
+        h, m = (int(x) for x in (sessions[0]["start"] if sessions else "10:00").split(":"))
+        start = datetime.combine(day, time(h, m), self.tz)
+        try:
+            return await self.calendar.create_event(start, start + timedelta(minutes=15), summary, description)
+        except Exception:
+            log.exception("Could not add the appointment request to the calendar")
+            return None
+
     def day_label(self, d: date, lang: str, today: date | None = None) -> str:
         today = today or datetime.now(self.tz).date()
         rel = RELATIVE.get(lang, RELATIVE["en"])

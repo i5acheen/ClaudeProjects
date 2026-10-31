@@ -24,13 +24,14 @@ GREETINGS = {"hi", "hii", "hiii", "hello", "helo", "hey", "hy", "namaskar", "nam
              "नमस्कार", "नमस्ते", "हाय", "हॅलो", "हेलो", "good morning", "good evening", "gm",
              "ram ram", "राम राम", "jai shree krishna", "hello sir", "hi sir", "start"}
 
-BOOK_FIELDS = ["concern", "duration", "name", "city", "preferred_time"]
-CALLBACK_FIELDS = ["name", "preferred_time"]
+BOOK_FIELDS = ["preferred_time"]       # appointment: only the day (the team calls to fix the time)
+CALLBACK_FIELDS: list[str] = []        # "call me": no questions at all
 TYPED_STEPS = {"name", "city", "concern_text", "duration", "preferred_time"}
 
 # Menu item -> fixed answer key, or a special action.
 MENU_ACTIONS = {"book": "book", "problem": "problem", "callback": "callback", "other": "other",
-                "scheme": "scheme", "treatment": "answer", "cost": "answer", "location": "answer"}
+                "scheme": "scheme", "treatment": "answer", "cost": "answer", "location": "answer",
+                "photo": "answer"}
 # Small "next" buttons -> menu item they open.
 BUTTON_TARGETS = {"book": "book", "location": "location", "call": "callback",
                   "cost": "cost", "menu": "menu", "scheme": "scheme"}
@@ -216,17 +217,25 @@ class Flows:
             return FlowReply(head + self.t(p["preferred_time"], lang), "list", ch,
                              self.t(p["list_button"], lang), updates=upd | {"_step": "preferred_time"},
                              route="book:time")
-        # Everything collected: confirm.
-        lines = [self.t(p["confirm_title"], lang)]
-        for f in ("name", "city", "concern", "duration", "preferred_time"):
-            if data.get(f):
-                lines.append(f"• {self.t(p['fields'][f], lang)}: {self.display(f, data[f], lang, data)}")
-        lines.append(self.t(p["confirm_question"], lang))
-        b = self.c["buttons"]
-        ch = [{"id": "f:confirm:yes", "title": self.t(b["confirm_yes"], lang)},
-              {"id": "f:confirm:change", "title": self.t(b["confirm_change"], lang)}]
-        return FlowReply(head + "\n".join(lines), "buttons", ch, updates=upd | {"_step": "confirm"},
-                         route="book:confirm")
+        # Everything collected: done straight away (no confirm step). The team calls to fix the time.
+        return self._done(data, lang, flow, head)
+
+    def _done(self, data: dict, lang: str, flow: str, head: str = "") -> FlowReply:
+        p = self.c["prompts"]
+        if flow == "callback":
+            text = self.t(p["callback_done"], lang)
+        elif data.get("preferred_time") == "call me first" or not data.get("_day"):
+            text = self.t(p["booked_call_first"], lang)
+        else:
+            day = self.scheduler.day_label(date.fromisoformat(data["_day"]), lang) if self.scheduler else ""
+            text = self.t(p["booked"], lang).replace("{day}", day)
+        upd = {"_step": None, "_flow": None, "status": "Hot",
+               "summary": ("wants a call back" if flow == "callback"
+                           else f"appointment request: {data.get('preferred_time') or 'call first'}") + " (via menu)"}
+        if flow == "callback" and not data.get("preferred_time"):
+            upd["preferred_time"] = "call me back"
+        return FlowReply(head + text, "buttons", self.buttons(p.get("done_next", []), lang),
+                         updates=upd, confirmed=True, route=f"{flow}:done")
 
     async def _slot_choice(self, day: date, session_id: str | None, lang: str) -> FlowReply | None:
         """Session buttons (if both have free slots) or the free-slot list for one day."""
@@ -301,10 +310,12 @@ class Flows:
                 return self.answer("other", lang)
             if action == "scheme":
                 return self.scheme_answer(lang)
-            if action in ("book", "problem"):
-                return await self.next_step(data, lang, "book")
-            if action == "callback":
-                return await self.next_step(data, lang, "callback")
+            if action in ("book", "problem", "callback"):
+                flow_name = "callback" if action == "callback" else "book"
+                fresh = {"preferred_time": None, "_day": None}   # every tap is a new request
+                r = await self.next_step(data | fresh, lang, flow_name)
+                r.updates = fresh | r.updates
+                return r
             return self.menu(lang)
         if kind == "scheme":  # eligibility answer, then straight into booking
             label = "has scheme card" if val == "card" else "not sure about scheme"
@@ -336,7 +347,24 @@ class Flows:
             r.updates = upd | r.updates
             r.route = f"{kind}:{val}"
             return r
-        if kind in ("date", "sess") and self.scheduler:
+        if kind == "date" and self.scheduler:
+            try:
+                day = date.fromisoformat(val)
+            except ValueError:
+                return self.menu(lang)
+            sched = self.scheduler
+            upd = self._set(data, preferred_time=sched.day_label(day, "en")) | {"_day": val}
+            who = data.get("name") or phone
+            event = await sched.request_day(
+                day, f"WhatsApp appointment request: {who} (time to be fixed)",
+                f"Phone: +{phone}\nRequested day: {val}\nRequested via WhatsApp bot. Call the patient to fix the time.")
+            if event:
+                upd["_event"] = event
+            r = self._done(data | upd, lang, "book")
+            r.updates = upd | r.updates
+            r.route = "book:date_chosen"
+            return r
+        if kind == "sess" and self.scheduler:
             day_s, _, sess = val.partition(":")
             try:
                 day = date.fromisoformat(day_s)

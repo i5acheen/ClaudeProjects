@@ -7,9 +7,9 @@
 # If they ask, our representative calls them (see answers.location and prompts.no_ai).
 
 welcome:
-  mr: "नमस्कार 🙏 आमच्या व्हेरिकोज व्हेन्स (पायाच्या नसा) क्लिनिकमध्ये आपलं स्वागत आहे.\n🆓 पात्र रुग्णांसाठी सरकारी योजनेअंतर्गत मोफत उपचार.\n(हिंदी / English साठी 'Hindi' किंवा 'English' टाइप करा)"
-  hi: "नमस्ते 🙏 हमारे वेरिकोज़ वेन्स (पैरों की नसें) क्लिनिक में आपका स्वागत है.\n🆓 पात्र मरीज़ों के लिए सरकारी योजना में मुफ़्त इलाज."
-  en: "Hello 🙏 Welcome to our varicose veins (leg veins) clinic.\n🆓 Free treatment for eligible patients under government schemes."
+  mr: "नमस्कार,\n\n*महत्त्वपूर्ण माहिती-*\n-----------------------------------\nआमच्या येथे शासनातर्फे प्रायव्हेट हॉस्पिटलमध्ये मोफत *व्हेरिकोज व्हेन्स लेझर ट्रीटमेंट* करून मिळते.\n\nही ट्रीटमेंट आधार कार्ड आणि आयुष्मान कार्ड धारकांना मोफत करून मिळते.\n\nलेझर ट्रीटमेंट ची वैशिष्टे:\n- ही एक ऍडव्हॅन्स ट्रीटमेंट आहे.\n- ट्रीटमेंट फक्त 25 मिनिटात होते.\n- पायाला कुठेही कट किंवा टाका लागत नाही.\n\nपेशंटचा दोन्ही पायाचे फोटो किंवा कलर डॉपलर टेस्टचा फोटो काढून आम्हाला याच नंबर वर पाठवा.\n\nफोटो डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला कळवला जाईल.\n\nधन्यवाद...\n(हिंदी / English साठी 'Hindi' किंवा 'English' टाइप करा)"
+  hi: "नमस्ते,\n\n*महत्वपूर्ण जानकारी-*\n-----------------------------------\nहमारे यहां सरकार की ओर से प्राइवेट हॉस्पिटल में मुफ़्त *वेरिकोज़ वेन्स लेज़र ट्रीटमेंट* करवाया जाता है.\n\nयह ट्रीटमेंट आधार कार्ड और आयुष्मान कार्ड धारकों को मुफ़्त मिलता है.\n\nलेज़र ट्रीटमेंट की खासियतें:\n- यह एक एडवांस ट्रीटमेंट है.\n- ट्रीटमेंट सिर्फ़ 25 मिनट में होता है.\n- पैर पर कहीं भी कट या टांका नहीं लगता.\n\nमरीज़ के दोनों पैरों की फ़ोटो या कलर डॉप्लर टेस्ट की फ़ोटो खींचकर इसी नंबर पर भेजें.\n\nफ़ोटो डॉक्टर को दिखाकर उनकी सलाह आपको बताई जाएगी.\n\nधन्यवाद..."
+  en: "Hello,\n\n*Important information-*\n-----------------------------------\nWe arrange free *varicose vein laser treatment* at a private hospital under a government scheme.\n\nThe treatment is free for Aadhaar card and Ayushman card holders.\n\nAbout the laser treatment:\n- It is an advanced treatment.\n- It takes only 25 minutes.\n- No cut or stitch anywhere on the leg.\n\nPlease send photos of both of the patient's legs, or a photo of the Colour Doppler test report, to this number.\n\nWe will show the photos to the doctor and share their advice with you.\n\nThank you..."
 
 menu:
   text:
@@ -20,14 +20,10 @@ menu:
   items:
     - id: book
       title: {mr: "📅 अपॉइंटमेंट बुक करा", hi: "📅 अपॉइंटमेंट बुक करें", en: "📅 Book appointment"}
-      description: {mr: "तपासणीसाठी वेळ ठरवा", hi: "जांच के लिए समय तय करें", en: "Fix a time for a check-up"}
-    - id: scheme
-      title: {mr: "🆓 योजनेत मोफत उपचार", hi: "🆓 योजना में मुफ़्त इलाज", en: "🆓 Free under govt scheme"}
-      description: {mr: "पात्र रुग्णांसाठी", hi: "पात्र मरीज़ों के लिए", en: "For eligible patients"}
-    - id: treatment
-      title: {mr: "💉 उपचार कसे होतात", hi: "💉 इलाज कैसे होता है", en: "💉 How treatment works"}
-    - id: cost
-      title: {mr: "💰 खर्च व विमा", hi: "💰 खर्च और बीमा", en: "💰 Cost & insurance"}
+      description: {mr: "फक्त दिवस निवडा", hi: "बस दिन चुनें", en: "Just pick a day"}
+    - id: photo
+      title: {mr: "📷 पायाचे फोटो पाठवा", hi: "📷 पैरों की फ़ोटो भेजें", en: "📷 Send leg photos"}
+      description: {mr: "डॉक्टरांचा सल्ला मिळवा", hi: "डॉक्टर की सलाह पाएं", en: "Get the doctor's advice"}
     - id: callback
       title: {mr: "📞 मला कॉल करा", hi: "📞 मुझे कॉल करें", en: "📞 Call me back"}
     - id: other
@@ -35,6 +31,12 @@ menu:
 
 # Fixed answers shown for menu items. `next` = buttons shown under the answer (max 3).
 answers:
+  photo:
+    text:
+      mr: "📷 पेशंटच्या दोन्ही पायांचे फोटो किंवा कलर डॉपलर टेस्टचा फोटो इथेच पाठवा.\nफोटो डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला कळवला जाईल."
+      hi: "📷 मरीज़ के दोनों पैरों की फ़ोटो या कलर डॉप्लर टेस्ट की फ़ोटो यहीं भेजें.\nफ़ोटो डॉक्टर को दिखाकर उनकी सलाह बताई जाएगी."
+      en: "📷 Send photos of both of the patient's legs, or the Colour Doppler report, right here.\nWe'll show them to the doctor and share their advice."
+    next: [book, call, menu]
   treatment:
     text:
       mr: "*उपचार* 💉\n• तपासणी + कलर डॉपलर\n• गरज असल्यास डे-केअर लेझर उपचार: छोटे छिद्र, टाके नाहीत\n• बहुतेक रुग्ण त्याच किंवा दुसऱ्या दिवशी घरी जातात\n🆓 पात्र रुग्णांसाठी सरकारी योजनेत मोफत."
@@ -122,7 +124,7 @@ prompts:
   city: {mr: "तुम्ही कोणत्या शहरातून / भागातून आहात?", hi: "आप किस शहर / इलाके से हैं?", en: "Which city / area are you from?"}
   preferred_time: {mr: "तुम्हाला कोणती वेळ सोयीची आहे? 👇", hi: "आपके लिए कौन सा समय सही रहेगा? 👇", en: "Which time suits you? 👇"}
   list_button: {mr: "निवडा", hi: "चुनें", en: "Choose"}
-  date: {mr: "📅 तपासणीसाठी कोणता दिवस सोयीचा आहे? 👇", hi: "📅 जांच के लिए कौन सा दिन ठीक रहेगा? 👇", en: "📅 Which day suits you for the consultation? 👇"}
+  date: {mr: "📅 अपॉइंटमेंटसाठी दिवस निवडा 👇", hi: "📅 अपॉइंटमेंट के लिए दिन चुनें 👇", en: "📅 Pick a day for the appointment 👇"}
   date_button: {mr: "दिवस निवडा", hi: "दिन चुनें", en: "Choose day"}
   call_first: {mr: "📞 आधी कॉल करा", hi: "📞 पहले कॉल करें", en: "📞 Call me first"}
   session: {mr: "{day}: सकाळ की संध्याकाळ?", hi: "{day}: सुबह या शाम?", en: "{day}: morning or evening?"}
@@ -141,6 +143,11 @@ prompts:
     preferred_time: {mr: "सोयीची वेळ", hi: "सही समय", en: "Preferred time"}
   done: {mr: "धन्यवाद, {name}! 🙏\nआमची क्लिनिक टीम लवकरच तुम्हाला कॉल करून अपॉइंटमेंट निश्चित करेल.", hi: "धन्यवाद, {name}! 🙏\nहमारी क्लिनिक टीम जल्द ही आपको कॉल करके अपॉइंटमेंट पक्की करेगी.", en: "Thank you, {name}! 🙏\nOur clinic team will call you soon to confirm the appointment."}
   done_next: [menu]
+  # Appointment = pick a day only. Then the team calls to fix the exact time.
+  booked: {mr: "धन्यवाद 🙏 *{day}* साठी तुमची अपॉइंटमेंट विनंती नोंदवली आहे.\nआमचे प्रतिनिधी तुम्हाला कॉल करून वेळ निश्चित करतील.", hi: "धन्यवाद 🙏 *{day}* के लिए आपका अपॉइंटमेंट अनुरोध दर्ज हो गया है.\nहमारे प्रतिनिधि आपको कॉल करके समय तय करेंगे.", en: "Thank you 🙏 Your appointment request for *{day}* is noted.\nOur representative will call you to fix the time."}
+  booked_call_first: {mr: "धन्यवाद 🙏 आमचे प्रतिनिधी तुम्हाला लवकरच कॉल करून अपॉइंटमेंट ठरवतील.", hi: "धन्यवाद 🙏 हमारे प्रतिनिधि जल्द ही आपको कॉल करके अपॉइंटमेंट तय करेंगे.", en: "Thank you 🙏 Our representative will call you soon to fix the appointment."}
+  callback_done: {mr: "ठीक आहे 🙏 आमचे प्रतिनिधी तुम्हाला लवकरच कॉल करतील.", hi: "ठीक है 🙏 हमारे प्रतिनिधि जल्द ही आपको कॉल करेंगे.", en: "Okay 🙏 Our representative will call you soon."}
+  photo_received: {mr: "धन्यवाद 🙏 फोटो मिळाला. डॉक्टरांना दाखवून त्यांनी दिलेला सल्ला तुम्हाला कळवला जाईल.", hi: "धन्यवाद 🙏 फ़ोटो मिल गई. डॉक्टर को दिखाकर उनकी सलाह आपको बताई जाएगी.", en: "Thank you 🙏 Photo received. We'll show it to the doctor and share their advice with you."}
   # ⚠️ [TO BE CONFIRMED BY CLINIC]: documents patients should bring for the scheme.
   scheme_card: {mr: "छान! 👍 तपासणीला येताना योजनेचे कार्ड, आधार कार्ड व रेशन कार्ड सोबत आणा. आमची टीम योजनेची प्रक्रिया पूर्ण करण्यास मदत करेल.", hi: "बढ़िया! 👍 जांच के लिए आते समय योजना का कार्ड, आधार कार्ड और राशन कार्ड साथ लाएं. हमारी टीम योजना की प्रक्रिया में मदद करेगी.", en: "Great! 👍 Please bring your scheme card, Aadhaar card and ration card to the consultation. Our team will help complete the scheme process."}
   scheme_unknown: {mr: "काही हरकत नाही 🙏 आमची टीम तुमची पात्रता तपासेल. तपासणीला येताना आधार कार्ड व रेशन कार्ड सोबत आणा.", hi: "कोई बात नहीं 🙏 हमारी टीम आपकी पात्रता जांचेगी. जांच के लिए आते समय आधार कार्ड और राशन कार्ड साथ लाएं.", en: "No problem 🙏 Our team will check your eligibility. Please bring your Aadhaar card and ration card to the consultation."}
@@ -166,15 +173,15 @@ buttons:
 followups:
   - after_hours: 2
     text:
-      mr: "नमस्कार{name} 🙏 तुमच्या पायाच्या त्रासाबद्दल अजून काही प्रश्न आहे का?\nपात्र रुग्णांसाठी लेझर ऑपरेशन सरकारी योजनेअंतर्गत मोफत होऊ शकते. तपासणीसाठी वेळ ठरवायची का?"
-      hi: "नमस्ते{name} 🙏 पैरों की तकलीफ़ के बारे में कोई और सवाल है?\nपात्र मरीज़ों के लिए लेज़र ऑपरेशन सरकारी योजना में मुफ़्त हो सकता है. जांच का समय तय करें?"
-      en: "Hello{name} 🙏 Any other questions about your leg problem?\nFor eligible patients, the laser procedure can be free under government schemes. Shall we fix a check-up time?"
-    buttons: [book, scheme, call]
+      mr: "नमस्कार{name} 🙏 पायाचे फोटो किंवा कलर डॉपलर रिपोर्ट पाठवायचा असेल तर इथेच पाठवा. डॉक्टरांचा सल्ला कळवला जाईल.\nकिंवा अपॉइंटमेंटसाठी फक्त दिवस निवडा."
+      hi: "नमस्ते{name} 🙏 पैरों की फ़ोटो या कलर डॉप्लर रिपोर्ट भेजनी हो तो यहीं भेजें. डॉक्टर की सलाह बताई जाएगी.\nया अपॉइंटमेंट के लिए बस दिन चुनें."
+      en: "Hello{name} 🙏 You can send leg photos or the Colour Doppler report right here for the doctor's advice.\nOr just pick a day for the appointment."
+    buttons: [book, call, menu]
   - after_hours: 20
     text:
-      mr: "{name_comma}फुगलेल्या नसांकडे दुर्लक्ष केल्यास सूज व वेदना वाढू शकतात. वेळीच तपासणी केल्यास गुंतागुंत टाळता येते. 🙏\nतुमच्यासाठी सोयीची वेळ ठरवूया का?"
-      hi: "{name_comma}उभरी नसों को नज़रअंदाज़ करने से सूजन और दर्द बढ़ सकता है. समय पर जांच से जटिलताएं टाली जा सकती हैं. 🙏\nआपके लिए सही समय तय करें?"
-      en: "{name_comma}If ignored, varicose veins can lead to more swelling and pain. An early check-up helps avoid complications. 🙏\nShall we fix a convenient time?"
+      mr: "{name_comma}फुगलेल्या नसांकडे दुर्लक्ष केल्यास सूज व वेदना वाढू शकतात. पात्र रुग्णांसाठी लेझर ट्रीटमेंट मोफत आहे. 🙏\nअपॉइंटमेंटसाठी दिवस निवडायचा का?"
+      hi: "{name_comma}उभरी नसों को नज़रअंदाज़ करने से सूजन और दर्द बढ़ सकता है. पात्र मरीज़ों के लिए लेज़र ट्रीटमेंट मुफ़्त है. 🙏\nअपॉइंटमेंट के लिए दिन चुनें?"
+      en: "{name_comma}If ignored, varicose veins can lead to more swelling and pain. Laser treatment is free for eligible patients. 🙏\nShall we pick a day for the appointment?"
     buttons: [book, call, menu]
 
 # Adding other treatments later (e.g. piles, heart): add their problems to `concerns`, their facts to

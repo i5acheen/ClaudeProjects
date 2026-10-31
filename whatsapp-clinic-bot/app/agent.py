@@ -33,6 +33,9 @@ NON_TEXT_REPLY = {
 }
 
 
+PHOTO_ACK_MARK = "📷 "   # prefix on the stored "photo received" reply (not sent to the patient)
+
+
 class LLM(Protocol):
     async def generate(self, system_instruction: str, history: list[dict]) -> AgentTurn: ...
 
@@ -197,6 +200,10 @@ class Agent:
             lead = self.db.get_lead(msg.phone)
         language = lead.get("language")
 
+        if msg.media_id and msg.type in ("image", "document"):
+            await self._photo_received(msg, lead, language or DEFAULT_LANGUAGE)
+            return
+
         if msg.type != "text" or not (msg.text or "").strip():
             reply = NON_TEXT_REPLY.get(language or DEFAULT_LANGUAGE)
             await self.sender.send_text(msg.phone, reply)
@@ -314,6 +321,23 @@ class Agent:
             self.db.log_event(customer, "staff_reply")
             log.info("Staff replied to ...%s from the Business app; bot paused %sh",
                      customer[-4:], self.human_handoff_hours)
+
+    async def _photo_received(self, msg: IncomingMessage, lead: dict, language: str) -> None:
+        """Leg photo / Doppler report: save it for staff (inbox), thank the patient once per burst."""
+        caption = (msg.text or "").strip()
+        self.db.add_message(msg.phone, "user", f"[photo:{msg.media_id}] {caption}".strip())
+        self.db.log_event(msg.phone, "photo", caption or msg.type)
+        recent = self.db.recent_messages(msg.phone, 4)
+        already_thanked = any(m["role"] == "assistant" and m["content"].startswith(PHOTO_ACK_MARK)
+                              for m in recent)
+        staff_handling = (lead["data"].get("_human_until") or 0) > time.time()
+        if self.flows and not already_thanked and not staff_handling:
+            reply = self.flows.t(self.flows.c["prompts"]["photo_received"], language)
+            btns = self.flows.buttons(["book", "call", "menu"], language)
+            if await self._send(msg.phone, reply, "buttons", btns):
+                self.db.add_message(msg.phone, "assistant", PHOTO_ACK_MARK + reply)
+        data = dict(lead["data"]) | {"status": "Hot", "summary": "sent leg/Doppler photo for doctor's advice"}
+        await self._save(msg, lead, data, language, lead["details_confirmed"])
 
     async def staff_send(self, phone: str, text: str) -> tuple[bool, str]:
         """Reply typed by staff in the /admin/chats inbox. Pauses the bot for this patient.

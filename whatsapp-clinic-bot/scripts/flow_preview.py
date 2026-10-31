@@ -44,8 +44,7 @@ def main() -> None:
         menu = f.menu(lang, welcome=True)
         out += [f"**{n}. Welcome + main menu**\n", block(menu.text),
                 opts([ch["title"] for ch in menu.choices], "Menu"), "\n"]
-        for key, title in (("scheme", "🆓 Free treatment under scheme"), ("treatment", "💉 How treatment works"),
-                           ("cost", "💰 Cost & insurance"), ("other", "❓ Other question"),
+        for key, title in (("photo", "📷 Send leg photos"), ("other", "❓ Other question"),
                            ("location", "If asked for address / doctor / hospital / phone (menu or AI)")):
             n += 1
             a = c["answers"][key]
@@ -54,24 +53,19 @@ def main() -> None:
             out += [f"**{n}. {title}**\n", block(t(a["text"])), opts(buttons), "\n"]
         p = c["prompts"]
         n += 1
-        out += [f"**{n}. Scheme answer → then booking starts**\n",
-                "If ✅ card:\n", block(t(p["scheme_card"])), "If ❓ not sure:\n", block(t(p["scheme_unknown"])), "\n"]
+        days = ["<day 1>", "<day 2>", "…"]
+        out += [f"**{n}. 📅 Book appointment: only the day**\n", block(t(p["date"])),
+                opts(days + [t(p["call_first"])], "List"),
+                "After picking a day (done, no other questions; a tentative entry goes to the clinic calendar):\n",
+                block(t(p["booked"]).replace("{day}", "<day>")),
+                "After \"call me first\":\n", block(t(p["booked_call_first"])),
+                opts(btn(p.get("done_next", []))), "\n"]
         n += 1
-        out += [f"**{n}. 📅 Booking (one question at a time; known answers are skipped)**\n",
-                "a) Problem\n", block(t(p["concern"])), opts([t(x["title"]) for x in c["concerns"]], "List"),
-                "b) How long\n", block(t(p["duration"])), opts([t(x["title"]) for x in c["durations"]]),
-                "c) Name\n", block(t(p["name"])), "d) City\n", block(t(p["city"])),
-                "e) Day → morning/evening → time (from the clinic hours in `schedule`, ⚠️ example hours)\n",
-                block(t(p["date"])), block(t(p["session"]).replace("{day}", "<day>")),
-                block(t(p["slot"]).replace("{day}", "<day>")),
-                "f) Confirm\n", block(f"{t(p['confirm_title'])}\n• {t(p['fields']['name'])}: …\n"
-                                      f"• {t(p['fields']['preferred_time'])}: …\n{t(p['confirm_question'])}"),
-                opts([t(c["buttons"]["confirm_yes"]), t(c["buttons"]["confirm_change"])]),
-                "g) Done\n", block(t(p["done"]).replace("{name}", "<name>")), opts(btn(p.get("done_next", []))),
-                "\n"]
+        out += [f"**{n}. 📞 Call me back (one tap)**\n", block(t(p["callback_done"])), "\n"]
         n += 1
-        out += [f"**{n}. 📞 Call me back**\n", "Asks name, then preferred time:\n", block(t(p["preferred_time"])),
-                opts([t(x["title"]) for x in c["times"]], "List"), "\n"]
+        out += [f"**{n}. 📷 Patient sends a photo (legs or Doppler report)**\n",
+                "Saved for staff in the inbox; the patient is thanked once per batch of photos:\n",
+                block(t(p["photo_received"])), opts(btn(["book", "call", "menu"])), "\n"]
         n += 1
         out.append(f"**{n}. Reminders if the patient stops replying (inside 24 h only)**\n")
         for fu in c.get("followups", []):

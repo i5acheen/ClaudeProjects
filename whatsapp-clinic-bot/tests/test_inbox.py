@@ -113,3 +113,31 @@ def test_customer_window_parses_sqlite_and_postgres_times():
     assert not within_customer_window("2026-10-29 11:00:00", now)
     assert not within_customer_window(None, now)
     assert within_customer_window((now - timedelta(hours=23)).isoformat(), now)
+
+
+def test_photo_shows_in_inbox_and_media_route(setup):
+    c, db, sender = setup
+
+    async def fetch_media(media_id):
+        return (b"\xff\xd8jpeg", "image/jpeg") if media_id == "MEDIA1" else None
+
+    sender.fetch_media = fetch_media
+    app.state.wa = sender
+    db.add_message(PHONE, "user", "[photo:MEDIA1] left leg")
+    chat = c.get(f"/admin/chats/{PHONE}", headers=auth()).text
+    assert '<img src="/admin/media/MEDIA1"' in chat and "left leg" in chat
+    assert "📷 Photo" in c.get("/admin/chats", headers=auth()).text
+    r = c.get("/admin/media/MEDIA1", headers=auth())
+    assert r.status_code == 200 and r.content == b"\xff\xd8jpeg" and r.headers["content-type"] == "image/jpeg"
+    assert c.get("/admin/media/MEDIA1").status_code == 401          # login required
+    assert c.get("/admin/media/OTHER", headers=auth()).status_code == 404
+
+
+def test_parse_image_message():
+    from app.whatsapp import parse_messages
+    payload = {"object": "whatsapp_business_account", "entry": [{"changes": [{"value": {
+        "contacts": [{"wa_id": PHONE, "profile": {"name": "R"}}],
+        "messages": [{"id": "w1", "from": PHONE, "type": "image",
+                      "image": {"id": "MEDIA9", "mime_type": "image/jpeg", "caption": "doppler"}}]}}]}]}
+    m = parse_messages(payload)[0]
+    assert m.type == "image" and m.media_id == "MEDIA9" and m.text == "doppler"

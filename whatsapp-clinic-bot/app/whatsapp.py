@@ -19,6 +19,7 @@ class IncomingMessage:
     profile_name: str | None
     choice_id: str | None = None  # id of a tapped button / list row, if any
     ad: str | None = None         # Click-to-WhatsApp ad the person came from (headline / id)
+    media_id: str | None = None   # photo/document sent by the patient (download via the Graph API)
 
 
 def parse_messages(payload: dict) -> list[IncomingMessage]:
@@ -45,12 +46,17 @@ def parse_messages(payload: dict) -> list[IncomingMessage]:
                     text, choice_id, mtype = picked.get("title"), picked.get("id"), "text"
                 elif mtype == "button":  # quick-reply button on a template message
                     text, choice_id, mtype = msg.get("button", {}).get("text"), None, "text"
+                media_id = None
+                if mtype in ("image", "document"):  # leg photos / Doppler report
+                    media = msg.get(mtype, {})
+                    media_id, text = media.get("id"), media.get("caption")
                 ref = msg.get("referral") or {}
                 ad = None
                 if ref:
                     ad = " | ".join(str(x) for x in (ref.get("headline"), ref.get("source_type"),
                                                      ref.get("source_id")) if x)[:150] or "ad"
-                out.append(IncomingMessage(msg_id, sender, mtype, text, names.get(sender), choice_id, ad))
+                out.append(IncomingMessage(msg_id, sender, mtype, text, names.get(sender), choice_id, ad,
+                                           media_id))
     return out
 
 
@@ -87,6 +93,24 @@ class WhatsAppClient:
         self._headers = ({auth_header: token} if auth_header and auth_header.lower() != "authorization"
                          else {"Authorization": f"Bearer {token}"})
         self._http = httpx.AsyncClient(timeout=15)
+        self._graph = f"https://graph.facebook.com/{api_version}"
+
+    async def fetch_media(self, media_id: str) -> tuple[bytes, str] | None:
+        """Download a patient's photo/document (Meta keeps media for about 30 days)."""
+        try:
+            meta = await self._http.get(f"{self._graph}/{media_id}", headers=self._headers)
+            if meta.status_code >= 400:
+                log.error("Media lookup failed %s: %s", meta.status_code, meta.text[:300])
+                return None
+            info = meta.json()
+            data = await self._http.get(info["url"], headers=self._headers, timeout=30)
+            if data.status_code >= 400:
+                log.error("Media download failed %s", data.status_code)
+                return None
+            return data.content, info.get("mime_type") or data.headers.get("content-type", "application/octet-stream")
+        except (httpx.HTTPError, KeyError, ValueError) as exc:
+            log.error("Media download failed: %s", exc)
+            return None
 
     async def send_text(self, to: str, body: str) -> bool:
         payload = {

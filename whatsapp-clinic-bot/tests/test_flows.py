@@ -56,36 +56,41 @@ def test_first_message_gets_marathi_welcome_menu_and_switches_on_request():
     run(agent.handle(say("m1", "hi")))
     assert llm.calls == []
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and "स्वागत" in body and "🆓" in body and len(titles) == 6
+    assert kind == "list" and "महत्त्वपूर्ण माहिती" in body and "25 मिनिटात" in body and len(titles) == 4
+    assert len(body) <= 1024                                   # WhatsApp list body limit
     assert db.get_lead(PHONE)["language"] == "mr"
     run(agent.handle(say("m2", "Hindi")))                     # asked to switch
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and "हमारे" in body and db.get_lead(PHONE)["language"] == "hi"
-    run(agent.handle(tap("m3", "f:m:cost")))
-    assert "खर्च" in sender.sent[-1][1] and db.get_lead(PHONE)["language"] == "hi"
+    assert kind == "list" and "महत्वपूर्ण जानकारी" in body and db.get_lead(PHONE)["language"] == "hi"
+    run(agent.handle(tap("m3", "f:m:photo")))
+    assert "फ़ोटो" in sender.sent[-1][1] and db.get_lead(PHONE)["language"] == "hi"
 
 
-def test_full_booking_flow_without_llm():
+def test_booking_asks_only_for_the_date():
     agent, db, llm, sender = make()
     run(agent.handle(tap("m1", "f:m:book")))
-    assert sender.sent[-1][2] == "list"                         # concern list
-    run(agent.handle(tap("m2", "f:concern:varicose")))
-    assert sender.sent[-1][2] == "buttons"                      # info + duration buttons
-    assert "व्हेरिकोज" in sender.sent[-1][1]
-    run(agent.handle(tap("m3", "f:dur:gt2y")))
-    run(agent.handle(say("m4", "ok")))                          # filler is not a name -> LLM
-    assert len(llm.calls) == 1
-    run(agent.handle(say("m5", "Sunita Patil")))                # typed name
-    run(agent.handle(say("m6", "Jalna")))                       # typed city
-    run(agent.handle(tap("m7", "f:time:tom_am")))
+    to, body, kind, titles = sender.sent[-1]
+    assert kind == "list" and "दिवस निवडा" in body and titles[-1] == "📞 आधी कॉल करा"
+    day = [t for t in titles if t != "📞 आधी कॉल करा"][0]
+    first_day_id = None
+    from app.flows import Flows  # noqa: F401
+    free = run(FLOWS.scheduler.free_slots())
+    first_day_id = list(free)[0].isoformat()
+    run(agent.handle(tap("m2", f"f:date:{first_day_id}", day)))
     body = sender.sent[-1][1]
-    assert "Sunita Patil" in body and "Jalna" in body and "उद्या सकाळी" in body
-    run(agent.handle(tap("m8", "f:confirm:yes")))
+    assert "नोंदवली" in body and "प्रतिनिधी" in body and day in body   # done, no more questions
     lead = db.get_lead(PHONE)
-    assert lead["details_confirmed"] and lead["data"]["status"] == "Hot"
-    assert lead["data"]["concern"] == "varicose veins" and lead["data"]["preferred_time"] == "tomorrow morning"
-    assert lead["data"]["name"] == "Sunita Patil" and lead["data"]["city"] == "Jalna"
-    assert len(llm.calls) == 1                                  # only the stray "ok" used the LLM
+    assert lead["details_confirmed"] and lead["data"]["status"] == "Hot" and lead["data"]["_day"] == first_day_id
+    assert llm.calls == []
+    run(agent.handle(tap("m3", "f:m:book")))                   # a second request starts fresh
+    assert sender.sent[-1][2] == "list" and "दिवस निवडा" in sender.sent[-1][1]
+
+
+def test_booking_call_me_first():
+    agent, db, llm, sender = make()
+    run(agent.handle(tap("m1", "f:m:book")))
+    run(agent.handle(tap("m2", "f:time:call_first")))
+    assert "लवकरच कॉल" in sender.sent[-1][1] and db.get_lead(PHONE)["details_confirmed"]
 
 
 def test_fixed_answers_and_free_text_goes_to_llm_and_is_logged():
@@ -101,14 +106,25 @@ def test_fixed_answers_and_free_text_goes_to_llm_and_is_logged():
     assert db.recent_events("llm")[0]["detail"].startswith("Mala sugar")
 
 
-def test_callback_flow_and_menu_word():
+def test_callback_is_one_tap_and_menu_word():
     agent, db, llm, sender = make()
     run(agent.handle(tap("m1", "f:m:callback")))
-    run(agent.handle(say("m2", "Ramesh")))
-    run(agent.handle(tap("m3", "f:time:call_first")))
-    assert sender.sent[-1][3] == ["✅ बरोबर आहे", "✏️ बदला"]
+    assert "प्रतिनिधी" in sender.sent[-1][1] and "कॉल" in sender.sent[-1][1]
+    lead = db.get_lead(PHONE)
+    assert lead["details_confirmed"] and lead["data"]["status"] == "Hot"
     run(agent.handle(say("m4", "menu")))
     assert sender.sent[-1][2] == "list" and llm.calls == []
+
+
+def test_photo_is_saved_acknowledged_once_and_marks_lead_hot():
+    agent, db, llm, sender = make()
+    run(agent.handle(IncomingMessage("p1", PHONE, "image", "left leg", "Ramesh", None, None, "MEDIA123")))
+    run(agent.handle(IncomingMessage("p2", PHONE, "image", None, "Ramesh", None, None, "MEDIA124")))
+    acks = [m for m in sender.sent if "फोटो मिळाला" in m[1]]
+    assert len(acks) == 1                                       # one thank-you per burst
+    conv = db.conversation(PHONE)
+    assert conv[0]["content"] == "[photo:MEDIA123] left leg" and conv[-1]["content"].startswith("[photo:MEDIA124]")
+    assert db.get_lead(PHONE)["data"]["status"] == "Hot" and llm.calls == []
 
 
 def test_typed_answer_rules():
@@ -145,40 +161,24 @@ class FakeCalendar:
         return f"evt{len(self.events)}"
 
 
-def test_calendar_date_and_slot_booking_creates_tentative_event():
-    from datetime import date, datetime, timedelta
-
+def test_date_request_adds_tentative_calendar_entry():
     from app.flows import Flows
 
     cal = FakeCalendar()
     flows = Flows(FLOWS_FILE, cal)
     db, llm, sender = Database(":memory:"), FakeLLM(), FakeSender()
-    db.save_lead(PHONE, {"concern": "varicose veins", "duration": "more than 2 years",
-                         "name": "Sunita", "city": "Jalna"}, "en", None, False)
+    db.save_lead(PHONE, {"name": "Sunita"}, "en", None, False)
     agent = Agent(db, llm, sender, None, flows=flows)
     run(agent.handle(tap("m1", "f:m:book")))
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and "Which day" in body and titles[-1] == "📞 Call me first"
+    assert kind == "list" and "Pick a day" in body and titles[-1] == "📞 Call me first"
     assert all(len(t) <= 24 for t in titles)
-    # pick the first offered day, then a session/slot
-    free = run(flows.scheduler.free_slots())
-    day = list(free)[0]
+    day = list(run(flows.scheduler.free_slots()))[0]
     run(agent.handle(tap("m2", f"f:date:{day.isoformat()}")))
-    kind = sender.sent[-1][2]
-    if kind == "buttons":  # morning/evening
-        sid = free[day][0][0]
-        run(agent.handle(tap("m3", f"f:sess:{day.isoformat()}:{sid}")))
-    assert sender.sent[-1][2] == "list"
-    slot = free[day][0][1]
-    run(agent.handle(tap("m4", f"f:slot:{slot.isoformat()}")))
-    assert "Please check" in sender.sent[-1][1]
-    run(agent.handle(tap("m5", "f:confirm:yes")))
-    assert len(cal.events) == 1 and "Sunita" in cal.events[0][1] and PHONE in cal.events[0][2]
-    assert "added to the clinic's calendar" in sender.sent[-1][1]
-    lead = db.get_lead(PHONE)
-    assert lead["details_confirmed"] and lead["data"]["_slot"] == slot.isoformat()
-    # the same slot is now busy for the next patient
-    assert not run(flows.scheduler.is_free(slot))
+    assert len(cal.events) == 1 and "Sunita" in cal.events[0][1] and "time to be fixed" in cal.events[0][1]
+    assert PHONE in cal.events[0][2] and cal.events[0][0].date() == day
+    assert "representative will call" in sender.sent[-1][1]
+    assert db.get_lead(PHONE)["data"]["_event"] == "evt1"
 
 
 def test_taken_slot_asks_to_choose_again():
@@ -286,7 +286,7 @@ def test_menu_only_mode_without_ai():
     agent = Agent(db, None, sender, None, flows=FLOWS, clinic_phone="+91 96995 59301")
     run(agent.handle(say("m1", "mala sugar ahe, laser hoil ka?")))
     to, body, kind, titles = sender.sent[-1]
-    assert kind == "list" and len(titles) == 6                       # the main menu
+    assert kind == "list" and len(titles) == 4                       # the main menu
     assert "प्रतिनिधी" in body and "नोंदवला" in body and "96995" not in body
     assert db.recent_events("no_ai")[0]["detail"].startswith("mala sugar")
     run(agent.handle(tap("m2", "f:m:cost")))                         # menu still works
@@ -326,7 +326,7 @@ def test_workflow_is_standard_no_names_or_videos():
                    "96995", "88057", "kotwalpura", "कोतवालपुरा", "bus stand", "बस स्टँड", "{phone}"):
         assert banned not in flat, banned
     ids = [it["id"] for it in texts["menu"]["items"]]
-    assert ids == ["book", "scheme", "treatment", "cost", "callback", "other"]
+    assert ids == ["book", "photo", "callback", "other"]
     assert [c["id"] for c in texts["concerns"]] == ["varicose", "other"]
 
 

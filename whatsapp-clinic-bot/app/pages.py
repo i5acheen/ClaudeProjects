@@ -185,6 +185,8 @@ def chats_list_page(rows: list[dict], now_ts: float) -> str:
         if (d.get("_human_until") or 0) > now_ts:
             tags += '<span class="tag paused">Staff</span>'
         who = "Patient: " if r["last_role"] == "user" else "Bot: "
+        if (r["last_text"] or "").startswith("[photo:"):
+            r = dict(r) | {"last_text": "📷 Photo"}
         items.append(
             f'<a class="row" href="/admin/chats/{_esc(r["phone"])}">'
             f'<div class="top"><span class="name">{_esc(name)}{tags}</span>'
@@ -214,7 +216,14 @@ def chat_page(phone: str, lead: dict, messages: list[dict], can_reply: bool, pau
         if cls == "assistant" and text.startswith("[Clinic staff]"):
             cls, text = "staff", text[len("[Clinic staff]"):].strip()
         label = {"user": "Patient", "assistant": "Bot", "staff": "Clinic staff"}[cls]
-        bubbles.append(f'<div class="msg {cls}">{_esc(text)}'
+        photo = ""
+        if text.startswith("[photo:") and "]" in text:
+            media_id, text = text[7:text.index("]")], text[text.index("]") + 1:].strip()
+            if media_id.isalnum():
+                photo = (f'<a href="/admin/media/{_esc(media_id)}" target="_blank">'
+                         f'<img src="/admin/media/{_esc(media_id)}" alt="Patient photo" loading="lazy" '
+                         f'style="max-width:100%;border-radius:8px;display:block"></a>')
+        bubbles.append(f'<div class="msg {cls}">{photo}{_esc(text)}'
                        f'<div class="meta">{label} · {_short_time(m["created_at"])}</div></div>')
     flash_html = f'<div class="note">{_esc(flash)}</div>' if flash else ""
     pause_btn = (f'<form method="post" action="/admin/chats/{_esc(phone)}/resume">'

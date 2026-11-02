@@ -50,7 +50,7 @@ export async function enterDemo(role: string) {
 /** Prototype only: restore the sample data. */
 export async function resetDemo(): Promise<void> {
   if (!isDemo()) return;
-  resetDemoData();
+  await resetDemoData();
   revalidatePath("/", "layout");
 }
 

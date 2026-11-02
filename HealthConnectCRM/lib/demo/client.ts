@@ -2,6 +2,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/db/types";
 import { buildDemoData, DEMO_ORG, type Row, type Tables } from "./data";
+import { appendOp, cacheGet, cachePut, clearLog, currentLog, decodeOps, type Actor, type FilterSpec, type Op } from "./journal";
 
 /**
  * In-memory stand-in for the Supabase client used by DEMO_MODE (prototype on Vercel without a database).
@@ -9,19 +10,47 @@ import { buildDemoData, DEMO_ORG, type Row, type Tables } from "./data";
  * on embedded columns), eq/neq/is/in/gt/gte/lt/lte/ilike/not, order, limit, single/maybeSingle, head counts,
  * insert/update/upsert/delete, the reporting views and the RPC functions. Access per role mirrors the
  * database's RLS in simplified form; the real policies are covered by tests/rls.
- * State lives in server memory: it resets on redeploys and differs between serverless instances.
+ * Each visitor's changes are a compressed log in their own cookies (journal.ts), replayed onto the sample
+ * data by whichever server instance answers — consistent across instances and private per visitor.
  */
 type Result = { data: unknown; error: { message: string; code?: string } | null; count?: number | null };
-type Actor = {
-  userId: string | null;
-  role: "admin" | "coordinator" | "hospital_partner" | "viewer" | "service";
-  hospitalId: string | null;
-};
+const SERVICE: Actor = { role: "service", userId: null, hospitalId: null };
 
-const globalState = globalThis as unknown as { __hcDemo?: Tables };
+// The state the current synchronous query runs against (set right before run(), no await in between).
+let current: Tables = buildDemoData();
 function db(): Tables {
-  if (!globalState.__hcDemo) globalState.__hcDemo = buildDemoData();
-  return globalState.__hcDemo;
+  return current;
+}
+
+/** Sample data + this visitor's change log, replayed (cached per instance). */
+async function loadState() {
+  const { jar, raw } = await currentLog();
+  let state = cacheGet(raw);
+  if (!state) {
+    state = buildDemoData();
+    current = state;
+    for (const op of decodeOps(raw)) replay(op);
+    cachePut(raw, state);
+  }
+  return { jar, raw, state };
+}
+
+function replay(op: Op): void {
+  if (op.k === "r") rpc(op.n, op.args, op.a, op.now);
+  else new Query(op.t, SERVICE).fromOp(op).run();
+}
+
+/** Run a mutation against a private copy and append it to the visitor's log. */
+async function mutate<T extends { error: unknown }>(fn: (now: string) => T, toOp: (now: string) => Op): Promise<T> {
+  const { jar, raw, state } = await loadState();
+  current = structuredClone(state);
+  const now = new Date().toISOString();
+  const r = fn(now);
+  if (!r.error) {
+    const next = appendOp(jar, raw, toOp(now));
+    if (next !== null) cachePut(next, current);
+  }
+  return r;
 }
 
 // ---------------------------------------------------------------------------
@@ -283,6 +312,9 @@ class Query implements PromiseLike<Result> {
   private head = false;
   private counting = false;
   private one: "single" | "maybe" | null = null;
+  private specs: FilterSpec[] = [];
+  private nowOverride: string | null = null;
+  private written: Row[] = [];
 
   constructor(
     private table: string,
@@ -318,42 +350,52 @@ class Query implements PromiseLike<Result> {
     return this;
   }
   eq(c: string, v: unknown) {
+    this.specs.push(["eq", c, v]);
     this.filters.push((r) => getPath(r, c) === v || (typeof v === "number" && Number(getPath(r, c)) === v));
     return this;
   }
   neq(c: string, v: unknown) {
+    this.specs.push(["neq", c, v]);
     this.filters.push((r) => getPath(r, c) !== v);
     return this;
   }
   is(c: string, v: null | boolean) {
+    this.specs.push(["is", c, v]);
     this.filters.push((r) => (v === null ? getPath(r, c) == null : getPath(r, c) === v));
     return this;
   }
   in(c: string, vs: unknown[]) {
+    this.specs.push(["in", c, vs]);
     this.filters.push((r) => vs.includes(getPath(r, c)));
     return this;
   }
   gt(c: string, v: unknown) {
+    this.specs.push(["gt", c, v]);
     this.filters.push((r) => getPath(r, c) != null && (num(getPath(r, c)) as number) > (num(v) as number));
     return this;
   }
   gte(c: string, v: unknown) {
+    this.specs.push(["gte", c, v]);
     this.filters.push((r) => getPath(r, c) != null && cmp(getPath(r, c), v) >= 0);
     return this;
   }
   lt(c: string, v: unknown) {
+    this.specs.push(["lt", c, v]);
     this.filters.push((r) => getPath(r, c) != null && cmp(getPath(r, c), v) < 0);
     return this;
   }
   lte(c: string, v: unknown) {
+    this.specs.push(["lte", c, v]);
     this.filters.push((r) => getPath(r, c) != null && cmp(getPath(r, c), v) <= 0);
     return this;
   }
   ilike(c: string, pattern: string) {
+    this.specs.push(["ilike", c, pattern]);
     this.filters.push((r) => like(pattern).test(String(getPath(r, c) ?? "")));
     return this;
   }
   not(c: string, op: string, v: unknown) {
+    this.specs.push(["not", c, [op, v]]);
     this.filters.push((r) => (op === "is" ? (v === null ? getPath(r, c) != null : getPath(r, c) !== v) : getPath(r, c) !== v));
     return this;
   }
@@ -379,8 +421,44 @@ class Query implements PromiseLike<Result> {
     err?: ((e: unknown) => B | PromiseLike<B>) | null,
   ): PromiseLike<A | B> {
     return Promise.resolve()
-      .then(() => this.run())
+      .then(async () => {
+        if (this.mode === "select") {
+          current = (await loadState()).state;
+          return this.run();
+        }
+        return mutate(
+          (now) => {
+            this.nowOverride = now;
+            return this.run();
+          },
+          (now) => this.toOp(now),
+        );
+      })
       .then(ok, err);
+  }
+
+  /** Rebuild a recorded write for replay. */
+  fromOp(op: Extract<Op, { k: "w" }>): this {
+    this.mode = op.m;
+    this.payload = op.rows ?? [];
+    this.patch = op.patch ?? {};
+    this.conflict = op.c ?? [];
+    this.nowOverride = op.now;
+    for (const [fop, c, v] of op.f ?? []) {
+      if (fop === "not") this.not(c, (v as [string, unknown])[0], (v as [string, unknown])[1]);
+      else if (fop === "in") this.in(c, v as unknown[]);
+      else if (fop === "is") this.is(c, v as null | boolean);
+      else if (fop === "ilike") this.ilike(c, String(v));
+      else if (fop === "eq" || fop === "neq" || fop === "gt" || fop === "gte" || fop === "lt" || fop === "lte") this[fop](c, v);
+    }
+    return this;
+  }
+
+  private toOp(now: string): Op {
+    if (this.mode === "insert" || this.mode === "upsert")
+      return { k: "w", t: this.table, m: this.mode, rows: this.written.map((r) => ({ ...r })), c: this.conflict, now };
+    if (this.mode === "update") return { k: "w", t: this.table, m: "update", patch: this.patch, f: this.specs, now };
+    return { k: "w", t: this.table, m: "delete", f: this.specs, now };
   }
 
   private matching(): Row[] {
@@ -402,10 +480,10 @@ class Query implements PromiseLike<Result> {
     return { data: out, error: null, count: this.counting ? (count ?? rows.length) : null };
   }
 
-  private run(): Result {
+  run(): Result {
     const store = db();
     store[this.table] ??= [];
-    const now = new Date().toISOString();
+    const now = this.nowOverride ?? new Date().toISOString();
     if (this.mode === "select") {
       let rows = this.matching();
       for (const o of [...this.orders].reverse()) rows = [...rows].sort((p, q) => (o.asc ? 1 : -1) * cmp(p[o.col], q[o.col]));
@@ -430,6 +508,7 @@ class Query implements PromiseLike<Result> {
           written.push(row);
         }
       }
+      this.written = written;
       return this.returning ? this.finish(written) : { data: null, error: null };
     }
     if (this.mode === "update") {
@@ -450,9 +529,8 @@ class Query implements PromiseLike<Result> {
 // ---------------------------------------------------------------------------
 // RPC functions (same rules as supabase/migrations/0003)
 // ---------------------------------------------------------------------------
-function rpc(name: string, args: Record<string, unknown>, a: Actor): Result {
+function rpc(name: string, args: Record<string, unknown>, a: Actor, now: string = new Date().toISOString()): Result {
   const t = db();
-  const now = new Date().toISOString();
   const audit = (action: string, entity: string, entityId: string, before: unknown, after: unknown) =>
     t.audit_log.push({
       id: crypto.randomUUID(),
@@ -562,23 +640,37 @@ function rpc(name: string, args: Record<string, unknown>, a: Actor): Result {
 // ---------------------------------------------------------------------------
 // Client factory
 // ---------------------------------------------------------------------------
+const MUTATING_RPC = new Set(["log_audit", "move_lead_stage", "export_patient", "anonymise_patient"]);
+
 export function demoClient(a: Actor): SupabaseClient<Database> {
-  const profile = a.userId ? db().profiles.find((p) => p.user_id === a.userId) : undefined;
   const client = {
     from: (table: string) => new Query(table, a),
-    rpc: (name: string, args: Record<string, unknown> = {}) => Promise.resolve(rpc(name, args, a)),
+    rpc: async (name: string, args: Record<string, unknown> = {}) => {
+      if (!MUTATING_RPC.has(name)) {
+        current = (await loadState()).state;
+        return rpc(name, args, a);
+      }
+      return mutate(
+        (now) => rpc(name, args, a, now),
+        (now) => ({ k: "r", n: name, args, a, now }),
+      );
+    },
     auth: {
-      getUser: async () => ({
-        data: { user: profile ? { id: a.userId, email: profile.email, last_sign_in_at: new Date().toISOString() } : null },
-        error: null,
-      }),
+      getUser: async () => {
+        const { state } = await loadState();
+        const profile = a.userId ? state.profiles.find((p) => p.user_id === a.userId) : undefined;
+        return {
+          data: { user: profile ? { id: a.userId, email: profile.email, last_sign_in_at: new Date().toISOString() } : null },
+          error: null,
+        };
+      },
       signOut: async () => ({ error: null }),
       exchangeCodeForSession: async () => ({ data: null, error: null }),
       admin: {
         createUser: async (args: { email: string; app_metadata?: Record<string, unknown> }) => {
           const m = args.app_metadata ?? {};
           const userId = crypto.randomUUID();
-          db().profiles.push({
+          const row: Row = {
             user_id: userId,
             org_id: m.org_id ?? DEMO_ORG,
             full_name: m.full_name ?? "",
@@ -586,7 +678,9 @@ export function demoClient(a: Actor): SupabaseClient<Database> {
             role: m.role ?? "viewer",
             hospital_id: m.hospital_id ?? null,
             is_active: true,
-          });
+            phone_e164: null,
+          };
+          await new Query("profiles", SERVICE).insert(row);
           return { data: { user: { id: userId } }, error: null };
         },
       },
@@ -607,6 +701,7 @@ export function demoActor(role: DemoRole | "service", userId: string | null, hos
   return { role, userId, hospitalId };
 }
 
-export function resetDemoData(): void {
-  globalState.__hcDemo = buildDemoData();
+/** Forget this visitor's changes (back to the sample data). */
+export async function resetDemoData(): Promise<void> {
+  await clearLog();
 }

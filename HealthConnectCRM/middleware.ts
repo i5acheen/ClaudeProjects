@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC = [/^\/login/, /^\/auth\//, /^\/privacy-policy/, /^\/terms/, /^\/api\//];
+const PUBLIC = [/^\/login/, /^\/auth\//, /^\/privacy-policy/, /^\/terms/, /^\/api\//, /^\/email-templates\//, /^\/robots\.txt$/];
 const SESSION_MAX_AGE_S = 12 * 3600; // CLAUDE.md §10: 12 h session timeout
 
 /** Refreshes the Supabase session cookie and sends signed-out users to /login. Role checks happen server-side per page. */

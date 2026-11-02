@@ -4,6 +4,7 @@
  * handover / emergency, stage cap, facts, one question per reply.
  *
  *   ANTHROPIC_API_KEY=... npm run bot-evals            # live (AI_PROVIDER / AI_MODEL respected)
+ *   AI_PROVIDER=openai_compat AI_BASE_URL=http://localhost:11434/v1 AI_MODEL=qwen3:8b npm run bot-evals   # self-hosted open model
  *   npm run bot-evals -- --offline                      # harness self-test with a stub model (not a quality score)
  *
  * Exit code 1 when the pass rate is below 95 %. Writes tests/bot-evals/report.json.
@@ -14,6 +15,7 @@ import { AnthropicProvider } from "@/lib/ai/anthropic";
 import { runBotTurn, type BotTurnInput } from "@/lib/ai/bot";
 import { GeminiProvider } from "@/lib/ai/gemini";
 import { checkOutput, isBlocking } from "@/lib/ai/guardrails";
+import { OpenAICompatProvider } from "@/lib/ai/openai-compat";
 import { PROMPT_VERSION } from "@/lib/ai/prompts/sahayak";
 import type { AiProvider } from "@/lib/ai/provider";
 import { CASES, type EvalCase } from "./cases";
@@ -59,6 +61,10 @@ function provider(): AiProvider | null {
       },
     };
   }
+  if (process.env.AI_PROVIDER === "openai_compat")
+    return process.env.AI_BASE_URL
+      ? new OpenAICompatProvider(process.env.AI_BASE_URL, process.env.AI_MODEL || "qwen3:8b", process.env.AI_API_KEY || undefined)
+      : null;
   if ((process.env.AI_PROVIDER ?? "anthropic") === "gemini")
     return process.env.GEMINI_API_KEY ? new GeminiProvider(process.env.GEMINI_API_KEY, process.env.AI_MODEL || undefined) : null;
   return process.env.ANTHROPIC_API_KEY ? new AnthropicProvider(process.env.ANTHROPIC_API_KEY, process.env.AI_MODEL || undefined) : null;

@@ -1,0 +1,153 @@
+# HealthConnectCRM overlay on the official self-hosted Supabase compose (docs/SELF_HOSTING.md).
+# setup.sh copies this file next to Supabase's docker-compose.yml and sets
+# COMPOSE_FILE=docker-compose.yml:docker-compose.crm.yml, so one `docker compose` manages everything.
+
+services:
+  # --- Lock down Supabase defaults: nothing listens publicly except Caddy (80/443).
+  api-gw:
+    ports: !override
+      - 127.0.0.1:${API_GW_HTTP_PORT:-8000}:8000/tcp # Studio + APIs via SSH tunnel only
+  # Not used by the CRM (it talks to Postgres through the Supabase APIs; backups/migrations use the db
+  # container directly). Disabled to save RAM and attack surface; enable with --profile optional.
+  supavisor:
+    profiles: [optional]
+    ports: !override
+      - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
+      - 127.0.0.1:${POOLER_PROXY_PORT_TRANSACTION:-6543}:6543
+  functions:
+    profiles: [optional]
+
+  # Login e-mails must carry the 6-digit code the CRM's login screen asks for (Supabase's default
+  # template sends a link). The template is served by the app container on the internal network.
+  auth:
+    environment:
+      GOTRUE_MAILER_TEMPLATES_MAGIC_LINK: http://app:3000/email-templates/login-code.html
+      GOTRUE_MAILER_SUBJECTS_MAGIC_LINK: "Your HealthConnect sign-in code / साइन-इन कोड"
+      GOTRUE_MAILER_OTP_EXP: "600"
+      GOTRUE_MAILER_EXTERNAL_HOSTS: ${API_HOST}
+
+  # --- The CRM (Next.js standalone image built from the repo root)
+  app:
+    container_name: crm-app
+    build:
+      context: ${CRM_SOURCE_DIR:-../..}
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${CRM_SUPABASE_PUBLIC_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ANON_KEY}
+        NEXT_PUBLIC_SENTRY_DSN: ${CRM_PUBLIC_ERRORS_DSN:-}
+    image: healthconnectcrm-app:latest
+    restart: unless-stopped
+    env_file: [crm.env]
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${CRM_SUPABASE_PUBLIC_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      INNGEST_BASE_URL: http://inngest:8288
+      INNGEST_DEV: "0"
+    # Server-side Supabase calls use the same public URL as the browser (login cookies are keyed to it);
+    # resolve that hostname to this host's Caddy instead of hair-pinning through the internet.
+    extra_hosts:
+      - ${API_HOST}:host-gateway
+    depends_on:
+      api-gw:
+        condition: service_started
+
+  # --- Durable jobs (self-hosted Inngest: SQLite + embedded queue, persisted in a volume)
+  inngest:
+    container_name: crm-inngest
+    image: inngest/inngest:${INNGEST_VERSION:-latest}
+    restart: unless-stopped
+    command: >
+      inngest start --sdk-url http://app:3000/api/inngest
+      --event-key ${INNGEST_EVENT_KEY} --signing-key ${INNGEST_SIGNING_KEY}
+      --sqlite-dir /data --poll-interval 60
+    volumes: [inngest-data:/data]
+    ports:
+      - 127.0.0.1:8288:8288 # dashboard via SSH tunnel only
+
+  # --- Error tracking + uptime checks (GlitchTip: open source, Sentry-SDK compatible)
+  errors-db:
+    container_name: crm-errors-db
+    image: ${ERRORS_DB_IMAGE:-postgres:16-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: glitchtip
+      POSTGRES_USER: glitchtip
+      POSTGRES_PASSWORD: ${GLITCHTIP_DB_PASSWORD}
+    volumes: [errors-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U glitchtip]
+      interval: 10s
+      retries: 10
+  errors-cache:
+    container_name: crm-errors-cache
+    image: valkey/valkey:8-alpine
+    restart: unless-stopped
+    command: valkey-server --save 60 1 --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes: [errors-cache:/data]
+  errors:
+    container_name: crm-errors
+    image: glitchtip/glitchtip:${GLITCHTIP_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      SERVER_ROLE: all_in_one
+      DATABASE_URL: postgres://glitchtip:${GLITCHTIP_DB_PASSWORD}@errors-db:5432/glitchtip
+      REDIS_URL: redis://errors-cache:6379/0
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY}
+      GLITCHTIP_DOMAIN: ${SITE_SCHEME:-https}://${ERRORS_HOST}
+      DEFAULT_FROM_EMAIL: ${SMTP_ADMIN_EMAIL}
+      EMAIL_URL: ${GLITCHTIP_EMAIL_URL:-consolemail://}
+      ENABLE_USER_REGISTRATION: "false"
+      GLITCHTIP_MAX_EVENT_LIFE_DAYS: "30"
+    depends_on:
+      errors-db:
+        condition: service_healthy
+      errors-cache:
+        condition: service_started
+
+  # --- HTTPS reverse proxy with automatic Let's Encrypt certificates
+  caddy:
+    container_name: crm-caddy
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      SITE_SCHEME: ${SITE_SCHEME:-https}
+      APP_HOST: ${APP_HOST}
+      API_HOST: ${API_HOST}
+      ERRORS_HOST: ${ERRORS_HOST}
+      ACME_EMAIL: ${SMTP_ADMIN_EMAIL}
+    volumes:
+      - ./Caddyfile.crm:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [app, api-gw, errors]
+
+  # --- Encrypted backups of the patient database + uploaded documents
+  backup:
+    container_name: crm-backup
+    build: ./crm-backup
+    restart: unless-stopped
+    environment:
+      PGHOST: db
+      PGUSER: supabase_admin
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-postgres}
+      BACKUP_INTERVAL_HOURS: ${BACKUP_INTERVAL_HOURS:-6}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      BACKUP_AGE_RECIPIENT: ${BACKUP_AGE_RECIPIENT}
+      BACKUP_RCLONE_REMOTE: ${BACKUP_RCLONE_REMOTE:-}
+    volumes:
+      - ./volumes/storage:/storage:ro
+      - ./backups:/backups
+      - ./rclone.conf:/config/rclone/rclone.conf:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  inngest-data:
+  errors-db:
+  errors-cache:
+  caddy-data:
+  caddy-config:

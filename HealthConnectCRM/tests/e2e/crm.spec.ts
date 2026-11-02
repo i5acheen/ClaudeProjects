@@ -16,9 +16,9 @@ test("coordinator creates a lead manually, moves stage, adds a note and assigns 
   await login(page, "coordinator@e2e.test");
   await page.goto("/pipeline");
   await page.getByRole("button", { name: "New lead" }).click();
-  await page.getByLabel("Patient name").fill("E2E — Test Patient");
-  await page.getByLabel("Phone").fill("9000000999");
-  await page.getByLabel("Treatment").fill("thyroid");
+  await page.locator("#nl-name").fill("E2E — Test Patient");
+  await page.locator("#nl-phone").fill("9000000999");
+  await page.locator("#nl-treat").fill("thyroid");
   await page.getByRole("button", { name: "Create lead" }).click();
   await page.waitForURL(/\/leads\//);
   await expect(page.getByRole("heading", { name: "E2E — Test Patient" })).toBeVisible();
@@ -36,6 +36,7 @@ test("coordinator creates a lead manually, moves stage, adds a note and assigns 
   // assign hospital
   await page.getByLabel("Hospital", { exact: true }).selectOption({ label: "SAMPLE Thyroid Clinic" });
   await page.getByRole("button", { name: "Assign hospital" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Saved" })).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("Hospital", { exact: true })).toHaveValue(/.+/);
 
@@ -98,6 +99,9 @@ test("admin can switch the bot off globally (audited)", async ({ page }) => {
   expect(audit?.length).toBeGreaterThan(0);
   await page.getByTestId("bot-global-toggle").check();
   await page.getByRole("button", { name: "Save" }).click();
+  await expect
+    .poll(async () => ((await db.from("orgs").select("settings").single()).data?.settings as { bot: { enabled: boolean } }).bot.enabled)
+    .toBe(true);
 });
 
 test("privacy export and deletion work and are audited", async ({ page }) => {

@@ -51,11 +51,23 @@ export default async function PipelinePage({ searchParams }: { searchParams: Pro
           placeholder="Treatment…"
           className="rounded border border-border px-2 py-1"
         />
-        <select aria-label="Assigned" name="assigned" defaultValue={sp.assigned ?? ""} className="rounded border border-border px-2 py-1">
+        <select
+          autoComplete="off"
+          aria-label="Assigned"
+          name="assigned"
+          defaultValue={sp.assigned ?? ""}
+          className="rounded border border-border px-2 py-1"
+        >
           <option value="">All</option>
           <option value="me">{t("inbox.mine")}</option>
         </select>
-        <select aria-label="Source" name="source" defaultValue={sp.source ?? ""} className="rounded border border-border px-2 py-1">
+        <select
+          autoComplete="off"
+          aria-label="Source"
+          name="source"
+          defaultValue={sp.source ?? ""}
+          className="rounded border border-border px-2 py-1"
+        >
           <option value="">All sources</option>
           <option value="meta_lead_ad">Meta</option>
           <option value="whatsapp">WhatsApp</option>

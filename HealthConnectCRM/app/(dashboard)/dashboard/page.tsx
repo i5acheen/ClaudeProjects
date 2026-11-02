@@ -50,7 +50,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         </label>
         <label>
           {t("dashboard.campaign")}{" "}
-          <select name="campaign" defaultValue={sp.campaign ?? ""} className="rounded border border-border px-2 py-1">
+          <select autoComplete="off" name="campaign" defaultValue={sp.campaign ?? ""} className="rounded border border-border px-2 py-1">
             <option value="">—</option>
             {d.campaigns.map((c) => (
               <option key={c.campaign_id} value={c.campaign_id ?? ""}>

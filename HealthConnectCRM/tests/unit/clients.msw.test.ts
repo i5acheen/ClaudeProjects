@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { fetchFormLeadsSince, fetchLead, GraphError } from "@/lib/meta/graph";
+import { OpenAICompatProvider } from "@/lib/ai/openai-compat";
 import { downloadMedia, sendTemplate, sendText, WaApiError } from "@/lib/whatsapp/cloud";
 
 const G = "https://graph.facebook.com/v21.0";
@@ -106,5 +107,33 @@ describe("WhatsApp Cloud client", () => {
   it("refuses to send the token to a non-Meta media host", async () => {
     server.use(http.get(`${G}/MEDIA2`, () => HttpResponse.json({ url: "https://evil.example/x", mime_type: "image/jpeg" })));
     await expect(downloadMedia(waCfg, "MEDIA2")).rejects.toThrow(/unexpected host/);
+  });
+});
+
+describe("OpenAI-compatible open-model adapter (Ollama / vLLM)", () => {
+  const base = "http://ollama.local:11434/v1";
+  it("sends system + turns with a JSON schema and returns the content", async () => {
+    server.use(
+      http.post(`${base}/chat/completions`, async ({ request }) => {
+        const body = (await request.json()) as { model: string; messages: { role: string }[]; response_format: { type: string } };
+        expect(body.model).toBe("qwen3:8b");
+        expect(body.messages.map((m) => m.role)).toEqual(["system", "user"]);
+        expect(body.response_format.type).toBe("json_schema");
+        expect(request.headers.get("authorization")).toBeNull();
+        return HttpResponse.json({
+          model: "qwen3:8b",
+          choices: [{ message: { content: '{"reply":"नमस्कार"}' } }],
+          usage: { prompt_tokens: 120, completion_tokens: 30 },
+        });
+      }),
+    );
+    const p = new OpenAICompatProvider(base + "/", "qwen3:8b");
+    const r = await p.complete({ system: "s", messages: [{ role: "user", content: "hi" }], jsonSchema: {} });
+    expect(r).toEqual({ text: '{"reply":"नमस्कार"}', model: "qwen3:8b", inputTokens: 120, outputTokens: 30 });
+  });
+
+  it("surfaces server errors so the bot falls back and hands over", async () => {
+    server.use(http.post(`${base}/chat/completions`, () => new HttpResponse("model not loaded", { status: 503 })));
+    await expect(new OpenAICompatProvider(base, "x", "k").complete({ system: "s", messages: [], jsonSchema: {} })).rejects.toThrow(/503/);
   });
 });

@@ -22,6 +22,8 @@ const csp = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Self-hosted Docker image (deploy/): a minimal server bundle. Vercel ignores this setting's absence.
+  ...(process.env.BUILD_STANDALONE === "1" ? { output: "standalone" as const } : {}),
   async headers() {
     return [
       {

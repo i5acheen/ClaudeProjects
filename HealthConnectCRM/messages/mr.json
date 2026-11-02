@@ -1,5 +1,10 @@
 {
-  "app": { "name": "हेल्थकनेक्ट CRM", "signOut": "बाहेर पडा", "language": "English", "skip": "मुख्य मजकुराकडे जा" },
+  "app": {
+    "name": "हेल्थकनेक्ट CRM",
+    "signOut": "बाहेर पडा",
+    "language": "English",
+    "skip": "मुख्य मजकुराकडे जा"
+  },
   "nav": {
     "dashboard": "डॅशबोर्ड",
     "pipeline": "पाइपलाइन",
@@ -95,10 +100,21 @@
     "visitAt": "भेटीची तारीख",
     "consent": "संमती",
     "audit": "ऑडिट इतिहास",
-    "open": "कागदपत्र उघडा"
+    "open": "कागदपत्र उघडा",
+    "saved": "जतन केले"
   },
-  "tasks": { "today": "आज करायची", "overdue": "मुदत संपलेली", "done": "पूर्ण", "empty": "काहीही बाकी नाही. 🎉" },
-  "hospitals": { "add": "रुग्णालय जोडा", "schemes": "योजना", "specialties": "विशेषज्ञता", "contact": "संपर्क" },
+  "tasks": {
+    "today": "आज करायची",
+    "overdue": "मुदत संपलेली",
+    "done": "पूर्ण",
+    "empty": "काहीही बाकी नाही. 🎉"
+  },
+  "hospitals": {
+    "add": "रुग्णालय जोडा",
+    "schemes": "योजना",
+    "specialties": "विशेषज्ञता",
+    "contact": "संपर्क"
+  },
   "settings": {
     "bot": "बॉट",
     "botEnabled": "बॉट उत्तरे सुरू (सर्व रुग्ण)",

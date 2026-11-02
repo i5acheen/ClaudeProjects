@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+deploy/supabase
+deploy/*.env
+deploy/backups
+playwright-report
+test-results
+tests/bot-evals/report*.json
+.env*
+!.env.example

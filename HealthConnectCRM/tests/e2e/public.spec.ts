@@ -48,7 +48,9 @@ test("health check reports ok with a valid environment", async ({ request }) => 
 });
 
 test("webhook verification handshake", async ({ request }) => {
-  const ok = await request.get("/api/webhooks/meta?hub.mode=subscribe&hub.verify_token=e2e-meta-verify-token-123&hub.challenge=4242");
+  const ok = await request.get(
+    `/api/webhooks/meta?hub.mode=subscribe&hub.verify_token=${process.env.E2E_META_VERIFY_TOKEN ?? "e2e-meta-verify-token-123"}&hub.challenge=4242`,
+  );
   expect(await ok.text()).toBe("4242");
   const bad = await request.get("/api/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=nope&hub.challenge=1");
   expect(bad.status()).toBe(403);

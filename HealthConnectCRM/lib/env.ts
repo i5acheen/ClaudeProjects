@@ -15,7 +15,9 @@ const serverSchema = z.object({
   WA_BUSINESS_ACCOUNT_ID: z.string().min(1),
   WA_ACCESS_TOKEN: z.string().min(20),
   WA_VERIFY_TOKEN: z.string().min(16),
-  AI_PROVIDER: z.enum(["anthropic", "gemini"]).default("anthropic"),
+  AI_PROVIDER: z.enum(["anthropic", "gemini", "openai_compat"]).default("anthropic"),
+  AI_BASE_URL: z.string().url().optional().or(z.literal("")),
+  AI_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   INNGEST_EVENT_KEY: z.string().optional(),
@@ -29,6 +31,9 @@ export type ServerEnv = z.infer<typeof serverSchema>;
 const refined = serverSchema.superRefine((env, ctx) => {
   if (env.AI_PROVIDER === "anthropic" && !env.ANTHROPIC_API_KEY) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["ANTHROPIC_API_KEY"], message: "required when AI_PROVIDER=anthropic" });
+  }
+  if (env.AI_PROVIDER === "openai_compat" && !env.AI_BASE_URL) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["AI_BASE_URL"], message: "required when AI_PROVIDER=openai_compat" });
   }
   if (env.AI_PROVIDER === "gemini" && !env.GEMINI_API_KEY) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["GEMINI_API_KEY"], message: "required when AI_PROVIDER=gemini" });

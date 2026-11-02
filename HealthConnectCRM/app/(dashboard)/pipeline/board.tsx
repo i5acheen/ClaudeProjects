@@ -79,6 +79,7 @@ export function Board({ leads }: { leads: PipelineLead[] }) {
                     <label className="mt-2 block text-xs text-muted">
                       {t("pipeline.moveTo")}{" "}
                       <select
+                        autoComplete="off"
                         aria-label={`${t("pipeline.moveTo")} — ${l.patient.full_name}`}
                         className="rounded border border-border bg-surface px-1 py-0.5 text-xs"
                         value={l.stage}

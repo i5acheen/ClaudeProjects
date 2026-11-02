@@ -1,5 +1,10 @@
 {
-  "app": { "name": "HealthConnect CRM", "signOut": "Sign out", "language": "मराठी", "skip": "Skip to content" },
+  "app": {
+    "name": "HealthConnect CRM",
+    "signOut": "Sign out",
+    "language": "मराठी",
+    "skip": "Skip to content"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "pipeline": "Pipeline",
@@ -95,10 +100,21 @@
     "visitAt": "Visit date",
     "consent": "Consent",
     "audit": "Audit history",
-    "open": "Open document"
+    "open": "Open document",
+    "saved": "Saved"
   },
-  "tasks": { "today": "Due today", "overdue": "Overdue", "done": "Mark done", "empty": "Nothing due. 🎉" },
-  "hospitals": { "add": "Add hospital", "schemes": "Schemes", "specialties": "Specialties", "contact": "Contact" },
+  "tasks": {
+    "today": "Due today",
+    "overdue": "Overdue",
+    "done": "Mark done",
+    "empty": "Nothing due. 🎉"
+  },
+  "hospitals": {
+    "add": "Add hospital",
+    "schemes": "Schemes",
+    "specialties": "Specialties",
+    "contact": "Contact"
+  },
   "settings": {
     "bot": "Bot",
     "botEnabled": "Bot replies enabled (all patients)",

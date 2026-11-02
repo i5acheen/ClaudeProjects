@@ -1,4 +1,4 @@
-/** Provider-agnostic interface (CLAUDE.md §3 AI). Adapters: anthropic.ts, gemini.ts. */
+/** Provider-agnostic interface (CLAUDE.md §3 AI). Adapters: anthropic.ts, gemini.ts, openai-compat.ts. */
 export type ChatTurn = { role: "user" | "assistant"; content: string };
 
 export type CompletionRequest = {
@@ -19,7 +19,7 @@ export type CompletionResult = {
 };
 
 export interface AiProvider {
-  readonly name: "anthropic" | "gemini";
+  readonly name: "anthropic" | "gemini" | "openai_compat";
   readonly model: string;
   complete(req: CompletionRequest): Promise<CompletionResult>;
 }

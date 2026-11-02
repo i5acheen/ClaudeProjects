@@ -320,6 +320,28 @@ describe("conversation integrity (security review F1/F2)", () => {
   });
 });
 
+describe("invited users get a profile", () => {
+  it("when Auth inserts the user first and sets app_metadata in a later update", async () => {
+    await db.query("begin");
+    try {
+      const id = "80000000-0000-4000-8000-00000000000a";
+      await db.query("insert into auth.users (id, email, raw_app_meta_data) values ($1, 'late@a.test', '{\"provider\":\"email\"}')", [id]);
+      expect((await db.query("select 1 from profiles where user_id = $1", [id])).rows).toHaveLength(0);
+      await db.query(
+        `update auth.users set raw_app_meta_data = raw_app_meta_data || jsonb_build_object('org_id', $2::text, 'role', 'coordinator') where id = $1`,
+        [id, ids.orgA],
+      );
+      const p = (await db.query("select org_id, role from profiles where user_id = $1", [id])).rows;
+      expect(p).toEqual([{ org_id: ids.orgA, role: "coordinator" }]);
+      // later metadata edits never change an existing profile's role
+      await db.query(`update auth.users set raw_app_meta_data = raw_app_meta_data || '{"role":"admin"}' where id = $1`, [id]);
+      expect((await db.query("select role from profiles where user_id = $1", [id])).rows[0].role).toBe("coordinator");
+    } finally {
+      await db.query("rollback");
+    }
+  });
+});
+
 describe("webhook_events", () => {
   it("is not readable by any user role", async () => {
     await db.query("insert into webhook_events (provider, event_key, payload) values ('meta', 'k1', '{}')");

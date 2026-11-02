@@ -7,14 +7,17 @@ import { LOST, STAGES, stageKey } from "@/lib/stages";
 
 function useAction() {
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
   const run = (fn: () => Promise<{ ok: boolean; error?: string }>, after?: () => void) =>
     start(async () => {
+      setSaved(false);
       const r = await fn();
       setError(r.ok ? null : (r.error ?? "error"));
+      setSaved(r.ok);
       if (r.ok) after?.();
     });
-  return { error, pending, run };
+  return { error, saved, pending, run };
 }
 
 export function StageControl({ leadId, stage }: { leadId: string; stage: number }) {
@@ -56,7 +59,7 @@ export function HospitalControl({
   hospitals: { id: string; name: string }[];
 }) {
   const t = useTranslations("lead");
-  const { error, pending, run } = useAction();
+  const { error, saved, pending, run } = useAction();
   const [h, setH] = useState(hospitalId ?? "");
   const [v, setV] = useState(visitAt ? visitAt.slice(0, 16) : "");
   return (
@@ -78,6 +81,11 @@ export function HospitalControl({
       >
         {t("assignHospital")}
       </Button>
+      {saved && !pending && (
+        <span role="status" className="text-sm text-brand">
+          ✓ {t("saved")}
+        </span>
+      )}
       {error && (
         <p role="alert" className="w-full text-sm text-danger">
           {error}

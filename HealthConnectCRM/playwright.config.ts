@@ -5,6 +5,8 @@ import { defineConfig, devices } from "@playwright/test";
  * (`supabase start`, seeded) and runs when E2E_SUPABASE=1 — CI does this.
  */
 const port = Number(process.env.PORT ?? 3100);
+// E2E_BASE_URL: run against an already-running deployment (e.g. the self-hosted stack) instead of `next start`.
+const external = process.env.E2E_BASE_URL;
 const fakeEnv = {
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321",
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "e2e-anon-key-xxxxxxxxxxxxxxxx",
@@ -30,7 +32,7 @@ export default defineConfig({
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
-  use: { baseURL: `http://localhost:${port}`, trace: "retain-on-failure" },
+  use: { baseURL: external ?? `http://localhost:${port}`, trace: "retain-on-failure" },
   projects: [
     {
       name: "desktop",
@@ -42,11 +44,13 @@ export default defineConfig({
       testMatch: /public\.spec/,
     },
   ],
-  webServer: {
-    command: `npx next start -p ${port}`,
-    port,
-    reuseExistingServer: !process.env.CI,
-    env: { ...process.env, ...fakeEnv } as Record<string, string>,
-    timeout: 120_000,
-  },
+  webServer: external
+    ? undefined
+    : {
+        command: `npx next start -p ${port}`,
+        port,
+        reuseExistingServer: !process.env.CI,
+        env: { ...process.env, ...fakeEnv } as Record<string, string>,
+        timeout: 120_000,
+      },
 });

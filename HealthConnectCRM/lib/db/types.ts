@@ -97,6 +97,48 @@ export type Database = {
         }
         Relationships: []
       }
+      calls: {
+        Row: {
+          id: string
+          org_id: string
+          lead_id: string
+          user_id: string
+          staff_phone: string | null
+          started_at: string
+          outcome: Database["public"]["Enums"]["call_outcome"]
+          duration_seconds: number | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          org_id: string
+          lead_id: string
+          user_id: string
+          staff_phone?: string | null
+          started_at?: string
+          outcome: Database["public"]["Enums"]["call_outcome"]
+          duration_seconds?: number | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          org_id?: string
+          lead_id?: string
+          user_id?: string
+          staff_phone?: string | null
+          started_at?: string
+          outcome?: Database["public"]["Enums"]["call_outcome"]
+          duration_seconds?: number | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           id: string
@@ -669,6 +711,7 @@ export type Database = {
           is_active: boolean
           created_at: string
           updated_at: string
+          phone_e164: string | null
         }
         Insert: {
           user_id: string
@@ -680,6 +723,7 @@ export type Database = {
           is_active?: boolean
           created_at?: string
           updated_at?: string
+          phone_e164?: string | null
         }
         Update: {
           user_id?: string
@@ -691,6 +735,7 @@ export type Database = {
           is_active?: boolean
           created_at?: string
           updated_at?: string
+          phone_e164?: string | null
         }
         Relationships: []
       }
@@ -966,6 +1011,7 @@ export type Database = {
     }
     Enums: {
       actor_type: "system" | "bot" | "user"
+      call_outcome: "connected" | "no_answer" | "busy" | "switched_off" | "wrong_number" | "callback_requested"
       doc_kind: "aadhaar" | "ration_card" | "scheme_card" | "prescription" | "report" | "other"
       fact_source: "bot" | "coordinator" | "form"
       lang: "mr" | "hi" | "en"

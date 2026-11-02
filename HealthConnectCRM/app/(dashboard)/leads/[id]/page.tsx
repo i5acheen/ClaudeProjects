@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/auth/session";
 import { userDb } from "@/lib/db/server";
 import { fmtDateTime } from "@/lib/dates";
 import { stageKey } from "@/lib/stages";
-import { DocumentRow, HospitalControl, NoteForm, StageControl } from "./client";
+import { CallPanel, DocumentRow, HospitalControl, NoteForm, StageControl } from "./client";
 
 export default async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
   await requireRole("admin", "coordinator");
@@ -30,7 +30,7 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
   };
   const campaign = lead.campaigns as unknown as { name: string; meta_ad_id: string | null } | null;
 
-  const [facts, docs, events, tasks, notes, consents, hospitals, auditRows, conv] = await Promise.all([
+  const [facts, docs, events, tasks, notes, consents, hospitals, auditRows, conv, calls, staff] = await Promise.all([
     db.from("lead_facts").select("key, value, source, confidence, updated_at").eq("lead_id", id),
     db
       .from("documents")
@@ -49,7 +49,15 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
       .order("created_at", { ascending: false })
       .limit(50),
     db.from("conversations").select("id").eq("patient_id", patient.id).limit(1).maybeSingle(),
+    db
+      .from("calls")
+      .select("id, user_id, started_at, outcome, duration_seconds, notes")
+      .eq("lead_id", id)
+      .order("started_at", { ascending: false })
+      .limit(50),
+    db.from("profiles").select("user_id, full_name, email"),
   ]);
+  const staffName = new Map((staff.data ?? []).map((p) => [p.user_id, p.full_name || p.email || "—"]));
 
   return (
     <div className="space-y-4">
@@ -69,12 +77,7 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
         <Card className="space-y-1 text-sm">
           <h2 className="font-medium">{t("lead.details")}</h2>
           {/* Full number shown on the profile to coordinators only (lists are masked). */}
-          <div>
-            📞{" "}
-            <a className="underline" href={`tel:${patient.phone_e164}`}>
-              {patient.phone_e164}
-            </a>
-          </div>
+          <div className="font-mono">{patient.phone_e164}</div>
           <div>
             Age: {patient.age ?? "—"} · {patient.taluka ?? ""} {patient.district ?? ""}
           </div>
@@ -95,6 +98,25 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
           <HospitalControl leadId={id} hospitalId={lead.hospital_id} visitAt={lead.visit_at} hospitals={hospitals.data ?? []} />
         </Card>
       </div>
+
+      <Card className="space-y-3 text-sm">
+        <h2 className="font-medium">{t("calls.title")}</h2>
+        {patient.phone_e164.startsWith("+") && <CallPanel leadId={id} phone={patient.phone_e164} />}
+        {calls.data?.length ? (
+          <ul data-testid="call-history">
+            {calls.data.map((c) => (
+              <li key={c.id} className="border-t border-border py-1">
+                {fmtDateTime(c.started_at)} — <strong>{t(`calls.outcome_${c.outcome}`)}</strong>
+                {c.duration_seconds ? ` · ${Math.round(c.duration_seconds / 60)} min` : ""} · {t("calls.by")}{" "}
+                {staffName.get(c.user_id) ?? "—"}
+                {c.notes ? <span className="text-muted"> — {c.notes}</span> : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted">{t("calls.none")}</p>
+        )}
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card>

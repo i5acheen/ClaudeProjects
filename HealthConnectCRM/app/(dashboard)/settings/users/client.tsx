@@ -51,13 +51,22 @@ export function UserRow({
   hospitals,
   self,
 }: {
-  u: { user_id: string; full_name: string; email: string | null; role: Role; hospital_id: string | null; is_active: boolean };
+  u: {
+    user_id: string;
+    full_name: string;
+    email: string | null;
+    role: Role;
+    hospital_id: string | null;
+    is_active: boolean;
+    phone_e164: string | null;
+  };
   hospitals: { id: string; name: string }[];
   self: boolean;
 }) {
   const [role, setRole] = useState<Role>(u.role);
   const [hospital, setHospital] = useState(u.hospital_id ?? "");
   const [active, setActive] = useState(u.is_active);
+  const [phone, setPhone] = useState(u.phone_e164 ?? "");
   const [msg, setMsg] = useState<string | null>(null);
   return (
     <tr className="border-t border-border">
@@ -87,14 +96,24 @@ export function UserRow({
         )}
       </td>
       <td>
+        <input
+          aria-label={`Mobile — ${u.full_name}`}
+          inputMode="tel"
+          placeholder="+91…"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="min-h-10 w-40 rounded-md border border-border px-2 text-sm"
+        />
+      </td>
+      <td>
         <input aria-label="Active" type="checkbox" checked={active} disabled={self} onChange={(e) => setActive(e.target.checked)} />
       </td>
       <td>
         <Button
           variant="secondary"
-          disabled={self}
           onClick={async () => {
-            const r = await updateUser({ userId: u.user_id, role, hospitalId: hospital || null, isActive: active });
+            // Your own role/active state can't change (also enforced in the database); your mobile can.
+            const r = await updateUser({ userId: u.user_id, role, hospitalId: hospital || null, isActive: active, phone: phone || null });
             setMsg(r.ok ? "✓" : r.error);
           }}
         >

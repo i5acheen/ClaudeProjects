@@ -14,7 +14,8 @@
     "settings": "Settings",
     "users": "Users",
     "privacy": "Privacy",
-    "portal": "Referred patients"
+    "portal": "Referred patients",
+    "team": "Team"
   },
   "stage": {
     "new": "New",
@@ -54,7 +55,8 @@
     "leads": "Leads",
     "contacted": "Contacted",
     "admitted": "Admitted",
-    "rate": "Rate"
+    "rate": "Rate",
+    "callsToday": "Calls today"
   },
   "pipeline": {
     "board": "Board",
@@ -139,5 +141,50 @@
     "markAdmitted": "Mark admitted",
     "admittedOn": "Admission date",
     "empty": "No referred patients."
+  },
+  "calls": {
+    "title": "Calls",
+    "call": "Call",
+    "outcome": "Call outcome",
+    "minutes": "Minutes",
+    "notes": "Call notes",
+    "log": "Log call",
+    "logged": "Call logged",
+    "none": "No calls yet.",
+    "outcome_connected": "Connected",
+    "outcome_no_answer": "No answer",
+    "outcome_busy": "Busy",
+    "outcome_switched_off": "Switched off",
+    "outcome_wrong_number": "Wrong number",
+    "outcome_callback_requested": "Call back later",
+    "by": "by"
+  },
+  "team": {
+    "title": "Team",
+    "range_today": "Today",
+    "range_7d": "Last 7 days",
+    "range_30d": "Last 30 days",
+    "coordinator": "Coordinator",
+    "mobile": "Mobile",
+    "calls": "Calls",
+    "connected": "Connected",
+    "talk": "Talk (min)",
+    "leadsCalled": "Leads called",
+    "messages": "WhatsApp replies",
+    "moves": "Stage moves",
+    "referred": "Referred",
+    "admitted": "Admitted",
+    "newAssigned": "New leads assigned",
+    "open": "Open leads",
+    "uncontacted": "Uncontacted >15 min",
+    "waiting": "Waiting for human",
+    "overdue": "Overdue tasks",
+    "firstContact": "First contact (median min)",
+    "lastActive": "Last activity",
+    "activity": "Activity",
+    "callsPerDay": "Calls per day",
+    "noMobile": "no mobile on file",
+    "teamTotals": "Team totals",
+    "needsAttention": "Needs attention"
   }
 }

@@ -94,3 +94,38 @@ test("admin: settings, users, privacy export", async ({ page }) => {
   await page.getByRole("button", { name: "Export data (JSON)" }).click();
   expect((await download).suggestedFilename()).toMatch(/^patient-.*\.json$/);
 });
+
+test("coordinator logs a call from the lead profile; it shows in the lead's call history", async ({ page }) => {
+  await enter(page, "coordinator");
+  await page.goto("/pipeline");
+  await page.getByTestId("column-new").getByTestId("lead-card").first().getByRole("link").click();
+  await expect(page.getByTestId("call-button")).toHaveAttribute("href", /^tel:\+91/);
+  await page.getByLabel("Call outcome").selectOption("connected");
+  await page.getByLabel("Minutes").fill("4");
+  await page.getByLabel("Call notes").fill("Walkthrough call — patient will send Aadhaar today");
+  await page.getByRole("button", { name: "Log call" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Call logged" })).toBeVisible();
+  await page.reload();
+  await expect(page.getByTestId("call-history")).toContainText("Walkthrough call — patient will send Aadhaar today");
+  await expect(page.getByTestId("call-history")).toContainText("Priya Jadhav");
+});
+
+test("admin: Team page shows each coordinator's calls, workload and a drill-down timeline", async ({ page }) => {
+  await enter(page, "admin");
+  await page.getByRole("link", { name: "Team" }).click();
+  await expect(page).toHaveURL(/\/team/);
+  const table = page.getByTestId("team-table");
+  await expect(table).toContainText("Priya Jadhav");
+  await expect(table).toContainText("Rahul Shinde");
+  await expect(table).toContainText("+91 90XXX XX002"); // staff mobile, masked
+  await page.getByRole("link", { name: "Last 30 days" }).click();
+  await expect(page).toHaveURL(/range=30d/);
+  await table.getByRole("link", { name: "Priya Jadhav" }).click();
+  await expect(page.getByRole("heading", { name: "Priya Jadhav" })).toBeVisible();
+  const timeline = page.getByTestId("activity-timeline");
+  await expect(timeline).toContainText("Connected");
+  await page.getByRole("link", { name: /📞 call/ }).click();
+  await expect(timeline.getByRole("link").first()).toHaveAttribute("href", /^\/leads\//);
+  await page.goto("/settings/users");
+  await expect(page.getByLabel("Mobile — Priya Jadhav")).toHaveValue("+919000090002");
+});

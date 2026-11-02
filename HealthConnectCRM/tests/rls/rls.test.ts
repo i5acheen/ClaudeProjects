@@ -342,6 +342,82 @@ describe("invited users get a profile", () => {
   });
 });
 
+describe("call logs (coordinator tracking)", () => {
+  const logCall = (q: (sql: string, p?: unknown[]) => Promise<Record<string, unknown>[]>, as: string) =>
+    q(
+      "insert into calls (org_id, lead_id, user_id, staff_phone, outcome, duration_seconds, notes) values ($1, $2, $3, '+919800000099', 'connected', 120, 'spoke to patient') returning id",
+      [ids.orgA, ids.leadNewA1, as],
+    );
+
+  it("a coordinator logs a call as themselves and staff can read it", async () => {
+    await asUser(db, ids.coordA, async (q) => {
+      await logCall(q, ids.coordA);
+      expect(await q("select outcome from calls where lead_id = $1", [ids.leadNewA1])).toEqual([{ outcome: "connected" }]);
+    });
+  });
+
+  it("nobody can log a call on someone else's behalf", async () => {
+    await expect(asUser(db, ids.coordA, (q) => logCall(q, ids.adminA))).rejects.toThrow(/row-level security/);
+  });
+
+  it("call records cannot be edited or deleted, even by an admin", async () => {
+    await db.query("begin");
+    try {
+      await db.query("insert into calls (org_id, lead_id, user_id, outcome) values ($1, $2, $3, 'no_answer')", [
+        ids.orgA,
+        ids.leadNewA1,
+        ids.coordA,
+      ]);
+      await db.query("set local role authenticated");
+      await db.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: ids.adminA })]);
+      await expect(db.query("update calls set outcome = 'connected'")).rejects.toThrow(/permission denied/);
+    } finally {
+      await db.query("rollback");
+    }
+    await expect(asUser(db, ids.adminA, (q) => q("delete from calls"))).rejects.toThrow(/permission denied/);
+  });
+
+  it("hospital partners, viewers and other orgs see no call logs", async () => {
+    await db.query("begin");
+    try {
+      await db.query("insert into calls (org_id, lead_id, user_id, outcome) values ($1, $2, $3, 'busy')", [
+        ids.orgA,
+        ids.leadReferredA1,
+        ids.coordA,
+      ]);
+      for (const u of [ids.partnerA1, ids.viewerA, ids.coordB]) {
+        await db.query("set local role authenticated");
+        await db.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: u })]);
+        expect((await db.query("select count(*)::int as n from calls")).rows[0].n).toBe(0);
+        await db.query("reset role");
+      }
+    } finally {
+      await db.query("rollback");
+    }
+  });
+
+  it("patient export includes calls; anonymisation clears call notes", async () => {
+    await asUser(db, ids.coordA, (q) => logCall(q, ids.coordA)).catch(() => undefined);
+    await asUser(db, ids.adminA, async (q) => {
+      await q("insert into calls (org_id, lead_id, user_id, outcome, notes) values ($1, $2, $3, 'connected', 'private note')", [
+        ids.orgA,
+        ids.leadNewA1,
+        ids.adminA,
+      ]);
+      const out = await q("select export_patient($1) as j", [ids.patNewA1]);
+      expect((out[0].j as { calls: unknown[] }).calls).toHaveLength(1);
+      await q("select anonymise_patient($1, 'request')", [ids.patNewA1]);
+      expect(await q("select notes from calls where lead_id = $1", [ids.leadNewA1])).toEqual([{ notes: null }]);
+    });
+  });
+
+  it("staff phone numbers must be E.164", async () => {
+    await expect(
+      asUser(db, ids.adminA, (q) => q("update profiles set phone_e164 = '98765' where user_id = $1", [ids.coordA])),
+    ).rejects.toThrow(/check constraint/);
+  });
+});
+
 describe("webhook_events", () => {
   it("is not readable by any user role", async () => {
     await db.query("insert into webhook_events (provider, event_key, payload) values ('meta', 'k1', '{}')");

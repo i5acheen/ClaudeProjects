@@ -25,6 +25,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         [t("dashboard.eligible"), d.kpis.eligible],
         [t("dashboard.referred"), d.kpis.referred],
         [t("dashboard.admittedMonth"), d.kpis.admittedMonth],
+        [t("dashboard.callsToday"), d.kpis.callsToday],
         [t("dashboard.conversion"), `${d.kpis.conversion}%`],
       ]
     : [[t("dashboard.conversion"), `${d.kpis.conversion}%`]];
@@ -67,7 +68,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         </button>
       </form>
 
-      <section aria-label="KPIs" className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+      <section aria-label="KPIs" className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
         {tiles.map(([label, value]) => (
           <Card key={label}>
             <div className="text-xs text-muted">{label}</div>

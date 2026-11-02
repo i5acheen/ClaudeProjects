@@ -60,7 +60,8 @@ export async function loadDashboard(isStaff: boolean, f: DashboardFilters = {}) 
       count((q) => q.eq("stage", 4)),
       count((q) => q.gte("admitted_at", istStartOfMonth())),
     ]);
-    kpis = { ...kpis, newToday, uncontacted, needsHuman, eligible, referred, admittedMonth };
+    const { count: callsToday } = await db.from("calls").select("id", { count: "exact", head: true }).gte("started_at", istStartOfDay());
+    kpis = { ...kpis, newToday, uncontacted, needsHuman, eligible, referred, admittedMonth, callsToday: callsToday ?? 0 };
     const { data: names } = await db.from("profiles").select("user_id, full_name, email");
     const nameOf = new Map((names ?? []).map((p) => [p.user_id, p.full_name || p.email || "—"]));
     leaderboard = (coordStats ?? [])

@@ -35,6 +35,7 @@ const RELS: Record<string, Record<string, Rel>> = {
     hospitals: { kind: "one", table: "hospitals", fk: "hospital_id" },
   },
   tasks: { leads: { kind: "one", table: "leads", fk: "lead_id" } },
+  calls: { leads: { kind: "one", table: "leads", fk: "lead_id" } },
   conversations: { patients: { kind: "one", table: "patients", fk: "patient_id" } },
   patients: { leads: { kind: "many", table: "leads", fk: "patient_id" } },
 };
@@ -79,6 +80,7 @@ const PERSONAL = new Set([
   "notes",
   "consents",
   "bot_runs",
+  "calls",
 ]);
 function visibleRows(table: string, a: Actor): Row[] {
   const rows = db()[table] ?? [];
@@ -515,6 +517,9 @@ function rpc(name: string, args: Record<string, unknown>, a: Actor): Result {
         leads: t.leads.filter((l) => l.patient_id === p.id),
         facts: t.lead_facts.filter((f) => leadIds.includes(f.lead_id)),
         stage_events: t.stage_events.filter((s) => leadIds.includes(s.lead_id)),
+        calls: t.calls
+          .filter((c) => leadIds.includes(c.lead_id))
+          .map((c) => ({ started_at: c.started_at, outcome: c.outcome, duration_seconds: c.duration_seconds, notes: c.notes })),
         messages: t.messages
           .filter((m) => convIds.includes(m.conversation_id) && !m.is_internal_note)
           .map((m) => ({ created_at: m.created_at, direction: m.direction, sender: m.sender, type: m.type, body: m.body })),
@@ -534,6 +539,7 @@ function rpc(name: string, args: Record<string, unknown>, a: Actor): Result {
     const paths = t.documents.filter((d) => d.patient_id === p.id).map((d) => d.storage_path);
     t.documents = t.documents.filter((d) => d.patient_id !== p.id);
     t.lead_facts = t.lead_facts.filter((f) => !leadIds.includes(f.lead_id));
+    t.calls.filter((c) => leadIds.includes(c.lead_id)).forEach((c) => (c.notes = null));
     t.notes = t.notes.filter((n) => !leadIds.includes(n.lead_id));
     t.messages.filter((m) => convIds.includes(m.conversation_id)).forEach((m) => (m.body = null));
     Object.assign(p, {

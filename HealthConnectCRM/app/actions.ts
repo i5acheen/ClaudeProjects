@@ -506,6 +506,7 @@ export async function updateUser(input: {
   role: "admin" | "coordinator" | "hospital_partner" | "viewer";
   hospitalId: string | null;
   isActive: boolean;
+  phone?: string | null;
 }): Promise<Result> {
   try {
     const p = z
@@ -514,15 +515,23 @@ export async function updateUser(input: {
         role: z.enum(["admin", "coordinator", "hospital_partner", "viewer"]),
         hospitalId: uuid.nullable(),
         isActive: z.boolean(),
+        phone: z.string().max(20).nullable().optional(),
       })
       .parse(input);
     await assertRole("admin");
+    const phone = p.phone ? toE164(p.phone) : null;
+    if (p.phone && !phone) return { ok: false, error: "Invalid mobile number" };
     // RLS limits this to the admin's org; the profiles trigger writes the audit row.
     const { error } = await (
       await userDb()
     )
       .from("profiles")
-      .update({ role: p.role, hospital_id: p.role === "hospital_partner" ? p.hospitalId : null, is_active: p.isActive })
+      .update({
+        role: p.role,
+        hospital_id: p.role === "hospital_partner" ? p.hospitalId : null,
+        is_active: p.isActive,
+        ...(p.phone !== undefined && { phone_e164: phone }),
+      })
       .eq("user_id", p.userId);
     if (error) return { ok: false, error: error.message };
     revalidatePath("/settings/users");
@@ -568,4 +577,56 @@ export async function markAlertsRead(): Promise<void> {
   const s = await assertRole("admin", "coordinator");
   await (await userDb()).from("notifications").update({ read_at: new Date().toISOString() }).eq("user_id", s.userId).is("read_at", null);
   revalidatePath("/alerts");
+}
+
+// ---------------------------------------------------------------------------
+// Calls: placed from the coordinator's own mobile (tel: link), then logged here.
+// ---------------------------------------------------------------------------
+const CALL_OUTCOMES = ["connected", "no_answer", "busy", "switched_off", "wrong_number", "callback_requested"] as const;
+
+export async function logCall(input: {
+  leadId: string;
+  outcome: (typeof CALL_OUTCOMES)[number];
+  durationMinutes?: number | null;
+  notes?: string;
+  startedAt?: string;
+}): Promise<Result> {
+  try {
+    const p = z
+      .object({
+        leadId: uuid,
+        outcome: z.enum(CALL_OUTCOMES),
+        durationMinutes: z.number().min(0).max(240).nullable().optional(),
+        notes: z.string().trim().max(2000).optional(),
+        startedAt: z.string().datetime({ offset: true }).optional(),
+      })
+      .parse(input);
+    const s = await assertRole("admin", "coordinator");
+    const db = await userDb();
+    const { data: lead } = await db.from("leads").select("id, stage").eq("id", p.leadId).single();
+    if (!lead) return { ok: false, error: "Lead not found" };
+    const startedAt = p.startedAt && Date.parse(p.startedAt) <= Date.now() ? p.startedAt : new Date().toISOString();
+    const { error } = await db.from("calls").insert({
+      org_id: s.profile.org_id,
+      lead_id: p.leadId,
+      user_id: s.userId,
+      staff_phone: s.profile.phone_e164 ?? null,
+      started_at: startedAt,
+      outcome: p.outcome,
+      duration_seconds: p.outcome === "connected" && p.durationMinutes ? Math.round(p.durationMinutes * 60) : null,
+      notes: p.notes || null,
+    });
+    if (error) return { ok: false, error: error.message };
+    // Any logged call completes the pending "call" task; a connected call also moves New -> Contacted.
+    if (p.outcome === "connected" && lead.stage === 0) {
+      await db.rpc("move_lead_stage", { p_lead_id: p.leadId, p_to_stage: 1, p_reason: "call connected" });
+    }
+    await db.from("tasks").update({ done_at: new Date().toISOString() }).eq("lead_id", p.leadId).eq("type", "call").is("done_at", null);
+    revalidatePath(`/leads/${p.leadId}`);
+    revalidatePath("/team");
+    revalidatePath("/tasks");
+    return { ok: true };
+  } catch (e) {
+    return fail(e);
+  }
 }

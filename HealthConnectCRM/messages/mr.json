@@ -14,7 +14,8 @@
     "settings": "सेटिंग्ज",
     "users": "वापरकर्ते",
     "privacy": "गोपनीयता",
-    "portal": "संदर्भित रुग्ण"
+    "portal": "संदर्भित रुग्ण",
+    "team": "टीम"
   },
   "stage": {
     "new": "नवीन",
@@ -54,7 +55,8 @@
     "leads": "लीड्स",
     "contacted": "संपर्क",
     "admitted": "दाखल",
-    "rate": "दर"
+    "rate": "दर",
+    "callsToday": "आजचे कॉल"
   },
   "pipeline": {
     "board": "बोर्ड",
@@ -139,5 +141,50 @@
     "markAdmitted": "दाखल म्हणून नोंदवा",
     "admittedOn": "दाखल तारीख",
     "empty": "संदर्भित रुग्ण नाहीत."
+  },
+  "calls": {
+    "title": "कॉल",
+    "call": "कॉल करा",
+    "outcome": "कॉलचा निकाल",
+    "minutes": "मिनिटे",
+    "notes": "कॉल नोंद",
+    "log": "कॉल नोंदवा",
+    "logged": "कॉल नोंदवला",
+    "none": "अजून कॉल नाहीत.",
+    "outcome_connected": "बोलणे झाले",
+    "outcome_no_answer": "उत्तर नाही",
+    "outcome_busy": "व्यस्त",
+    "outcome_switched_off": "फोन बंद",
+    "outcome_wrong_number": "चुकीचा नंबर",
+    "outcome_callback_requested": "नंतर कॉल करा",
+    "by": "द्वारे"
+  },
+  "team": {
+    "title": "टीम",
+    "range_today": "आज",
+    "range_7d": "मागील 7 दिवस",
+    "range_30d": "मागील 30 दिवस",
+    "coordinator": "समन्वयक",
+    "mobile": "मोबाईल",
+    "calls": "कॉल",
+    "connected": "बोलणे झाले",
+    "talk": "बोलणे (मिनिटे)",
+    "leadsCalled": "कॉल केलेले लीड्स",
+    "messages": "WhatsApp उत्तरे",
+    "moves": "टप्पा बदल",
+    "referred": "संदर्भित",
+    "admitted": "दाखल",
+    "newAssigned": "नवीन दिलेले लीड्स",
+    "open": "चालू लीड्स",
+    "uncontacted": "15 मिनिटांहून अधिक संपर्क नाही",
+    "waiting": "समन्वयकाची प्रतीक्षा",
+    "overdue": "मुदत संपलेली कामे",
+    "firstContact": "पहिला संपर्क (मध्य मिनिटे)",
+    "lastActive": "शेवटची हालचाल",
+    "activity": "हालचाली",
+    "callsPerDay": "दररोजचे कॉल",
+    "noMobile": "मोबाईल नोंद नाही",
+    "teamTotals": "टीम एकूण",
+    "needsAttention": "लक्ष द्या"
   }
 }

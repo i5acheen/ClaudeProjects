@@ -7,7 +7,7 @@ export default async function UsersPage() {
   const s = await requireRole("admin");
   const db = await userDb();
   const [{ data: users }, { data: hospitals }] = await Promise.all([
-    db.from("profiles").select("user_id, full_name, email, role, hospital_id, is_active").order("full_name"),
+    db.from("profiles").select("user_id, full_name, email, role, hospital_id, is_active, phone_e164").order("full_name"),
     db.from("hospitals").select("id, name").order("name"),
   ]);
   return (
@@ -23,6 +23,7 @@ export default async function UsersPage() {
               <th className="p-2">User</th>
               <th>Role</th>
               <th>Hospital</th>
+              <th>Mobile (for call tracking)</th>
               <th>Active</th>
               <th />
             </tr>

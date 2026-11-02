@@ -10,6 +10,7 @@ const ITEMS: { href: string; key: string; roles: Role[] }[] = [
   { href: "/inbox", key: "inbox", roles: ["admin", "coordinator"] },
   { href: "/tasks", key: "tasks", roles: ["admin", "coordinator"] },
   { href: "/hospitals", key: "hospitals", roles: ["admin", "coordinator"] },
+  { href: "/team", key: "team", roles: ["admin"] },
   { href: "/settings", key: "settings", roles: ["admin"] },
   { href: "/settings/users", key: "users", roles: ["admin"] },
   { href: "/privacy", key: "privacy", roles: ["admin"] },

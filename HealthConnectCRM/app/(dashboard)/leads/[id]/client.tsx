@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
-import { addNote, documentUrl, moveStage, updateLead, verifyDocument } from "@/app/actions";
+import { addNote, documentUrl, logCall, moveStage, updateLead, verifyDocument } from "@/app/actions";
 import { Button, Input, Select, Textarea } from "@/components/ui";
 import { LOST, STAGES, stageKey } from "@/lib/stages";
 
@@ -158,5 +158,85 @@ export function DocumentRow({ id, kind, verified }: { id: string; kind: string; 
         </span>
       )}
     </li>
+  );
+}
+
+const OUTCOMES = ["connected", "no_answer", "busy", "switched_off", "wrong_number", "callback_requested"] as const;
+
+/** Call from your own mobile (tel: link), then log the outcome. The log shows up in the admin Team page. */
+export function CallPanel({ leadId, phone }: { leadId: string; phone: string }) {
+  const t = useTranslations("calls");
+  const { error, saved, pending, run } = useAction();
+  const [startedAt, setStartedAt] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<(typeof OUTCOMES)[number]>("connected");
+  const [minutes, setMinutes] = useState("");
+  const [notes, setNotes] = useState("");
+  return (
+    <div className="space-y-2">
+      <a
+        href={`tel:${phone}`}
+        onClick={() => setStartedAt(new Date().toISOString())}
+        className="inline-flex min-h-10 items-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-text"
+        data-testid="call-button"
+      >
+        📞 {t("call")} {phone}
+      </a>
+      <form
+        className="flex flex-wrap items-end gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          run(
+            () =>
+              logCall({
+                leadId,
+                outcome,
+                durationMinutes: outcome === "connected" && minutes ? Number(minutes) : null,
+                notes: notes || undefined,
+                startedAt: startedAt ?? undefined,
+              }),
+            () => {
+              setNotes("");
+              setMinutes("");
+              setStartedAt(null);
+            },
+          );
+        }}
+      >
+        <Select aria-label={t("outcome")} value={outcome} onChange={(e) => setOutcome(e.target.value as (typeof OUTCOMES)[number])}>
+          {OUTCOMES.map((o) => (
+            <option key={o} value={o}>
+              {t(`outcome_${o}`)}
+            </option>
+          ))}
+        </Select>
+        {outcome === "connected" && (
+          <Input
+            aria-label={t("minutes")}
+            type="number"
+            min={0}
+            max={240}
+            step={1}
+            placeholder={t("minutes")}
+            value={minutes}
+            onChange={(e) => setMinutes(e.target.value)}
+            className="w-28"
+          />
+        )}
+        <Input aria-label={t("notes")} placeholder={t("notes")} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-64" />
+        <Button type="submit" disabled={pending}>
+          {t("log")}
+        </Button>
+        {saved && !pending && (
+          <span role="status" className="text-sm text-brand">
+            ✓ {t("logged")}
+          </span>
+        )}
+        {error && (
+          <p role="alert" className="w-full text-sm text-danger">
+            {error}
+          </p>
+        )}
+      </form>
+    </div>
   );
 }

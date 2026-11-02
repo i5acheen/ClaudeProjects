@@ -233,6 +233,7 @@ export function buildDemoData(now = Date.now()): Tables {
     audit_log: [],
     bot_runs: [],
     webhook_events: [],
+    calls: [],
     wa_templates: [
       {
         id: uuid("e1", 1),
@@ -311,6 +312,14 @@ export function buildDemoData(now = Date.now()): Tables {
       },
     ],
   };
+
+  // Staff mobiles used for call tracking (test range).
+  const STAFF_PHONES: Record<string, string | null> = {
+    [DEMO_USERS.admin.id]: "+919000090001",
+    [DEMO_USERS.coordinator.id]: "+919000090002",
+    [DEMO_USERS.coordinator2.id]: "+919000090003",
+  };
+  t.profiles.forEach((p) => (p.phone_e164 = STAFF_PHONES[String(p.user_id)] ?? null));
 
   const coordinators = [DEMO_USERS.coordinator.id, DEMO_USERS.coordinator2.id];
   STAGES.forEach((stage, i) => {
@@ -461,6 +470,48 @@ export function buildDemoData(now = Date.now()): Tables {
         updated_at: iso(createdAt + k * 40 * 60_000),
       });
     });
+    // calls from the assigned coordinator's mobile: Priya calls more and connects more often than Rahul
+    const phoneOf = assigned === DEMO_USERS.coordinator.id ? "+919000090002" : "+919000090003";
+    const attempts: [string, number | null, string | null][] =
+      stage === 0
+        ? i % 2 === 0
+          ? []
+          : [["no_answer", null, null]]
+        : stage === -1
+          ? [
+              ["no_answer", null, null],
+              ["switched_off", null, null],
+              ["no_answer", null, "3rd attempt — marking lost"],
+            ]
+          : assigned === DEMO_USERS.coordinator.id
+            ? [
+                ["connected", 240 + (i % 5) * 60, "Explained the scheme process; will send documents"],
+                ...(stage >= 3
+                  ? ([["connected", 180, "Documents verified on call; discussed hospital options"]] as [string, number, string][])
+                  : []),
+              ]
+            : [
+                ["no_answer", null, null],
+                ["busy", null, null],
+                ["connected", 120 + (i % 3) * 60, "Patient interested; asked to call back with documents"],
+              ];
+    attempts.forEach(([outcome, secs, note], k) => {
+      const at = Math.min(now - 10 * 60_000, createdAt + (k + 1) * 50 * 60_000 + (i % 4) * 7 * 60_000);
+      t.calls.push({
+        id: uuid("f9", n * 10 + k),
+        org_id: DEMO_ORG,
+        lead_id: leadId,
+        user_id: assigned,
+        staff_phone: phoneOf,
+        started_at: iso(at),
+        outcome,
+        duration_seconds: secs,
+        notes: note,
+        created_at: iso(at),
+        updated_at: iso(at),
+      });
+    });
+
     // facts
     if (stage >= 1) {
       const facts: [string, string][] = [

@@ -89,8 +89,8 @@ WA_PHONE_NUMBER_ID=
 WA_BUSINESS_ACCOUNT_ID=
 WA_ACCESS_TOKEN=
 WA_VERIFY_TOKEN=$(openssl rand -hex 32)
-# AI: anthropic | gemini | openai_compat (self-hosted open model, e.g. Ollama/vLLM)
-AI_PROVIDER=anthropic
+# AI: none = rules only (default). Later: anthropic | gemini | openai_compat (self-hosted open model)
+AI_PROVIDER=none
 AI_MODEL=
 ANTHROPIC_API_KEY=
 GEMINI_API_KEY=

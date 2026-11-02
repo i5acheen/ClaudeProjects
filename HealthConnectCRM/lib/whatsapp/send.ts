@@ -1,5 +1,6 @@
 import "server-only";
 import type { AdminDb } from "@/lib/db/admin";
+import { isDemo } from "@/lib/demo/mode";
 import { serverEnv } from "@/lib/env";
 import { log } from "@/lib/log";
 import { sendTemplate, sendText, WaApiError, type WaConfig } from "./cloud";
@@ -43,7 +44,7 @@ export function waConfig(): WaConfig {
 
 const TEMPLATE_LANG: Record<"mr" | "hi" | "en", string> = { mr: "mr", hi: "hi", en: "en" };
 
-export async function sendWhatsApp(db: AdminDb, req: SendRequest, cfg: WaConfig = waConfig()): Promise<SendResult> {
+export async function sendWhatsApp(db: AdminDb, req: SendRequest, cfgOverride?: WaConfig): Promise<SendResult> {
   const now = req.now ?? new Date();
   const { data: conv, error } = await db
     .from("conversations")
@@ -98,6 +99,14 @@ export async function sendWhatsApp(db: AdminDb, req: SendRequest, cfg: WaConfig 
     .select("id")
     .single();
   if (insErr || !msg) throw new Error(`could not record outbound message: ${insErr?.message}`);
+
+  // Prototype without WhatsApp: record the message as sent, call no API.
+  if (isDemo()) {
+    const waMessageId = `wamid.DEMO.${msg.id}`;
+    await db.from("messages").update({ status: "sent", wa_message_id: waMessageId }).eq("id", msg.id);
+    return { status: "sent", messageId: msg.id, waMessageId };
+  }
+  const cfg = cfgOverride ?? waConfig();
 
   try {
     const waMessageId =

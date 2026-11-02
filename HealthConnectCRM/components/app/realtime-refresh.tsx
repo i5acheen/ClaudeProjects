@@ -13,6 +13,7 @@ export function RealtimeRefresh({
 }) {
   const router = useRouter();
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "1") return; // prototype: no database to listen to
     const db = browserDb();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const ch = db.channel(channel);

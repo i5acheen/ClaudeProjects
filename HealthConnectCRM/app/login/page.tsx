@@ -3,9 +3,15 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button, Card, Input, Label } from "@/components/ui";
+import { DemoLogin } from "@/components/app/demo-login";
 import { browserDb } from "@/lib/db/browser";
 
 export default function LoginPage() {
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === "1") return <DemoLogin />;
+  return <RealLogin />;
+}
+
+function RealLogin() {
   const t = useTranslations("login");
   const router = useRouter();
   const [email, setEmail] = useState("");

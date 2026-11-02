@@ -11,6 +11,8 @@ Inngest · provider-agnostic AI (Anthropic / Gemini / any OpenAI-compatible open
 backups via Docker Compose (`docs/SELF_HOSTING.md`, ≈ $125–280/year). Vercel + Supabase Cloud remain a managed
 alternative (`docs/PRODUCTION.md`).
 
+**Prototype:** a no-database demo of every screen runs on Vercel with `DEMO_MODE=1` — see `docs/PROTOTYPE.md`.
+
 ## Run locally
 ```bash
 npm ci

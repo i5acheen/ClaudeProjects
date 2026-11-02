@@ -143,3 +143,19 @@ describe("sanitiseFacts", () => {
     });
   });
 });
+
+describe("rules-only mode (AI off)", () => {
+  it("still sends the fixed emergency reply", async () => {
+    const d = await runBotTurn(null, input("मेरी माँ बेहोश हो गई है"));
+    expect(d).toMatchObject({ kind: "emergency", handover: true });
+    expect(d.reply).toContain("108");
+  });
+  it("still hands over on 'talk to a person' and acknowledges documents", async () => {
+    expect((await runBotTurn(null, input("मला माणसाशी बोलायचं आहे"))).kind).toBe("handover");
+    expect((await runBotTurn(null, { ...input(""), inbound: { type: "image", body: "रेशन कार्ड" } })).documentKind).toBe("ration_card");
+  });
+  it("leaves every other message for a coordinator, with no reply", async () => {
+    const d = await runBotTurn(null, input("माझ्या पायाच्या नसा फुगल्या आहेत"));
+    expect(d).toMatchObject({ kind: "no_bot", reply: "", handover: false });
+  });
+});

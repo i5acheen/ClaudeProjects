@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 import { scrubEvent } from "@/lib/sentry-scrub";
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
+  if (process.env.NEXT_RUNTIME === "nodejs" && process.env.DEMO_MODE !== "1") {
     // Validate env at boot (CLAUDE.md §10). Report loudly instead of crashing the whole app: public pages
     // (privacy policy, needed by Meta) and /api/health must stay up, and every code path that needs a
     // secret calls serverEnv(), which throws, so nothing runs half-configured.

@@ -27,7 +27,12 @@ export default async function SettingsPage() {
           mappings={JSON.stringify(settings.meta_field_mappings, null, 2)}
           formIds={settings.meta_form_ids.join(", ")}
         />
-        <p className="mt-3 text-xs text-muted">Prompt version: {PROMPT_VERSION}</p>
+        <p className="mt-3 text-xs text-muted">
+          WhatsApp assistant mode:{" "}
+          {(process.env.AI_PROVIDER ?? "none") === "none"
+            ? "rules only — emergency reply (108), handover on request, document acknowledgement; all other messages go to coordinators"
+            : `AI (${process.env.AI_PROVIDER}), prompt ${PROMPT_VERSION}`}
+        </p>
       </Card>
       <div className="space-y-4">
         <Card>

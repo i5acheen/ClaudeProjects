@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { inngest, EVENTS } from "@/inngest/client";
 import { adminDb } from "@/lib/db/admin";
+import { isDemo } from "@/lib/demo/mode";
 import { serverEnv } from "@/lib/env";
 import { log, requestId } from "@/lib/log";
 import { verifyChallenge, verifyHubSignature } from "@/lib/meta/signature";
@@ -17,6 +18,7 @@ export async function GET(req: NextRequest) {
 
 /** verify signature → validate → store → enqueue → 200 (CLAUDE.md §4). No slow work here. */
 export async function POST(req: NextRequest) {
+  if (isDemo()) return NextResponse.json({ error: "webhooks are disabled in the demo" }, { status: 503 });
   const rid = requestId(req.headers);
   const l = log.child({ route: "webhooks/meta", requestId: rid });
   const raw = await req.text();

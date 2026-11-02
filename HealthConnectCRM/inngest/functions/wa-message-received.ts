@@ -178,6 +178,15 @@ export const waMessageReceived = inngest.createFunction(
       });
     });
 
+    // Rules-only mode (AI off) and nothing matched: leave it for a coordinator.
+    if (decision.kind === "no_bot") {
+      await step.run("notify-staff-no-bot", async () => {
+        const targets = gate.assignedTo ? [gate.assignedTo] : await staffOf(db, stored.orgId);
+        await notify(db, stored.orgId, targets, stored.leadId, "inbound_message", "New WhatsApp message — please reply");
+      });
+      return { kind: "no_bot" };
+    }
+
     await step.run("apply-decision", async () => {
       await db.from("bot_runs").insert({
         org_id: stored.orgId,

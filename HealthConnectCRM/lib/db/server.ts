@@ -1,11 +1,14 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { isDemo } from "@/lib/demo/mode";
+import { demoUserClient } from "@/lib/demo/session";
 import { publicEnv } from "@/lib/env";
 import type { Database } from "./types";
 
 /** Per-request client acting as the signed-in user, so RLS applies. */
 export async function userDb() {
+  if (isDemo()) return demoUserClient();
   const store = await cookies();
   return createServerClient<Database>(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, {
     cookies: {

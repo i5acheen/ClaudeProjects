@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { DEMO_ROLE_COOKIE, isDemo, parseDemoRole } from "@/lib/demo/mode";
 
 const PUBLIC = [/^\/login/, /^\/auth\//, /^\/privacy-policy/, /^\/terms/, /^\/api\//, /^\/email-templates\//, /^\/robots\.txt$/];
 const SESSION_MAX_AGE_S = 12 * 3600; // CLAUDE.md §10: 12 h session timeout
@@ -7,6 +8,15 @@ const SESSION_MAX_AGE_S = 12 * 3600; // CLAUDE.md §10: 12 h session timeout
 /** Refreshes the Supabase session cookie and sends signed-out users to /login. Role checks happen server-side per page. */
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req });
+  if (isDemo()) {
+    // Prototype: the "session" is the role picked on the demo login screen.
+    const path = req.nextUrl.pathname;
+    if (PUBLIC.some((r) => r.test(path)) || parseDemoRole(req.cookies.get(DEMO_ROLE_COOKIE)?.value)) return res;
+    const to = req.nextUrl.clone();
+    to.pathname = "/login";
+    to.search = "";
+    return NextResponse.redirect(to);
+  }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const path = req.nextUrl.pathname;

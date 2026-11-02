@@ -32,7 +32,7 @@ export type BotTurnInput = {
 };
 
 export type BotDecision = {
-  kind: "emergency" | "handover" | "model" | "fallback" | "document_ack";
+  kind: "emergency" | "handover" | "model" | "fallback" | "document_ack" | "no_bot";
   reply: string;
   language: Lang;
   handover: boolean;
@@ -109,7 +109,12 @@ function base(input: BotTurnInput, language: Lang): Omit<BotDecision, "kind" | "
   };
 }
 
-export async function runBotTurn(provider: AiProvider, input: BotTurnInput): Promise<BotDecision> {
+/**
+ * One bot turn. With `provider = null` (AI_PROVIDER=none, the current default) only the fixed rules run —
+ * emergency reply, handover triggers, document acknowledgement — and every other message is left for a
+ * coordinator (kind "no_bot", no reply sent).
+ */
+export async function runBotTurn(provider: AiProvider | null, input: BotTurnInput): Promise<BotDecision> {
   const text = input.inbound.body ?? "";
   const language = text ? guessLanguage(text, input.preferredLanguage) : input.preferredLanguage;
   const check = checkInput(text);
@@ -168,6 +173,11 @@ export async function runBotTurn(provider: AiProvider, input: BotTurnInput): Pro
       handoverReason: "voice_note",
       flags: ["audio"],
     };
+  }
+
+  // Rules-only mode: nothing else is answered automatically.
+  if (!provider) {
+    return { ...base(input, language), kind: "no_bot", reply: "", handover: false, handoverReason: "" };
   }
 
   // 4. No progress for too long.

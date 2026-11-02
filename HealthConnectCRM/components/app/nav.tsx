@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { setLocale, signOut } from "@/app/actions";
+import { resetDemo, setLocale, signOut } from "@/app/actions";
 import type { Role } from "@/lib/auth/session";
 import { userDb } from "@/lib/db/server";
 
@@ -22,8 +22,26 @@ export async function Nav({ role, name, locale }: { role: Role; name: string; lo
     role === "admin" || role === "coordinator"
       ? ((await (await userDb()).from("notifications").select("id", { count: "exact", head: true }).is("read_at", null)).count ?? 0)
       : 0;
+  const demo = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
   return (
     <header className="border-b border-border bg-surface">
+      {demo && (
+        <div className="flex flex-wrap items-center gap-2 bg-amber-50 px-4 py-1 text-xs text-warn" role="note">
+          <span>
+            <strong>Prototype</strong> — sample data, no database; WhatsApp/Meta simulated. Signed in as <strong>{role}</strong>.
+          </span>
+          <form action={signOut}>
+            <button className="underline" type="submit">
+              Switch role
+            </button>
+          </form>
+          <form action={resetDemo}>
+            <button className="underline" type="submit">
+              Reset sample data
+            </button>
+          </form>
+        </div>
+      )}
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:p-2">
         {t("app.skip")}
       </a>

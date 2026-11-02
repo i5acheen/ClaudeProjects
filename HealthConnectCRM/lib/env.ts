@@ -15,7 +15,7 @@ const serverSchema = z.object({
   WA_BUSINESS_ACCOUNT_ID: z.string().min(1),
   WA_ACCESS_TOKEN: z.string().min(20),
   WA_VERIFY_TOKEN: z.string().min(16),
-  AI_PROVIDER: z.enum(["anthropic", "gemini", "openai_compat"]).default("anthropic"),
+  AI_PROVIDER: z.enum(["none", "anthropic", "gemini", "openai_compat"]).default("none"),
   AI_BASE_URL: z.string().url().optional().or(z.literal("")),
   AI_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),

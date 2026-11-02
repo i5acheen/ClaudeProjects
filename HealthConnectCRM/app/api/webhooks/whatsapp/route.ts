@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { inngest, EVENTS } from "@/inngest/client";
 import { adminDb } from "@/lib/db/admin";
 import type { Json } from "@/lib/db/types";
+import { isDemo } from "@/lib/demo/mode";
 import { serverEnv } from "@/lib/env";
 import { log, requestId } from "@/lib/log";
 import { verifyChallenge, verifyHubSignature } from "@/lib/meta/signature";
@@ -23,6 +24,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (isDemo()) return NextResponse.json({ error: "webhooks are disabled in the demo" }, { status: 503 });
   const l = log.child({ route: "webhooks/whatsapp", requestId: requestId(req.headers) });
   const raw = await req.text();
   if (!verifyHubSignature(raw, req.headers.get("x-hub-signature-256"), serverEnv().META_APP_SECRET)) {

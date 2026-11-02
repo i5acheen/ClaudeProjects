@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { EVENTS, inngest } from "@/inngest/client";
 import { audit } from "@/lib/audit";
+import { resetDemoData } from "@/lib/demo/client";
+import { DEMO_ROLE_COOKIE, isDemo, parseDemoRole } from "@/lib/demo/mode";
 import { assertRole } from "@/lib/auth/session";
 import { adminDb } from "@/lib/db/admin";
 import { userDb } from "@/lib/db/server";
@@ -33,7 +35,23 @@ export async function setLocale(locale: "en" | "mr") {
 
 export async function signOut() {
   await (await userDb()).auth.signOut();
+  (await cookies()).delete(DEMO_ROLE_COOKIE);
   redirect("/login");
+}
+
+/** Prototype only: enter the demo as one of the four roles. */
+export async function enterDemo(role: string) {
+  const r = parseDemoRole(role);
+  if (!isDemo() || !r) redirect("/login");
+  (await cookies()).set(DEMO_ROLE_COOKIE, r, { path: "/", maxAge: 12 * 3600, sameSite: "lax", httpOnly: true });
+  redirect(r === "hospital_partner" ? "/portal" : "/dashboard");
+}
+
+/** Prototype only: restore the sample data. */
+export async function resetDemo(): Promise<void> {
+  if (!isDemo()) return;
+  resetDemoData();
+  revalidatePath("/", "layout");
 }
 
 // ---------------------------------------------------------------------------

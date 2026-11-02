@@ -1,5 +1,27 @@
 # Definition of Done report — HealthConnectCRM
 
+## Update 2026-11-02 — re-run on the self-hosted stack
+
+Run against the full self-hosted stack (`docs/SELF_HOSTING.md`) brought up in a test environment: real
+Supabase Auth/PostgREST/Storage/Realtime, self-hosted Inngest, e-mailed login codes (Mailpit). Not a production
+server, and Meta / WhatsApp / AI were not connected.
+
+| # | Item | Result | Evidence |
+|---|---|---|---|
+| 1 | Meta test lead in CRM < 10 s, greeting delivered | ⛔ BLOCKED | Needs the Meta app, WhatsApp number and a public server. |
+| 2 | Marathi bot reply < 10 s; facts/stage; documents | ⛔ BLOCKED | Needs live WhatsApp and an AI model. The pipeline up to the model is proven (webhook → Inngest → bot turn). |
+| 3 | "Talk to a person" → handover + alert; bot silent after | 🟡 **PASS except delivery** | Signed WhatsApp webhook → Inngest: `bot_runs.guardrail_flags = {asked_for_person}`, lead `needs_human = true`, Marathi handover reply composed, coordinator notification "Patient needs a coordinator (asked_for_person)". A follow-up message was stored with **0** bot runs. Sending to WhatsApp failed only because the credentials were fake. |
+| 4 | Hospital partner sees only their referred patients and can mark admission | ✅ **PASS** | Playwright `crm.spec.ts` against the stack: vascular partner sees only SAMPLE — Vithal D. and marks admission; spine partner sees none; partner redirected away from `/pipeline`. Plus 37/37 RLS tests. |
+| 5 | Dashboard numbers match DB; admissions per ad | ✅ **PASS** | Playwright compares Eligible/Referred tiles with service-role `count(*)`; campaign table shows ad `AD100`. |
+| 6 | CI green incl. bot evals ≥ 95 % | ❌ FAIL | Unchanged: CI can't run until the code is in its own repo; bot evals need a model (see SELF_HOSTING "AI choices"). Locally: lint, format, types, 107 unit, 37 RLS, build, 18 public + 17 stack e2e all pass. |
+| 7 | Privacy export and deletion work and are audited | ✅ **PASS** | Playwright: export downloads `patient-<id>.json`, anonymisation succeeds, `audit_log` has `patient.exported` and `patient.anonymised`. |
+
+**Result: 3 pass, 1 pass except WhatsApp delivery, 2 blocked, 1 fail.**
+
+---
+
+## Original report (2026-10-31, before the self-hosted stack)
+
 Run: 2026-10-31 · Source: `CLAUDE.md` §13 · Where: the build container for this repo (Postgres 16 local,
 Chromium; **no** Supabase cloud project, Vercel deployment, Meta app, WhatsApp number, Inngest app or AI key).
 

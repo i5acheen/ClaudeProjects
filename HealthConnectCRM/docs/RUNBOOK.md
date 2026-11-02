@@ -1,8 +1,10 @@
 # Runbook — HealthConnectCRM
 
 For whoever is on call. Each section: **symptoms → check → fix → verify**.
-Production stack: Vercel (`bom1`) · Supabase (`ap-south-1`) · Inngest · Sentry · Meta Graph / WhatsApp Cloud API.
-Setup details live in `docs/PRODUCTION.md`.
+Primary stack (since 2026-11-02): **one self-hosted server** — Caddy · Next.js app · self-hosted Supabase ·
+self-hosted Inngest · GlitchTip · encrypted backups (`docs/SELF_HOSTING.md`). **Section 8 maps every
+procedure below to the self-hosted commands.** Sections 1–7 were written for the managed alternative
+(Vercel · Supabase Cloud · Inngest Cloud · Sentry, `docs/PRODUCTION.md`); the *what to check* advice applies to both.
 
 > Inngest function ids referenced below: `lead-received`, `wa-message-received`, `wa-status`,
 > `lead-followups`, `docs-pending-followups`, `needs-human-escalation`, `meta-backfill`, `nightly-maintenance`.
@@ -200,7 +202,33 @@ Inbox "Unread" and "Needs human" filters are now their queue.
 | Dashboard numbers look wrong | Compare `v_funnel` with `select stage, count(*) from leads group by stage`; check timezone (IST vs UTC) of date filters |
 | Supabase near limits | Reports → database size, connections; nightly purge of `webhook_events` > 30 days ran? |
 
-## 8. Contacts
+## 8. Self-hosted server procedures
+
+All commands run on the server in `HealthConnectCRM/deploy/supabase` (`ssh` in, then `cd` there).
+Dashboards are reachable only through an SSH tunnel:
+`ssh -L 8000:127.0.0.1:8000 -L 8288:127.0.0.1:8288 ubuntu@<server>` → Supabase Studio at `localhost:8000`,
+Inngest at `localhost:8288`.
+
+| Need | Self-hosted procedure |
+|---|---|
+| **Deploy** | `git pull` → `docker compose up -d --build app` → `sh ../migrate.sh` → check `https://crm.<domain>/api/health` and GlitchTip. Migrations must stay backward compatible (§1). |
+| **Rollback code** | `git checkout <last good commit>` → `docker compose up -d --build app`. Tag images before deploys (`docker tag healthconnectcrm-app:latest healthconnectcrm-app:<date>`) to roll back without rebuilding: edit the `image:` tag, `docker compose up -d app`. |
+| **Rollback data** | Restore the latest good backup into a new database with `restore.sh` (SELF_HOSTING §5), inspect, then switch: stop `app`, rename databases in Studio/psql, start `app`. Up to `BACKUP_INTERVAL_HOURS` of writes are lost; re-run the Meta backfill afterwards. |
+| **Rotate a secret** | Edit `crm.env` (Meta/WhatsApp/AI) or `.env` (Supabase/Inngest) → `docker compose up -d` (recreates what changed). Supabase JWT/keys: use `utils/rotate-new-api-keys.sh`, then rebuild `app` (the anon key is baked into the browser bundle). |
+| **Switch the bot off globally** | Settings → Bot → off (unchanged). SQL fallback: `docker compose exec db psql -U supabase_admin -d postgres -c "update orgs set settings = jsonb_set(settings,'{bot,enabled}','false')"`. Inngest pause: tunnel → `localhost:8288` → Functions → `wa-message-received` (same caution as §6.1). Last resort: set `ANTHROPIC_API_KEY=disabled-incident` (or `AI_BASE_URL` to an unreachable host) in `crm.env`, `docker compose up -d app`. |
+| **Webhooks stopped** | `docker compose logs --tail 200 caddy app` (TLS/cert errors? 401 = app secret mismatch). `docker compose ps` — all `healthy`? Certificates renew automatically; port 80 must stay open for renewal. Then §4 for the Meta side. |
+| **Errors / alerts** | GlitchTip at `https://errors.crm.<domain>` replaces Sentry; uptime monitors there page you when `/api/health` fails. |
+| **Server down / lost** | New VM → install Docker → clone repo → copy `deploy/site.env` and your saved `deploy/supabase/.env` + `crm.env` (keep encrypted copies in your password manager) → `sh deploy/setup.sh` → `docker compose up -d --build` → restore the latest off-site backup (`restore.sh` into `postgres` after `migrate.sh`, or into a new database and rename) → re-point DNS. Practise this once before go-live. |
+| **Disk full** | `df -h`; `docker system prune` (keeps running containers' images); check `backups/` retention and GlitchTip event retention (30 days). Oracle boot volume can be grown online. |
+| **Backups failing** | `docker compose logs backup` (`backup.failed`, `encrypt_failed`, `offsite_failed`). Never "fix" encryption by removing it — patient data must not sit unencrypted. |
+
+### Monthly (≈ 2 hours)
+- `sudo apt upgrade` (unattended-upgrades covers security) and reboot in a quiet hour.
+- Update pinned image versions after reading their changelogs; back up first.
+- Restore drill from the off-site copy; record the date and row counts.
+- Check GlitchTip uptime history, disk usage, and that the off-site bucket has fresh files.
+
+## 9. Contacts
 
 Fill in before go-live:
 - On-call: ______  Admin / grievance officer: ______

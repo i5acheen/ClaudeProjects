@@ -49,6 +49,19 @@ jobs:
       - name: Generated DB types are up to date
         run: npm run db:types && git diff --exit-code lib/db/types.ts
 
+  docker:
+    name: Self-hosted image builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --build-arg NEXT_PUBLIC_SUPABASE_URL=http://api.example.invalid --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=ci-placeholder-anon-key -t healthconnectcrm-app:ci .
+      - run: docker build -t crm-backup:ci deploy/crm-backup
+      - name: Compose overlay is valid on the pinned Supabase files
+        run: |
+          printf 'SITE_SCHEME=http\nAPP_HOST=crm.localhost\nAPI_HOST=api.localhost\nERRORS_HOST=errors.localhost\nADMIN_EMAIL=ci@example.invalid\nSMTP_HOST=mail\nSMTP_PORT=1025\nSMTP_USER=x\nSMTP_PASS=x\nSMTP_SENDER_NAME=CI\nBACKUP_AGE_RECIPIENT=age1ci\nBACKUP_RCLONE_REMOTE=\n' > deploy/site.env
+          sh deploy/setup.sh
+          cd deploy/supabase && docker compose config --quiet
+
   e2e:
     name: E2E (Supabase local + Playwright)
     runs-on: ubuntu-latest

@@ -4,8 +4,12 @@ Patient Lead CRM for a patient coordination service in Chhatrapati Sambhajinagar
 Meta Lead Ads + WhatsApp Cloud API + an AI assistant ("Sahayak") that helps patients access MJPJAY / PM-JAY
 treatment at empanelled hospitals. Spec: [`CLAUDE.md`](CLAUDE.md).
 
-**Stack:** Next.js 15 (App Router, TS strict) · Tailwind · next-intl (en/mr) · Supabase (Postgres + RLS, Auth, Storage; Mumbai) ·
-Inngest · Anthropic / Gemini (provider-agnostic) · Sentry · Vercel `bom1` · Vitest · Playwright · MSW.
+**Stack:** Next.js 15 (App Router, TS strict) · Tailwind · next-intl (en/mr) · Supabase (Postgres + RLS, Auth, Storage) ·
+Inngest · provider-agnostic AI (Anthropic / Gemini / any OpenAI-compatible open model) · Sentry SDK · Vitest · Playwright · MSW.
+
+**Deployment:** self-hosted and open source on one Indian VM — Supabase, Inngest, GlitchTip, Caddy, encrypted
+backups via Docker Compose (`docs/SELF_HOSTING.md`, ≈ $125–280/year). Vercel + Supabase Cloud remain a managed
+alternative (`docs/PRODUCTION.md`).
 
 ## Run locally
 ```bash
@@ -42,6 +46,6 @@ Create your first admin user in Supabase Studio (Auth → Add user) with app_met
 `tests/{unit,rls,e2e,bot-evals}`.
 
 ## Docs
-[PLAN](docs/PLAN.md) · [Production setup](docs/PRODUCTION.md) · [Runbook](docs/RUNBOOK.md) ·
+[PLAN](docs/PLAN.md) · [Self-hosting (primary)](docs/SELF_HOSTING.md) · [Decisions](docs/DECISIONS.md) · [Managed production setup](docs/PRODUCTION.md) · [Runbook](docs/RUNBOOK.md) ·
 [Meta setup](docs/META_SETUP.md) · [WhatsApp setup](docs/WHATSAPP_SETUP.md) ·
 [Security review](docs/SECURITY_REVIEW.md) · [Definition of Done report](docs/DOD_REPORT.md)

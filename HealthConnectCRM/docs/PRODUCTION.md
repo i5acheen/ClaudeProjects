@@ -1,5 +1,11 @@
 # Production setup — HealthConnectCRM
 
+> **Since 2026-11-02 the primary deployment is self-hosted — see `docs/SELF_HOSTING.md`.** This document
+> describes the managed alternative (Vercel + Supabase Cloud + Inngest Cloud + Sentry), still supported.
+> The env-var checklist (§5) and Meta/WhatsApp wiring (§7) apply to both. If you use Supabase Cloud, also set
+> Auth → Email Templates → Magic Link to include `{{ .Token }}` (the CRM signs in with a 6-digit code; see
+> `public/email-templates/login-code.html`).
+
 Phase 9 of `CLAUDE.md`. This is the one-time setup for the production stack. Do it in
 order: each section depends on the one before it. Tick each box as you go.
 

@@ -44,6 +44,11 @@ Rules: the bot may move a lead forward only up to **Eligible (3)**, and only for
 
 ## 3. Tech stack (use exactly this unless told otherwise)
 
+> **Amendment 2026-11-02 (owner request: open-source and free where possible).** Deploy self-hosted on one
+> Indian VM with Docker Compose: self-hosted Supabase, self-hosted Inngest, GlitchTip (Sentry SDK), Caddy and
+> encrypted backups — see `docs/SELF_HOSTING.md` and `docs/DECISIONS.md` ADR-001. Vercel and Supabase Cloud below
+> remain supported alternatives. AI may also use `AI_PROVIDER=openai_compat` for a self-hosted open-weight model.
+
 - **App**: Next.js 15 (App Router) + TypeScript (strict) + React Server Components
 - **UI**: Tailwind CSS + shadcn/ui; lucide-react icons; Recharts for charts
 - **Database / Auth / Files**: Supabase — Postgres, Supabase Auth (email OTP + Google), Storage for documents. Create the project in the **Mumbai (ap-south-1)** region.

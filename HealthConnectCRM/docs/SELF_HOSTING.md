@@ -148,9 +148,25 @@ continuous WAL archiving (WAL-G / pgBackRest, open source) when patient volume j
 
 ## Verified locally (2026-11-02)
 
-The whole stack was brought up in a test environment with `SITE_SCHEME=http` and `*.localhost` hostnames:
-all services healthy, six migrations applied on Supabase's Postgres 17 (private `documents` bucket and
-Realtime publication created, RLS on every table), anonymous REST reads of patient data refused, Studio and
-pg-meta not reachable through Caddy, `/api/health` ok, GlitchTip up, encrypted backup produced and restored.
-Not verifiable there: Let's Encrypt certificates, real SMTP delivery, Meta/WhatsApp webhooks from the internet,
-and Ollama latency on ARM hardware.
+The whole stack was run in a test environment (`SITE_SCHEME=http`, `*.localhost` hostnames, Mailpit as SMTP):
+
+- All services healthy; only Caddy listens publicly. Studio and pg-meta return 404 through Caddy;
+  anonymous REST reads of patient tables are refused by the database.
+- Seven migrations apply on Supabase's Postgres 17 (private `documents` bucket and Realtime publication
+  created, RLS on every table); re-running `migrate.sh` is a no-op.
+- **Playwright 17/17** against the running stack, including real e-mailed 6-digit code login, lead creation,
+  stage moves, notes, hospital assignment, hospital-partner isolation, dashboard counts vs the database,
+  the global bot switch (audited), privacy export + anonymisation (audited), viewer restrictions.
+- A correctly signed WhatsApp webhook flows through self-hosted Inngest: message stored, "talk to a person"
+  handover (Marathi reply composed, lead flagged, coordinator alerted), and the bot stays silent afterwards;
+  a bad signature gets 401. With the bot switched off, messages are stored and staff alerted with no bot reply.
+- Encrypted backup produced (files start with the age header) and restored into a separate database with
+  matching row counts.
+
+Bugs found and fixed by this run (they would also have affected Supabase Cloud):
+invited users got no CRM profile (migration 0007), the login e-mail contained a link instead of the code the
+UI asks for (code template), and the backup job reported success while leaving unencrypted dumps when
+encryption failed.
+
+Not verifiable in that environment: Let's Encrypt certificates, real SMTP delivery, Meta/WhatsApp webhooks
+from the internet, outbound WhatsApp sends, and Ollama latency on ARM hardware.

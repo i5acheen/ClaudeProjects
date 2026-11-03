@@ -4,6 +4,7 @@
 # keep BACKUP_RETENTION_DAYS locally and copy off-site with rclone when BACKUP_RCLONE_REMOTE is set.
 # Every step is checked explicitly: `set -e` does not apply inside a function called from `||`.
 set -u
+umask 077   # backup files are encrypted, and private as well
 INTERVAL=$(( ${BACKUP_INTERVAL_HOURS:-6} * 3600 ))
 RCLONE="rclone --config /config/rclone/rclone.conf"
 

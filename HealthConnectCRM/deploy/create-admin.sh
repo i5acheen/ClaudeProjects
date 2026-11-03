@@ -7,7 +7,7 @@ cd "$here/supabase"
 org_name=$1; email=$2; full_name=${3:-Admin}
 key=$(grep '^SERVICE_ROLE_KEY=' .env | cut -d= -f2-)
 port=$(grep '^API_GW_HTTP_PORT=' .env | cut -d= -f2- || true)
-q() { docker compose exec -T db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -Atc "$1"; }
+q() { docker compose exec -T db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -qAtc "$1"; }
 org=$(q "select id from public.orgs order by created_at limit 1")
 [ -n "$org" ] || org=$(q "insert into public.orgs(name) values ('$(printf %s "$org_name" | sed "s/'/''/g")') returning id")
 body=$(printf '{"email":"%s","email_confirm":true,"app_metadata":{"org_id":"%s","role":"admin","full_name":"%s"}}' "$email" "$org" "$full_name")

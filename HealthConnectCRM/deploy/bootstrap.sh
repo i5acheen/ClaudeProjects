@@ -94,6 +94,7 @@ if [ ! -f "$APP/deploy/site.env" ]; then
   SMTP_PASS=${SMTP_PASS// /}   # Gmail shows app passwords in groups of four; spaces are not part of it
   case "$SMTP_PASS" in *"'"*) die "The SMTP password must not contain a single quote (') — create a new app password";; esac
   ask SENDER_EMAIL "Send login e-mails from (must be allowed by your SMTP account)" "$SMTP_USER"
+  case "$SENDER_EMAIL" in *@*.*) ;; *) die "The sender must be an e-mail address (got: $SENDER_EMAIL)";; esac
 
   say "Creating the backup encryption key"
   KEYDIR=$(mktemp -d)   # age-keygen refuses to overwrite, so give it a fresh path

@@ -99,6 +99,9 @@ if [ ! -f "$APP/deploy/site.env" ]; then
   rm -rf -- "$KEYDIR"
   [ -n "$BACKUP_PUB" ] && [ -n "$BACKUP_PRIVATE" ] || die "Could not create the backup key"
 
+  # Secret files are private; the subshell keeps the strict umask from leaking into later steps
+  # (Postgres must be able to read the Supabase init scripts that setup.sh copies).
+  (
   umask 077
   cat >"$APP/deploy/site.env" <<EOF
 SITE_SCHEME=$SITE_SCHEME
@@ -116,6 +119,7 @@ BACKUP_RCLONE_REMOTE=
 EOF
   printf '%s\n' "$ORG_NAME" >"$APP/deploy/.org_name"
   printf '%s\n%s\n' "$ADMIN_EMAIL" "$ADMIN_NAME" >"$APP/deploy/.first_admin"
+  )
 else
   say "Reusing existing deploy/site.env"
   BACKUP_PRIVATE=""

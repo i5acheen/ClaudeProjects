@@ -2,6 +2,8 @@
 # One-time setup of the self-hosted stack on a fresh Linux server with Docker (docs/SELF_HOSTING.md).
 # Re-running is safe: existing secrets in deploy/supabase/.env and crm.env are kept.
 set -eu
+# Containers (Postgres runs as its own user) must read the copied init scripts; secret files are chmod 600 below.
+umask 022
 here=$(cd "$(dirname "$0")" && pwd)
 SUPABASE_COMMIT=4a92bac8d86a1e505847fe11b6b2646bd73163de   # pinned official self-hosting files (2026-11-02)
 [ -f "$here/site.env" ] || { echo "Create deploy/site.env from deploy/site.env.example first"; exit 1; }
@@ -14,6 +16,7 @@ if [ ! -d "$dir" ]; then
   git -C "$tmp/supabase" sparse-checkout set docker
   git -C "$tmp/supabase" checkout -q "$SUPABASE_COMMIT"
   cp -r "$tmp/supabase/docker" "$dir"
+  chmod -R a+rX "$dir/volumes"
   rm -rf "$tmp"
 fi
 cd "$dir"

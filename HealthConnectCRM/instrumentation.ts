@@ -5,13 +5,13 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs" && process.env.DEMO_MODE !== "1") {
     // Validate env at boot (CLAUDE.md §10). Report loudly instead of crashing the whole app: public pages
     // (privacy policy, needed by Meta) and /api/health must stay up, and every code path that needs a
-    // secret calls serverEnv(), which throws, so nothing runs half-configured.
+    // setting validates its group (coreEnv/metaEnv/waEnv), so nothing runs half-configured.
     const { checkEnv } = await import("@/lib/env");
-    const result = checkEnv();
-    if (!result.ok) {
-      const { log } = await import("@/lib/log");
-      log.error("env.invalid_at_boot", { invalid: result.problems });
-    }
+    const { log } = await import("@/lib/log");
+    const r = checkEnv();
+    if (r.core.length) log.error("env.invalid_at_boot", { invalid: r.core });
+    if (r.meta.length) log.info("integration.not_configured", { integration: "meta_lead_ads" });
+    if (r.whatsapp.length) log.info("integration.not_configured", { integration: "whatsapp" });
   }
   if (process.env.SENTRY_DSN) {
     Sentry.init({

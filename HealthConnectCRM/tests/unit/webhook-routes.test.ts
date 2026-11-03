@@ -7,7 +7,9 @@ const stored = new Set<string>();
 const sent: { name: string; data: unknown }[] = [];
 
 vi.mock("@/lib/env", () => ({
-  serverEnv: () => ({ META_APP_SECRET: SECRET, META_VERIFY_TOKEN: "meta-verify-token-xyz", WA_VERIFY_TOKEN: "wa-verify-token-xyzw" }),
+  NotConfiguredError: class extends Error {},
+  metaEnv: () => ({ META_APP_SECRET: SECRET, META_VERIFY_TOKEN: "meta-verify-token-xyz" }),
+  waEnv: () => ({ META_APP_SECRET: SECRET, WA_VERIFY_TOKEN: "wa-verify-token-xyzw" }),
 }));
 vi.mock("@/lib/db/admin", () => ({ adminDb: () => ({}) }));
 vi.mock("@/lib/webhooks", () => ({

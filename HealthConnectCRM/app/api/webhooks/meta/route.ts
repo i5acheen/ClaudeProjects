@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { inngest, EVENTS } from "@/inngest/client";
 import { adminDb } from "@/lib/db/admin";
 import { isDemo } from "@/lib/demo/mode";
-import { serverEnv } from "@/lib/env";
+import { metaEnv, NotConfiguredError } from "@/lib/env";
 import { log, requestId } from "@/lib/log";
 import { verifyChallenge, verifyHubSignature } from "@/lib/meta/signature";
 import { extractLeadgenEvents } from "@/lib/meta/webhook";
@@ -11,8 +11,19 @@ import { storeWebhookEvents } from "@/lib/webhooks";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function configured() {
+  try {
+    return metaEnv();
+  } catch (e) {
+    if (e instanceof NotConfiguredError) return null;
+    throw e;
+  }
+}
+
 export async function GET(req: NextRequest) {
-  const challenge = verifyChallenge(req.nextUrl.searchParams, serverEnv().META_VERIFY_TOKEN);
+  const env = configured();
+  if (!env) return new NextResponse("Meta Lead Ads is not configured yet", { status: 503 });
+  const challenge = verifyChallenge(req.nextUrl.searchParams, env.META_VERIFY_TOKEN);
   return challenge ? new NextResponse(challenge, { status: 200 }) : new NextResponse("forbidden", { status: 403 });
 }
 
@@ -22,7 +33,9 @@ export async function POST(req: NextRequest) {
   const rid = requestId(req.headers);
   const l = log.child({ route: "webhooks/meta", requestId: rid });
   const raw = await req.text();
-  if (!verifyHubSignature(raw, req.headers.get("x-hub-signature-256"), serverEnv().META_APP_SECRET)) {
+  const env = configured();
+  if (!env) return NextResponse.json({ error: "Meta Lead Ads is not configured yet" }, { status: 503 });
+  if (!verifyHubSignature(raw, req.headers.get("x-hub-signature-256"), env.META_APP_SECRET)) {
     l.warn("webhook.bad_signature");
     return NextResponse.json({ error: "invalid signature" }, { status: 401 });
   }

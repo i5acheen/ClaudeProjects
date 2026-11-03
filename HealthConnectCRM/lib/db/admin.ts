@@ -2,7 +2,7 @@ import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { isDemo } from "@/lib/demo/mode";
 import { demoServiceClient } from "@/lib/demo/session";
-import { serverEnv } from "@/lib/env";
+import { coreEnv } from "@/lib/env";
 import type { Database } from "./types";
 
 export type AdminDb = SupabaseClient<Database>;
@@ -12,7 +12,7 @@ let client: AdminDb | undefined;
 export function adminDb(): AdminDb {
   if (isDemo()) return demoServiceClient();
   if (!client) {
-    const env = serverEnv();
+    const env = coreEnv();
     client = createClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
     });

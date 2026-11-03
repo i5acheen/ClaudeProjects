@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { parseOrgSettings } from "@/lib/crm/org";
 import { adminDb } from "@/lib/db/admin";
-import { serverEnv } from "@/lib/env";
+import { checkEnv, metaEnv, waEnv } from "@/lib/env";
 import { log } from "@/lib/log";
 import { fetchFormLeadsSince, fetchPageForms } from "@/lib/meta/graph";
 import { fetchWithTimeout } from "@/lib/utils";
@@ -11,7 +11,8 @@ import { EVENTS, inngest } from "../client";
 export const metaBackfill = inngest.createFunction(
   { id: "meta-backfill", triggers: [{ cron: "*/15 * * * *" }], concurrency: 1 },
   async ({ step }) => {
-    const env = serverEnv();
+    if (checkEnv().meta.length) return { skipped: "Meta Lead Ads not configured" };
+    const env = metaEnv();
     const cfg = { version: env.META_GRAPH_VERSION, accessToken: env.META_PAGE_ACCESS_TOKEN };
     const db = adminDb();
     const missing = await step.run("find-missing", async () => {
@@ -68,9 +69,10 @@ export const nightlyMaintenance = inngest.createFunction(
   { id: "nightly-maintenance", triggers: [{ cron: "TZ=Asia/Kolkata 0 2 * * *" }], concurrency: 1 },
   async ({ step }) => {
     const db = adminDb();
-    const env = serverEnv();
 
     const templates = await step.run("sync-templates", async () => {
+      if (checkEnv().whatsapp.length) return "skipped: WhatsApp not configured";
+      const env = waEnv();
       const res = await fetchWithTimeout(
         `https://graph.facebook.com/${env.META_GRAPH_VERSION}/${env.WA_BUSINESS_ACCOUNT_ID}/message_templates?limit=200`,
         { headers: { Authorization: `Bearer ${env.WA_ACCESS_TOKEN}` } },

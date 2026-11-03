@@ -1,7 +1,7 @@
 import "server-only";
 import type { AdminDb } from "@/lib/db/admin";
 import { isDemo } from "@/lib/demo/mode";
-import { serverEnv } from "@/lib/env";
+import { checkEnv, waEnv } from "@/lib/env";
 import { log } from "@/lib/log";
 import { sendTemplate, sendText, WaApiError, type WaConfig } from "./cloud";
 import { decideSend, type SendDecision } from "./policy";
@@ -34,11 +34,11 @@ export type SendRequest = {
 
 export type SendResult =
   | { status: "sent"; messageId: string; waMessageId: string }
-  | { status: "blocked"; reason: Extract<SendDecision, { allow: false }>["reason"]; retryAt?: Date }
+  | { status: "blocked"; reason: Extract<SendDecision, { allow: false }>["reason"] | "not_configured"; retryAt?: Date }
   | { status: "failed"; messageId: string; error: string; retryable: boolean };
 
 export function waConfig(): WaConfig {
-  const env = serverEnv();
+  const env = waEnv();
   return { version: env.META_GRAPH_VERSION, phoneNumberId: env.WA_PHONE_NUMBER_ID, accessToken: env.WA_ACCESS_TOKEN };
 }
 
@@ -46,6 +46,11 @@ const TEMPLATE_LANG: Record<"mr" | "hi" | "en", string> = { mr: "mr", hi: "hi", 
 
 export async function sendWhatsApp(db: AdminDb, req: SendRequest, cfgOverride?: WaConfig): Promise<SendResult> {
   const now = req.now ?? new Date();
+  // Before WhatsApp is set up the CRM still works; nothing is sent and nothing is recorded as sent.
+  if (!cfgOverride && !isDemo() && checkEnv().whatsapp.length) {
+    log.info("whatsapp.send.blocked", { reason: "not_configured" });
+    return { status: "blocked", reason: "not_configured" };
+  }
   const { data: conv, error } = await db
     .from("conversations")
     .select("id, org_id, window_expires_at, patients!inner(id, phone_e164, opted_out_at, consent_whatsapp, deleted_at)")

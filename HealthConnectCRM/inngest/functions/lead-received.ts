@@ -2,7 +2,7 @@ import { z } from "zod";
 import { upsertMetaLead } from "@/lib/crm/leads";
 import { resolveOrg } from "@/lib/crm/org";
 import { adminDb } from "@/lib/db/admin";
-import { serverEnv } from "@/lib/env";
+import { metaEnv } from "@/lib/env";
 import { log } from "@/lib/log";
 import { fetchLead } from "@/lib/meta/graph";
 import { sendWhatsApp } from "@/lib/whatsapp/send";
@@ -20,7 +20,7 @@ export const leadReceived = inngest.createFunction(
   { id: "lead-received", triggers: [{ event: EVENTS.leadReceived }], retries: 5, idempotency: "event.data.leadgenId" },
   async ({ event, step }) => {
     const data = dataSchema.parse(event.data);
-    const env = serverEnv();
+    const env = metaEnv(); // a Meta lead can only arrive when Meta is configured
     const db = adminDb();
 
     const lead = await step.run("fetch-lead", () =>
@@ -29,7 +29,7 @@ export const leadReceived = inngest.createFunction(
 
     const result = await step.run("upsert-lead", async () => {
       const org = await resolveOrg(db, { metaPageId: data.pageId });
-      return upsertMetaLead(db, org, lead, org.settings.wa_phone_number_id ?? env.WA_PHONE_NUMBER_ID);
+      return upsertMetaLead(db, org, lead, org.settings.wa_phone_number_id ?? process.env.WA_PHONE_NUMBER_ID ?? "whatsapp-not-configured");
     });
 
     if (data.webhookEventId) {

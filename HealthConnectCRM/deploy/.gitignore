@@ -1,2 +1,4 @@
 supabase/
 site.env
+.org_name
+.first_admin

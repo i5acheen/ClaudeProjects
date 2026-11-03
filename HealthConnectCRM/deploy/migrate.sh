@@ -7,6 +7,16 @@ root=$(cd "$here/.." && pwd)
 cd "$here/supabase"
 psql() { docker compose exec -T db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 "$@"; }
 
+# Supabase Auth and Storage create their own tables when their containers first start; our migrations
+# reference auth.users and storage.buckets, so wait for them (matters on a brand-new install).
+for i in $(seq 1 90); do
+  ready=$(psql -Atc "select (to_regclass('auth.users') is not null and to_regclass('storage.buckets') is not null)::text")
+  [ "$ready" = "true" ] && break
+  [ "$i" = 1 ] && echo "waiting for Supabase Auth and Storage to finish their setup..."
+  sleep 2
+done
+[ "$ready" = "true" ] || { echo "auth.users / storage.buckets not created — check: docker compose logs auth storage" >&2; exit 1; }
+
 psql -qc "create schema if not exists crm_meta; create table if not exists crm_meta.applied_migrations (name text primary key, applied_at timestamptz not null default now());"
 for f in "$root"/supabase/migrations/*.sql; do
   name=$(basename "$f")

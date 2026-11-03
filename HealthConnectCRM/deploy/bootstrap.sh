@@ -10,6 +10,10 @@
 #
 # Non-interactive: pre-set the answers as environment variables (see "ask" calls below) and BOOTSTRAP_YES=1.
 set -euo pipefail
+# When piped (curl | bash), bash reads the script from stdin as it goes and any command that reads stdin
+# would swallow the rest of it. Wrapping everything in main() makes bash read the whole file first, and
+# child commands get </dev/null.
+main() {
 
 REPO_URL=${REPO_URL:-https://github.com/i5acheen/ClaudeProjects.git}
 REPO_BRANCH=${REPO_BRANCH:-claude/eager-dijkstra-rlhuad}
@@ -192,3 +196,5 @@ if [ -n "$BACKUP_PRIVATE" ]; then
 
 EOF
 fi
+}
+main "$@" </dev/null

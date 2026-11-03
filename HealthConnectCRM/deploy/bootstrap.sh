@@ -92,11 +92,12 @@ if [ ! -f "$APP/deploy/site.env" ]; then
   ask SENDER_EMAIL "Send login e-mails from (must be allowed by your SMTP account)" "$SMTP_USER"
 
   say "Creating the backup encryption key"
-  KEYFILE=$(mktemp)
-  age-keygen -o "$KEYFILE" 2>/dev/null
-  BACKUP_PUB=$(grep -o 'age1[0-9a-z]*' "$KEYFILE" | head -1)
-  BACKUP_PRIVATE=$(grep '^AGE-SECRET-KEY-' "$KEYFILE")
-  rm -f "$KEYFILE"
+  KEYDIR=$(mktemp -d)   # age-keygen refuses to overwrite, so give it a fresh path
+  age-keygen -o "$KEYDIR/backup.agekey" 2>/dev/null
+  BACKUP_PUB=$(grep -o 'age1[0-9a-z]*' "$KEYDIR/backup.agekey" | head -1)
+  BACKUP_PRIVATE=$(grep '^AGE-SECRET-KEY-' "$KEYDIR/backup.agekey")
+  rm -rf -- "$KEYDIR"
+  [ -n "$BACKUP_PUB" ] && [ -n "$BACKUP_PRIVATE" ] || die "Could not create the backup key"
 
   umask 077
   cat >"$APP/deploy/site.env" <<EOF
